@@ -1,5 +1,7 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
+patch_zm/maps/mp/gametypes_zm/NoKnownErrors/_clientids.gsc
+patch_zm/maps/mp/gametypes_zm/NoKnownErrors/_globalentities.gsc
 patch_zm/maps/mp/gametypes_zm/NoKnownErrors/_scoreboard.gsc
 patch_zm/maps/mp/gametypes_zm/NoKnownErrors/_shellshock.gsc
 patch_zm/maps/mp/gametypes_zm/NoKnownErrors/zclassic.gsc
@@ -7,7 +9,10 @@ patch_zm/maps/mp/zombies/NoKnownErrors/_zm_ai_basic.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_ai_dogs.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_ai_faller.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_bot.gsc
+patch_zm/maps/mp/zombies/NoKnownErrors/_zm_clone.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_equip_hacker.gsc
+patch_zm/maps/mp/zombies/NoKnownErrors/_zm_equip_gasmask.gsc
+patch_zm/maps/mp/zombies/NoKnownErrors/_zm_ffotd.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_boards.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_box.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_doors.gsc
@@ -15,10 +20,12 @@ patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_packapunch.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_perks.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_powerups.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_hackables_wallbuys.gsc
+patch_zm/maps/mp/zombies/NoKnownErrors/_zm_net.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_perk_electric_cherry.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_pers_upgrades.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_pers_upgrades_functions.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_pers_upgrades_system.gsc
+patch_zm/maps/mp/zombies/NoKnownErrors/_zm_server_throttle.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_score.gsc
 patch_zm/maps/mp/zombies/NoKnownErrors/_zm_tombstone.gsc
 ```
@@ -29,6 +36,7 @@ patch_zm/maps/mp/zombies/MinorErorrs/_zm_timer.gsc
 ### The following scripts compile and run successfully with major errors:
 ```
 patch_zm/maps/mp/gametypes_zm/MajorErrors/_zm_gametype.gsc
+patch_zm/maps/mp/zombies/MajorErrors/_zm_chugabud.gsc
 patch_zm/maps/mp/zombies/MajorErrors/_zm_magicbox.gsc
 patch_zm/maps/mp/zombies/MajorErrors/_zm_perks.gsc
 patch_zm/maps/mp/zombies/MajorErrors/_zm_powerups.gsc
