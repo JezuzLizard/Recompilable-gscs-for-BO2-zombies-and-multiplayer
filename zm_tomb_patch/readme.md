@@ -10,3 +10,4 @@ zm_tomb_patch/maps/mp/zombies/NoKnownErrors/_zm_perk_random.gsc
 
 ### The following scripts compile but cause a minidump or other severe error:
 
+### notes:
