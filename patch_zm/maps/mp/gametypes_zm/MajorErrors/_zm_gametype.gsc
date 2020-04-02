@@ -38,6 +38,7 @@ main()
 	maps/mp/gametypes_zm/_weapons::registerkillstreakdelay( level.gametype, 0, 0, 1440 );
 	maps/mp/gametypes_zm/_globallogic::registerfriendlyfiredelay( level.gametype, 15, 0, 1440 );
 	
+
 	//determines many aspects of the game non essential
 	level.takelivesondeath = 1;
 	level.teambased = 1;
@@ -82,7 +83,9 @@ main()
 	//all working non essential
 	map_name = level.script;
 	mode = getDvar( "ui_gametype" );
-	if ( isDefined( mode ) && mode == "" && isDefined( level.default_game_mode ) )
+	
+	//condition was incorrect
+	if ( !isDefined( mode ) || mode == "" && isDefined( level.default_game_mode ) )
 	{
 		mode = level.default_game_mode;
 	}
@@ -118,7 +121,7 @@ main()
 	onplayerconnect_callback( ::onplayerconnect_check_for_hotjoin );
 }
 
-game_objects_allowed( mode, location )
+game_objects_allowed( mode, location ) //checked not sure what to do yet
 {
 	allowed[ 0 ] = mode;
 	entities = getentarray();
@@ -171,7 +174,7 @@ game_objects_allowed( mode, location )
 	}
 }
 
-post_init_gametype()
+post_init_gametype() //checked matches cerberus output
 {
 	if ( isDefined( level.gamemode_map_postinit ) )
 	{
@@ -182,7 +185,7 @@ post_init_gametype()
 	}
 }
 
-post_gametype_main( mode )
+post_gametype_main( mode ) //checked matches cerberus output
 {
 	set_game_var( "ZM_roundWinLimit", get_game_var( "ZM_roundLimit" ) * 0.5 );
 	level.roundlimit = get_game_var( "ZM_roundLimit" );
@@ -195,7 +198,7 @@ post_gametype_main( mode )
 	}
 }
 
-globallogic_setupdefault_zombiecallbacks()
+globallogic_setupdefault_zombiecallbacks() //checked matches cerberus output
 {
 	level.spawnplayer = maps/mp/gametypes_zm/_globallogic_spawn::spawnplayer;
 	level.spawnplayerprediction = maps/mp/gametypes_zm/_globallogic_spawn::spawnplayerprediction;
@@ -250,103 +253,84 @@ globallogic_setupdefault_zombiecallbacks()
 	level.callbackvehicledamage = ::blank;
 }
 
-setup_standard_objects( location )
+setup_standard_objects( location ) //checked partially used cerberus output
 {
-	structs = getstructarray( "game_mode_object" );
-	_a290 = structs;
-	_k290 = getFirstArrayKey( _a290 );
-	while ( isDefined( _k290 ) )
+	structs = getstructarray("game_mode_object");
+	foreach(struct in structs)
 	{
-		struct = _a290[ _k290 ];
-		if ( isDefined( struct.script_noteworthy ) && struct.script_noteworthy != location )
+		if(isdefined(struct.script_noteworthy) && struct.script_noteworthy != location)
 		{
+			//continue;
 		}
-		else
+		if(isdefined(struct.script_string))
 		{
-			if ( isDefined( struct.script_string ) )
+			keep = 0;
+			tokens = strtok( struct.script_string, " " );
+			_a300 = tokens;
+			_k300 = getFirstArrayKey( _a300 );
+			while ( isDefined( _k300 ) )
 			{
-				keep = 0;
-				tokens = strtok( struct.script_string, " " );
-				_a300 = tokens;
-				_k300 = getFirstArrayKey( _a300 );
-				while ( isDefined( _k300 ) )
+				token = _a300[ _k300 ];
+				if(token == level.scr_zm_ui_gametype && token != "zstandard")
 				{
-					token = _a300[ _k300 ];
-					if ( token == level.scr_zm_ui_gametype && token != "zstandard" )
-					{
-						keep = 1;
-					}
-					else
-					{
-						if ( token == "zstandard" )
-						{
-							keep = 1;
-						}
-					}
-					_k300 = getNextArrayKey( _a300, _k300 );
+					keep = 1;
 				}
-				if ( !keep )
+				if(token == "zstandard")
 				{
-					break;
+					keep = 1;
 				}
+				_k300 = getNextArrayKey( _a300, _k300 );
 			}
-			else
+			if ( !keep )
 			{
-				barricade = spawn( "script_model", struct.origin );
-				barricade.angles = struct.angles;
-				barricade setmodel( struct.script_parameters );
+				//break;
 			}
 		}
-		_k290 = getNextArrayKey( _a290, _k290 );
+		barricade = spawn("script_model", struct.origin);
+		barricade.angles = struct.angles;
+		barricade setmodel(struct.script_parameters);
 	}
 	objects = getentarray();
-	_a322 = objects;
-	_k322 = getFirstArrayKey( _a322 );
-	while ( isDefined( _k322 ) )
+	foreach(object in objects)
 	{
-		object = _a322[ _k322 ];
-		if ( !object is_survival_object() )
+		if(!object is_survival_object())
 		{
 		}
-		else
+		else 
 		{
-			if ( isDefined( object.spawnflags ) && object.spawnflags == 1 && object.classname != "trigger_multiple" )
+			if(isdefined(object.spawnflags) && object.spawnflags == 1 && object.classname != "trigger_multiple")
 			{
 				object connectpaths();
 			}
 			object delete();
 		}
-		_k322 = getNextArrayKey( _a322, _k322 );
 	}
-	if ( isDefined( level._classic_setup_func ) )
+	if(isdefined(level._classic_setup_func))
 	{
-		[[ level._classic_setup_func ]]();
+		[[level._classic_setup_func]]();
 	}
 }
 
-is_survival_object()
+
+is_survival_object() //checked changed to cerberus output
 {
-	if ( !isDefined( self.script_parameters ) )
+	if(!isdefined(self.script_parameters))
 	{
 		return 0;
 	}
-	tokens = strtok( self.script_parameters, " " );
+	tokens = strtok(self.script_parameters, " ");
 	remove = 0;
-	_a352 = tokens;
-	_k352 = getFirstArrayKey( _a352 );
-	while ( isDefined( _k352 ) )
+	foreach(token in tokens)
 	{
-		token = _a352[ _k352 ];
-		if ( token == "survival_remove" )
+		if(token == "survival_remove")
 		{
 			remove = 1;
 		}
-		_k352 = getNextArrayKey( _a352, _k352 );
 	}
 	return remove;
 }
 
-game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked partially changed output to cerberus output
 {
 	self.last_damage_from_zombie_or_player = 0;
 	if ( isDefined( eattacker ) )
@@ -375,14 +359,11 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 					return;
 				}
 			}
-			else
+			else if(!isdefined(self.riotshieldentity))
 			{
-				if ( !isDefined( self.riotshieldentity ) )
+				if(!self maps/mp/zombies/_zm::player_shield_facing_attacker(vdir, -0.2) && isdefined(self.player_shield_apply_damage))
 				{
-					if ( !self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, -0.2 ) && isDefined( self.player_shield_apply_damage ) )
-					{
-						return;
-					}
+					return;
 				}
 			}
 		}
@@ -406,7 +387,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	}
 }
 
-do_game_mode_shellshock()
+do_game_mode_shellshock() //checked matched cerberus output
 {
 	self endon( "disconnect" );
 	self._being_shellshocked = 1;
@@ -415,7 +396,7 @@ do_game_mode_shellshock()
 	self._being_shellshocked = 0;
 }
 
-add_map_gamemode( mode, preinit_func, precache_func, main_func )
+add_map_gamemode( mode, preinit_func, precache_func, main_func ) //checked matches cerberus output
 {
 	if ( !isDefined( level.gamemode_map_location_init ) )
 	{
@@ -448,7 +429,7 @@ add_map_gamemode( mode, preinit_func, precache_func, main_func )
 	level.gamemode_map_location_main[ mode ] = [];
 }
 
-add_map_location_gamemode( mode, location, precache_func, main_func )
+add_map_location_gamemode( mode, location, precache_func, main_func ) //checked matches cerberus output
 {
 	if ( !isDefined( level.gamemode_map_location_precache[ mode ] ) )
 	{
@@ -463,7 +444,7 @@ add_map_location_gamemode( mode, location, precache_func, main_func )
 	level.gamemode_map_location_main[ mode ][ location ] = main_func;
 }
 
-rungametypeprecache( gamemode )
+rungametypeprecache( gamemode ) //checked matches cerberus output
 {
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
@@ -497,7 +478,7 @@ rungametypeprecache( gamemode )
 	}
 }
 
-rungametypemain( gamemode, mode_main_func, use_round_logic )
+rungametypemain( gamemode, mode_main_func, use_round_logic ) //checked matches cerberus output
 {
 	if ( !isDefined( level.gamemode_map_location_main ) || !isDefined( level.gamemode_map_location_main[ gamemode ] ) )
 	{
@@ -541,7 +522,7 @@ rungametypemain( gamemode, mode_main_func, use_round_logic )
 }
 
 
-round_logic( mode_logic_func )
+round_logic( mode_logic_func ) //checked matches cerberus output
 {
 	level.skit_vox_override = 1;
 	if ( isDefined( level.flag[ "start_zombie_round_logic" ] ) )
@@ -637,7 +618,7 @@ round_logic( mode_logic_func )
 	level notify( "end_game" );
 }
 
-end_rounds_early( winner )
+end_rounds_early( winner ) //checked matches cerberus output
 {
 	level.forcedend = 1;
 	cur_round = get_gamemode_var( "current_round" );
@@ -653,7 +634,7 @@ end_rounds_early( winner )
 }
 
 
-checkzmroundswitch()
+checkzmroundswitch() //checked matches cerberus output
 {
 	if ( !isDefined( level.zm_roundswitch ) || !level.zm_roundswitch )
 	{
@@ -664,7 +645,7 @@ checkzmroundswitch()
 	return 0;
 }
 
-create_hud_scoreboard( duration, fade )
+create_hud_scoreboard( duration, fade ) //checked matches cerberus output
 {
 	level endon( "end_game" );
 	level thread module_hud_full_screen_overlay();
@@ -675,28 +656,24 @@ create_hud_scoreboard( duration, fade )
 	waittill_any_or_timeout( duration, "clear_hud_elems" );
 }
 
-respawn_spectators_and_freeze_players()
+respawn_spectators_and_freeze_players() //checked changed to match cerberus output
 {
 	players = get_players();
-	_a785 = players;
-	_k785 = getFirstArrayKey( _a785 );
-	while ( isDefined( _k785 ) )
+	foreach(player in players)
 	{
-		player = _a785[ _k785 ];
-		if ( player.sessionstate == "spectator" )
+		if(player.sessionstate == "spectator")
 		{
-			if ( isDefined( player.spectate_hud ) )
+			if(isdefined(player.spectate_hud))
 			{
 				player.spectate_hud destroy();
 			}
-			player [[ level.spawnplayer ]]();
+			player [[level.spawnplayer]]();
 		}
-		player freeze_player_controls( 1 );
-		_k785 = getNextArrayKey( _a785, _k785 );
+		player freeze_player_controls(1);
 	}
 }
 
-module_hud_team_1_score( duration, fade )
+module_hud_team_1_score( duration, fade ) //checked matches cerberus output
 {
 	level._encounters_score_1 = newhudelem();
 	level._encounters_score_1.x = 0;
@@ -720,7 +697,7 @@ module_hud_team_1_score( duration, fade )
 	level._encounters_score_1 destroy();
 }
 
-module_hud_team_2_score( duration, fade )
+module_hud_team_2_score( duration, fade ) //checked matches cerberus output
 {
 	level._encounters_score_2 = newhudelem();
 	level._encounters_score_2.x = 0;
@@ -744,7 +721,7 @@ module_hud_team_2_score( duration, fade )
 	level._encounters_score_2 destroy();
 }
 
-module_hud_round_num( duration, fade )
+module_hud_round_num( duration, fade ) //checked matches cerberus output
 {
 	level._encounters_round_num = newhudelem();
 	level._encounters_round_num.x = 0;
@@ -768,7 +745,7 @@ module_hud_round_num( duration, fade )
 	level._encounters_round_num destroy();
 }
 
-createtimer()
+createtimer() //checked matches cerberus output
 {
 	flag_waitopen( "pregame" );
 	elem = newhudelem();
@@ -798,27 +775,23 @@ createtimer()
 	elem destroy();
 }
 
-revive_laststand_players()
+revive_laststand_players() //checked changed to match cerberus output
 {
 	if ( isDefined( level.match_is_ending ) && level.match_is_ending )
 	{
 		return;
 	}
 	players = get_players();
-	_a917 = players;
-	_k917 = getFirstArrayKey( _a917 );
-	while ( isDefined( _k917 ) )
+	foreach(player in players)
 	{
-		player = _a917[ _k917 ];
-		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if(player maps/mp/zombies/_zm_laststand::player_is_in_laststand())
 		{
-			player thread maps/mp/zombies/_zm_laststand::auto_revive( player );
+			player thread maps/mp/zombies/_zm_laststand::auto_revive(player);
 		}
-		_k917 = getNextArrayKey( _a917, _k917 );
 	}
 }
 
-team_icon_winner( elem )
+team_icon_winner( elem ) //checked matches cerberus output
 {
 	og_x = elem.x;
 	og_y = elem.y;
@@ -833,18 +806,16 @@ team_icon_winner( elem )
 	wait 0.75;
 }
 
-delete_corpses()
+delete_corpses() //checked changed to match cerberus output
 {
 	corpses = getcorpsearray();
-	x = 0;
-	while ( x < corpses.size )
+	for(x = 0; x < corpses.size; x++)
 	{
-		corpses[ x ] delete();
-		x++;
+		corpses[x] delete();
 	}
 }
 
-track_encounters_win_stats( matchwonteam )
+track_encounters_win_stats( matchwonteam ) //checked did not change to match cerberus output
 {
 	players = get_players();
 	i = 0;
@@ -872,12 +843,12 @@ track_encounters_win_stats( matchwonteam )
 	}
 }
 
-non_round_logic( mode_logic_func )
+non_round_logic( mode_logic_func ) //checked matches cerberus output
 {
 	level thread [[ mode_logic_func ]]();
 }
 
-game_end_func()
+game_end_func() //checked matches cerberus output
 {
 	if ( !isDefined( get_gamemode_var( "match_end_notify" ) ) && !isDefined( get_gamemode_var( "match_end_func" ) ) )
 	{
@@ -887,7 +858,7 @@ game_end_func()
 	level thread [[ get_gamemode_var( "match_end_func" ) ]]( winning_team );
 }
 
-setup_classic_gametype()
+setup_classic_gametype() //checked did not change to match cerberus output
 {
 	ents = getentarray();
 	_a1004 = ents;
@@ -953,36 +924,32 @@ setup_classic_gametype()
 	unlink_meat_traversal_nodes();
 }
 
-zclassic_main()
+zclassic_main() //checked matches cerberus output
 {
 	level thread setup_classic_gametype();
 	level thread maps/mp/zombies/_zm::round_start();
 }
 
-unlink_meat_traversal_nodes()
+unlink_meat_traversal_nodes() //checked changed to match cerberus output
 {
 	meat_town_nodes = getnodearray( "meat_town_barrier_traversals", "targetname" );
 	meat_tunnel_nodes = getnodearray( "meat_tunnel_barrier_traversals", "targetname" );
 	meat_farm_nodes = getnodearray( "meat_farm_barrier_traversals", "targetname" );
 	nodes = arraycombine( meat_town_nodes, meat_tunnel_nodes, 1, 0 );
 	traversal_nodes = arraycombine( nodes, meat_farm_nodes, 1, 0 );
-	_a1086 = traversal_nodes;
-	_k1086 = getFirstArrayKey( _a1086 );
-	while ( isDefined( _k1086 ) )
+	foreach(node in traversal_nodes)
 	{
-		node = _a1086[ _k1086 ];
-		end_node = getnode( node.target, "targetname" );
-		unlink_nodes( node, end_node );
-		_k1086 = getNextArrayKey( _a1086, _k1086 );
+		end_node = getnode(node.target, "targetname");
+		unlink_nodes(node, end_node);
 	}
 }
 
-canplayersuicide()
+canplayersuicide() //checked matches cerberus output
 {
 	return self hasperk( "specialty_scavenger" );
 }
 
-onplayerdisconnect()
+onplayerdisconnect() //checked matches cerberus output
 {
 	if ( isDefined( level.game_mode_custom_onplayerdisconnect ) )
 	{
@@ -993,12 +960,12 @@ onplayerdisconnect()
 	level maps/mp/zombies/_zm::checkforalldead( self );
 }
 
-ondeadevent( team )
+ondeadevent( team ) //checked matches cerberus output
 {
 	thread maps/mp/gametypes_zm/_globallogic::endgame( level.zombie_team, "" );
 }
 
-onspawnintermission()
+onspawnintermission() //checked matches cerberus output
 {
 	spawnpointname = "info_intermission";
 	spawnpoints = getentarray( spawnpointname, "classname" );
@@ -1018,11 +985,11 @@ onspawnintermission()
 	}
 }
 
-onspawnspectator( origin, angles )
+onspawnspectator( origin, angles ) //checked matches cerberus output
 {
 }
 
-mayspawn()
+mayspawn() //checked matches cerberus output
 {
 	if ( isDefined( level.custommayspawnlogic ) )
 	{
@@ -1037,7 +1004,7 @@ mayspawn()
 	return 1;
 }
 
-onstartgametype()
+onstartgametype() //checked matches cerberus output
 {
 	setclientnamemode( "auto_change" );
 	level.displayroundendtext = 0;
@@ -1052,7 +1019,7 @@ onstartgametype()
 	}
 }
 
-module_hud_full_screen_overlay()
+module_hud_full_screen_overlay() //checked matches cerberus output
 {
 	fadetoblack = newhudelem();
 	fadetoblack.x = 0;
@@ -1078,14 +1045,14 @@ module_hud_full_screen_overlay()
 	fadetoblack destroy();
 }
 
-create_final_score()
+create_final_score() //checked matches cerberus output
 {
 	level endon( "end_game" );
 	level thread module_hud_team_winer_score();
 	wait 2;
 }
 
-module_hud_team_winer_score()
+module_hud_team_winer_score() //checked did not match cerberus output did not change
 {
 	players = get_players();
 	i = 0;
@@ -1117,7 +1084,7 @@ module_hud_team_winer_score()
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "match_over" );
 }
 
-create_module_hud_team_winer_score()
+create_module_hud_team_winer_score() //checked changed to match cerberus output
 {
 	self._team_winer_score = newclienthudelem( self );
 	self._team_winer_score.x = 0;
@@ -1127,7 +1094,7 @@ create_module_hud_team_winer_score()
 	self._team_winer_score.vertalign = "middle";
 	self._team_winer_score.font = "default";
 	self._team_winer_score.fontscale = 15;
-	self._team_winer_score.color = ( 1, 1, 1 );
+	self._team_winer_score.color = ( 0, 1, 0 );
 	self._team_winer_score.foreground = 1;
 	if ( self._encounters_team == "B" && get_gamemode_var( "team_2_score" ) > get_gamemode_var( "team_1_score" ) )
 	{
@@ -1137,7 +1104,7 @@ create_module_hud_team_winer_score()
 	{
 		if ( self._encounters_team == "B" && get_gamemode_var( "team_2_score" ) < get_gamemode_var( "team_1_score" ) )
 		{
-			self._team_winer_score.color = ( 1, 1, 1 );
+			self._team_winer_score.color = ( 1, 0, 0 );
 			self._team_winer_score settext( &"ZOMBIE_MATCH_LOST" );
 		}
 	}
@@ -1149,7 +1116,7 @@ create_module_hud_team_winer_score()
 	{
 		if ( self._encounters_team == "A" && get_gamemode_var( "team_1_score" ) < get_gamemode_var( "team_2_score" ) )
 		{
-			self._team_winer_score.color = ( 1, 1, 1 );
+			self._team_winer_score.color = ( 1, 0, 0 );
 			self._team_winer_score settext( &"ZOMBIE_MATCH_LOST" );
 		}
 	}
@@ -1164,21 +1131,17 @@ create_module_hud_team_winer_score()
 	self._team_winer_score destroy();
 }
 
-displayroundend( round_winner )
+displayroundend( round_winner ) //checked changed to match cerberus output
 {
 	players = get_players();
-	_a1336 = players;
-	_k1336 = getFirstArrayKey( _a1336 );
-	while ( isDefined( _k1336 ) )
+	foreach(player in players)
 	{
-		player = _a1336[ _k1336 ];
-		player thread module_hud_round_end( round_winner );
-		if ( isDefined( player._team_hud ) && isDefined( player._team_hud[ "team" ] ) )
+		player thread module_hud_round_end(round_winner);
+		if(isdefined(player._team_hud) && isdefined(player._team_hud["team"]))
 		{
-			player thread team_icon_winner( player._team_hud[ "team" ] );
+			player thread team_icon_winner(player._team_hud["team"]);
 		}
-		player freeze_player_controls( 1 );
-		_k1336 = getNextArrayKey( _a1336, _k1336 );
+		player freeze_player_controls(1);
 	}
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_end" );
 	level thread maps/mp/zombies/_zm_audio::zmbvoxcrowdonteam( "clap" );
@@ -1186,7 +1149,7 @@ displayroundend( round_winner )
 	wait 2;
 }
 
-module_hud_round_end( round_winner )
+module_hud_round_end( round_winner ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self._team_winner_round = newclienthudelem( self );
@@ -1201,12 +1164,12 @@ module_hud_round_end( round_winner )
 	self._team_winner_round.foreground = 1;
 	if ( self._encounters_team == round_winner )
 	{
-		self._team_winner_round.color = ( 1, 1, 1 );
+		self._team_winner_round.color = ( 0, 1, 0 );
 		self._team_winner_round settext( "YOU WIN" );
 	}
 	else
 	{
-		self._team_winner_round.color = ( 1, 1, 1 );
+		self._team_winner_round.color = ( 1, 0, 0 );
 		self._team_winner_round settext( "YOU LOSE" );
 	}
 	self._team_winner_round.alpha = 0;
@@ -1220,7 +1183,7 @@ module_hud_round_end( round_winner )
 	self._team_winner_round destroy();
 }
 
-displayroundswitch()
+displayroundswitch() //checked changed to match cerberus output
 {
 	level._round_changing_sides = newhudelem();
 	level._round_changing_sides.x = 0;
@@ -1239,7 +1202,7 @@ displayroundswitch()
 	fadetoblack.horzalign = "fullscreen";
 	fadetoblack.vertalign = "fullscreen";
 	fadetoblack setshader( "black", 640, 480 );
-	fadetoblack.color = ( 1, 1, 1 );
+	fadetoblack.color = ( 0, 0, 0 );
 	fadetoblack.alpha = 1;
 	level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "side_switch" );
 	level._round_changing_sides settext( "CHANGING SIDES" );
@@ -1255,7 +1218,7 @@ displayroundswitch()
 	fadetoblack destroy();
 }
 
-module_hud_create_team_name()
+module_hud_create_team_name() //checked matches cerberus ouput
 {
 	if ( !is_encounter() )
 	{
@@ -1295,7 +1258,7 @@ module_hud_create_team_name()
 	self._team_hud[ "team" ] = elem;
 }
 
-nextzmhud( winner )
+nextzmhud( winner ) //checked matches cerberus output
 {
 	displayroundend( winner );
 	create_hud_scoreboard( 1, 0.25 );
@@ -1305,7 +1268,7 @@ nextzmhud( winner )
 	}
 }
 
-startnextzmround( winner )
+startnextzmround( winner ) //checked matches cerberus output
 {
 	if ( !isonezmround() )
 	{
@@ -1332,7 +1295,7 @@ startnextzmround( winner )
 	return 0;
 }
 
-start_round()
+start_round() //checked matches cerberus output
 {
 	flag_clear( "start_encounters_match_logic" );
 	if ( !isDefined( level._module_round_hud ) )
@@ -1382,7 +1345,7 @@ start_round()
 	level._module_round_hud destroy();
 }
 
-isonezmround()
+isonezmround() //checked matches cerberus output
 {
 	if ( get_game_var( "ZM_roundLimit" ) == 1 )
 	{
@@ -1391,20 +1354,20 @@ isonezmround()
 	return 0;
 }
 
-waslastzmround()
+waslastzmround() //checked changed to match cerberus output
 {
 	if ( isDefined( level.forcedend ) && level.forcedend )
 	{
 		return 1;
 	}
-	if ( !hitzmroundlimit() || hitzmscorelimit() && hitzmroundwinlimit() )
+	if ( hitzmroundlimit() || hitzmscorelimit() || hitzmroundwinlimit() )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-hitzmroundlimit()
+hitzmroundlimit() //checked matches cerberus output
 {
 	if ( get_game_var( "ZM_roundLimit" ) <= 0 )
 	{
@@ -1413,7 +1376,7 @@ hitzmroundlimit()
 	return getzmroundsplayed() >= get_game_var( "ZM_roundLimit" );
 }
 
-hitzmroundwinlimit()
+hitzmroundwinlimit() //checked matches cerberus output
 {
 	if ( !isDefined( get_game_var( "ZM_roundWinLimit" ) ) || get_game_var( "ZM_roundWinLimit" ) <= 0 )
 	{
@@ -1433,7 +1396,7 @@ hitzmroundwinlimit()
 	return 0;
 }
 
-hitzmscorelimit()
+hitzmscorelimit() //checked matches cerberus output
 {
 	if ( get_game_var( "ZM_scoreLimit" ) <= 0 )
 	{
@@ -1449,17 +1412,17 @@ hitzmscorelimit()
 	return 0;
 }
 
-getzmroundsplayed()
+getzmroundsplayed() //checked matches cerberus output
 {
 	return get_gamemode_var( "current_round" );
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	onspawnplayer( 0 );
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerberus output
 {
 	if ( !isDefined( predictedspawn ) )
 	{
@@ -1475,8 +1438,6 @@ onspawnplayer( predictedspawn )
 	}
 	if ( isDefined( level.customspawnlogic ) )
 	{
-
-	
 		spawnpoint = self [[ level.customspawnlogic ]]( predictedspawn );
 		if ( predictedspawn )
 		{
@@ -1491,41 +1452,46 @@ onspawnplayer( predictedspawn )
 	if ( flag( "begin_spawning" ) )
 	{
 		spawnpoint = maps/mp/zombies/_zm::check_for_valid_spawn_near_team( self, 1 );
-
-		
 	}
 	if ( !isDefined( spawnpoint ) )
 	{
 		match_string = "";
 		location = level.scr_zm_map_start_location;
-		if ( location != "default" && location == "" && isDefined( level.default_start_location ) )
+		
+		if ( ( location == "default" || location == "" ) && isDefined( level.default_start_location ) )
 		{
 			location = level.default_start_location;
 		}
-		match_string = ( level.scr_zm_ui_gametype + "_" ) + location;
-		/*
-		spawnPoints = [];
+		match_string = level.scr_zm_ui_gametype + "_" + location;
+
+		spawnpoints = [];
 		structs = getstructarray("initial_spawn", "script_noteworthy");
-		if(IsDefined(structs))
+		if ( isDefined( structs ) )
 		{
-			foreach(struct in structs)			
+			_a1757 = structs;
+			_k1757 = getFirstArrayKey( _a1757 );
+			while ( isDefined( _k1757 ) )
 			{
-				if(IsDefined(struct.script_string) )
+				struct = _a1757[ _k1757 ];
+				if ( isDefined( struct.script_string ) )
 				{
-					
-					tokens = strtok(struct.script_string," ");
-					foreach(token in tokens)
+					tokens = strtok( struct.script_string, " " );
+					_a1763 = tokens;
+					_k1763 = getFirstArrayKey( _a1763 );
+					while ( isDefined( _k1763 ) )
 					{
-						if(token == match_string )
+						token = _a1763[ _k1763 ];
+						if ( token == match_string )
 						{
-							spawnPoints[spawnPoints.size] =	struct;
+							spawnpoints[ spawnpoints.size ] = struct;
+
 						}
+						_k1763 = getNextArrayKey( _a1763, _k1763 );
 					}
 				}
-				
-			}			
+				_k1757 = getNextArrayKey( _a1757, _k1757 );
+			}
 		}
-		*/
 		if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
 		{
 			spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
@@ -1574,15 +1540,15 @@ onspawnplayer( predictedspawn )
 }
 
 
-get_player_spawns_for_gametype()
+get_player_spawns_for_gametype() //fixed checked partially changed to match cerberus output
 {
 	match_string = "";
 	location = level.scr_zm_map_start_location;
-	if ( location != "default" && location == "" && isDefined( level.default_start_location ) )
+	if ( ( location == "default" || location == "" ) && isDefined( level.default_start_location ) )
 	{
 		location = level.default_start_location;
 	}
-	match_string = ( level.scr_zm_ui_gametype + "_" ) + location;
+	match_string = level.scr_zm_ui_gametype + "_" + location;
 	player_spawns = [];
 	structs = getstructarray( "player_respawn_point", "targetname" );
 	_a1869 = structs;
@@ -1611,11 +1577,11 @@ get_player_spawns_for_gametype()
 	return player_spawns;
 }
 
-onendgame( winningteam )
+onendgame( winningteam ) //checked matches cerberus output
 {
 }
 
-onroundendgame( roundwinner )
+onroundendgame( roundwinner ) //checked matches cerberus output
 {
 	if ( game[ "roundswon" ][ "allies" ] == game[ "roundswon" ][ "axis" ] )
 	{
@@ -1632,7 +1598,7 @@ onroundendgame( roundwinner )
 	return winner;
 }
 
-menu_init()
+menu_init() //checked matches cerberus output
 {
 	game[ "menu_team" ] = "team_marinesopfor";
 	game[ "menu_changeclass_allies" ] = "changeclass";
@@ -1674,7 +1640,7 @@ menu_init()
 	level thread menu_onplayerconnect();
 }
 
-menu_onplayerconnect()
+menu_onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -1683,7 +1649,7 @@ menu_onplayerconnect()
 	}
 }
 
-menu_onmenuresponse()
+menu_onmenuresponse() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -1709,7 +1675,7 @@ menu_onmenuresponse()
 			}
 			continue;
 		}
-		else if ( response == "changeteam" && level.allow_teamchange == "1" )
+		if ( response == "changeteam" && level.allow_teamchange == "1" )
 		{
 			self closemenu();
 			self closeingamemenu();
@@ -1722,35 +1688,35 @@ menu_onmenuresponse()
 			self openmenu( game[ "menu_changeclass_allies" ] );
 			continue;
 		}
-		else if ( response == "changeclass_opfor" )
+		if ( response == "changeclass_opfor" )
 		{
 			self closemenu();
 			self closeingamemenu();
 			self openmenu( game[ "menu_changeclass_axis" ] );
 			continue;
 		}
-		else if ( response == "changeclass_wager" )
+		if ( response == "changeclass_wager" )
 		{
 			self closemenu();
 			self closeingamemenu();
 			self openmenu( game[ "menu_changeclass_wager" ] );
 			continue;
 		}
-		else if ( response == "changeclass_custom" )
+		if ( response == "changeclass_custom" )
 		{
 			self closemenu();
 			self closeingamemenu();
 			self openmenu( game[ "menu_changeclass_custom" ] );
 			continue;
 		}
-		else if ( response == "changeclass_barebones" )
+		if ( response == "changeclass_barebones" )
 		{
 			self closemenu();
 			self closeingamemenu();
 			self openmenu( game[ "menu_changeclass_barebones" ] );
 			continue;
 		}
-		else if ( response == "changeclass_marines_splitscreen" )
+		if ( response == "changeclass_marines_splitscreen" )
 		{
 			self openmenu( "changeclass_marines_splitscreen" );
 		}
@@ -1763,7 +1729,7 @@ menu_onmenuresponse()
 			if ( self issplitscreen() )
 			{
 				level.skipvote = 1;
-				if ( isDefined( level.gameended ) && !level.gameended )
+				if ( isDefined( level.gameended ) && level.gameended )
 				{
 					self maps/mp/zombies/_zm_laststand::add_weighted_down();
 					self maps/mp/zombies/_zm_stats::increment_client_stat( "deaths" );
@@ -1776,7 +1742,7 @@ menu_onmenuresponse()
 			}
 			continue;
 		}
-		else if ( response == "restart_level_zm" )
+		if ( response == "restart_level_zm" )
 		{
 			self maps/mp/zombies/_zm_laststand::add_weighted_down();
 			self maps/mp/zombies/_zm_stats::increment_client_stat( "deaths" );
@@ -1789,9 +1755,9 @@ menu_onmenuresponse()
 			level thread maps/mp/gametypes_zm/_globallogic::killserverpc();
 			continue;
 		}
-		else if ( response == "endround" )
+		if ( response == "endround" )
 		{
-			if ( isDefined( level.gameended ) && !level.gameended )
+			if ( isDefined( level.gameended ) && level.gameended )
 			{
 				self maps/mp/gametypes_zm/_globallogic::gamehistoryplayerquit();
 				self maps/mp/zombies/_zm_laststand::add_weighted_down();
@@ -1809,7 +1775,7 @@ menu_onmenuresponse()
 			}
 			continue;
 		}
-		else if ( menu == game[ "menu_team" ] && level.allow_teamchange == "1" )
+		if ( menu == game[ "menu_team" ] && level.allow_teamchange == "1" )
 		{
 			switch( response )
 			{
@@ -1845,7 +1811,7 @@ menu_onmenuresponse()
 }
 
 
-menuallieszombies()
+menuallieszombies() //checked changed to match cerberus output
 {
 	self maps/mp/gametypes_zm/_globallogic_ui::closemenus();
 	if ( !level.console && level.allow_teamchange == "0" && isDefined( self.hasdonecombat ) && self.hasdonecombat )
@@ -1854,7 +1820,7 @@ menuallieszombies()
 	}
 	if ( self.pers[ "team" ] != "allies" )
 	{
-		if ( level.ingraceperiod || !isDefined( self.hasdonecombat ) && !self.hasdonecombat )
+		if ( level.ingraceperiod && !isDefined( self.hasdonecombat ) || !self.hasdonecombat )
 		{
 			self.hasspawned = 0;
 		}
@@ -1865,9 +1831,12 @@ menuallieszombies()
 			self.leaving_team = self.pers[ "team" ];
 			self suicide();
 		}
-		self.pers[ "team" ] = "allies";
+		self.pers["team"] = "allies";
 		self.team = "allies";
+		self.pers["class"] = undefined;
 		self.class = undefined;
+		self.pers["weapon"] = undefined;
+		self.pers["savedmodel"] = undefined;
 		self updateobjectivetext();
 		if ( level.teambased )
 		{
@@ -1886,30 +1855,26 @@ menuallieszombies()
 }
 
 
-custom_spawn_init_func()
+custom_spawn_init_func() //checked matches cerberus output
 {
 	array_thread( level.zombie_spawners, ::add_spawn_function, maps/mp/zombies/_zm_spawner::zombie_spawn_init );
 	array_thread( level.zombie_spawners, ::add_spawn_function, level._zombies_round_spawn_failsafe );
 }
 
-kill_all_zombies()
+kill_all_zombies() //changed to match cerberus output
 {
 	ai = getaiarray( level.zombie_team );
-	_a2225 = ai;
-	_k2225 = getFirstArrayKey( _a2225 );
-	while ( isDefined( _k2225 ) )
+	foreach(zombie in ai)
 	{
-		zombie = _a2225[ _k2225 ];
-		if ( isDefined( zombie ) )
+		if(isdefined(zombie))
 		{
-			zombie dodamage( zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE" );
-			wait 0.05;
+			zombie dodamage(zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE");
+			wait(0.05);
 		}
-		_k2225 = getNextArrayKey( _a2225, _k2225 );
 	}
 }
 
-init()
+init() //checked matches cerberus output
 {
 
 	flag_init( "pregame" );
@@ -1917,7 +1882,7 @@ init()
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -1930,7 +1895,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked partially changed to cerberus output
 {
 	level endon( "end_game" );
 	self endon( "disconnect" );
@@ -1980,7 +1945,7 @@ onplayerspawned()
 		{
 			weapons_restored = self [[ level.onplayerspawned_restore_previous_weapons ]]();
 		}
-		if ( isDefined( weapons_restored ) && !weapons_restored )
+		if ( !isDefined( weapons_restored ) && weapons_restored )
 		{
 			self give_start_weapon( 1 );
 		}
@@ -1997,7 +1962,7 @@ onplayerspawned()
 	}
 }
 
-wait_for_players()
+wait_for_players() //checked matches cerberus output
 {
 	level endon( "end_race" );
 	if ( getDvarInt( "party_playerCount" ) == 1 )
@@ -2026,7 +1991,7 @@ wait_for_players()
 	}
 }
 
-onplayerconnect_check_for_hotjoin()
+onplayerconnect_check_for_hotjoin() //checked matches cerberus output
 {
 /*
 /#
@@ -2044,7 +2009,7 @@ onplayerconnect_check_for_hotjoin()
 	}
 }
 
-hide_gump_loading_for_hotjoiners()
+hide_gump_loading_for_hotjoiners() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.rebuild_barrier_reward = 1;
@@ -2072,5 +2037,8 @@ blank()
 {
 	//empty function
 }
+
+
+
 
 

@@ -10,7 +10,6 @@
 
 init() //checked 100% parity
 {
-	level thread onPlayerConnect(); //this is new code added to define player
 	level._random_zombie_perk_cost = 1500;
 	level thread precache();
 	level thread init_machines();
@@ -28,15 +27,6 @@ init() //checked 100% parity
 	level._effect[ "perk_machine_activation_electric_loop" ] = loadfx( "maps/zombie_tomb/fx_tomb_dieselmagic_on" );
 	flag_init( "machine_can_reset" );
 
-}
-
-onPlayerConnect()
-{
-    for(;;)
-    {
-        level waittill("connected", player);
-        level.players_wunderfizz = player;
-    }
 }
 
 init_machines()
@@ -306,7 +296,6 @@ conditional_power_indicators() //checked 100% parity
 	}
 }
 
-
 wunderfizz_unitrigger_think( player ) //checked 100% parity
 {
 	self endon( "kill_trigger" );
@@ -314,6 +303,7 @@ wunderfizz_unitrigger_think( player ) //checked 100% parity
 	{
 		self waittill( "trigger", player );
 		self.stub.trigger_target notify( "trigger" );
+		level.players_wunderfizz = player; //better way to define player
 	}
 }
 
@@ -338,8 +328,6 @@ machine_think() //checked 80% parity
 	{
 		self waittill("trigger", level.players_wunderfizz);
 		flag_clear("machine_can_reset");
-		//level notify("pmmove");
-		//broken
 		player = level.players_wunderfizz;
 		if(player.score < level._random_zombie_perk_cost)
 		{
@@ -347,7 +335,6 @@ machine_think() //checked 80% parity
 			player maps/mp/zombies/_zm_audio::create_and_play_dialog("general", "perk_deny", undefined, 0);
 			continue;
 		}
-		//working
 		if(self.num_time_used >= self.num_til_moved)
 		{
 			level notify("pmmove");
@@ -359,13 +346,11 @@ machine_think() //checked 80% parity
 			self hidepart("j_ball");
 			return;
 		}
-		//working
 		self.machine_user = player;
 		self.num_time_used++;
 		player maps/mp/zombies/_zm_stats::increment_client_stat("use_perk_random");
 		player maps/mp/zombies/_zm_stats::increment_player_stat("use_perk_random");
 		
-		//broken
 		player maps/mp/zombies/_zm_score::minus_to_player_score(level._random_zombie_perk_cost);
 		
 		
@@ -377,10 +362,8 @@ machine_think() //checked 80% parity
 
 		while(1)
 		{
-			//working
 			thread maps/mp/zombies/_zm_unitrigger::unregister_unitrigger(self.unitrigger_stub);
 			
-			//broken
 			random_perk = get_weighted_random_perk(player);
 			
 			self setclientfield("perk_bottle_cycle_state", 1);
@@ -415,7 +398,7 @@ machine_think() //checked 80% parity
 			}
 			self.grab_perk_hint = 1;
 			thread maps/mp/zombies/_zm_unitrigger::register_static_unitrigger(self.unitrigger_stub, ::wunderfizz_unitrigger_think);
-			//broken
+
 			self thread grab_check(player, random_perk);
 			
 			self thread time_out_check();
@@ -484,7 +467,6 @@ grab_check( player, random_perk ) //checked 100% parity
 		player do_player_general_vox("wunderfizz", "perk_wonder", undefined, 100);
 		player.has_drunk_wunderfizz = 1;
 	}
-	
 }
 
 monitor_when_player_acquires_perk() //checked 100% parity
@@ -695,6 +677,8 @@ machine_sounds() //checked 100% parity
 		rndprk_ent delete();
 	}
 }
+
+
 
 
 
