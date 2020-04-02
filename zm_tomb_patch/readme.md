@@ -1,6 +1,6 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
-zm_tomb_patch/maps/mp/zombies/NoKnownErrors/_zm_perk_random.gsc
+zm_tomb_patch/maps/mp/zombies/_zm_perk_random.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 

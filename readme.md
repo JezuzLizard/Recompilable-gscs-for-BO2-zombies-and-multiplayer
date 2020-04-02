@@ -21,5 +21,4 @@ Scripts that cause this error will run serverside but clients cannot join due to
 **Severe Errors**: Minidump, hang on map_rotate, crash, or other error that prevents the server from starting up is in this category.
 This type of error can be caused by many different things
 
-Each script will be sorted by its location e.g. patch_zm/maps/mp/zombies and then sorted by error type so it would look like this:
-patch_zm/maps/mp/zombies/MinorErrors/_zm_timer.gsc
+Each script will be sorted by its location e.g. patch_zm/maps/mp/zombies check the markdown in each folder to see the current status of a script

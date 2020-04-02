@@ -1,3 +1,13 @@
+/*
+*	 Black Ops 2 - GSC Studio by iMCSx
+*
+*	 Creator : JezuzLizard
+*	 Project : _zm_ai_dogs
+*    Mode : Zombies
+*	 Date : 2020/03/22 - 12:33:00	
+*
+*/	
+
 #include maps/mp/zombies/_zm_net;
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/zombies/_zm_score;
@@ -708,6 +718,7 @@ dog_run_think()
 		self.maxhealth = level.dog_health;
 		self.health = level.dog_health;
 	}
+	maps/mp/zombies/_zm_net::network_safe_play_fx_on_tag("dog_fx", 2, level._effect["dog_eye_glow"], self.fx_dog_eye, "tag_origin");
 	maps/mp/zombies/_zm_net::network_safe_play_fx_on_tag( "dog_fx", 2, self.fx_dog_trail_type, self.fx_dog_trail, "tag_origin" );
 	self playloopsound( self.fx_dog_trail_sound );
 	while ( 1 )
@@ -738,5 +749,6 @@ dog_thundergun_knockdown( player, gib )
 	damage = int( self.maxhealth * 0.5 );
 	self dodamage( damage, player.origin, player );
 }
+
 
 
