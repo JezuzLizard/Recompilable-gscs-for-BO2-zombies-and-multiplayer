@@ -22,3 +22,22 @@ Scripts that cause this error will run serverside but clients cannot join due to
 This type of error can be caused by many different things
 
 Each script will be sorted by its location e.g. patch_zm/maps/mp/zombies check the markdown in each folder to see the current status of a script
+
+### Resources:
+
+If you would like to contribute to this project first check out these resources that will help you in debugging decompiled scripts:
+
+https://github.com/Scobalula/Cerberus-Repo:
+This is a decompiler that can decompile bo2 compiled scripts
+
+https://drive.google.com/drive/folders/1Nwv3uGFwpopIMMXDVcZdG0iq2vQAVHc-?usp=sharing
+This includes:
+Bo2 Dvars list
+FastFile extractor so you can extract .gscs for the cerberus decompiler to decompile
+Bo3 decompiled scripts
+Bo2 zombies decompiled scripts
+Bo1 full dump
+An older Bo2 gsc dump from its initial release has comments from developers
+GSC studio which has a built in compiler for bo2 scripting
+
+
