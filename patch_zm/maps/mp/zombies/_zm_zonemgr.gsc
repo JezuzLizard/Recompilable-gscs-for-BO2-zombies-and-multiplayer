@@ -6,6 +6,7 @@
 
 init() //checked matches cerberus output
 {
+	//thread gsc_restart(); //new addition to test map_restart
 	flag_init( "zones_initialized" );
 	level.zones = [];
 	level.zone_flags = [];
@@ -18,7 +19,7 @@ init() //checked matches cerberus output
 
 zone_is_enabled( zone_name ) //checked matches cerberus output
 {
-	if ( isDefined( level.zones ) || !isDefined( level.zones[ zone_name ] ) || !level.zones[ zone_name ].is_enabled )
+	if ( !isDefined( level.zones ) || !isDefined( level.zones[ zone_name ] ) || !level.zones[ zone_name ].is_enabled )
 	{
 		return 0;
 	}
@@ -28,12 +29,12 @@ zone_is_enabled( zone_name ) //checked matches cerberus output
 get_player_zone() //checked changed to match cerberus output
 {
 	player_zone = undefined;
-	keys = getarraykeys(level.zones);
-	for(i = 0; i < keys.size; i++)
+	keys = getarraykeys( level.zones );
+	for ( i = 0; i < keys.size; i++ )
 	{
-		if(self entity_in_zone(keys[i]))
+		if ( self entity_in_zone( keys[ i ] ) )
 		{
-			player_zone = keys[i];
+			player_zone = keys[ i ];
 			break;
 		}
 	}
@@ -107,17 +108,17 @@ get_players_in_zone( zone_name, return_players ) //checked changed to match cerb
 
 player_in_zone( zone_name ) //checked changed to match cerberus output
 {
-	if(!zone_is_enabled(zone_name))
+	if ( !zone_is_enabled( zone_name ) )
 	{
 		return 0;
 	}
-	zone = level.zones[zone_name];
-	for(i = 0; i < zone.volumes.size; i++)
+	zone = level.zones[ zone_name ];
+	for ( i = 0; i < zone.volumes.size; i++ )
 	{
 		players = get_players();
-		for(j = 0; j < players.size; j++)
+		for ( j = 0; j < players.size; j++ )
 		{
-			if(players[j] istouching(zone.volumes[i]) && !players[j].sessionstate == "spectator")
+			if ( players[ j ] istouching( zone.volumes[ i ]) && !players[ j ] .sessionstate == "spectator" )
 			{
 				return 1;
 			}
@@ -146,12 +147,12 @@ entity_in_zone( zone_name, ignore_enabled_check ) //checked changed to match cer
 deactivate_initial_barrier_goals() //checked changed to match cerberus output
 {
 	special_goals = getstructarray( "exterior_goal", "targetname" );
-	for(i = 0; i < special_goals.size; i++)
+	for ( i = 0; i < special_goals.size; i++ )
 	{
-		if(isdefined(special_goals[i].script_noteworthy))
+		if ( isdefined( special_goals[ i ].script_noteworthy ) )
 		{
-			special_goals[i].is_active = 0;
-			special_goals[i] trigger_off();
+			special_goals[ i ].is_active = 0;
+			special_goals[ i ] trigger_off();
 		}
 	}
 }
@@ -164,22 +165,33 @@ zone_init( zone_name ) //checked changed to match cerberus output
 	}
 	level.zones[ zone_name ] = spawnstruct();
 	zone = level.zones[ zone_name ];
-	zone.is_enabled = 0;
-	zone.is_occupied = 0;
-	zone.is_active = 0;
+	zone.is_enabled = 1; //has to be one otherwise most maps won't accept connections
+	zone.is_occupied = 0; //normally 0
+	zone.is_active = 0; //normally 0
 	zone.adjacent_zones = [];
-	zone.is_spawning_allowed = 0;
+	zone.is_spawning_allowed = 0; //normally 0;
+	
+	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
+	for( i = 0; i < spawn_points.size; i++ )
+	{
+		if ( spawn_points[ i ].script_noteworthy == zone_name )
+		{
+			spawn_points[ i ].locked = 0;
+		}
+	}
+	
+	
 	zone.volumes = [];
 	volumes = getentarray( zone_name, "targetname" );
 	i = 0;
-	for(i = 0; i < volumes.size; i++)
+	for ( i = 0; i < volumes.size; i++ )
 	{
-		if(volumes[i].classname == "info_volume")
+		if ( volumes[ i ].classname == "info_volume" )
 		{
-			zone.volumes[zone.volumes.size] = volumes[i];
+			zone.volumes[ zone.volumes.size ] = volumes[ i ];
 		}
 	}
-	if( isdefined( zone.volumes[ 0 ].target ) )
+	if ( isdefined( zone.volumes[ 0 ].target ) )
 	{
 		spots = getstructarray( zone.volumes[ 0 ].target, "targetname" );
 		zone.spawn_locations = [];
@@ -197,113 +209,117 @@ zone_init( zone_name ) //checked changed to match cerberus output
 		zone.magic_boxes = [];
 		barricades = getstructarray( "exterior_goal", "targetname" );
 		box_locs = getstructarray( "treasure_chest_use", "targetname" );
-		for(i = 0; i < spots.size; i++)
+		for (i = 0; i < spots.size; i++)
 		{
-			spots[i].zone_name = zone_name;
-			if(isdefined(spots[i].is_blocked ) && !spots[i].is_blocked)
+			spots[ i ].zone_name = zone_name;
+			if ( isDefined( spots[ i ].is_blocked ) && !spots[ i ].is_blocked || !isDefined( spots[ i ].is_blocked ) ) //spots[ i ].isblocked is not defined
 			{
-				spots[i].is_enabled = 1;
+				spots[ i ].is_enabled = 1;
 			}
 			else
 			{
-				spots[i].is_enabled = 0;
+				spots[ i ].is_enabled = 0;
 			}
-			tokens = strtok(spots[i].script_noteworthy, " ");
-			foreach(token in tokens)
+			tokens = strtok( spots[ i ].script_noteworthy, " " );
+			foreach ( token in tokens )
 			{
-				if(token == "dog_location")
+				if ( token == "dog_location" )
 				{
-					zone.dog_locations[zone.dog_locations.size] = spots[i];
+					zone.dog_locations[ zone.dog_locations.size ] = spots[ i ];
 				}
-				if(token == "screecher_location")
+				else if ( token == "screecher_location" )
 				{
-					zone.screecher_locations[zone.screecher_locations.size] = spots[i];
+					zone.screecher_locations[ zone.screecher_locations.size ] = spots[ i ];
 				}
-				if(token == "avogadro_location")
+				else if ( token == "avogadro_location" )
 				{
-					zone.avogadro_locations[zone.avogadro_locations.size] = spots[i];
+					zone.avogadro_locations[ zone.avogadro_locations.size ] = spots[ i] ;
 				}
-				if(token == "inert_location")
+				else if ( token == "inert_location" )
 				{
-					zone.inert_locations[zone.inert_locations.size] = spots[i];
+					zone.inert_locations[ zone.inert_locations.size ] = spots[ i ];
 				}
-				if(token == "quad_location")
+				else if ( token == "quad_location" )
 				{
-					zone.quad_locations[zone.quad_locations.size] = spots[i];
+					zone.quad_locations[ zone.quad_locations.size ] = spots[ i ];
 				}
-				if(token == "leaper_location")
+				else if ( token == "leaper_location" )
 				{
-					zone.leaper_locations[zone.leaper_locations.size] = spots[i];
+					zone.leaper_locations[ zone.leaper_locations.size ] = spots[ i ];
 				}
-				if(token == "brutus_location")
+				else if ( token == "brutus_location" )
 				{
-					zone.brutus_locations[zone.brutus_locations.size] = spots[i];
+					zone.brutus_locations[ zone.brutus_locations.size ] = spots[ i ];
 				}
-				if(token == "mechz_location")
+				else if ( token == "mechz_location" )
 				{
-					zone.mechz_locations[zone.mechz_locations.size] = spots[i];
+					zone.mechz_locations[ zone.mechz_locations.size ] = spots[ i ];
 				}
-				if(token == "astro_location")
+				else if ( token == "astro_location" )
 				{
-					zone.astro_locations[zone.astro_locations.size] = spots[i];
+					zone.astro_locations[ zone.astro_locations.size ] = spots[ i ];
 				}
-				if(token == "napalm_location")
+				else if ( token == "napalm_location" )
 				{
-					zone.napalm_locations[zone.napalm_locations.size] = spots[i];
+					zone.napalm_locations[ zone.napalm_locations.size ] = spots[ i ];
 				}
-				zone.spawn_locations[zone.spawn_locations.size] = spots[i];
+				else
+				{
+					zone.spawn_locations[ zone.spawn_locations.size ] = spots[ i ];
+				}
 			}
-			if(isdefined(spots[i].script_string))
+			if ( isdefined( spots[ i ].script_string ) )
 			{
-				barricade_id = spots[i].script_string;
-				for(k = 0; k < barricades.size; k++)
+				barricade_id = spots[ i ].script_string;
+				for ( k = 0; k < barricades.size; k++ )
 				{
-					if(isdefined(barricades[k].script_string) && barricades[k].script_string == barricade_id)
+					if ( isdefined( barricades[ k ].script_string ) && barricades[ k ].script_string == barricade_id )
 					{
-						nodes = getnodearray(barricades[k].target, "targetname");
-						for(j = 0; j < nodes.size; j++)
+						nodes = getnodearray( barricades[ k ].target, "targetname" );
+						for ( j = 0; j < nodes.size; j++ )
 						{
-							if(isdefined(nodes[j].type) && nodes[j].type == "Begin")
+							if ( isdefined( nodes[ j ].type ) && nodes[ j ].type == "Begin" )
 							{
-								spots[i].target = nodes[j].targetname;
+								spots[ i ].target = nodes[ j ].targetname;
 							}
 						}
 					}
 				}
 			}
 		}
-		for(i = 0; i < barricades.size; i++)
+		for ( i = 0; i < barricades.size; i++ )
 		{
-			targets = getentarray(barricades[i].target, "targetname");
-			for(j = 0; j < targets.size; j++)
+			targets = getentarray( barricades[ i ].target, "targetname" );
+			for ( j = 0; j < targets.size; j++ )
 			{
-				if(targets[j] iszbarrier() && isdefined(targets[j].script_string) && targets[j].script_string == zone_name)
+				if ( targets[ j ] iszbarrier() && isdefined( targets[ j ].script_string ) && targets[ j ].script_string == zone_name )
 				{
-					zone.zbarriers[zone.zbarriers.size] = targets[j];
+					zone.zbarriers[ zone.zbarriers.size ] = targets[ j ];
 				}
 			}
 		}
-		for(i = 0; i < box_locs.size; i++)
+		for ( i = 0; i < box_locs.size; i++ )
 		{
-			chest_ent = getent(box_locs[i].script_noteworthy + "_zbarrier", "script_noteworthy");
-			if(chest_ent entity_in_zone(zone_name, 1))
+			chest_ent = getent( box_locs[ i ].script_noteworthy + "_zbarrier", "script_noteworthy" );
+			if ( chest_ent entity_in_zone( zone_name, 1 ) )
 			{
-				zone.magic_boxes[zone.magic_boxes.size] = box_locs[i];
+				zone.magic_boxes[zone.magic_boxes.size] = box_locs[ i ];
 			}
 		}
 	}
 }
 
-
+//unused code
+/*
 reinit_zone_spawners() //checked changed to match cerberus output
 {
-	zkeys = getarraykeys(level.zones);
-	for(i = 0; i < level.zones.size; i++)
+	zkeys = getarraykeys( level.zones );
+	for( i = 0; i < level.zones.size; i++ )
 	{
 		zone = level.zones[ zkeys[ i ] ];
-		if(isdefined(zone.volumes[0].target))
+		if ( isdefined( zone.volumes[ 0 ].target ) )
 		{
-			spots = getstructarray(zone.volumes[0].target, "targetname");
+			spots = getstructarray( zone.volumes[ 0 ].target, "targetname" );
 			zone.spawn_locations = [];
 			zone.dog_locations = [];
 			zone.screecher_locations = [];
@@ -314,86 +330,92 @@ reinit_zone_spawners() //checked changed to match cerberus output
 			zone.mechz_locations = [];
 			zone.astro_locations = [];
 			zone.napalm_locations = [];
-			for(j = 0; j < spots.size; j++)
+			for ( j = 0; j < spots.size; j++ )
 			{
 				spots[ j ].zone_name = zkeys[ j ];
-				if(isdefined(spots[ j ].is_blocked ) && !spots[j].is_blocked)
+				if ( isdefined( spots[ j ].is_blocked ) && !spots[ j ].is_blocked )
 				{
-					spots[j].is_enabled = 1;
+					spots[ j ].is_enabled = 1;
 				}
 				else
 				{
-					spots[j].is_enabled = 0;
+					spots[ j ].is_enabled = 0;
 				}
-				tokens = strtok(spots[j].script_noteworthy, " ");
-				foreach(token in tokens)
+				tokens = strtok( spots[ j ].script_noteworthy, " " );
+				foreach ( token in tokens )
 				{
-					if(token == "dog_location")
+					if ( token == "dog_location" )
 					{
-						zone.dog_locations[zone.dog_locations.size] = spots[j];
+						zone.dog_locations[ zone.dog_locations.size ] = spots[ j ];
 					}
-					if(token == "screecher_location")
+					else if ( token == "screecher_location" )
 					{
-						zone.screecher_locations[zone.screecher_locations.size] = spots[j];
+						zone.screecher_locations[ zone.screecher_locations.size ] = spots[ j ];
 					}
-					if(token == "avogadro_location")
+					else if ( token == "avogadro_location" )
 					{
-						zone.avogadro_locations[zone.avogadro_locations.size] = spots[j];
+						zone.avogadro_locations[ zone.avogadro_locations.size ] = spots[ j ];
 					}
-					if(token == "quad_location")
+					else if ( token == "quad_location" )
 					{
-						zone.quad_locations[zone.quad_locations.size] = spots[j];
+						zone.quad_locations[ zone.quad_locations.size ] = spots[ j ];
 					}
-					if(token == "leaper_location")
+					else if ( token == "leaper_location" )
 					{
-						zone.leaper_locations[zone.leaper_locations.size] = spots[j];
+						zone.leaper_locations[ zone.leaper_locations.size ] = spots[ j ];
 					}
-					if(token == "brutus_location")
+					else if ( token == "brutus_location" )
 					{
-						zone.brutus_locations[zone.brutus_locations.size] = spots[j];
+						zone.brutus_locations[ zone.brutus_locations.size ] = spots[ j ];
 					}
-					if(token == "mechz_location")
+					else if ( token == "mechz_location" )
 					{
-						zone.mechz_locations[zone.mechz_locations.size] = spots[j];
+						zone.mechz_locations[ zone.mechz_locations.size ] = spots[ j ];
 					}
-					if(token == "astro_location")
+					else if ( token == "astro_location" )
 					{
-						zone.astro_locations[zone.astro_locations.size] = spots[j];
+						zone.astro_locations[ zone.astro_locations.size ] = spots[ j ];
 					}
-					if(token == "napalm_location")
+					else if ( token == "napalm_location" )
 					{
-						zone.napalm_locations[zone.napalm_locations.size] = spots[j];
+						zone.napalm_locations[ zone.napalm_locations.size ] = spots[ j ];
 					}
-					zone.spawn_locations[zone.spawn_locations.size] = spots[j];
+					else
+					{
+						zone.spawn_locations[ zone.spawn_locations.size ] = spots[ j ];
+					}
 				}
 			}
 		}
 	}
 }
-
+*/
 
 enable_zone( zone_name ) //checked changed to match cerberus output
 {
-	if(level.zones[zone_name].is_enabled)
+	//enable the zone even if its already enabled to get around the fact that zone_init() has to enable zones
+	/*
+	if ( level.zones[ zone_name ].is_enabled )
 	{
-		return;
+		return; 
 	}
-	level.zones[zone_name].is_enabled = 1;
+	*/
+	level.zones[ zone_name ].is_enabled = 1;
 	level.zones[zone_name].is_spawning_allowed = 1;
-	level notify(zone_name);
+	level notify( zone_name );
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
-	for(i = 0; i < spawn_points.size; i++)
+	for( i = 0; i < spawn_points.size; i++ )
 	{
-		if(spawn_points[i].script_noteworthy == zone_name)
+		if ( spawn_points[ i ].script_noteworthy == zone_name )
 		{
-			spawn_points[i].locked = 0;
+			spawn_points[ i ].locked = 0;
 		}
 	}
-	entry_points = getstructarray(zone_name + "_barriers", "script_noteworthy");
-	for(i = 0; i < entry_points.size; i++)
+	entry_points = getstructarray( zone_name + "_barriers", "script_noteworthy" );
+	for( i = 0; i < entry_points.size; i++ )
 	{
-		entry_points[i].is_active = 1;
-		entry_points[i] trigger_on();
+		entry_points[ i ].is_active = 1;
+		entry_points[ i ] trigger_on();
 	}
 }
 
@@ -467,50 +489,50 @@ add_adjacent_zone( zone_name_a, zone_name_b, flag_name, one_way ) //checked matc
 setup_zone_flag_waits() //checked changed to match cerberus output
 {
 	flags = [];
-	zkeys = getarraykeys(level.zones);
-	for(z = 0; z < level.zones.size; z++)
+	zkeys = getarraykeys( level.zones );
+	for ( z = 0; z < level.zones.size; z++ )
 	{
 		zone = level.zones[ zkeys[ z ] ];
-		azkeys = getarraykeys(zone.adjacent_zones);
-		for(az = 0; az < zone.adjacent_zones.size; az++)
+		azkeys = getarraykeys( zone.adjacent_zones );
+		for ( az = 0; az < zone.adjacent_zones.size; az++ )
 		{
 			azone = zone.adjacent_zones[ azkeys[ az ] ];
-			for(f = 0; f < azone.flags.size; f++)
+			for ( f = 0; f < azone.flags.size; f++ )
 			{
-				flags = add_to_array(flags, azone.flags[f], 0);
+				flags = add_to_array( flags, azone.flags[ f ], 0);
 			}
 		}
 	}
-	for(i = 0; i < flags.size; i++)
+	for ( i = 0; i < flags.size; i++ )
 	{
-		level thread zone_flag_wait(flags[i]);
+		level thread zone_flag_wait( flags[ i ] );
 	}
 }
 
 zone_flag_wait( flag_name )
 {
-	if(!isdefined(level.flag[flag_name]))
+	if ( !isdefined( level.flag[ flag_name ] ) )
 	{
-		flag_init(flag_name);
+		flag_init( flag_name );
 	}
-	flag_wait(flag_name);
+	flag_wait( flag_name );
 	flags_set = 0;
-	for(z = 0; z < level.zones.size; z++)
+	for ( z = 0; z < level.zones.size; z++ )
 	{
-		zkeys = getarraykeys(level.zones);
+		zkeys = getarraykeys( level.zones );
 		zone = level.zones[ zkeys[ z ] ];
-		for(az = 0; az < zone.adjacent_zones.size; az++)
+		for ( az = 0; az < zone.adjacent_zones.size; az++ )
 		{
-			azkeys = getarraykeys(zone.adjacent_zones);
+			azkeys = getarraykeys( zone.adjacent_zones );
 			azone = zone.adjacent_zones[ azkeys[ az ] ];
-			if(!azone.is_connected)
+			if ( !azone.is_connected )
 			{
-				if(azone.flags_do_or_check)
+				if ( azone.flags_do_or_check )
 				{
 					flags_set = 0;
-					for(f = 0; f < azone.flags.size; f++)
+					for ( f = 0; f < azone.flags.size; f++ )
 					{
-						if(flag(azone.flags[f]))
+						if ( flag( azone.flags[ f ] ) )
 						{
 							flags_set = 1;
 							break;
@@ -519,29 +541,30 @@ zone_flag_wait( flag_name )
 					//break;
 				}
 				flags_set = 1;
-				for(f = 0; f < azone.flags.size; f++)
+				for ( f = 0; f < azone.flags.size; f++ )
 				{
-					if(!flag(azone.flags[f]))
+					if ( !flag(azone.flags[ f ] ) )
 					{
 						flags_set = 0;
 					}
 				}
-				if(flags_set)
+				if ( flags_set )
 				{
-					enable_zone( zkeys[ z ] );
+					enable_zone( zkeys[ z ] ); //essential priority over manage_zones //was disabled
 					azone.is_connected = 1;
-					if(!level.zones[ azkeys[ az ] ].is_enabled)
+					if ( !level.zones[ azkeys[ az ] ].is_enabled )
 					{
-						enable_zone(azkeys[az]);
+						enable_zone( azkeys[ az ] ); //essential priority over manage_zones //was disabled
 					}
-					if(flag("door_can_close"))
+					if ( flag( "door_can_close" ) )
 					{
-						azone thread door_close_disconnect(flag_name);
+						azone thread door_close_disconnect( flag_name );
 					}
 				}
 			}
 		}
 	}
+	return;
 	keys = getarraykeys(level.zone_flags);
 	for(i = 0; i < keys.size; i++)
 	{
@@ -575,8 +598,8 @@ connect_zones( zone_name_a, zone_name_b, one_way ) //checked matches cerberus ou
 	}
 	zone_init( zone_name_a );
 	zone_init( zone_name_b );
-	enable_zone( zone_name_a );
-	enable_zone( zone_name_b );
+	enable_zone( zone_name_a ); //was disabled
+	enable_zone( zone_name_b ); //was disabled
 	if ( !isDefined( level.zones[ zone_name_a ].adjacent_zones[ zone_name_b ] ) )
 	{
 		level.zones[ zone_name_a ].adjacent_zones[ zone_name_b ] = spawnstruct();
@@ -598,43 +621,47 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 	deactivate_initial_barrier_goals();
 	zone_choke = 0;
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
-	for(i = 0; i < spawn_points.size; i++)
+	for ( i = 0; i < spawn_points.size; i++ )
 	{
-		spawn_points[i].locked = 1;
+		spawn_points[ i ].locked = 1;
 	}
 	if ( isDefined( level.zone_manager_init_func ) )
 	{
 		[[ level.zone_manager_init_func ]]();
 	}
 
-	if(isarray(initial_zone))
+	if ( isarray( initial_zone ) )
 	{
-		for(i = 0; i < initial_zone.size; i++)
+		for ( i = 0; i < initial_zone.size; i++ )
 		{
-			zone_init(initial_zone[i]);
-			enable_zone(initial_zone[i]);
+			zone_init( initial_zone[ i ] );
+			enable_zone( initial_zone[ i ] ); //was disabled
 		}
 	}
 	else
 	{
-		zone_init(initial_zone);
-		enable_zone(initial_zone);
+		zone_init( initial_zone );
+		enable_zone( initial_zone ); //was disabled
 	}
 	setup_zone_flag_waits();
 	zkeys = getarraykeys( level.zones );
 	level.zone_keys = zkeys;
 	level.newzones = [];
-	for(z = 0; z < zkeys.size; z++)
+	for ( z = 0; z < zkeys.size; z++ )
 	{
 		level.newzones[ zkeys[ z ] ] = spawnstruct();
 	}
 	oldzone = undefined;
 	flag_set( "zones_initialized" );
 	flag_wait( "begin_spawning" );
-
 	while ( getDvarInt( "noclip" ) == 0 || getDvarInt( "notarget" ) != 0 )
 	{
-		for(z = 0; z < zkeys.size; z++)
+		
+		players = get_players();
+		zone = players[ 0 ] get_current_zone();
+		players[ 0 ] iprintln( zone );
+		
+		for( z = 0; z < zkeys.size; z++ )
 		{
 			level.newzones[ zkeys[ z ] ].is_active = 0;
 			level.newzones[ zkeys[ z ] ].is_occupied = 0;
@@ -642,15 +669,15 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 		a_zone_is_active = 0;
 		a_zone_is_spawning_allowed = 0;
 		level.zone_scanning_active = 1;
-		for(z = 0; z < zkeys.size; z++)
+		for ( z = 0; z < zkeys.size; z++ )
 		{
 			zone = level.zones[ zkeys[ z ] ];
 			newzone = level.newzones[ zkeys[ z ] ];
-			if(!zone.is_enabled)
+			if( !zone.is_enabled )
 			{
 				continue;
 			}
-			if(isdefined(level.zone_occupied_func))
+			if ( isdefined(level.zone_occupied_func ) )
 			{
 				newzone.is_occupied = [[ level.zone_occupied_func ]]( zkeys[ z ] );
 			}
@@ -658,26 +685,26 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 			{
 				newzone.is_occupied = player_in_zone( zkeys[ z ] );
 			}
-			if(newzone.is_occupied)
+			if ( newzone.is_occupied )
 			{
 				newzone.is_active = 1;
 				a_zone_is_active = 1;
-				if(zone.is_spawning_allowed)
+				if ( zone.is_spawning_allowed )
 				{
 					a_zone_is_spawning_allowed = 1;
 				}
-				if(!isdefined(oldzone) || oldzone != newzone)
+				if ( !isdefined(oldzone) || oldzone != newzone )
 				{
-					level notify("newzoneActive", zkeys[ z ]);
+					level notify( "newzoneActive", zkeys[ z ] );
 					oldzone = newzone;
 				}
-				azkeys = getarraykeys(zone.adjacent_zones);
-				for(az = 0; az < zone.adjacent_zones.size; az++)
+				azkeys = getarraykeys( zone.adjacent_zones );
+				for ( az = 0; az < zone.adjacent_zones.size; az++ )
 				{
-					if(zone.adjacent_zones[ azkeys[ az ] ].is_connected && level.zones[ azkeys[ az ] ].is_enabled)
+					if ( zone.adjacent_zones[ azkeys[ az ] ].is_connected && level.zones[ azkeys[ az ] ].is_enabled )
 					{
 						level.newzones[ azkeys[ az ] ].is_active = 1;
-						if(level.zones[ azkeys[ az ] ].is_spawning_allowed)
+						if ( level.zones[ azkeys[ az ] ].is_spawning_allowed )
 						{
 							a_zone_is_spawning_allowed = 1;
 						}
@@ -685,21 +712,21 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 				}
 			}
 			zone_choke++;
-			if(zone_choke >= 3)
+			if ( zone_choke >= 3 )
 			{
 				zone_choke = 0;
-				wait(0.05);
+				wait 0.05;
 			}
 		}
 		level.zone_scanning_active = 0;
-		for(z = 0; z < zkeys.size; z++)
+		for ( z = 0; z < zkeys.size; z++ )
 		{
 			level.zones[ zkeys[ z ] ].is_active = level.newzones[ zkeys[ z ] ].is_active;
 			level.zones[ zkeys[ z ] ].is_occupied = level.newzones[ zkeys[ z ] ].is_occupied;
 		}
-		if(!a_zone_is_active || !a_zone_is_spawning_allowed)
+		if ( !a_zone_is_active || !a_zone_is_spawning_allowed )
 		{
-			if(isarray(initial_zone))
+			if ( isarray( initial_zone ) )
 			{
 				level.zones[ initial_zone[ 0 ] ].is_active = 1;
 				level.zones[ initial_zone[ 0 ] ].is_occupied = 1;
@@ -707,14 +734,14 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 			}
 			else
 			{
-				level.zones[initial_zone].is_active = 1;
-				level.zones[initial_zone].is_occupied = 1;
-				level.zones[initial_zone].is_spawning_allowed = 1;
+				level.zones[ initial_zone ].is_active = 1;
+				level.zones[ initial_zone ].is_occupied = 1;
+				level.zones[ initial_zone ].is_spawning_allowed = 1;
 			}
 		}
 		[[ level.create_spawner_list_func ]]( zkeys );
 		level.active_zone_names = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();
-		wait(1);
+		wait 1;
 	}
 }
 
@@ -722,12 +749,14 @@ debug_show_spawn_locations() //checked dev call deleted
 {
 }
 
+//unused code
+/*
 old_manage_zones( initial_zone ) //checked changed to match cerberus output
 {
 
 	deactivate_initial_barrier_goals();
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
-	for(i = 0; i < spawn_points.size; i++)
+	for ( i = 0; i < spawn_points.size; i++ )
 	{
 		spawn_points[i].locked = 1;
 	}
@@ -735,9 +764,9 @@ old_manage_zones( initial_zone ) //checked changed to match cerberus output
 	{
 		[[ level.zone_manager_init_func ]]();
 	}
-	if(isarray(initial_zone))
+	if ( isarray( initial_zone ) )
 	{
-		for(i = 0; i < initial_zone.size; i++)
+		for ( i = 0; i < initial_zone.size; i++ )
 		{
 			zone_init(initial_zone[ i ]);
 			enable_zone(initial_zone[ i ]);
@@ -745,8 +774,8 @@ old_manage_zones( initial_zone ) //checked changed to match cerberus output
 	}
 	else
 	{
-		zone_init(initial_zone);
-		enable_zone(initial_zone);
+		zone_init( initial_zone );
+		enable_zone( initial_zone );
 	}
 	setup_zone_flag_waits();
 	zkeys = getarraykeys( level.zones );
@@ -762,14 +791,14 @@ old_manage_zones( initial_zone ) //checked changed to match cerberus output
 		}
 		a_zone_is_active = 0;
 		a_zone_is_spawning_allowed = 0;
-		for(z = 0; z < zkeys.size; z++)
+		for ( z = 0; z < zkeys.size; z++ )
 		{
 			zone = level.zones[ zkeys[ z ] ];
-			if(!zone.is_enabled)
+			if ( !zone.is_enabled )
 			{
 				continue;
 			}
-			if(isdefined(level.zone_occupied_func))
+			if ( isdefined( level.zone_occupied_func ) )
 			{
 				zone.is_occupied = [[ level.zone_occupied_func ]]( zkeys[ z ] );
 			}
@@ -777,21 +806,21 @@ old_manage_zones( initial_zone ) //checked changed to match cerberus output
 			{
 				zone.is_occupied = player_in_zone( zkeys[ z ] );
 			}
-			if(zone.is_occupied)
+			if ( zone.is_occupied )
 			{
 				zone.is_active = 1;
 				a_zone_is_active = 1;
-				if(zone.is_spawning_allowed)
+				if ( zone.is_spawning_allowed )
 				{
 					a_zone_is_spawning_allowed = 1;
 				}
 				azkeys = getarraykeys(zone.adjacent_zones);
-				for(az = 0; az < zone.adjacent_zones.size; az++)
+				for ( az = 0; az < zone.adjacent_zones.size; az++ )
 				{
-					if(zone.adjacent_zones[ azkeys[ az ] ].is_connected && level.zones[ azkeys[ az ] ].is_enabled)
+					if ( zone.adjacent_zones[ azkeys[ az ] ].is_connected && level.zones[ azkeys[ az ] ].is_enabled )
 					{
 						level.zones[ azkeys[ az ] ].is_active = 1;
-						if(level.zones[ azkeys[ az ] ].is_spawning_allowed)
+						if ( level.zones[ azkeys[ az ] ].is_spawning_allowed )
 						{
 							a_zone_is_spawning_allowed = 1;
 						}
@@ -799,9 +828,9 @@ old_manage_zones( initial_zone ) //checked changed to match cerberus output
 				}
 			}
 		}
-		if(!a_zone_is_active || !a_zone_is_spawning_allowed)
+		if ( !a_zone_is_active || !a_zone_is_spawning_allowed )
 		{
-			if(isarray(initial_zone))
+			if ( isarray( initial_zone ) )
 			{
 				level.zones[ initial_zone[ 0 ] ].is_active = 1;
 				level.zones[ initial_zone[ 0 ] ].is_occupied = 1;
@@ -816,10 +845,10 @@ old_manage_zones( initial_zone ) //checked changed to match cerberus output
 		}
 		[[ level.create_spawner_list_func ]]( zkeys );
 		level.active_zone_names = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();
-		wait(1);
+		wait 1;
 	}
 }
-
+*/
 create_spawner_list( zkeys ) //checked changed to match cerberus output
 {
 	level.zombie_spawn_locations = [];
@@ -833,12 +862,12 @@ create_spawner_list( zkeys ) //checked changed to match cerberus output
 	level.zombie_brutus_locations = [];
 	level.zombie_mechz_locations = [];
 	level.zombie_napalm_locations = [];
-	for(z = 0; z < zkeys.size; z++)
+	for ( z = 0; z < zkeys.size; z++ )
 	{
 		zone = level.zones[ zkeys[ z ] ];
-		if(zone.is_enabled && zone.is_active && zone.is_spawning_allowed)
+		if ( zone.is_enabled && zone.is_active && zone.is_spawning_allowed )
 		{
-			for(i = 0; i < zone.spawn_locations.size; i++)
+			for ( i = 0; i < zone.spawn_locations.size; i++ )
 			{
 				if(zone.spawn_locations[ i ].is_enabled)
 				{
@@ -942,6 +971,8 @@ get_active_zone_names() //checked changed to match cerberus output
 	return ret_list;
 }
 
+//commented out 
+/*
 _init_debug_zones() //checked changed to match cerberus output
 {
 	current_y = 30;
@@ -1061,21 +1092,44 @@ _debug_zones() //checked changed to match cerberus output
 		wait(0.1);
 	}
 }
+*/
 
 is_player_in_zone( zone_name ) //checked changed to match cerberus output
 {
 	zone = level.zones[ zone_name ];
 	i = 0;
-	while ( i < zone.volumes.size )
+	for(i = 0; i < zone.volumes.size; i++)
 	{
-		if ( self istouching( level.zones[ zone_name ].volumes[ i ] ) && self.sessionstate != "spectator" )
+		if(self istouching(level.zones[zone_name].volumes[i]) && !self.sessionstate == "spectator")
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
+/*
+is_player_in_zone_zonemgr_usage( zone_name ) //added to fix is_player_in_zone not working for zonemgr purposes
+{
+	zone = level.zones[ zone_name ];
+	i = 0;
+	players = get_players();
+	for ( i = 0; i < zone.volumes.size; i++ )
+	{
+		for ( k = 0; k < players.size; k++ )
+		{
+			if ( players[ k ] istouching( level.zones[ zone_name ].volumes[ i ] ) && !players[ k ].sessionstate == "spectator" )
+			{
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+*/
 
-
-
+gsc_restart()
+{
+	level waittill( "end_game" );
+	wait 3;
+	map_restart( false );
+}
