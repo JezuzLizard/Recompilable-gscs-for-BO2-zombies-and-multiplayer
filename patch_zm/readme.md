@@ -28,6 +28,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_system.gsc
 patch_zm/maps/mp/zombies/_zm_server_throttle.gsc
 patch_zm/maps/mp/zombies/_zm_score.gsc
 patch_zm/maps/mp/zombies/_zm_tombstone.gsc
+patch_zm/maps/mp/zombies/_zm_zonemgr.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 ```
@@ -41,7 +42,6 @@ patch_zm/maps/mp/zombies/_zm_magicbox.gsc
 patch_zm/maps/mp/zombies/_zm_perks.gsc
 patch_zm/maps/mp/zombies/_zm_powerups.gsc
 patch_zm/maps/mp/zombies/_zm_weapons.gsc
-patch_zm/maps/mp/zombies/_zm_zonemgr.gsc
 
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
