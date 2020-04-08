@@ -341,19 +341,15 @@ playleaderdialogonplayer( dialog, team, waittime ) //checked changed to match ce
 	if ( level.allowzmbannouncer )
 	{
 		alias = game[ "zmbdialog" ][ "prefix" ] + "_" + game[ "zmbdialog" ][ dialog ];
-		//aliasVariant = game[ "zmbdialog" ][ dialog ];
 		variant = self getleaderdialogvariant( alias );
 		if ( !isDefined( variant ) )
 		{
-			full_alias = alias + "_" + "0"; //adding the + "_" + "0" fixes pluto no announcer bug
-			//this happens because all voxes require the variant to be specified but for some reason they are not in pluto
-			//this may be due to the soundexists() not working potentially
+			full_alias = alias;
 		}
 		else
 		{
 			full_alias =  alias + "_" + variant;
 		}
-		
 		self playlocalsound( full_alias );
 	}
 	if ( isDefined( waittime ) )
@@ -432,5 +428,4 @@ getotherteam( team ) //checked matches cerberus output
 		return "allies";
 	}
 }
-
 
