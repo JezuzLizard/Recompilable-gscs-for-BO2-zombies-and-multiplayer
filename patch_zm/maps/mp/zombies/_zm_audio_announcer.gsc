@@ -4,7 +4,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	game[ "zmbdialog" ] = [];
 	game[ "zmbdialog" ][ "prefix" ] = "vox_zmba";
@@ -22,7 +22,7 @@ init()
 	level.allowzmbannouncer = 1;
 }
 
-init_gamemodespecificvox( mode, location )
+init_gamemodespecificvox( mode, location ) //checked matches cerberus output
 {
 	switch( mode )
 	{
@@ -44,7 +44,7 @@ init_gamemodespecificvox( mode, location )
 	}
 }
 
-init_gamemodecommonvox( prefix )
+init_gamemodecommonvox( prefix ) //checked matches cerberus output
 {
 	createvox( "rules", "rules", prefix );
 	createvox( "countdown", "intro", prefix );
@@ -57,7 +57,7 @@ init_gamemodecommonvox( prefix )
 	createvox( "match_tied", "tied", prefix );
 }
 
-init_griefvox( prefix )
+init_griefvox( prefix ) //checked matches cerberus output
 {
 	init_gamemodecommonvox( prefix );
 	createvox( "1_player_down", "1rivdown", prefix );
@@ -73,7 +73,7 @@ init_griefvox( prefix )
 	createvox( "last_player", "solo", prefix );
 }
 
-init_cleansed( prefix )
+init_cleansed( prefix ) //checked matches cerberus output
 {
 	init_gamemodecommonvox( prefix );
 	createvox( "dr_start_single_0", "dr_start_0" );
@@ -92,7 +92,7 @@ init_cleansed( prefix )
 	createvox( "dr_ending", "dr_time_0" );
 }
 
-init_meatvox( prefix )
+init_meatvox( prefix ) //checked matches cerberus output
 {
 	init_gamemodecommonvox( prefix );
 	createvox( "meat_drop", "drop", prefix );
@@ -109,7 +109,7 @@ init_meatvox( prefix )
 	createvox( "meat_ring_ammo", "ring_ammo", prefix );
 }
 
-init_racevox( prefix, location )
+init_racevox( prefix, location ) //checked changed to match cerberus output
 {
 	init_gamemodecommonvox( prefix );
 	switch( location )
@@ -132,6 +132,7 @@ init_racevox( prefix, location )
 			createvox( "hoop_miss", "hoop_miss", prefix );
 			break;
 		default:
+			break;
 		createvox( "race_room_2_ally", "room2_ally", prefix );
 		createvox( "race_room_3_ally", "room3_ally", prefix );
 		createvox( "race_room_4_ally", "room4_ally", prefix );
@@ -161,7 +162,7 @@ init_racevox( prefix, location )
 	}
 }
 
-createvox( type, alias, gametype )
+createvox( type, alias, gametype ) //checked matches cerberus output
 {
 	if ( !isDefined( gametype ) )
 	{
@@ -174,7 +175,7 @@ createvox( type, alias, gametype )
 	game[ "zmbdialog" ][ type ] = gametype + alias;
 }
 
-announceroundwinner( winner, delay )
+announceroundwinner( winner, delay ) //checked changed to match cerberus output
 {
 	if ( isDefined( delay ) && delay > 0 )
 	{
@@ -187,19 +188,12 @@ announceroundwinner( winner, delay )
 	if ( winner != "tied" )
 	{
 		players = get_players();
-		_a236 = players;
-		_k236 = getFirstArrayKey( _a236 );
-		while ( isDefined( _k236 ) )
+		foreach ( player in players )
 		{
-			player = _a236[ _k236 ];
-			if ( isDefined( player._encounters_team ) && player._encounters_team == winner )
+			if ( isdefined( player._encounters_team ) && player._encounters_team == winner )
 			{
 				winning_team = player.pers[ "team" ];
 				break;
-			}
-			else
-			{
-				_k236 = getNextArrayKey( _a236, _k236 );
 			}
 		}
 		losing_team = getotherteam( winning_team );
@@ -212,7 +206,7 @@ announceroundwinner( winner, delay )
 	}
 }
 
-announcematchwinner( winner, delay )
+announcematchwinner( winner, delay ) //checked changed to match cerberus output
 {
 	if ( isDefined( delay ) && delay > 0 )
 	{
@@ -225,19 +219,12 @@ announcematchwinner( winner, delay )
 	if ( winner != "tied" )
 	{
 		players = get_players();
-		_a267 = players;
-		_k267 = getFirstArrayKey( _a267 );
-		while ( isDefined( _k267 ) )
+		foreach ( player in players )
 		{
-			player = _a267[ _k267 ];
-			if ( isDefined( player._encounters_team ) && player._encounters_team == winner )
+			if ( isdefined( player._encounters_team ) && player._encounters_team == winner )
 			{
-				winning_team = player.pers[ "team" ];
+				winning_team = player.pers["team"];
 				break;
-			}
-			else
-			{
-				_k267 = getNextArrayKey( _a267, _k267 );
 			}
 		}
 		losing_team = getotherteam( winning_team );
@@ -250,7 +237,7 @@ announcematchwinner( winner, delay )
 	}
 }
 
-announcegamemoderules()
+announcegamemoderules() //checked matches cerberus output
 {
 	if ( getDvar( "ui_zm_mapstartlocation" ) == "town" )
 	{
@@ -258,77 +245,46 @@ announcegamemoderules()
 	}
 }
 
-leaderdialog( dialog, team, group, queue, waittime )
+leaderdialog( dialog, team, group, queue, waittime ) //checked changed to match cerberus output
 {
-/#
-	assert( isDefined( level.players ) );
-#/
 	if ( !isDefined( team ) )
 	{
 		leaderdialogbothteams( dialog, "allies", dialog, "axis", group, queue, waittime );
 		return;
 	}
-	if ( level.splitscreen )
-	{
-		if ( level.players.size )
-		{
-			level.players[ 0 ] leaderdialogonplayer( dialog, group, queue, waittime );
-		}
-		return;
-	}
 	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
-		if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
+		if ( isdefined ( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
 		{
 			player leaderdialogonplayer( dialog, group, queue, waittime );
 		}
-		i++;
 	}
 }
 
-leaderdialogbothteams( dialog1, team1, dialog2, team2, group, queue, waittime )
+leaderdialogbothteams( dialog1, team1, dialog2, team2, group, queue, waittime ) //checked changed to match cerberus output
 {
-/#
-	assert( isDefined( level.players ) );
-#/
-	if ( level.splitscreen )
+	players = get_players();
+	for ( i = 0; i < players.size; i++ )
 	{
-		if ( level.players.size )
+		team = players[ i ].pers[ "team" ];
+		if ( !isdefined( team ) )
 		{
-			level.players[ 0 ] leaderdialogonplayer( dialog1, group, queue, waittime );
+			return;
 		}
-		return;
-	}
-	i = 0;
-	while ( i < level.players.size )
-	{
-		player = level.players[ i ];
-		team = player.pers[ "team" ];
-		if ( !isDefined( team ) )
+		if ( team == team1 )
 		{
-			i++;
-			continue;
+			players[ i ] leaderdialogonplayer( dialog1, group, queue, waittime );
 		}
-		else if ( team == team1 )
+		if ( team == team2 )
 		{
-			player leaderdialogonplayer( dialog1, group, queue, waittime );
-			i++;
-			continue;
+			players[ i ] leaderdialogonplayer( dialog2, group, queue, waittime );
 		}
-		else
-		{
-			if ( team == team2 )
-			{
-				player leaderdialogonplayer( dialog2, group, queue, waittime );
-			}
-		}
-		i++;
 	}
 }
 
-leaderdialogonplayer( dialog, group, queue, waittime )
+leaderdialogonplayer( dialog, group, queue, waittime ) //checked changed to match cerberus output
 {
 	team = self.pers[ "team" ];
 	if ( !isDefined( team ) )
@@ -348,27 +304,25 @@ leaderdialogonplayer( dialog, group, queue, waittime )
 		hadgroupdialog = isDefined( self.zmbdialoggroups[ group ] );
 		self.zmbdialoggroups[ group ] = dialog;
 		dialog = group;
-		if ( hadgroupdialog )
+		if ( isDefined( hadgroupdialog ) && hadgroupdialog )
 		{
 			return;
 		}
 	}
-	if ( !self.zmbdialogactive )
+	if ( isDefined( self.zmbdialogactive ) && !self.zmbdialogactive )
 	{
 		self thread playleaderdialogonplayer( dialog, team, waittime );
 	}
-	else
+	else if ( isdefined( queue ) && queue )
 	{
-		if ( isDefined( queue ) && queue )
-		{
-			self.zmbdialogqueue[ self.zmbdialogqueue.size ] = dialog;
-		}
+		self.zmbdialogqueue[ self.zmbdialogqueue.size ] = dialog;
 	}
 }
 
-playleaderdialogonplayer( dialog, team, waittime )
+playleaderdialogonplayer( dialog, team, waittime ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
+
 	if ( level.allowzmbannouncer )
 	{
 		if ( !isDefined( game[ "zmbdialog" ][ dialog ] ) )
@@ -381,20 +335,25 @@ playleaderdialogonplayer( dialog, team, waittime )
 	{
 		group = dialog;
 		dialog = self.zmbdialoggroups[ group ];
+		self.zmbdialoggroups[ group ] = undefined;
 		self.zmbdialoggroup = group;
 	}
 	if ( level.allowzmbannouncer )
 	{
 		alias = game[ "zmbdialog" ][ "prefix" ] + "_" + game[ "zmbdialog" ][ dialog ];
+		//aliasVariant = game[ "zmbdialog" ][ dialog ];
 		variant = self getleaderdialogvariant( alias );
 		if ( !isDefined( variant ) )
 		{
-			full_alias = alias;
+			full_alias = alias + "_" + "0"; //adding the + "_" + "0" fixes pluto no announcer bug
+			//this happens because all voxes require the variant to be specified but for some reason they are not in pluto
+			//this may be due to the soundexists() not working potentially
 		}
 		else
 		{
-			full_alias = ( alias + "_" ) + variant;
+			full_alias =  alias + "_" + variant;
 		}
+		
 		self playlocalsound( full_alias );
 	}
 	if ( isDefined( waittime ) )
@@ -409,18 +368,17 @@ playleaderdialogonplayer( dialog, team, waittime )
 	self.zmbdialoggroup = "";
 	if ( self.zmbdialogqueue.size > 0 && level.allowzmbannouncer )
 	{
-		nextdialog = self.zmbdialogqueue[ 0 ];
-		i = 1;
-		while ( i < self.zmbdialogqueue.size )
+		nextdialog = self.zmbdialogqueue[0];
+		for( i = 1; i < self.zmbdialogqueue.size; i++ )
 		{
 			self.zmbdialogqueue[ i - 1 ] = self.zmbdialogqueue[ i ];
-			i++;
 		}
+		self.zmbdialogqueue[ i - 1 ] = undefined;
 		self thread playleaderdialogonplayer( nextdialog, team );
 	}
 }
 
-getleaderdialogvariant( alias )
+getleaderdialogvariant( alias ) //checked changed to match cerberus output
 {
 	if ( !isDefined( alias ) )
 	{
@@ -434,13 +392,13 @@ getleaderdialogvariant( alias )
 	num_variants = maps/mp/zombies/_zm_spawner::get_number_variants( alias );
 	if ( num_variants <= 0 )
 	{
+		players = get_players();
+		players[ 0 ] iprintln( "ree" );
 		return undefined;
 	}
-	i = 0;
-	while ( i < num_variants )
+	for ( i = 0; i < num_variants; i++ )
 	{
 		level.announcer_dialog[ alias ][ i ] = i;
-		i++;
 	}
 	level.announcer_dialog_available[ alias ] = [];
 	if ( level.announcer_dialog_available[ alias ].size <= 0 )
@@ -452,7 +410,7 @@ getleaderdialogvariant( alias )
 	return variation;
 }
 
-getroundswitchdialog( switchtype )
+getroundswitchdialog( switchtype ) //checked matches cerberus output
 {
 	switch( switchtype )
 	{
@@ -465,7 +423,7 @@ getroundswitchdialog( switchtype )
 	}
 }
 
-getotherteam( team )
+getotherteam( team ) //checked matches cerberus output
 {
 	if ( team == "allies" )
 	{
@@ -476,4 +434,5 @@ getotherteam( team )
 		return "allies";
 	}
 }
+
 
