@@ -55,7 +55,15 @@ patch_zm/maps/mp/zombies/_zm_equipment.gsc
 patch_zm/maps/mp/zombies/_load.gsc
 ```
 
+### The following scripts are not tested yet, uploaded to setup a baseline:
+```
+patch_zm/maps/mp/zombies/_zm_audio.gsc
+patch_zm/maps/mp/zombies/_zm_audio_announcer.gsc
+```
+
 ### notes:
 ```
 The shaders that _zm_timer.gsc relies on do not exist.
 ```
+
+
