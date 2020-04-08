@@ -392,8 +392,6 @@ getleaderdialogvariant( alias ) //checked changed to match cerberus output
 	num_variants = maps/mp/zombies/_zm_spawner::get_number_variants( alias );
 	if ( num_variants <= 0 )
 	{
-		players = get_players();
-		players[ 0 ] iprintln( "ree" );
 		return undefined;
 	}
 	for ( i = 0; i < num_variants; i++ )
