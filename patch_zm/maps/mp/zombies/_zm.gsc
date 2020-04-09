@@ -9,19 +9,39 @@
 #include maps/mp/zombies/_zm_pers_upgrades_functions;
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_pers_upgrades;
+#include maps/mp/zombies/_zm_stats;
+#include maps/mp/zombies/_zm_tombstone;
+#include maps/mp/zombies/_zm_weapons;
+#include maps/mp/zombies/_zm_traps;
+#include maps/mp/zombies/_zm_timer;
+#include maps/mp/zombies/_zm_gump;
+#include maps/mp/zombies/_zm_spawner;
+#include maps/mp/zombies/_zm_score;
+#include maps/mp/zombies/_zm_powerups;
+#include maps/mp/zombies/_zm_power;
+#include maps/mp/zombies/_zm_playerhealth;
+#include maps/mp/zombies/_zm_perks;
+#include maps/mp/zombies/_zm_magicbox;
+#include maps/mp/zombies/_zm_laststand;
+#include maps/mp/zombies/_zm_equipment;
+#include maps/mp/zombies/_zm_buildables;
+#include maps/mp/zombies/_zm_clone;
+#include maps/mp/zombies/_zm_bot;
+#include maps/mp/zombies/_zm_blockers;
+#include maps/mp/zombies/_zm_audio;
+#include maps/mp/zombies/_zm_unitrigger;
+#include maps/mp/zombies/_zm_zonemgr;
+#include maps/mp/zombies/_zm_devgui;
+#include maps/mp/_visionset_mgr;
 #include maps/mp/zombies/_zm;
 #include maps/mp/zombies/_zm_ffotd;
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
-#include maps/mp/zombies/_zm_spawner;
-#include maps/mp/zombies/_zm_laststand;
-#include maps/mp/zombies/_zm_perks;
-#include maps/mp/zombies/_zm_blockers;
 
-init()
+
+init() //checked matches cerberus output
 {
-
 	level.player_out_of_playable_area_monitor = 1;
 	level.player_too_many_weapons_monitor = 1;
 	level.player_too_many_weapons_monitor_func = ::player_too_many_weapons_monitor;
@@ -135,8 +155,9 @@ init()
 	maps/mp/zombies/_zm_magicbox::init();
 	maps/mp/zombies/_zm_perks::init();
 	
-	//causes the server to minidump
-	//maps/mp/zombies/_zm_playerhealth::init();
+	//not responsible for exe_client_field_mismatch
+	//working now
+	maps/mp/zombies/_zm_playerhealth::init();
 	
 	//ok
 	maps/mp/zombies/_zm_power::init();
@@ -145,8 +166,10 @@ init()
 	maps/mp/zombies/_zm_spawner::init();
 	maps/mp/zombies/_zm_gump::init();
 	
-	//causes the server to minidump
-	//maps/mp/zombies/_zm_timer::init();
+	//unused so shouldn't matter?
+	//not responsible for exe_client_field_mismatch
+	//working now
+	maps/mp/zombies/_zm_timer::init();
 	
 	//ok
 	maps/mp/zombies/_zm_traps::init();
@@ -187,18 +210,18 @@ init()
 	
 }
 
-post_main()
+post_main() //checked matches cerberus output
 {
 	level thread init_custom_ai_type();
 }
 
-startunitriggers()
+startunitriggers() //checked matches cerberus output
 {
 	flag_wait_any( "start_zombie_round_logic", "start_encounters_match_logic" );
 	level thread maps/mp/zombies/_zm_unitrigger::main();
 }
 
-drive_client_connected_notifies()
+drive_client_connected_notifies() //checked matches cerberus output //matches cerberus csc output
 {
 	while ( 1 )
 	{
@@ -208,7 +231,7 @@ drive_client_connected_notifies()
 	}
 }
 
-fade_out_intro_screen_zm( hold_black_time, fade_out_time, destroyed_afterwards )
+fade_out_intro_screen_zm( hold_black_time, fade_out_time, destroyed_afterwards ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.introscreen ) )
 	{
@@ -242,36 +265,21 @@ fade_out_intro_screen_zm( hold_black_time, fade_out_time, destroyed_afterwards )
 	level.passed_introscreen = 1;
 	players = get_players();
 	i = 0;
-	while ( i < players.size )
+	for(i = 0; i < players.size; i++)
 	{
-		players[ i ] setclientuivisibilityflag( "hud_visible", 1 );
-		if ( isDefined( level.host_ended_game ) && !level.host_ended_game )
+		players[ i ] setclientuivisibilityflag("hud_visible", 1);
+		if ( isdefined( level.host_ended_game ) && !level.host_ended_game )
 		{
-			if ( isDefined( level.player_movement_suppressed ) )
+			if ( isdefined( level.player_movement_suppressed ) )
 			{
 				players[ i ] freezecontrols( level.player_movement_suppressed );
-				/*
-/#
-				println( " Unfreeze controls 4" );
-#/
-				*/
-				i++;
 				continue;
 			}
-			else
+			if ( isdefined( players[ i ].hostmigrationcontrolsfrozen ) && !players[ i ].hostmigrationcontrolsfrozen )
 			{
-				if ( isDefined( players[ i ].hostmigrationcontrolsfrozen ) && !players[ i ].hostmigrationcontrolsfrozen )
-				{
-					players[ i ] freezecontrols( 0 );
-					/*
-/#
-					println( " Unfreeze controls 5" );
-#/
-					*/
-				}
+				players[ i ] freezecontrols( 0 );
 			}
 		}
-		i++;
 	}
 	if ( destroyed_afterwards == 1 )
 	{
@@ -280,46 +288,29 @@ fade_out_intro_screen_zm( hold_black_time, fade_out_time, destroyed_afterwards )
 	flag_set( "initial_blackscreen_passed" );
 }
 
-onallplayersready()
+onallplayersready() //checked changed to match cerberus output
 {
 	timeout = getTime() + 5000;
 	while ( getnumexpectedplayers() == 0 && getTime() < timeout )
 	{
 		wait 0.1;
 	}
-	/*
-/#
-	println( "ZM >> player_count_expected=" + getnumexpectedplayers() );
-#/
-	*/
 	player_count_actual = 0;
 	while ( getnumconnectedplayers() < getnumexpectedplayers() || player_count_actual != getnumexpectedplayers() )
 	{
 		players = get_players();
 		player_count_actual = 0;
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			players[ i ] freezecontrols( 1 );
 			if ( players[ i ].sessionstate == "playing" )
 			{
 				player_count_actual++;
 			}
-			i++;
 		}
-		/*
-/#
-		println( "ZM >> Num Connected =" + getnumconnectedplayers() + " Expected : " + getnumexpectedplayers() );
-#/
-		*/
 		wait 0.1;
 	}
 	setinitialplayersconnected();
-	/*
-/#
-	println( "ZM >> We have all players - START ZOMBIE LOGIC" );
-#/
-	*/
 	if ( getnumconnectedplayers() == 1 && getDvarInt( "scr_zm_enable_bots" ) == 1 )
 	{
 		level thread add_bots();
@@ -332,15 +323,12 @@ onallplayersready()
 		{
 			flag_set( "solo_game" );
 			level.solo_lives_given = 0;
-			_a379 = players;
-			_k379 = getFirstArrayKey( _a379 );
-			while ( isDefined( _k379 ) )
+			foreach ( player in players )
 			{
-				player = _a379[ _k379 ];
 				player.lives = 0;
-				_k379 = getNextArrayKey( _a379, _k379 );
 			}
-			//level maps/mp/zombies/_zm::set_default_laststand_pistol( 1 );
+			//this was commented out
+			level set_default_laststand_pistol( 1 );
 		}
 		flag_set( "initial_players_connected" );
 		while ( !aretexturesloaded() )
@@ -352,47 +340,36 @@ onallplayersready()
 	fade_out_intro_screen_zm( 5, 1.5, 1 );
 }
 
-start_zombie_logic_in_x_sec( time_to_wait )
+start_zombie_logic_in_x_sec( time_to_wait ) //checked matches cerberus output
 {
 	wait time_to_wait;
 	flag_set( "start_zombie_round_logic" );
 }
 
-getallotherplayers()
+getallotherplayers() //checked changed to match cerberus output
 {
 	aliveplayers = [];
 	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
-		if ( !isDefined( level.players[ i ] ) )
+		if ( !isdefined( level.players[ i ] ) )
 		{
-			i++;
 			continue;
 		}
-		else player = level.players[ i ];
+		player = level.players[ i ];
 		if ( player.sessionstate != "playing" || player == self )
 		{
-			i++;
 			continue;
 		}
-		else
-		{
-			aliveplayers[ aliveplayers.size ] = player;
-		}
-		i++;
+		aliveplayers[ aliveplayers.size ] = player;
 	}
 	return aliveplayers;
 }
 
-getfreespawnpoint( spawnpoints, player )
+getfreespawnpoint( spawnpoints, player ) //checked changed to match cerberus output
 {
 	if ( !isDefined( spawnpoints ) )
 	{
-	/*
-/#
-		iprintlnbold( "ZM >> No free spawn points in map" );
-#/
-	*/
 		return undefined;
 	}
 	if ( !isDefined( game[ "spawns_randomized" ] ) )
@@ -424,41 +401,19 @@ getfreespawnpoint( spawnpoints, player )
 			}
 		}
 	}
-	while ( isDefined( player ) && isDefined( player.team ) )
+	if ( isdefined( player ) && isdefined( player.team ) )
 	{
 		i = 0;
-		while ( isDefined( spawnpoints ) && i < spawnpoints.size )
+		while ( isdefined( spawnpoints ) && i < spawnpoints.size )
 		{
 			if ( side_selection == 1 )
 			{
-				if ( player.team != "allies" && isDefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 1 )
+				if ( player.team != "allies" && isdefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 1 )
 				{
 					arrayremovevalue( spawnpoints, spawnpoints[ i ] );
 					i = 0;
 				}
-				else
-				{
-					if ( player.team == "allies" && isDefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 2 )
-					{
-						arrayremovevalue( spawnpoints, spawnpoints[ i ] );
-						i = 0;
-					}
-					else
-					{
-						i++;
-					}
-				}
-				continue;
-			}
-			else if ( player.team == "allies" && isDefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 1 )
-			{
-				arrayremovevalue( spawnpoints, spawnpoints[ i ] );
-				i = 0;
-				continue;
-			}
-			else
-			{
-				if ( player.team != "allies" && isDefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 2 )
+				else if ( player.team == "allies" && isdefined( spawnpoints[ i ].script_int) && spawnpoints[ i ].script_int == 2 )
 				{
 					arrayremovevalue( spawnpoints, spawnpoints[ i ] );
 					i = 0;
@@ -468,9 +423,23 @@ getfreespawnpoint( spawnpoints, player )
 					i++;
 				}
 			}
+			else if ( player.team == "allies" && isdefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 1 )
+			{
+				arrayremovevalue(spawnpoints, spawnpoints[i]);
+				i = 0;
+			}
+			else if ( player.team != "allies" && isdefined( spawnpoints[ i ].script_int ) && spawnpoints[ i ].script_int == 2 )
+			{
+				arrayremovevalue( spawnpoints, spawnpoints[ i ] );
+				i = 0;
+			}
+			else
+			{
+				i++;
+			}
 		}
 	}
-	if ( !isDefined( self.playernum ) )
+	if ( !isdefined( self.playernum ) )
 	{
 		if ( self.team == "allies" )
 		{
@@ -483,57 +452,45 @@ getfreespawnpoint( spawnpoints, player )
 			set_game_var( "_team2_num", self.playernum + 1 );
 		}
 	}
-	j = 0;
-	while ( j < spawnpoints.size )
+	for ( j = 0; j < spawnpoints.size; j++ )
 	{
-		while ( !isDefined( spawnpoints[ j ].en_num ) )
+		if ( !isdefined( spawnpoints[ j ].en_num ) ) 
 		{
-			m = 0;
-			while ( m < spawnpoints.size )
+			for ( m = 0; m < spawnpoints.size; m++ )
 			{
-				spawnpoints[ m ].en_num = m;
-				m++;
+				spawnpoints[m].en_num = m;
 			}
 		}
-		if ( spawnpoints[ j ].en_num == self.playernum )
+		else if ( spawnpoints[ j ].en_num == self.playernum )
 		{
 			return spawnpoints[ j ];
 		}
-		j++;
 	}
 	return spawnpoints[ 0 ];
 }
 
-delete_in_createfx()
+delete_in_createfx() //checked changed to match cerberus output
 {
-	exterior_goals = getstructarray( "exterior_goal", "targetname" );
-	i = 0;
-	while ( i < exterior_goals.size )
+	exterior_goals = getstructarray("exterior_goal", "targetname");
+	for ( i = 0; i < exterior_goals.size; i++ )
 	{
-		if ( !isDefined( exterior_goals[ i ].target ) )
+		if ( !isdefined( exterior_goals[ i ].target ) )
 		{
-			i++;
-			continue;
+			break;
 		}
-		else
+		targets = getentarray( exterior_goals[i].target, "targetname" );
+		for ( j = 0; j < targets.size; j++ )
 		{
-			targets = getentarray( exterior_goals[ i ].target, "targetname" );
-			j = 0;
-			while ( j < targets.size )
-			{
-				targets[ j ] self_delete();
-				j++;
-			}
+			targets[ j ] self_delete();
 		}
-		i++;
 	}
-	if ( isDefined( level.level_createfx_callback_thread ) )
+	if ( isdefined( level.level_createfx_callback_thread ) )
 	{
 		level thread [[ level.level_createfx_callback_thread ]]();
 	}
 }
 
-add_bots()
+add_bots() //checked changed to match cerberus output
 {
 	host = gethostplayer();
 	while ( !isDefined( host ) )
@@ -552,21 +509,15 @@ add_bots()
 	}
 	players = get_players();
 	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] freezecontrols( 0 );
-		/*
-/#
-		println( " Unfreeze controls 6" );
-#/
-		*/
-		i++;
 	}
 	level.numberbotsadded = 1;
 	flag_set( "start_zombie_round_logic" );
 }
 
-zbot_spawn()
+zbot_spawn() //checked matches cerberus output
 {
 	player = gethostplayer();
 	spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
@@ -574,11 +525,6 @@ zbot_spawn()
 	bot = addtestclient();
 	if ( !isDefined( bot ) )
 	{
-	/*
-/#
-		println( "Could not add test client" );
-#/
-	*/
 		return;
 	}
 	bot.pers[ "isBot" ] = 1;
@@ -588,7 +534,7 @@ zbot_spawn()
 	return bot;
 }
 
-zbot_spawn_think( origin, yaw )
+zbot_spawn_think( origin, yaw ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -600,15 +546,10 @@ zbot_spawn_think( origin, yaw )
 	}
 }
 
-post_all_players_connected()
+post_all_players_connected() //checked matches cerberus output
 {
 	level thread end_game();
 	flag_wait( "start_zombie_round_logic" );
-	/*
-/#
-	println( "sessions: mapname=", level.script, " gametype zom isserver 1 player_count=", get_players().size );
-#/
-	*/
 	level thread clear_mature_blood();
 	level thread round_end_monitor();
 	if ( !level.zombie_anim_intro )
@@ -627,20 +568,18 @@ post_all_players_connected()
 	}
 }
 
-init_custom_ai_type()
+init_custom_ai_type() //checked changed to match cerberus output
 {
-	while ( isDefined( level.custom_ai_type ) )
+	if ( isdefined( level.custom_ai_type ) )
 	{
-		i = 0;
-		while ( i < level.custom_ai_type.size )
+		for ( i = 0; i < level.custom_ai_type.size; i++ )
 		{
 			[[ level.custom_ai_type[ i ] ]]();
-			i++;
 		}
 	}
 }
 
-zombiemode_melee_miss()
+zombiemode_melee_miss() //checked matches cerberus output
 {
 	if ( isDefined( self.enemy.curr_pay_turret ) )
 	{
@@ -648,7 +587,7 @@ zombiemode_melee_miss()
 	}
 }
 
-player_track_ammo_count()
+player_track_ammo_count() //checked changed to match cerberus output
 {
 	self notify( "stop_ammo_tracking" );
 	self endon( "disconnect" );
@@ -659,14 +598,15 @@ player_track_ammo_count()
 	{
 		wait 0.5;
 		weap = self getcurrentweapon();
-		while ( isDefined( weap ) || weap == "none" && !can_track_ammo( weap ) )
+		if ( !isdefined( weap ) || weap == "none" || !can_track_ammo( weap ) )
 		{
 			continue;
 		}
-		while ( self getammocount( weap ) > 5 || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( self getammocount( weap ) > 5 || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
 			ammooutcount = 0;
 			ammolowcount = 0;
+			continue;
 		}
 		if ( self getammocount( weap ) > 0 )
 		{
@@ -676,19 +616,16 @@ player_track_ammo_count()
 				ammolowcount++;
 			}
 		}
-		else
+		else if ( ammooutcount < 1 )
 		{
-			if ( ammooutcount < 1 )
-			{
-				self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "ammo_out" );
-				ammooutcount++;
-			}
+			self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "ammo_out" );
+			ammooutcount++;
 		}
 		wait 20;
 	}
 }
 
-can_track_ammo( weap )
+can_track_ammo( weap ) //checked changed to match cerberus output
 {
 	if ( !isDefined( weap ) )
 	{
@@ -722,7 +659,7 @@ can_track_ammo( weap )
 		case "zombie_tazer_flourish":
 			return 0;
 		default:
-			if ( !is_zombie_perk_bottle( weap ) && !is_placeable_mine( weap ) && !is_equipment( weap ) && !issubstr( weap, "knife_ballistic_" ) && getsubstr( weap, 0, 3 ) != "gl_" || weaponfuellife( weap ) > 0 && weap == level.revive_tool )
+			if ( is_zombie_perk_bottle( weap ) || is_placeable_mine( weap ) || is_equipment( weap ) || issubstr( weap, "knife_ballistic_" ) || getsubstr( weap, 0, 3 ) != "gl_" || weaponfuellife( weap ) > 0 || weap == level.revive_tool )
 			{
 				return 0;
 			}
@@ -730,7 +667,7 @@ can_track_ammo( weap )
 	return 1;
 }
 
-spawn_vo()
+spawn_vo() //checked matches cerberus output
 {
 	wait 1;
 	players = get_players();
@@ -742,14 +679,14 @@ spawn_vo()
 	}
 }
 
-spawn_vo_player( index, num )
+spawn_vo_player( index, num ) //checked matches cerberus output
 {
 	sound = "plr_" + index + "_vox_" + num + "play";
 	self playsoundwithnotify( sound, "sound_done" );
 	self waittill( "sound_done" );
 }
 
-precache_shaders()
+precache_shaders() //checked matches cerberus output
 {
 	precacheshader( "hud_chalk_1" );
 	precacheshader( "hud_chalk_2" );
@@ -762,7 +699,7 @@ precache_shaders()
 	precacheshader( "waypoint_revive" );
 }
 
-precache_models()
+precache_models() //checked matches cerberus output
 {
 	precachemodel( "p_zom_win_bars_01_vert04_bend_180" );
 	precachemodel( "p_zom_win_bars_01_vert01_bend_180" );
@@ -778,7 +715,7 @@ precache_models()
 	}
 }
 
-init_shellshocks()
+init_shellshocks() //checked matches cerberus output
 {
 	level.player_killed_shellshock = "zombie_death";
 	precacheshellshock( level.player_killed_shellshock );
@@ -786,7 +723,7 @@ init_shellshocks()
 	precacheshellshock( "explosion" );
 }
 
-init_strings()
+init_strings() //checked matches cerberus output
 {
 	precachestring( &"ZOMBIE_WEAPONCOSTAMMO" );
 	precachestring( &"ZOMBIE_ROUND" );
@@ -852,7 +789,7 @@ init_strings()
 	add_zombie_hint( "default_buy_area_2000", &"ZOMBIE_BUTTON_BUY_OPEN_AREA_2000" );
 }
 
-init_sounds()
+init_sounds() //checked matches cerberus output
 {
 	add_sound( "end_of_round", "mus_zmb_round_over" );
 	add_sound( "end_of_game", "mus_zmb_game_over" );
@@ -886,7 +823,7 @@ init_sounds()
 	add_sound( "break_stone", "break_stone" );
 }
 
-init_levelvars()
+init_levelvars() //checked changed to match cerberus output
 {
 	level.is_zombie_level = 1;
 	level.laststandpistol = "m1911_zm";
@@ -913,18 +850,14 @@ init_levelvars()
 	level.zombie_total_subtract = 0;
 	level.destructible_callbacks = [];
 	level.zombie_vars = [];
-	_a1039 = level.teams;
-	_k1039 = getFirstArrayKey( _a1039 );
-	while ( isDefined( _k1039 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a1039[ _k1039 ];
 		level.zombie_vars[ team ] = [];
-		_k1039 = getNextArrayKey( _a1039, _k1039 );
 	}
 	difficulty = 1;
 	column = int( difficulty ) + 1;
 	set_zombie_var( "zombie_health_increase", 100, 0, column );
-	set_zombie_var( "zombie_health_increase_multiplier", 0,1, 1, column );
+	set_zombie_var( "zombie_health_increase_multiplier", 0.1, 1, column );
 	set_zombie_var( "zombie_health_start", 150, 0, column );
 	set_zombie_var( "zombie_spawn_delay", 2, 1, column );
 	set_zombie_var( "zombie_new_runner_interval", 10, 0, column );
@@ -938,9 +871,9 @@ init_levelvars()
 	set_zombie_var( "zombie_between_round_time", 10 );
 	set_zombie_var( "zombie_intermission_time", 15 );
 	set_zombie_var( "game_start_delay", 0, 0, column );
-	set_zombie_var( "penalty_no_revive", 0,1, 1, column );
+	set_zombie_var( "penalty_no_revive", 0.1, 1, column );
 	set_zombie_var( "penalty_died", 0, 1, column );
-	set_zombie_var( "penalty_downed", 0,05, 1, column );
+	set_zombie_var( "penalty_downed", 0.05, 1, column );
 	set_zombie_var( "starting_lives", 1, 0, column );
 	set_zombie_var( "zombie_score_kill_4player", 50 );
 	set_zombie_var( "zombie_score_kill_3player", 50 );
@@ -977,51 +910,40 @@ init_levelvars()
 	{
 		level.zombie_move_speed = 100;
 	}
-	else
+	for ( i = 1; i <= level.round_number; i++ )
 	{
-		i = 1;
-		while ( i <= level.round_number )
+		timer = level.zombie_vars[ "zombie_spawn_delay" ];
+		if ( timer > 0.08)
 		{
-			timer = level.zombie_vars[ "zombie_spawn_delay" ];
-			if ( timer > 0.08 )
-			{
-				level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
-				i++;
-				continue;
-			}
-			else
-			{
-				if ( timer < 0.08 )
-				{
-					level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
-				}
-			}
-			i++;
+			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
+			continue;
+		}
+		if ( timer < 0.08 )
+		{
+			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
 		}
 	}
 	level.speed_change_max = 0;
 	level.speed_change_num = 0;
 }
 
-init_player_levelvars()
+init_player_levelvars() //checked changed to match cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	difficulty = 1;
 	column = int( difficulty ) + 1;
-	i = 0;
-	while ( i < 8 )
+	for ( i = 0; i < 8; i++ )
 	{
 		points = 500;
 		if ( i > 3 )
 		{
 			points = 3000;
 		}
-		points = set_zombie_var( "zombie_score_start_" + ( i + 1 ) + "p", points, 0, column );
-		i++;
+		points = set_zombie_var( "zombie_score_start_" + i + 1 + "p", points, 0, column );
 	}
 }
 
-init_dvars()
+init_dvars() //checked matches cerberus output
 {
 	if ( getDvar( "zombie_debug" ) == "" )
 	{
@@ -1044,7 +966,7 @@ init_dvars()
 	setdvar( "scr_deleteexplosivesonspawn", "0" );
 }
 
-init_function_overrides()
+init_function_overrides() //checked does not match cerberus output did not change
 {
 	level.callbackplayerdamage = ::callback_playerdamage;
 	level.overrideplayerdamage = ::player_damage_override;
@@ -1056,24 +978,24 @@ init_function_overrides()
 	level.callbackactordamage = ::actor_damage_override_wrapper;
 	level.custom_introscreen = ::zombie_intro_screen;
 	level.custom_intermission = ::player_intermission;
-	level.global_damage_func = ::zombie_damage; //maps/mp/zombies/_zm_spawner
-	level.global_damage_func_ads = ::zombie_damage_ads; //maps/mp/zombies/_zm_spawner
+	level.global_damage_func = maps/mp/zombies/_zm_spawner::zombie_damage; 
+	level.global_damage_func_ads = maps/mp/zombies/_zm_spawner::zombie_damage_ads; 
 	level.reset_clientdvars = ::onplayerconnect_clientdvars;
 	level.zombie_last_stand = ::last_stand_pistol_swap;
 	level.zombie_last_stand_pistol_memory = ::last_stand_save_pistol_ammo;
 	level.zombie_last_stand_ammo_return = ::last_stand_restore_pistol_ammo;
 	level.player_becomes_zombie = ::zombify_player;
 	level.validate_enemy_path_length = ::default_validate_enemy_path_length;
-	level.zm_laststand_playerlaststand = ::playerlaststand; //maps/mp/zombies/_zm_laststand
+	level.zm_laststand_playerlaststand = maps/mp/zombies/_zm_laststand::playerlaststand; 
 }
 
-callback_playerlaststand( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+callback_playerlaststand( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	[[ level.zm_laststand_playerlaststand ]]( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration );
 }
 
-codecallback_destructibleevent( event, param1, param2, param3 )
+codecallback_destructibleevent( event, param1, param2, param3 ) //checked changed to match cerberus output
 {
 	if ( event == "broken" )
 	{
@@ -1086,19 +1008,16 @@ codecallback_destructibleevent( event, param1, param2, param3 )
 		}
 		self notify( event );
 	}
-	else
+	else if ( event == "breakafter" )
 	{
-		if ( event == "breakafter" )
-		{
-			piece = param1;
-			time = param2;
-			damage = param3;
-			self thread breakafter( time, damage, piece );
-		}
+		piece = param1;
+		time = param2;
+		damage = param3;
+		self thread breakafter( time, damage, piece );
 	}
 }
 
-breakafter( time, damage, piece )
+breakafter( time, damage, piece ) //checked matches cerberus output
 {
 	self notify( "breakafter" );
 	self endon( "breakafter" );
@@ -1106,36 +1025,18 @@ breakafter( time, damage, piece )
 	self dodamage( damage, self.origin, undefined, undefined );
 }
 
-callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked changed to match cerberus output
 {
-/*
-/#
-	println( "ZM Callback_PlayerDamage" + idamage + "\n" );
-#/
-*/
 	if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker.sessionteam == self.sessionteam && !eattacker hasperk( "specialty_noname" ) && isDefined( self.is_zombie ) && !self.is_zombie )
 	{
 		self process_friendly_fire_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 		if ( self != eattacker )
 		{
-		/*
-/#
-			println( "Exiting - players can't hurt each other." );
-#/
-		*/
 			return;
 		}
-		else
+		else if ( smeansofdeath != "MOD_GRENADE_SPLASH" && smeansofdeath != "MOD_GRENADE" && smeansofdeath != "MOD_EXPLOSIVE" && smeansofdeath != "MOD_PROJECTILE" && smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_BURNED" && smeansofdeath != "MOD_SUICIDE" )
 		{
-			if ( smeansofdeath != "MOD_GRENADE_SPLASH" && smeansofdeath != "MOD_GRENADE" && smeansofdeath != "MOD_EXPLOSIVE" && smeansofdeath != "MOD_PROJECTILE" && smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_BURNED" && smeansofdeath != "MOD_SUICIDE" )
-			{
-			/*
-/#
-				println( "Exiting - damage type verbotten." );
-#/
-			*/
-				return;
-			}
+			return;
 		}
 	}
 	if ( isDefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
@@ -1146,18 +1047,10 @@ callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 	{
 		idamage = self [[ self.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 	}
-	else
-	{
-		if ( isDefined( level.overrideplayerdamage ) )
+	else if ( isDefined( level.overrideplayerdamage ) )
 		{
 			idamage = self [[ level.overrideplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 		}
-	}
-	/*
-/#
-	assert( isDefined( idamage ), "You must return a value from a damage override function." );
-#/
-	*/
 	if ( isDefined( self.magic_bullet_shield ) && self.magic_bullet_shield )
 	{
 		maxhealth = self.maxhealth;
@@ -1179,11 +1072,6 @@ callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 			}
 		}
 	}
-	/*
-/#
-	println( "CB PD" );
-#/
-	*/
 	if ( isDefined( level.prevent_player_damage ) )
 	{
 		if ( self [[ level.prevent_player_damage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) )
@@ -1196,20 +1084,15 @@ callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 	{
 		shitloc = "torso_upper";
 	}
-	/*
-/#
-	println( "Finishplayerdamage wrapper." );
-#/
-	*/
 	self finishplayerdamagewrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 }
 
-finishplayerdamagewrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+finishplayerdamagewrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked matches cerberus output
 {
 	self finishplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 }
 
-register_player_friendly_fire_callback( callback )
+register_player_friendly_fire_callback( callback ) //checked matches cerberus output
 {
 	if ( !isDefined( level.player_friendly_fire_callbacks ) )
 	{
@@ -1218,22 +1101,18 @@ register_player_friendly_fire_callback( callback )
 	level.player_friendly_fire_callbacks[ level.player_friendly_fire_callbacks.size ] = callback;
 }
 
-process_friendly_fire_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+process_friendly_fire_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked changed to match cerberus output
 {
-	while ( isDefined( level.player_friendly_fire_callbacks ) )
+	if ( isdefined( level.player_friendly_fire_callbacks ) )
 	{
-		_a1421 = level.player_friendly_fire_callbacks;
-		_k1421 = getFirstArrayKey( _a1421 );
-		while ( isDefined( _k1421 ) )
+		foreach ( callback in level.player_friendly_fire_callbacks )
 		{
-			callback = _a1421[ _k1421 ];
-			self [[ callback ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
-			_k1421 = getNextArrayKey( _a1421, _k1421 );
+			self [[ callback ]](einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex);
 		}
 	}
 }
 
-init_flags()
+init_flags() //checked matches cerberus output
 {
 	flag_init( "solo_game" );
 	flag_init( "start_zombie_round_logic" );
@@ -1251,8 +1130,9 @@ init_flags()
 	flag_init( "initial_players_connected" );
 }
 
-init_client_flags()
+init_client_flags() //checked matches cerberus output
 {
+	level._zombie_scriptmover_flag_box_random = 15; //from _zm.csc cerberus output
 	if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
 	{
 		level._zombie_scriptmover_flag_board_horizontal_fx = 14;
@@ -1282,7 +1162,7 @@ init_client_flags()
 	}
 }
 
-init_fx()
+init_fx() //checked partially changed to match cerberus output //csc partially matches cerberus output
 {
 	level.createfx_callback_thread = ::delete_in_createfx;
 	level._effect[ "wood_chunk_destory" ] = loadfx( "impacts/fx_large_woodhit" );
@@ -1320,7 +1200,7 @@ init_fx()
 	{
 		level._effect[ "def_explosion" ] = loadfx( "explosions/fx_default_explosion" );
 	}
-	if ( isDefined( level._uses_default_wallbuy_fx ) && level._uses_default_wallbuy_fx )
+	if ( isDefined( level._uses_default_wallbuy_fx ) && !level._uses_default_wallbuy_fx )
 	{
 		level._effect[ "870mcs_zm_fx" ] = loadfx( "maps/zombie/fx_zmb_wall_buy_870mcs" );
 		level._effect[ "ak74u_zm_fx" ] = loadfx( "maps/zombie/fx_zmb_wall_buy_ak74u" );
@@ -1353,12 +1233,12 @@ init_fx()
 	}
 }
 
-zombie_intro_screen( string1, string2, string3, string4, string5 )
+zombie_intro_screen( string1, string2, string3, string4, string5 ) //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 }
 
-players_playing()
+players_playing() //checked matches cerberus output
 {
 	players = get_players();
 	level.players_playing = players.size;
@@ -1367,7 +1247,7 @@ players_playing()
 	level.players_playing = players.size;
 }
 
-onplayerconnect_clientdvars()
+onplayerconnect_clientdvars() //checked matches cerberus output
 {
 	self setclientcompass( 0 );
 	self setclientthirdperson( 0 );
@@ -1382,26 +1262,20 @@ onplayerconnect_clientdvars()
 	self maps/mp/zombies/_zm_laststand::player_getup_setup();
 }
 
-checkforalldead( excluded_player )
+checkforalldead( excluded_player ) //checked changed to match cerberus output
 {
 	players = get_players();
 	count = 0;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
-		if ( isDefined( excluded_player ) && excluded_player == players[ i ] )
+		if ( isdefined( excluded_player ) && excluded_player == players[ i ] )
 		{
-			i++;
 			continue;
 		}
-		else
+		if ( !players[i] maps/mp/zombies/_zm_laststand::player_is_in_laststand() && players[ i ].sessionstate != "spectator" )
 		{
-			if ( !players[ i ] maps/mp/zombies/_zm_laststand::player_is_in_laststand() && players[ i ].sessionstate != "spectator" )
-			{
-				count++;
-			}
+			count++;
 		}
-		i++;
 	}
 	if ( count == 0 && isDefined( level.no_end_game_check ) && !level.no_end_game_check )
 	{
@@ -1409,7 +1283,7 @@ checkforalldead( excluded_player )
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "stop_onPlayerSpawned" );
@@ -1420,11 +1294,6 @@ onplayerspawned()
 		if ( isDefined( level.host_ended_game ) && !level.host_ended_game )
 		{
 			self freezecontrols( 0 );
-			/*
-/#
-			println( " Unfreeze controls 7" );
-#/
-			*/
 		}
 		self.hits = 0;
 		self init_player_offhand_weapons();
@@ -1435,15 +1304,6 @@ onplayerspawned()
 			self setweaponammoclip( lethal_grenade, 0 );
 		}
 		self recordplayerrevivezombies( self );
-		/*
-/#
-		if ( getDvarInt( "zombie_cheat" ) >= 1 && getDvarInt( "zombie_cheat" ) <= 3 )
-		{
-			self enableinvulnerability();
-
-		}
-#/
-		*/
 		self setactionslot( 3, "altMode" );
 		self playerknockback( 0 );
 		self setclientthirdperson( 0 );
@@ -1510,104 +1370,88 @@ onplayerspawned()
 	}
 }
 
-player_spawn_protection()
+player_spawn_protection() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
-	x = 0;
-	while ( x < 60 )
+	for ( x = 0; x < 60; x++ )
 	{
 		self.ignoreme = 1;
-		x++;
 		wait 0.05;
 	}
 	self.ignoreme = 0;
 }
 
-spawn_life_brush( origin, radius, height )
+spawn_life_brush( origin, radius, height ) //checked matches cerberus output
 {
 	life_brush = spawn( "trigger_radius", origin, 0, radius, height );
 	life_brush.script_noteworthy = "life_brush";
 	return life_brush;
 }
 
-in_life_brush()
+in_life_brush() //checked changed to match cerberus output
 {
 	life_brushes = getentarray( "life_brush", "script_noteworthy" );
 	if ( !isDefined( life_brushes ) )
 	{
 		return 0;
 	}
-	i = 0;
-	while ( i < life_brushes.size )
-	{
+	for ( i = 0; i < life_brushes.size; i++ )
+	{ 
 		if ( self istouching( life_brushes[ i ] ) )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-spawn_kill_brush( origin, radius, height )
+spawn_kill_brush( origin, radius, height ) //checked matches cerberus output
 {
 	kill_brush = spawn( "trigger_radius", origin, 0, radius, height );
 	kill_brush.script_noteworthy = "kill_brush";
 	return kill_brush;
 }
 
-in_kill_brush()
+in_kill_brush() //checked changed to match cerberus output
 {
 	kill_brushes = getentarray( "kill_brush", "script_noteworthy" );
 	if ( !isDefined( kill_brushes ) )
 	{
 		return 0;
 	}
-	i = 0;
-	while ( i < kill_brushes.size )
+	for ( i = 0; i < kill_brushes.size; i++ )
 	{
 		if ( self istouching( kill_brushes[ i ] ) )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-in_enabled_playable_area()
+in_enabled_playable_area() //checked changed to match cerberus output
 {
 	playable_area = getentarray( "player_volume", "script_noteworthy" );
 	if ( !isDefined( playable_area ) )
 	{
 		return 0;
 	}
-	i = 0;
-	while ( i < playable_area.size )
+	for ( i = 0; i < playable_area.size; i++ )
 	{
 		if ( maps/mp/zombies/_zm_zonemgr::zone_is_enabled( playable_area[ i ].targetname ) && self istouching( playable_area[ i ] ) )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-get_player_out_of_playable_area_monitor_wait_time()
+get_player_out_of_playable_area_monitor_wait_time() //checked matches cerberus output
 {
-	
-/#
-	if ( isDefined( level.check_kill_thread_every_frame ) && level.check_kill_thread_every_frame )
-	{
-		return 0.05;
-#/
-	}
-	
 	return 3;
 }
 
-player_out_of_playable_area_monitor()
+player_out_of_playable_area_monitor() //checked changed to match cerberus output
 {
 	self notify( "stop_player_out_of_playable_area_monitor" );
 	self endon( "stop_player_out_of_playable_area_monitor" );
@@ -1620,11 +1464,11 @@ player_out_of_playable_area_monitor()
 	wait ( 0.15 * self.characterindex );
 	while ( 1 )
 	{
-		while ( self.sessionstate == "spectator" )
+		if ( self.sessionstate == "spectator" )
 		{
 			wait get_player_out_of_playable_area_monitor_wait_time();
 		}
-		while ( is_true( level.hostmigration_occured ) )
+		if ( is_true( level.hostmigration_occured ) )
 		{
 			wait get_player_out_of_playable_area_monitor_wait_time();
 		}
@@ -1632,19 +1476,6 @@ player_out_of_playable_area_monitor()
 		{
 			if ( !isDefined( level.player_out_of_playable_area_monitor_callback ) || self [[ level.player_out_of_playable_area_monitor_callback ]]() )
 			{
-				/*
-/#
-				while ( isDefined( level.kill_thread_test_mode ) && level.kill_thread_test_mode )
-				{
-					iprintlnbold( "out of playable" );
-					wait get_player_out_of_playable_area_monitor_wait_time();
-				}
-				while ( !self isinmovemode( "ufo", "noclip" ) && isDefined( level.disable_kill_thread ) || level.disable_kill_thread && getDvarInt( "zombie_cheat" ) > 0 )
-				{
-					wait get_player_out_of_playable_area_monitor_wait_time();
-#/
-				}
-				*/
 				self maps/mp/zombies/_zm_stats::increment_map_cheat_stat( "cheat_out_of_playable" );
 				self maps/mp/zombies/_zm_stats::increment_client_stat( "cheat_out_of_playable", 0 );
 				self maps/mp/zombies/_zm_stats::increment_client_stat( "cheat_total", 0 );
@@ -1668,20 +1499,18 @@ player_out_of_playable_area_monitor()
 	}
 }
 
-get_player_too_many_weapons_monitor_wait_time()
+get_player_too_many_weapons_monitor_wait_time() //checked matches cerberus output
 {
 	return 3;
 }
 
-player_too_many_weapons_monitor_takeaway_simultaneous( primary_weapons_to_take )
+player_too_many_weapons_monitor_takeaway_simultaneous( primary_weapons_to_take ) //checked changed to match cerberus output
 {
 	self endon( "player_too_many_weapons_monitor_takeaway_sequence_done" );
 	self waittill_any( "player_downed", "replace_weapon_powerup" );
-	i = 0;
-	while ( i < primary_weapons_to_take.size )
+	for ( i = 0; i < primary_weapons_to_take.size; i++ )
 	{
 		self takeweapon( primary_weapons_to_take[ i ] );
-		i++;
 	}
 	self maps/mp/zombies/_zm_score::minus_to_player_score( self.score );
 	self give_start_weapon( 0 );
@@ -1689,32 +1518,27 @@ player_too_many_weapons_monitor_takeaway_simultaneous( primary_weapons_to_take )
 	{
 		self decrement_is_drinking();
 	}
-	else
+	else if ( flag( "solo_game" ) )
 	{
-		if ( flag( "solo_game" ) )
-		{
-			self.score_lost_when_downed = 0;
-		}
+		self.score_lost_when_downed = 0;
 	}
 	self notify( "player_too_many_weapons_monitor_takeaway_sequence_done" );
 }
 
-player_too_many_weapons_monitor_takeaway_sequence( primary_weapons_to_take )
+player_too_many_weapons_monitor_takeaway_sequence( primary_weapons_to_take ) //checked changed to match cerberus output
 {
 	self thread player_too_many_weapons_monitor_takeaway_simultaneous( primary_weapons_to_take );
 	self endon( "player_downed" );
 	self endon( "replace_weapon_powerup" );
 	self increment_is_drinking();
 	score_decrement = round_up_to_ten( int( self.score / ( primary_weapons_to_take.size + 1 ) ) );
-	i = 0;
-	while ( i < primary_weapons_to_take.size )
+	for ( i = 0; i < primary_weapons_to_take.size; i++ )
 	{
 		self playlocalsound( level.zmb_laugh_alias );
 		self switchtoweapon( primary_weapons_to_take[ i ] );
 		self maps/mp/zombies/_zm_score::minus_to_player_score( score_decrement );
-		wait 3;
+		wait(3);
 		self takeweapon( primary_weapons_to_take[ i ] );
-		i++;
 	}
 	self playlocalsound( level.zmb_laugh_alias );
 	self maps/mp/zombies/_zm_score::minus_to_player_score( self.score );
@@ -1724,7 +1548,7 @@ player_too_many_weapons_monitor_takeaway_sequence( primary_weapons_to_take )
 	self notify( "player_too_many_weapons_monitor_takeaway_sequence_done" );
 }
 
-player_too_many_weapons_monitor()
+player_too_many_weapons_monitor() //checked changed to match cerberus output
 {
 	self notify( "stop_player_too_many_weapons_monitor" );
 	self endon( "stop_player_too_many_weapons_monitor" );
@@ -1738,18 +1562,11 @@ player_too_many_weapons_monitor()
 	wait ( 0.15 * scalar );
 	while ( 1 )
 	{
-		while ( !self has_powerup_weapon() || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && self.sessionstate == "spectator" )
+		if ( self has_powerup_weapon() || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || self.sessionstate == "spectator" )
 		{
-			wait get_player_too_many_weapons_monitor_wait_time();
+			wait( get_player_too_many_weapons_monitor_wait_time() );
+			continue;
 		}
-		/*
-/#
-		while ( getDvarInt( "zombie_cheat" ) > 0 )
-		{
-			wait get_player_too_many_weapons_monitor_wait_time();
-#/
-		}
-		*/
 		weapon_limit = get_player_weapon_limit( self );
 		primaryweapons = self getweaponslistprimaries();
 		if ( primaryweapons.size > weapon_limit )
@@ -1758,14 +1575,12 @@ player_too_many_weapons_monitor()
 			primaryweapons = self getweaponslistprimaries();
 		}
 		primary_weapons_to_take = [];
-		i = 0;
-		while ( i < primaryweapons.size )
+		for ( i = 0; i < primaryweapons.size; i++ )
 		{
 			if ( maps/mp/zombies/_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps/mp/zombies/_zm_weapons::is_weapon_upgraded( primaryweapons[ i ] ) )
 			{
 				primary_weapons_to_take[ primary_weapons_to_take.size ] = primaryweapons[ i ];
 			}
-			i++;
 		}
 		if ( primary_weapons_to_take.size > weapon_limit )
 		{
@@ -1782,7 +1597,7 @@ player_too_many_weapons_monitor()
 	}
 }
 
-player_monitor_travel_dist()
+player_monitor_travel_dist() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "stop_player_monitor_travel_dist" );
@@ -1796,7 +1611,7 @@ player_monitor_travel_dist()
 	}
 }
 
-player_monitor_time_played()
+player_monitor_time_played() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "stop_player_monitor_time_played" );
@@ -1809,22 +1624,20 @@ player_monitor_time_played()
 	}
 }
 
-reset_rampage_bookmark_kill_times()
+reset_rampage_bookmark_kill_times() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.rampage_bookmark_kill_times ) )
 	{
 		self.rampage_bookmark_kill_times = [];
 		self.ignore_rampage_kill_times = 0;
 	}
-	i = 0;
-	while ( i < level.rampage_bookmark_kill_times_count )
+	for ( i = 0; i < level.rampage_bookmark_kill_times_count; i++ )
 	{
 		self.rampage_bookmark_kill_times[ i ] = 0;
-		i++;
 	}
 }
 
-add_rampage_bookmark_kill_time()
+add_rampage_bookmark_kill_time() //checked changed to match cerberus output
 {
 	now = getTime();
 	if ( now <= self.ignore_rampage_kill_times )
@@ -1833,79 +1646,58 @@ add_rampage_bookmark_kill_time()
 	}
 	oldest_index = 0;
 	oldest_time = now + 1;
-	i = 0;
-	while ( i < level.rampage_bookmark_kill_times_count )
+	for ( i = 0; i < level.rampage_bookmark_kill_times_count; i++ )
 	{
-		if ( !self.rampage_bookmark_kill_times[ i ] )
+		if( !self.rampage_bookmark_kill_times[ i ] )
 		{
 			oldest_index = i;
 			break;
+			continue;
 		}
-		else if ( oldest_time > self.rampage_bookmark_kill_times[ i ] )
+		if ( oldest_time > self.rampage_bookmark_kill_times[ i ] )
 		{
 			oldest_index = i;
 			oldest_time = self.rampage_bookmark_kill_times[ i ];
 		}
-		i++;
 	}
 	self.rampage_bookmark_kill_times[ oldest_index ] = now;
 }
 
-watch_rampage_bookmark()
+watch_rampage_bookmark() //checked changed to match cerberus output
 {
-	while ( 1 )
+	while(1)
 	{
 		wait 0.05;
 		waittillframeend;
-		now = getTime();
+		now = GetTime();
 		oldest_allowed = now - level.rampage_bookmark_kill_times_msec;
 		players = get_players();
-		player_index = 0;
-		while ( player_index < players.size )
+		for ( player_index = 0; player_index < players.size; player_index++ )
 		{
 			player = players[ player_index ];
-
-
-			if ( isDefined( player.pers[ "isBot" ] ) && player.pers[ "isBot" ] )
+			for ( time_index = 0; time_index < level.rampage_bookmark_kill_times_count; time_index++ )
 			{
-				/*
-				player_index++;
-				continue;
-				*/
-			}
-
-			else
-			{
-				time_index = 0;
-				while ( time_index < level.rampage_bookmark_kill_times_count )
+				if ( !player.rampage_bookmark_kill_times[ time_index ] )
 				{
-					if ( !player.rampage_bookmark_kill_times[ time_index ] )
-					{
-						break;
-					}
-					else if ( oldest_allowed > player.rampage_bookmark_kill_times[ time_index ] )
-					{
-						player.rampage_bookmark_kill_times[ time_index ] = 0;
-						break;
-					}
-					else
-					{
-						time_index++;
-					}
+					break;
 				}
-				if ( time_index >= level.rampage_bookmark_kill_times_count )
+				if ( oldest_allowed > player.rampage_bookmark_kill_times[ time_index ] )
 				{
-					maps/mp/_demo::bookmark( "zm_player_rampage", getTime(), player );
-					player reset_rampage_bookmark_kill_times();
-					player.ignore_rampage_kill_times = now + level.rampage_bookmark_kill_times_delay;
+					player.rampage_bookmark_kill_times[time_index] = 0;
+					break;
 				}
 			}
-			player_index++;
+			if ( time_index >= level.rampage_bookmark_kill_times_count )
+			{
+				maps/mp/_demo::bookmark( "zm_player_rampage", GetTime(), player );
+				player reset_rampage_bookmark_kill_times();
+				player.ignore_rampage_kill_times = now + level.rampage_bookmark_kill_times_delay;
+			}
 		}
 	}
 }
 
-player_grenade_multiattack_bookmark_watcher( grenade )
+player_grenade_multiattack_bookmark_watcher( grenade ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
@@ -1956,7 +1748,7 @@ player_grenade_multiattack_bookmark_watcher( grenade )
 	self.grenade_multiattack_count = 0;
 }
 
-player_grenade_watcher()
+player_grenade_watcher() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "stop_player_grenade_watcher" );
@@ -1977,7 +1769,7 @@ player_grenade_watcher()
 	}
 }
 
-player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked matches cerberus output
 {
 	if ( !isDefined( einflictor ) || !isDefined( eattacker ) )
 	{
@@ -2000,7 +1792,7 @@ player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 	return 0;
 }
 
-player_revive_monitor()
+player_revive_monitor() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "stop_player_revive_monitor" );
@@ -2018,49 +1810,37 @@ player_revive_monitor()
 		{
 			self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "revive_up" );
 			points = self.score_lost_when_downed;
-			/*
-/#
-			println( "ZM >> LAST STAND - points = " + points );
-#/
-			*/
 			reviver maps/mp/zombies/_zm_score::player_add_points( "reviver", points );
 			self.score_lost_when_downed = 0;
 		}
 	}
 }
 
-laststand_giveback_player_perks()
+laststand_giveback_player_perks() //checked changed to match cerberus output
 {
-	while ( isDefined( self.laststand_perks ) )
+	if ( isdefined( self.laststand_perks ) )
 	{
 		lost_perk_index = int( -1 );
 		if ( self.laststand_perks.size > 1 )
 		{
 			lost_perk_index = randomint( self.laststand_perks.size - 1 );
 		}
-		i = 0;
-		while ( i < self.laststand_perks.size )
+		for ( i = 0; i < self.laststand_perks.size; i++ )
 		{
 			if ( self hasperk( self.laststand_perks[ i ] ) )
 			{
-				i++;
 				continue;
 			}
-			else if ( i == lost_perk_index )
+			if ( i == lost_perk_index )
 			{
-				i++;
 				continue;
 			}
-			else
-			{
-				maps/mp/zombies/_zm_perks::give_perk( self.laststand_perks[ i ] );
-			}
-			i++;
+			maps/mp/zombies/_zm_perks::give_perk( self.laststand_perks[ i ] );
 		}
 	}
 }
 
-remote_revive_watch()
+remote_revive_watch() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "player_revived" );
@@ -2076,7 +1856,7 @@ remote_revive_watch()
 	self maps/mp/zombies/_zm_laststand::remote_revive( reviver );
 }
 
-remove_deadshot_bottle()
+remove_deadshot_bottle() //checked matches cerberus output
 {
 	wait 0.05;
 	if ( isDefined( self.lastactiveweapon ) && self.lastactiveweapon == "zombie_perk_bottle_deadshot" )
@@ -2085,23 +1865,21 @@ remove_deadshot_bottle()
 	}
 }
 
-take_additionalprimaryweapon()
+take_additionalprimaryweapon() //checked changed to match cerberus output
 {
 	weapon_to_take = undefined;
-	if ( isDefined( self._retain_perks ) || self._retain_perks && isDefined( self._retain_perks_array ) && isDefined( self._retain_perks_array[ "specialty_additionalprimaryweapon" ] ) && self._retain_perks_array[ "specialty_additionalprimaryweapon" ] )
+	if ( isDefined( self._retain_perks ) && self._retain_perks || isDefined( self._retain_perks_array ) && isDefined( self._retain_perks_array[ "specialty_additionalprimaryweapon" ] ) && self._retain_perks_array[ "specialty_additionalprimaryweapon" ] )
 	{
 		return weapon_to_take;
 	}
 	primary_weapons_that_can_be_taken = [];
 	primaryweapons = self getweaponslistprimaries();
-	i = 0;
-	while ( i < primaryweapons.size )
+	for ( i = 0; i < primaryweapons.size; i++ )
 	{
-		if ( maps/mp/zombies/_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps/mp/zombies/_zm_weapons::is_weapon_upgraded( primaryweapons[ i ] ) )
+		if ( maps/mp/zombies/_zm_weapons::is_weapon_included( primaryweapons[ i ] ) || maps/mp/zombies/_zm_weapons::is_weapon_upgraded(primaryweapons[ i ] ) )
 		{
 			primary_weapons_that_can_be_taken[ primary_weapons_that_can_be_taken.size ] = primaryweapons[ i ];
 		}
-		i++;
 	}
 	pwtcbt = primary_weapons_that_can_be_taken.size;
 	while ( pwtcbt >= 3 )
@@ -2118,13 +1896,8 @@ take_additionalprimaryweapon()
 	return weapon_to_take;
 }
 
-player_laststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+player_laststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
-/*
-/#
-	println( "ZM >> LAST STAND - player_laststand called" );
-#/
-*/
 	b_alt_visionset = 0;
 	self allowjump( 0 );
 	currweapon = self getcurrentweapon();
@@ -2175,7 +1948,7 @@ player_laststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, s
 		}
 		else
 		{
-			if ( isDefined( level.custom_player_death_vo_func ) && !( self [[ level.custom_player_death_vo_func ]]() ) )
+			if ( isDefined( level.custom_player_death_vo_func ) &&  !self [[ level.custom_player_death_vo_func ]]() )
 			{
 				self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "exert_death" );
 			}
@@ -2211,45 +1984,32 @@ player_laststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, s
 	}
 }
 
-failsafe_revive_give_back_weapons( excluded_player )
+failsafe_revive_give_back_weapons( excluded_player ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < 10 )
+	for ( i = 0; i < 10; i++ )
 	{
-		wait 0.05;
+		wait 0.05 ;
 		players = get_players();
-		_a2621 = players;
-		_k2621 = getFirstArrayKey( _a2621 );
-		while ( isDefined( _k2621 ) )
+		foreach ( player in players )
 		{
-			player = _a2621[ _k2621 ];
-			if ( excluded_player != player || !isDefined( player.reviveprogressbar ) && player maps/mp/zombies/_zm_laststand::is_reviving_any() )
+			if ( player == excluded_player || !isdefined(player.reviveprogressbar) || player maps/mp/zombies/_zm_laststand::is_reviving_any() )
 			{
+				continue;
 			}
-			else
+			player maps/mp/zombies/_zm_laststand::revive_give_back_weapons( "none" );
+			if ( isdefined( player.reviveprogressbar ) )
 			{
-			/*
-/#
-				iprintlnbold( "FAILSAFE CLEANING UP REVIVE HUD AND GUN" );
-#/
-			*/
-				player maps/mp/zombies/_zm_laststand::revive_give_back_weapons( "none" );
-				if ( isDefined( player.reviveprogressbar ) )
-				{
-					player.reviveprogressbar maps/mp/gametypes_zm/_hud_util::destroyelem();
-				}
-				if ( isDefined( player.revivetexthud ) )
-				{
-					player.revivetexthud destroy();
-				}
+				player.reviveprogressbar maps/mp/gametypes_zm/_hud_util::destroyelem();
 			}
-			_k2621 = getNextArrayKey( _a2621, _k2621 );
+			if ( isdefined( player.revivetexthud ) )
+			{
+				player.revivetexthud destroy();
+			}
 		}
-		i++;
 	}
 }
 
-spawnspectator()
+spawnspectator() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned_spectator" );
@@ -2285,11 +2045,6 @@ spawnspectator()
 	self.hasspawned = 1;
 	self.spawntime = getTime();
 	self.afk = 0;
-	/*
-/#
-	println( "*************************Zombie Spectator***" );
-#/
-	*/
 	self detachall();
 	if ( isDefined( level.custom_spectate_permissions ) )
 	{
@@ -2304,27 +2059,27 @@ spawnspectator()
 	self notify( "spawned_spectator" );
 }
 
-setspectatepermissions( ison )
+setspectatepermissions( ison ) //checked partially matches cerberus output changed at own discretion
 {
 	if ( ison )
 	{
-		self allowspectateteam( "allies", self.team == "allies" );
+		self allowspectateteam( "allies", 1 );
 	}
 	if ( ison )
 	{
-		self allowspectateteam( "axis", self.team == "axis" );
+		self allowspectateteam( "axis", 1 );
 	}
 	self allowspectateteam( "freelook", 0 );
 	self allowspectateteam( "none", 0 );
 }
 
-spectator_thread()
+spectator_thread() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned_player" );
 }
 
-spectator_toggle_3rd_person()
+spectator_toggle_3rd_person() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned_player" );
@@ -2332,7 +2087,7 @@ spectator_toggle_3rd_person()
 	self set_third_person( 1 );
 }
 
-set_third_person( value )
+set_third_person( value ) //checked matches cerberus output
 {
 	if ( value )
 	{
@@ -2349,37 +2104,31 @@ set_third_person( value )
 	self resetfov();
 }
 
-last_stand_revive()
+last_stand_revive() //checked changed to match cerberus output
 {
 	level endon( "between_round_over" );
 	players = get_players();
 	laststand_count = 0;
-	_a2811 = players;
-	_k2811 = getFirstArrayKey( _a2811 );
-	while ( isDefined( _k2811 ) )
+	foreach ( player in players )
 	{
-		player = _a2811[ _k2811 ];
 		if ( !is_player_valid( player ) )
 		{
 			laststand_count++;
 		}
-		_k2811 = getNextArrayKey( _a2811, _k2811 );
 	}
-	while ( laststand_count == players.size )
+	if ( laststand_count == players.size )
 	{
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			if ( players[ i ] maps/mp/zombies/_zm_laststand::player_is_in_laststand() && players[ i ].revivetrigger.beingrevived == 0 )
 			{
 				players[ i ] maps/mp/zombies/_zm_laststand::auto_revive( players[ i ] );
 			}
-			i++;
 		}
 	}
 }
 
-last_stand_pistol_rank_init()
+last_stand_pistol_rank_init() //checked matches cerberus output
 {
 	level.pistol_values = [];
 	level.pistol_values[ level.pistol_values.size ] = "m1911_zm";
@@ -2417,7 +2166,7 @@ last_stand_pistol_rank_init()
 	level.pistol_values[ level.pistol_values.size ] = "microwavegundw_upgraded_zm";
 }
 
-last_stand_pistol_swap()
+last_stand_pistol_swap() //checked changed to match cerberus output
 {
 	if ( self has_powerup_weapon() )
 	{
@@ -2429,131 +2178,109 @@ last_stand_pistol_swap()
 	}
 	ammoclip = weaponclipsize( self.laststandpistol );
 	doubleclip = ammoclip * 2;
-	if ( isDefined( self._special_solo_pistol_swap ) || self._special_solo_pistol_swap && self.laststandpistol == level.default_solo_laststandpistol && !self.hadpistol )
+	if ( isdefined( self._special_solo_pistol_swap ) && self._special_solo_pistol_swap ||  self.laststandpistol == level.default_solo_laststandpistol && !self.hadpistol )
 	{
 		self._special_solo_pistol_swap = 0;
 		self.hadpistol = 0;
 		self setweaponammostock( self.laststandpistol, doubleclip );
 	}
-	else
+	else if ( flag( "solo_game" ) && self.laststandpistol == level.default_solo_laststandpistol )
 	{
-		if ( flag( "solo_game" ) && self.laststandpistol == level.default_solo_laststandpistol )
+		self setweaponammostock(self.laststandpistol, doubleclip);
+	}
+	else if ( self.laststandpistol == level.default_laststandpistol )
+	{
+		self setweaponammostock( self.laststandpistol, doubleclip );
+	}
+	else if ( self.laststandpistol == "ray_gun_zm" || self.laststandpistol == "ray_gun_upgraded_zm" )
+	{
+		if ( self.stored_weapon_info[ self.laststandpistol ].total_amt >= ammoclip )
 		{
-			self setweaponammostock( self.laststandpistol, doubleclip );
+			self setweaponammoclip( self.laststandpistol, ammoclip );
+			self.stored_weapon_info[ self.laststandpistol ].given_amt = ammoclip;
 		}
 		else
 		{
-			if ( self.laststandpistol == level.default_laststandpistol )
-			{
-				self setweaponammostock( self.laststandpistol, doubleclip );
-			}
-			else if ( self.laststandpistol == "ray_gun_zm" || self.laststandpistol == "ray_gun_upgraded_zm" )
-			{
-				if ( self.stored_weapon_info[ self.laststandpistol ].total_amt >= ammoclip )
-				{
-					self setweaponammoclip( self.laststandpistol, ammoclip );
-					self.stored_weapon_info[ self.laststandpistol ].given_amt = ammoclip;
-				}
-				else
-				{
-					self setweaponammoclip( self.laststandpistol, self.stored_weapon_info[ self.laststandpistol ].total_amt );
-					self.stored_weapon_info[ self.laststandpistol ].given_amt = self.stored_weapon_info[ self.laststandpistol ].total_amt;
-				}
-				self setweaponammostock( self.laststandpistol, 0 );
-			}
-			else
-			{
-				if ( self.stored_weapon_info[ self.laststandpistol ].stock_amt >= doubleclip )
-				{
-					self setweaponammostock( self.laststandpistol, doubleclip );
-					self.stored_weapon_info[ self.laststandpistol ].given_amt = doubleclip + self.stored_weapon_info[ self.laststandpistol ].clip_amt + self.stored_weapon_info[ self.laststandpistol ].left_clip_amt;
-				}
-				else
-				{
-					self setweaponammostock( self.laststandpistol, self.stored_weapon_info[ self.laststandpistol ].stock_amt );
-					self.stored_weapon_info[ self.laststandpistol ].given_amt = self.stored_weapon_info[ self.laststandpistol ].total_amt;
-				}
-			}
+			self setweaponammoclip( self.laststandpistol, self.stored_weapon_info[ self.laststandpistol ].total_amt );
+			self.stored_weapon_info[ self.laststandpistol ].given_amt = self.stored_weapon_info[ self.laststandpistol ].total_amt;
 		}
+		self setweaponammostock( self.laststandpistol, 0 );
+	}
+	else if ( self.stored_weapon_info[ self.laststandpistol ].stock_amt >= doubleclip )
+	{
+		self setweaponammostock( self.laststandpistol, doubleclip );
+		self.stored_weapon_info[ self.laststandpistol ].given_amt = doubleclip + self.stored_weapon_info[ self.laststandpistol ].clip_amt + self.stored_weapon_info[ self.laststandpistol ].left_clip_amt;
+	}
+	else
+	{
+		self setweaponammostock( self.laststandpistol, self.stored_weapon_info[ self.laststandpistol ].stock_amt );
+		self.stored_weapon_info[ self.laststandpistol ].given_amt = self.stored_weapon_info[ self.laststandpistol ].total_amt;
 	}
 	self switchtoweapon( self.laststandpistol );
 }
 
-last_stand_best_pistol()
+last_stand_best_pistol() //checked changed to match cerberus output
 {
 	pistol_array = [];
 	current_weapons = self getweaponslistprimaries();
-	i = 0;
-	while ( i < current_weapons.size )
+	for ( i = 0; i < current_weapons.size; i++ )
 	{
 		class = weaponclass( current_weapons[ i ] );
 		if ( issubstr( current_weapons[ i ], "knife_ballistic_" ) )
 		{
 			class = "knife";
 		}
-		while ( class != "pistol" || class == "pistolspread" && class == "pistol spread" )
+		if ( class != "pistol" || class == "pistolspread" || class == "pistol spread" )
 		{
-			if ( current_weapons[ i ] != level.default_laststandpistol || !flag( "solo_game" ) && !flag( "solo_game" ) && current_weapons[ i ] != level.default_solo_laststandpistol )
+			if ( current_weapons[ i ] != level.default_laststandpistol && !flag("solo_game") || !flag( "solo_game" ) && current_weapons[ i ] != level.default_solo_laststandpistol )
 			{
-				if ( self getammocount( current_weapons[ i ] ) <= 0 )
+				if ( self getammocount( current_weapons[ i ] ) <= 0)
 				{
-					i++;
-					continue;
+					break;
 				}
 			}
-			else pistol_array_index = pistol_array.size;
+			pistol_array_index = pistol_array.size;
 			pistol_array[ pistol_array_index ] = spawnstruct();
 			pistol_array[ pistol_array_index ].gun = current_weapons[ i ];
 			pistol_array[ pistol_array_index ].value = 0;
-			j = 0;
-			while ( j < level.pistol_values.size )
+			for ( j = 0; j < level.pistol_values.size; j++ )
 			{
 				if ( level.pistol_values[ j ] == current_weapons[ i ] )
 				{
 					pistol_array[ pistol_array_index ].value = j;
-					i++;
-					continue;
-				}
-				else
-				{
-					j++;
+					break;
 				}
 			}
 		}
-		i++;
 	}
 	self.laststandpistol = last_stand_compare_pistols( pistol_array );
 }
 
-last_stand_compare_pistols( struct_array )
+last_stand_compare_pistols( struct_array ) //checked changed to match cerberus output
 {
 	if ( !isarray( struct_array ) || struct_array.size <= 0 )
 	{
 		self.hadpistol = 0;
-		while ( isDefined( self.stored_weapon_info ) )
+		if ( isDefined( self.stored_weapon_info ) )
 		{
 			stored_weapon_info = getarraykeys( self.stored_weapon_info );
-			j = 0;
-			while ( j < stored_weapon_info.size )
+			for ( j = 0; j < stored_weapon_info.size; j++ )
 			{
 				if ( stored_weapon_info[ j ] == level.laststandpistol )
 				{
 					self.hadpistol = 1;
 				}
-				j++;
 			}
 		}
 		return level.laststandpistol;
 	}
 	highest_score_pistol = struct_array[ 0 ];
-	i = 1;
-	while ( i < struct_array.size )
+	for ( i = 1; i < struct_array.size; i++ )
 	{
 		if ( struct_array[ i ].value > highest_score_pistol.value )
 		{
 			highest_score_pistol = struct_array[ i ];
 		}
-		i++;
 	}
 	if ( flag( "solo_game" ) )
 	{
@@ -2582,12 +2309,11 @@ last_stand_compare_pistols( struct_array )
 	}
 }
 
-last_stand_save_pistol_ammo()
+last_stand_save_pistol_ammo() //checked changed to match cerberus output
 {
 	weapon_inventory = self getweaponslist( 1 );
 	self.stored_weapon_info = [];
-	i = 0;
-	while ( i < weapon_inventory.size )
+	for ( i = 0; i < weapon_inventory.size; i++ )
 	{
 		weapon = weapon_inventory[ i ];
 		class = weaponclass( weapon );
@@ -2609,12 +2335,11 @@ last_stand_save_pistol_ammo()
 			self.stored_weapon_info[ weapon ].total_amt = self.stored_weapon_info[ weapon ].clip_amt + self.stored_weapon_info[ weapon ].left_clip_amt + self.stored_weapon_info[ weapon ].stock_amt;
 			self.stored_weapon_info[ weapon ].given_amt = 0;
 		}
-		i++;
 	}
 	self last_stand_best_pistol();
 }
 
-last_stand_restore_pistol_ammo()
+last_stand_restore_pistol_ammo() //checked changed to match cerberus output
 {
 	self.weapon_taken_by_losing_specialty_additionalprimaryweapon = undefined;
 	if ( !isDefined( self.stored_weapon_info ) )
@@ -2623,17 +2348,14 @@ last_stand_restore_pistol_ammo()
 	}
 	weapon_inventory = self getweaponslist( 1 );
 	weapon_to_restore = getarraykeys( self.stored_weapon_info );
-	i = 0;
-	while ( i < weapon_inventory.size )
+	for ( i = 0; i < weapon_inventory.size; i++ )
 	{
 		weapon = weapon_inventory[ i ];
-		if ( weapon != self.laststandpistol )
+		if(weapon != self.laststandpistol)
 		{
-			i++;
 			continue;
 		}
-		else j = 0;
-		while ( j < weapon_to_restore.size )
+		for ( j = 0; j < weapon_to_restore.size; j++ )
 		{
 			check_weapon = weapon_to_restore[ j ];
 			if ( weapon == check_weapon )
@@ -2643,7 +2365,7 @@ last_stand_restore_pistol_ammo()
 				{
 					last_clip = self getweaponammoclip( weapon );
 					last_left_clip = 0;
-					if ( dual_wield_name != "none" )
+					if( "none" != dual_wield_name )
 					{
 						last_left_clip = self getweaponammoclip( dual_wield_name );
 					}
@@ -2652,14 +2374,13 @@ last_stand_restore_pistol_ammo()
 					used_amt = self.stored_weapon_info[ weapon ].given_amt - last_total;
 					if ( used_amt >= self.stored_weapon_info[ weapon ].stock_amt )
 					{
-						used_amt -= self.stored_weapon_info[ weapon ].stock_amt;
+						used_amt = used_amt - self.stored_weapon_info[weapon].stock_amt;
 						self.stored_weapon_info[ weapon ].stock_amt = 0;
-						self.stored_weapon_info[ weapon ].clip_amt -= used_amt;
+						self.stored_weapon_info[ weapon ].clip_amt = self.stored_weapon_info[ weapon ].clip_amt - used_amt;
 						if ( self.stored_weapon_info[ weapon ].clip_amt < 0 )
 						{
 							self.stored_weapon_info[ weapon ].clip_amt = 0;
 						}
-						break;
 					}
 					else
 					{
@@ -2671,24 +2392,18 @@ last_stand_restore_pistol_ammo()
 					}
 				}
 				self setweaponammoclip( weapon_to_restore[ j ], self.stored_weapon_info[ weapon_to_restore[ j ] ].clip_amt );
-				if ( dual_wield_name != "none" )
+				if ( "none" != dual_wield_name )
 				{
-					self setweaponammoclip( dual_wield_name, self.stored_weapon_info[ weapon_to_restore[ j ] ].left_clip_amt );
+					self setweaponammoclip( dual_wield_name, self.stored_weapon_info[weapon_to_restore[ j ] ].left_clip_amt );
 				}
-				self setweaponammostock( weapon_to_restore[ j ], self.stored_weapon_info[ weapon_to_restore[ j ] ].stock_amt );
-				i++;
-				continue;
-			}
-			else
-			{
-				j++;
+				self setweaponammostock( weapon_to_restore[ j ], self.stored_weapon_info[weapon_to_restore[ j ] ].stock_amt );
+				break;
 			}
 		}
-		i++;
 	}
 }
 
-last_stand_take_thrown_grenade()
+last_stand_take_thrown_grenade() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "bled_out" );
@@ -2706,7 +2421,7 @@ last_stand_take_thrown_grenade()
 	}
 }
 
-last_stand_grenade_save_and_return()
+last_stand_grenade_save_and_return() //checked changed to match cerberus output
 {
 	if ( isDefined( level.isresetting_grief ) && level.isresetting_grief )
 	{
@@ -2726,8 +2441,7 @@ last_stand_grenade_save_and_return()
 		self thread last_stand_take_thrown_grenade();
 	}
 	weapons_on_player = self getweaponslist( 1 );
-	i = 0;
-	while ( i < weapons_on_player.size )
+	for ( i = 0; i < weapons_on_player.size; i++ )
 	{
 		if ( self is_player_lethal_grenade( weapons_on_player[ i ] ) )
 		{
@@ -2736,21 +2450,16 @@ last_stand_grenade_save_and_return()
 			self.lsgsar_lethal_nade_amt = self getweaponammoclip( self get_player_lethal_grenade() );
 			self setweaponammoclip( self get_player_lethal_grenade(), 0 );
 			self takeweapon( self get_player_lethal_grenade() );
-			i++;
 			continue;
 		}
-		else
+		if ( self is_player_tactical_grenade( weapons_on_player[ i ] ) )
 		{
-			if ( self is_player_tactical_grenade( weapons_on_player[ i ] ) )
-			{
-				self.lsgsar_has_tactical_nade = 1;
-				self.lsgsar_tactical = self get_player_tactical_grenade();
-				self.lsgsar_tactical_nade_amt = self getweaponammoclip( self get_player_tactical_grenade() );
-				self setweaponammoclip( self get_player_tactical_grenade(), 0 );
-				self takeweapon( self get_player_tactical_grenade() );
-			}
+			self.lsgsar_has_tactical_nade = 1;
+			self.lsgsar_tactical = self get_player_tactical_grenade();
+			self.lsgsar_tactical_nade_amt = self getweaponammoclip( self get_player_tactical_grenade() );
+			self setweaponammoclip( self get_player_tactical_grenade(), 0);
+			self takeweapon( self get_player_tactical_grenade() );
 		}
-		i++;
 	}
 	self waittill( "player_revived" );
 	if ( self.lsgsar_has_lethal_nade )
@@ -2773,7 +2482,7 @@ last_stand_grenade_save_and_return()
 	self.lsgsar_tactical = undefined;
 }
 
-spectators_respawn()
+spectators_respawn() //checked changed to match cerberus output
 {
 	level endon( "between_round_over" );
 	if ( !isDefined( level.zombie_vars[ "spectators_respawn" ] ) || !level.zombie_vars[ "spectators_respawn" ] )
@@ -2787,39 +2496,29 @@ spectators_respawn()
 	while ( 1 )
 	{
 		players = get_players();
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
-			if ( players[ i ].sessionstate == "spectator" && isDefined( players[ i ].spectator_respawn ) )
+			if ( players[ i ].sessionstate == "spectator" && isdefined( players[ i ].spectator_respawn ) )
 			{
 				players[ i ] [[ level.spawnplayer ]]();
 				thread refresh_player_navcard_hud();
-				if ( isDefined( level.script ) && level.round_number > 6 && players[ i ].score < 1500 )
+				if ( isdefined( level.script ) && level.round_number > 6 && players[ i ].score < 1500 )
 				{
 					players[ i ].old_score = players[ i ].score;
-					if ( isDefined( level.spectator_respawn_custom_score ) )
+					if ( isdefined( level.spectator_respawn_custom_score ) )
 					{
 						players[ i ] [[ level.spectator_respawn_custom_score ]]();
 					}
 					players[ i ].score = 1500;
 				}
 			}
-			i++;
 		}
 		wait 1;
 	}
 }
 
-spectator_respawn()
+spectator_respawn() //checked changed to match cerberus output
 {
-/*
-/#
-	println( "*************************Respawn Spectator***" );
-#/
-/#
-	assert( isDefined( self.spectator_respawn ) );
-#/
-*/
 	origin = self.spectator_respawn.origin;
 	angles = self.spectator_respawn.angles;
 	self setspectatepermissions( 0 );
@@ -2836,7 +2535,7 @@ spectator_respawn()
 	{
 		if ( !isDefined( new_origin.angles ) )
 		{
-			angles = ( 0, 0, -1 );
+			angles = ( 0, 0, 0 );
 		}
 		else
 		{
@@ -2880,7 +2579,7 @@ spectator_respawn()
 	return 1;
 }
 
-check_for_valid_spawn_near_team( revivee, return_struct )
+check_for_valid_spawn_near_team( revivee, return_struct ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.check_for_valid_spawn_near_team_callback ) )
 	{
@@ -2899,15 +2598,13 @@ check_for_valid_spawn_near_team( revivee, return_struct )
 		{
 			return undefined;
 		}
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
-			while ( is_player_valid( players[ i ], undefined, 1 ) && players[ i ] != self )
+			if ( is_player_valid( players[ i ], undefined, 1 ) && players[ i ] != self )
 			{
-				j = 0;
-				while ( j < spawn_points.size )
+				for ( j = 0; j < spawn_points.size; j++ )
 				{
-					if ( isDefined( spawn_points[ j ].script_int ) )
+					if ( isdefined( spawn_points[ j ].script_int ) )
 					{
 						ideal_distance = spawn_points[ j ].script_int;
 					}
@@ -2918,92 +2615,75 @@ check_for_valid_spawn_near_team( revivee, return_struct )
 					if ( spawn_points[ j ].locked == 0 )
 					{
 						plyr_dist = distancesquared( players[ i ].origin, spawn_points[ j ].origin );
-						if ( plyr_dist < ( ideal_distance * ideal_distance ) )
+						if ( plyr_dist < ideal_distance * ideal_distance )
 						{
 							if ( plyr_dist < closest_distance )
 							{
 								closest_distance = plyr_dist;
 								closest_group = j;
 							}
-							j++;
 							continue;
 						}
-						else
+						if ( plyr_dist < backup_distance )
 						{
-							if ( plyr_dist < backup_distance )
-							{
-								backup_group = j;
-								backup_distance = plyr_dist;
-							}
+							backup_group = j;
+							backup_distance = plyr_dist;
 						}
 					}
-					j++;
 				}
 			}
-			if ( !isDefined( closest_group ) )
+			if ( !isdefined( closest_group ) )
 			{
 				closest_group = backup_group;
 			}
-			if ( isDefined( closest_group ) )
+			if ( isdefined( closest_group ) )
 			{
 				spawn_location = get_valid_spawn_location( revivee, spawn_points, closest_group, return_struct );
-				if ( isDefined( spawn_location ) )
+				if ( isdefined( spawn_location ) )
 				{
 					return spawn_location;
 				}
 			}
-			i++;
 		}
 		return undefined;
 	}
 }
 
-get_valid_spawn_location( revivee, spawn_points, closest_group, return_struct )
+get_valid_spawn_location( revivee, spawn_points, closest_group, return_struct ) //checked changed to match cerberus output
 {
 	spawn_array = getstructarray( spawn_points[ closest_group ].target, "targetname" );
 	spawn_array = array_randomize( spawn_array );
-	k = 0;
-	while ( k < spawn_array.size )
+	for ( k = 0; k < spawn_array.size; k++ )
 	{
-		if ( isDefined( spawn_array[ k ].plyr ) && spawn_array[ k ].plyr == revivee getentitynumber() )
+		if ( isdefined( spawn_array[ k ].plyr ) && spawn_array[ k ].plyr == revivee getentitynumber() )
 		{
 			if ( positionwouldtelefrag( spawn_array[ k ].origin ) )
 			{
-				spawn_array[ k ].plyr = undefined;
+				spawn_array[k].plyr = undefined;
 				break;
 			}
-			else if ( isDefined( return_struct ) && return_struct )
+			if ( isdefined( return_struct ) && return_struct )
 			{
-				return spawn_array[ k ];
+				return spawn_array[k];
 			}
-			else
-			{
-				return spawn_array[ k ].origin;
-			}
+			return spawn_array[k].origin;
 		}
-		k++;
 	}
-	k = 0;
-	while ( k < spawn_array.size )
+	for ( k = 0; k < spawn_array.size; k++ )
 	{
 		if ( positionwouldtelefrag( spawn_array[ k ].origin ) )
 		{
-			k++;
 			continue;
 		}
-		else if ( !isDefined( spawn_array[ k ].plyr ) || spawn_array[ k ].plyr == revivee getentitynumber() )
+		if ( !isdefined( spawn_array[ k ].plyr) || spawn_array[ k ].plyr == revivee getentitynumber() )
 		{
 			spawn_array[ k ].plyr = revivee getentitynumber();
-			if ( isDefined( return_struct ) && return_struct )
+			if ( isdefined( return_struct ) && return_struct )
 			{
 				return spawn_array[ k ];
 			}
-			else
-			{
-				return spawn_array[ k ].origin;
-			}
+			return spawn_array[ k ].origin;
 		}
-		k++;
 	}
 	if ( isDefined( return_struct ) && return_struct )
 	{
@@ -3012,7 +2692,7 @@ get_valid_spawn_location( revivee, spawn_points, closest_group, return_struct )
 	return spawn_array[ 0 ].origin;
 }
 
-check_for_valid_spawn_near_position( revivee, v_position, return_struct )
+check_for_valid_spawn_near_position( revivee, v_position, return_struct ) //checked changed to match cerberus output
 {
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
 	if ( spawn_points.size == 0 )
@@ -3023,10 +2703,9 @@ check_for_valid_spawn_near_position( revivee, v_position, return_struct )
 	closest_distance = 100000000;
 	backup_group = undefined;
 	backup_distance = 100000000;
-	i = 0;
-	while ( i < spawn_points.size )
+	for ( i = 0; i < spawn_points.size; i++ )
 	{
-		if ( isDefined( spawn_points[ i ].script_int ) )
+		if ( isdefined( spawn_points[ i ].script_int ) )
 		{
 			ideal_distance = spawn_points[ i ].script_int;
 		}
@@ -3034,32 +2713,27 @@ check_for_valid_spawn_near_position( revivee, v_position, return_struct )
 		{
 			ideal_distance = 1000;
 		}
-		if ( spawn_points[ i ].locked == 0 )
+		if(spawn_points[ i ].locked == 0)
 		{
 			dist = distancesquared( v_position, spawn_points[ i ].origin );
-			if ( dist < ( ideal_distance * ideal_distance ) )
+			if ( dist < ideal_distance * ideal_distance )
 			{
 				if ( dist < closest_distance )
 				{
 					closest_distance = dist;
 					closest_group = i;
 				}
-				break;
 			}
-			else
+			else if ( dist < backup_distance )
 			{
-				if ( dist < backup_distance )
-				{
-					backup_group = i;
-					backup_distance = dist;
-				}
+				backup_group = i;
+				backup_distance = dist;
 			}
 		}
-		if ( !isDefined( closest_group ) )
+		if ( !isdefined( closest_group ) )
 		{
 			closest_group = backup_group;
 		}
-		i++;
 	}
 	if ( isDefined( closest_group ) )
 	{
@@ -3072,7 +2746,7 @@ check_for_valid_spawn_near_position( revivee, v_position, return_struct )
 	return undefined;
 }
 
-check_for_valid_spawn_within_range( revivee, v_position, return_struct, min_distance, max_distance )
+check_for_valid_spawn_within_range( revivee, v_position, return_struct, min_distance, max_distance ) //checked changed to match cerberus output
 {
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
 	if ( spawn_points.size == 0 )
@@ -3081,8 +2755,7 @@ check_for_valid_spawn_within_range( revivee, v_position, return_struct, min_dist
 	}
 	closest_group = undefined;
 	closest_distance = 100000000;
-	i = 0;
-	while ( i < spawn_points.size )
+	for ( i = 0; i < spawn_points.size; i++ )
 	{
 		if ( spawn_points[ i ].locked == 0 )
 		{
@@ -3096,7 +2769,6 @@ check_for_valid_spawn_within_range( revivee, v_position, return_struct, min_dist
 				}
 			}
 		}
-		i++;
 	}
 	if ( isDefined( closest_group ) )
 	{
@@ -3109,79 +2781,54 @@ check_for_valid_spawn_within_range( revivee, v_position, return_struct, min_dist
 	return undefined;
 }
 
-get_players_on_team( exclude )
+get_players_on_team( exclude ) //checked changed to match cerberus output
 {
 	teammates = [];
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( players[ i ].spawn_side == self.spawn_side && !isDefined( players[ i ].revivetrigger ) && players[ i ] != exclude )
 		{
 			teammates[ teammates.size ] = players[ i ];
 		}
-		i++;
 	}
 	return teammates;
 }
 
-get_safe_breadcrumb_pos( player )
+get_safe_breadcrumb_pos( player ) //checked changed to match cerberus output
 {
 	players = get_players();
 	valid_players = [];
 	min_dist = 22500;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( !is_player_valid( players[ i ] ) )
 		{
-			i++;
 			continue;
 		}
-		else
-		{
-			valid_players[ valid_players.size ] = players[ i ];
-		}
-		i++;
+		valid_players[ valid_players.size ] = players[ i ];
 	}
-	i = 0;
-	while ( i < valid_players.size )
+	for ( i = 0; i < valid_players.size; i++ )
 	{
 		count = 0;
-		q = 1;
-		while ( q < player.zombie_breadcrumbs.size )
+		for ( q = 1; q < player.zombie_breadcrumbs.size; q++ )
 		{
 			if ( distancesquared( player.zombie_breadcrumbs[ q ], valid_players[ i ].origin ) < min_dist )
 			{
-				q++;
 				continue;
 			}
-			else
+			count++;
+			if ( count == valid_players.size )
 			{
-				count++;
-				if ( count == valid_players.size )
-				{
-					return player.zombie_breadcrumbs[ q ];
-				}
+				return player.zombie_breadcrumbs[ q ];
 			}
-			q++;
 		}
-		i++;
 	}
 	return undefined;
 }
 
-default_max_zombie_func( max_num )
+default_max_zombie_func( max_num ) //checked changed to match cerberus output
 {
-	/*
-/#
-	count = getDvarInt( #"CF687B54" );
-	if ( count > -1 )
-	{
-		return count;
-#/
-	}
-	*/
 	max = max_num;
 	if ( level.round_number < 2 )
 	{
@@ -3199,55 +2846,32 @@ default_max_zombie_func( max_num )
 	{
 		max = int( max_num * 0.7 );
 	}
-	else
+	else if ( level.round_number < 6 )
 	{
-		if ( level.round_number < 6 )
-		{
-			max = int( max_num * 0.9 );
-		}
+		max = int( max_num * 0.9 );
 	}
 	return max;
 }
 
-round_spawning()
+round_spawning() //checked changed to match cerberus output
 {
 	level endon( "intermission" );
 	level endon( "end_of_round" );
 	level endon( "restart_round" );
-	/*
-/#
-	level endon( "kill_round" );
-#/
-	*/
 	if ( level.intermission )
 	{
 		return;
 	}
-	/*
-/#
-	if ( getDvarInt( "zombie_cheat" ) == 2 || getDvarInt( "zombie_cheat" ) >= 4 )
-	{
-		return;
-#/
-	}
-	*/
 	if ( level.zombie_spawn_locations.size < 1 )
 	{
-	/*
-/#
-		assertmsg( "No active spawners in the map.  Check to see if the zone is active and if it's pointing to spawners." );
-#/
-	*/
 		return;
 	}
 	ai_calculate_health( level.round_number );
 	count = 0;
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ].zombification_time = 0;
-		i++;
 	}
 	max = level.zombie_vars[ "zombie_max_ai" ];
 	multiplier = level.round_number / 5;
@@ -3309,12 +2933,9 @@ round_spawning()
 		{
 			old_spawn = spawn_point;
 		}
-		else
+		else if ( spawn_point == old_spawn )
 		{
-			if ( spawn_point == old_spawn )
-			{
-				spawn_point = level.zombie_spawn_locations[ randomint( level.zombie_spawn_locations.size ) ];
-			}
+			spawn_point = level.zombie_spawn_locations[ randomint( level.zombie_spawn_locations.size ) ];
 		}
 		old_spawn = spawn_point;
 		while ( isDefined( level.mixed_rounds_enabled ) && level.mixed_rounds_enabled == 1 )
@@ -3334,38 +2955,31 @@ round_spawning()
 					spawn_dog = 1;
 				}
 			}
-			else
+			else if ( level.round_number > 20 && mixed_spawns < 2 )
 			{
-				if ( level.round_number > 20 && mixed_spawns < 2 )
+				if ( randomint( 100 ) < 2 )
 				{
-					if ( randomint( 100 ) < 2 )
-					{
-						spawn_dog = 1;
-					}
-					break;
+					spawn_dog = 1;
 				}
-				else
+				break;
+			}
+			else if ( level.round_number > 15 && mixed_spawns < 1 )
+			{
+				if ( randomint( 100 ) < 1 )
 				{
-					if ( level.round_number > 15 && mixed_spawns < 1 )
-					{
-						if ( randomint( 100 ) < 1 )
-						{
-							spawn_dog = 1;
-						}
-					}
+					spawn_dog = 1;
 				}
 			}
-			while ( spawn_dog )
+			if ( spawn_dog )
 			{
 				keys = getarraykeys( level.zones );
-				i = 0;
-				while ( i < keys.size )
+				for ( i = 0; i < keys.size; i++ )
 				{
-					while ( level.zones[ keys[ i ] ].is_occupied )
+					if ( level.zones[ keys[ i ] ].is_occupied )
 					{
 						akeys = getarraykeys( level.zones[ keys[ i ] ].adjacent_zones );
 						k = 0;
-						while ( k < akeys.size )
+						for ( k = 0; k < akeys.size; k++ )
 						{
 							if ( level.zones[ akeys[ k ] ].is_active && !level.zones[ akeys[ k ] ].is_occupied && level.zones[ akeys[ k ] ].dog_locations.size > 0 )
 							{
@@ -3374,10 +2988,8 @@ round_spawning()
 
 								wait_network_frame();
 							}
-							k++;
 						}
 					}
-					i++;
 				}
 			}
 		}
@@ -3391,30 +3003,19 @@ round_spawning()
 					{
 						spawner = random( level.zombie_spawn[ spawn_point.script_int ] );
 					}
-					else
-					{
-					/*
-/#
-						assertmsg( "Wanting to spawn from zombie group " + spawn_point.script_int + "but it doens't exist" );
-#/
-					*/
-					}
 				}
 				else if ( isDefined( level.zones[ spawn_point.zone_name ].script_int ) && level.zones[ spawn_point.zone_name ].script_int )
 				{
 					spawner = random( level.zombie_spawn[ level.zones[ spawn_point.zone_name ].script_int ] );
 				}
+				else if ( isDefined( level.spawner_int ) && isDefined( level.zombie_spawn[ level.spawner_int ].size ) && level.zombie_spawn[ level.spawner_int ].size )
+				{
+					spawner = random( level.zombie_spawn[ level.spawner_int ] );
+					break;
+				}
 				else
 				{
-					if ( isDefined( level.spawner_int ) && isDefined( level.zombie_spawn[ level.spawner_int ].size ) && level.zombie_spawn[ level.spawner_int ].size )
-					{
-						spawner = random( level.zombie_spawn[ level.spawner_int ] );
-						break;
-					}
-					else
-					{
-						spawner = random( level.zombie_spawners );
-					}
+					spawner = random( level.zombie_spawners );
 				}
 			}
 			else
@@ -3435,27 +3036,21 @@ round_spawning()
 	}
 }
 
-run_custom_ai_spawn_checks()
+run_custom_ai_spawn_checks() //checked changed to match cerberus output
 {
-	_a3949 = level.custom_ai_spawn_check_funcs;
-	str_id = getFirstArrayKey( _a3949 );
-	while ( isDefined( str_id ) )
+	foreach ( s in level.custom_ai_spawn_check_funcs )
 	{
-		s = _a3949[ str_id ];
 		if ( [[ s.func_check ]]() )
 		{
 			a_spawners = [[ s.func_get_spawners ]]();
 			level.zombie_spawners = arraycombine( level.zombie_spawners, a_spawners, 0, 0 );
-			while ( isDefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
+			if ( isdefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
 			{
-				_a3958 = a_spawners;
-				_k3958 = getFirstArrayKey( _a3958 );
-				while ( isDefined( _k3958 ) )
+				foreach ( sp in a_spawners )
 				{
-					sp = _a3958[ _k3958 ];
-					if ( isDefined( sp.script_int ) )
+					if ( isdefined( sp.script_int ) )
 					{
-						if ( !isDefined( level.zombie_spawn[ sp.script_int ] ) )
+						if ( !isdefined(level.zombie_spawn[ sp.script_int ] ) )
 						{
 							level.zombie_spawn[ sp.script_int ] = [];
 						}
@@ -3464,58 +3059,42 @@ run_custom_ai_spawn_checks()
 							level.zombie_spawn[ sp.script_int ][ level.zombie_spawn[ sp.script_int ].size ] = sp;
 						}
 					}
-					_k3958 = getNextArrayKey( _a3958, _k3958 );
 				}
 			}
-			if ( isDefined( s.func_get_locations ) )
+			else if ( isdefined( s.func_get_locations ) )
 			{
 				a_locations = [[ s.func_get_locations ]]();
 				level.zombie_spawn_locations = arraycombine( level.zombie_spawn_locations, a_locations, 0, 0 );
 			}
+			break;
 		}
-		else
+		a_spawners = [[ s.func_get_spawners ]]();
+		foreach ( sp in a_spawners )
 		{
-			a_spawners = [[ s.func_get_spawners ]]();
-			_a3985 = a_spawners;
-			_k3985 = getFirstArrayKey( _a3985 );
-			while ( isDefined( _k3985 ) )
+			arrayremovevalue( level.zombie_spawners, sp );
+		}
+		if ( isdefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
+		{
+			foreach ( sp in a_spawners )
 			{
-				sp = _a3985[ _k3985 ];
-				arrayremovevalue( level.zombie_spawners, sp );
-				_k3985 = getNextArrayKey( _a3985, _k3985 );
-			}
-			while ( isDefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
-			{
-				_a3992 = a_spawners;
-				_k3992 = getFirstArrayKey( _a3992 );
-				while ( isDefined( _k3992 ) )
+				if ( isdefined( sp.script_int ) && isdefined( level.zombie_spawn[ sp.script_int ] ) )
 				{
-					sp = _a3992[ _k3992 ];
-					if ( isDefined( sp.script_int ) && isDefined( level.zombie_spawn[ sp.script_int ] ) )
-					{
-						arrayremovevalue( level.zombie_spawn[ sp.script_int ], sp );
-					}
-					_k3992 = getNextArrayKey( _a3992, _k3992 );
-				}
-			}
-			while ( isDefined( s.func_get_locations ) )
-			{
-				a_locations = [[ s.func_get_locations ]]();
-				_a4005 = a_locations;
-				_k4005 = getFirstArrayKey( _a4005 );
-				while ( isDefined( _k4005 ) )
-				{
-					s_loc = _a4005[ _k4005 ];
-					arrayremovevalue( level.zombie_spawn_locations, s_loc );
-					_k4005 = getNextArrayKey( _a4005, _k4005 );
+					arrayremovevalue( level.zombie_spawn[ sp.script_int ], sp );
 				}
 			}
 		}
-		str_id = getNextArrayKey( _a3949, str_id );
+		else if ( isdefined( s.func_get_locations ) )
+		{
+			a_locations = [[ s.func_get_locations ]]();
+			foreach ( s_loc in a_locations )
+			{
+				arrayremovevalue( level.zombie_spawn_locations, s_loc );
+			}
+		}
 	}
 }
 
-register_custom_ai_spawn_check( str_id, func_check, func_get_spawners, func_get_locations )
+register_custom_ai_spawn_check( str_id, func_check, func_get_spawners, func_get_locations ) //checked matches cerberus output
 {
 	if ( !isDefined( level.custom_ai_spawn_check_funcs[ str_id ] ) )
 	{
@@ -3526,7 +3105,7 @@ register_custom_ai_spawn_check( str_id, func_check, func_get_spawners, func_get_
 	level.custom_ai_spawn_check_funcs[ str_id ].func_get_locations = func_get_locations;
 }
 
-zombie_speed_up()
+zombie_speed_up() //checked does not match cerberus output changed at own discretion
 {
 	if ( level.round_number <= 3 )
 	{
@@ -3535,11 +3114,6 @@ zombie_speed_up()
 	level endon( "intermission" );
 	level endon( "end_of_round" );
 	level endon( "restart_round" );
-	/*
-/#
-	level endon( "kill_round" );
-#/
-	*/
 	while ( level.zombie_total > 4 )
 	{
 		wait 2;
@@ -3560,13 +3134,11 @@ zombie_speed_up()
 				zombies[ 0 ] thread [[ level.zombie_speed_up ]]();
 				break;
 			}
-			else
+			else if ( zombies[ 0 ].zombie_move_speed != "sprint" )
 			{
-				if ( zombies[ 0 ].zombie_move_speed != "sprint" )
-				{
-					zombies[ 0 ] set_zombie_run_cycle( "sprint" );
-					zombies[ 0 ].zombie_move_speed_original = zombies[ 0 ].zombie_move_speed;
-				}
+				zombies[ 0 ] set_zombie_run_cycle( "sprint" );
+				zombies[ 0 ].zombie_move_speed_original = zombies[ 0 ].zombie_move_speed;
+				break; //added for consistency
 			}
 		}
 		wait 0.5;
@@ -3574,7 +3146,7 @@ zombie_speed_up()
 	}
 }
 
-round_spawning_test()
+round_spawning_test() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -3586,7 +3158,7 @@ round_spawning_test()
 	}
 }
 
-round_pause( delay )
+round_pause( delay ) //checked changed to match cerberus output
 {
 	if ( !isDefined( delay ) )
 	{
@@ -3594,11 +3166,11 @@ round_pause( delay )
 	}
 	level.countdown_hud = create_counter_hud();
 	level.countdown_hud setvalue( delay );
-	level.countdown_hud.color = ( 0, 0, -1 );
+	level.countdown_hud.color = ( 1, 1, 1 );
 	level.countdown_hud.alpha = 1;
 	level.countdown_hud fadeovertime( 2 );
 	wait 2;
-	level.countdown_hud.color = vectorScale( ( 0, 0, -1 ), 0,21 );
+	level.countdown_hud.color = vectorScale( ( 1, 0, 0 ), 0.21 );
 	level.countdown_hud fadeovertime( 3 );
 	wait 3;
 	while ( delay >= 1 )
@@ -3609,11 +3181,9 @@ round_pause( delay )
 		level.countdown_hud setvalue( delay );
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] playlocalsound( "zmb_perks_packa_ready" );
-		i++;
 	}
 	level.countdown_hud fadeovertime( 1 );
 	level.countdown_hud.color = ( 0, 0, -1 );
@@ -3622,13 +3192,8 @@ round_pause( delay )
 	level.countdown_hud destroy_hud();
 }
 
-round_start()
+round_start() //checked matches cerberus output
 {
-/*
-/#
-	println( "ZM >> round_start start" );
-#/
-*/
 	if ( isDefined( level.round_prestart_func ) )
 	{
 		[[ level.round_prestart_func ]]();
@@ -3658,14 +3223,6 @@ round_start()
 	{
 		level.round_spawn_func = ::round_spawning;
 	}
-	/*
-/#
-	if ( getDvarInt( #"7688603C" ) )
-	{
-		level.round_spawn_func = ::round_spawning_test;
-#/
-	}
-	*/
 	if ( !isDefined( level.round_wait_func ) )
 	{
 		level.round_wait_func = ::round_wait;
@@ -3677,7 +3234,7 @@ round_start()
 	level thread [[ level.round_think_func ]]();
 }
 
-play_door_dialog()
+play_door_dialog() //checked changed to match cerberus output
 {
 	level endon( "power_on" );
 	self endon( "warning_dialog" );
@@ -3686,37 +3243,31 @@ play_door_dialog()
 	{
 		wait 0.05;
 		players = get_players();
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			dist = distancesquared( players[ i ].origin, self.origin );
 			if ( dist > 4900 )
 			{
 				timer = 0;
-				i++;
 				continue;
 			}
-			else
+			while ( dist < 4900 && timer < 3 )
 			{
-				while ( dist < 4900 && timer < 3 )
-				{
-					wait 0.5;
-					timer++;
-				}
-				if ( dist > 4900 && timer >= 3 )
-				{
-					self playsound( "door_deny" );
-					players[ i ] maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "door_deny" );
-					wait 3;
-					self notify( "warning_dialog" );
-				}
+				wait(0.5);
+				timer++;
 			}
-			i++;
+			if ( dist > 4900 && timer >= 3 )
+			{
+				self playsound( "door_deny" );
+				players[ i ] maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "door_deny" );
+				wait 3;
+				self notify("warning_dialog");
+			}
 		}
 	}
 }
 
-wait_until_first_player()
+wait_until_first_player() //checked matches cerberus output
 {
 	players = get_players();
 	if ( !isDefined( players[ 0 ] ) )
@@ -3725,7 +3276,7 @@ wait_until_first_player()
 	}
 }
 
-round_one_up()
+round_one_up() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	if ( isDefined( level.noroundnumber ) && level.noroundnumber == 1 )
@@ -3752,7 +3303,7 @@ round_one_up()
 	{
 		intro = 0;
 	}
-	if ( level.round_number != 5 && level.round_number != 10 && level.round_number != 20 || level.round_number == 35 && level.round_number == 50 )
+	if ( level.round_number == 5 || level.round_number == 10 || level.round_number == 20 || level.round_number == 35 || level.round_number == 50 )
 	{
 		players = get_players();
 		rand = randomintrange( 0, players.size );
@@ -3775,7 +3326,7 @@ round_one_up()
 	reportmtu( level.round_number );
 }
 
-round_over()
+round_over() //checked changed to match cerberus output
 {
 	if ( isDefined( level.noroundnumber ) && level.noroundnumber == 1 )
 	{
@@ -3783,8 +3334,7 @@ round_over()
 	}
 	time = level.zombie_vars[ "zombie_between_round_time" ];
 	players = getplayers();
-	player_index = 0;
-	while ( player_index < players.size )
+	for ( player_index = 0; player_index < players.size; player_index++ )
 	{
 		if ( !isDefined( players[ player_index ].pers[ "previous_distance_traveled" ] ) )
 		{
@@ -3801,49 +3351,34 @@ round_over()
 				players[ player_index ] recordzombiezone( "endingZone", zonename );
 			}
 		}
-		player_index++;
 	}
 	recordzombieroundend();
 	wait time;
 }
 
-round_think( restart )
+round_think( restart ) //checked changed to match cerberus output
 {
 	if ( !isDefined( restart ) )
 	{
 		restart = 0;
 	}
-	/*
-/#
-	println( "ZM >> round_think start" );
-#/
-	*/
 	level endon( "end_round_think" );
-	while ( isDefined( restart ) && !restart )
+	if ( isDefined( restart ) && !restart )
 	{
 		if ( isDefined( level.initial_round_wait_func ) )
 		{
 			[[ level.initial_round_wait_func ]]();
 		}
-		while ( isDefined( level.host_ended_game ) && !level.host_ended_game )
+		if ( isdefined( level.host_ended_game ) && !level.host_ended_game ) 
 		{
 			players = get_players();
-			_a4430 = players;
-			_k4430 = getFirstArrayKey( _a4430 );
-			while ( isDefined( _k4430 ) )
+			foreach ( player in players )
 			{
-				player = _a4430[ _k4430 ];
-				if ( isDefined( player.hostmigrationcontrolsfrozen ) && !player.hostmigrationcontrolsfrozen )
+				if ( isdefined( player.hostmigrationcontrolsfrozen ) && !player.hostmigrationcontrolsfrozen ) 
 				{
-					player freezecontrols( 0 );
-					/*
-/#
-					println( " Unfreeze controls 8" );
-#/
-					*/
+					player freezecontrols(0);
 				}
 				player maps/mp/zombies/_zm_stats::set_global_stat( "rounds", level.round_number );
-				_k4430 = getNextArrayKey( _a4430, _k4430 );
 			}
 		}
 	}
@@ -3874,12 +3409,6 @@ round_think( restart )
 		{
 			level thread award_grenades_for_survivors();
 		}
-		/*
-		bbprint( "zombie_rounds", "round %d player_count %d", level.round_number, players.size );
-/#
-		println( "ZM >> round_think, round=" + level.round_number + ", player_count=" + players.size );
-#/
-		*/
 		level.round_start_time = getTime();
 		while ( level.zombie_spawn_locations.size <= 0 )
 		{
@@ -3918,12 +3447,9 @@ round_think( restart )
 			level thread last_stand_revive();
 			level thread spectators_respawn();
 		}
-		else
+		else if ( players.size != 1 )
 		{
-			if ( players.size != 1 )
-			{
-				level thread spectators_respawn();
-			}
+			level thread spectators_respawn();
 		}
 		players = get_players();
 		array_thread( players, ::round_end );
@@ -3932,12 +3458,9 @@ round_think( restart )
 		{
 			level.zombie_vars[ "zombie_spawn_delay" ] = timer * 0.95;
 		}
-		else
+		else if ( timer < 0.08 )
 		{
-			if ( timer < 0.08 )
-			{
-				level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
-			}
+			level.zombie_vars[ "zombie_spawn_delay" ] = 0.08;
 		}
 		if ( level.gamedifficulty == 0 )
 		{
@@ -3955,31 +3478,26 @@ round_think( restart )
 		setroundsplayed( level.round_number );
 		matchutctime = getutc();
 		players = get_players();
-		_a4579 = players;
-		_k4579 = getFirstArrayKey( _a4579 );
-		while ( isDefined( _k4579 ) )
+		foreach ( player in players )
 		{
-			player = _a4579[ _k4579 ];
-			if ( level.curr_gametype_affects_rank && level.round_number > ( 3 + level.start_round ) )
+			if ( level.curr_gametype_affects_rank && level.round_number > 3 + level.start_round )
 			{
 				player maps/mp/zombies/_zm_stats::add_client_stat( "weighted_rounds_played", level.round_number );
 			}
 			player maps/mp/zombies/_zm_stats::set_global_stat( "rounds", level.round_number );
 			player maps/mp/zombies/_zm_stats::update_playing_utc_time( matchutctime );
-			_k4579 = getNextArrayKey( _a4579, _k4579 );
 		}
-		//check_quickrevive_for_hotjoin();
+		check_quickrevive_for_hotjoin(); //was commented out
 		level round_over();
 		level notify( "between_round_over" );
 		restart = 0;
 	}
 }
 
-award_grenades_for_survivors()
+award_grenades_for_survivors() //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for(i = 0; i < players.size; i++)
 	{
 		if ( !players[ i ].is_zombie )
 		{
@@ -3987,101 +3505,68 @@ award_grenades_for_survivors()
 			if ( !players[ i ] hasweapon( lethal_grenade ) )
 			{
 				players[ i ] giveweapon( lethal_grenade );
-				players[ i ] setweaponammoclip( lethal_grenade, 0 );
+				players[ i ] setweaponammoclip( lethal_grenade, 2 ); //changed from 0 to 2 at own discretion
 			}
 			if ( players[ i ] getfractionmaxammo( lethal_grenade ) < 0.25 )
 			{
 				players[ i ] setweaponammoclip( lethal_grenade, 2 );
-				i++;
 				continue;
 			}
-			else if ( players[ i ] getfractionmaxammo( lethal_grenade ) < 0.5 )
+			if ( players[ i ] getfractionmaxammo( lethal_grenade ) < 0.5 )
 			{
 				players[ i ] setweaponammoclip( lethal_grenade, 3 );
-				i++;
 				continue;
 			}
-			else
-			{
-				players[ i ] setweaponammoclip( lethal_grenade, 4 );
-			}
+			players[ i ] setweaponammoclip( lethal_grenade, 4 );
 		}
-		i++;
 	}
 }
 
-ai_calculate_health( round_number )
+ai_calculate_health( round_number ) //checked changed to match cerberus output
 {
 	level.zombie_health = level.zombie_vars[ "zombie_health_start" ];
-	i = 2;
-	while ( i <= round_number )
+	for ( i = 2; i <= round_number; i++ )
 	{
 		if ( i >= 10 )
 		{
 			old_health = level.zombie_health;
-			level.zombie_health += int( level.zombie_health * level.zombie_vars[ "zombie_health_increase_multiplier" ] );
+			level.zombie_health = level.zombie_health + int( level.zombie_health * level.zombie_vars[ "zombie_health_increase_multiplier" ] );
 			if ( level.zombie_health < old_health )
 			{
 				level.zombie_health = old_health;
 				return;
 			}
-			i++;
 			continue;
 		}
-		else
-		{
-			level.zombie_health = int( level.zombie_health + level.zombie_vars[ "zombie_health_increase" ] );
-		}
-		i++;
+		level.zombie_health = int( level.zombie_health + level.zombie_vars[ "zombie_health_increase" ] );
 	}
 }
 
-ai_zombie_health( round_number )
+ai_zombie_health( round_number ) //checked changed to match cerberus output
 {
 	zombie_health = level.zombie_vars[ "zombie_health_start" ];
-	i = 2;
-	while ( i <= round_number )
+	for ( i = 2; i <= round_number; i++ )
 	{
 		if ( i >= 10 )
 		{
 			old_health = zombie_health;
-			zombie_health += int( zombie_health * level.zombie_vars[ "zombie_health_increase_multiplier" ] );
+			zombie_health = zombie_health + int( zombie_health * level.zombie_vars[ "zombie_health_increase_multiplier" ] );
 			if ( zombie_health < old_health )
 			{
 				return old_health;
 			}
+			continue;
 		}
-		else
-		{
-			zombie_health = int( zombie_health + level.zombie_vars[ "zombie_health_increase" ] );
-		}
-		i++;
+		zombie_health = int( zombie_health + level.zombie_vars[ "zombie_health_increase" ] );
 	}
 	return zombie_health;
 }
 
-round_spawn_failsafe_debug()
+round_spawn_failsafe_debug() //checked dev call deleted
 {
-/*
-/#
-	level notify( "failsafe_debug_stop" );
-	level endon( "failsafe_debug_stop" );
-	start = getTime();
-	level.chunk_time = 0;
-	while ( 1 )
-	{
-		level.failsafe_time = getTime() - start;
-		if ( isDefined( self.lastchunk_destroy_time ) )
-		{
-			level.chunk_time = getTime() - self.lastchunk_destroy_time;
-		}
-		wait_network_frame();
-#/
-	}
-*/
 }
 
-round_spawn_failsafe()
+round_spawn_failsafe() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	prevorigin = self.origin;
@@ -4104,9 +3589,9 @@ round_spawn_failsafe()
 		{
 			continue;
 		}
-		while ( isDefined( self.lastchunk_destroy_time ) )
+		if ( isDefined( self.lastchunk_destroy_time ) )
 		{
-			while ( ( getTime() - self.lastchunk_destroy_time ) < 8000 )
+			if ( ( getTime() - self.lastchunk_destroy_time ) < 8000 )
 			{
 				continue;
 			}
@@ -4118,11 +3603,7 @@ round_spawn_failsafe()
 				level.zombie_total++;
 				level.zombie_total_subtract++;
 			}
-			/*
-/#
-#/
-			*/
-			self dodamage( self.health + 100, ( 0, 0, -1 ) );
+			self dodamage( self.health + 100, ( 0, 0, 0 ) );
 			return;
 		}
 		else if ( distancesquared( self.origin, prevorigin ) < 576 )
@@ -4136,11 +3617,7 @@ round_spawn_failsafe()
 				}
 			}
 			level.zombies_timeout_playspace++;
-			/*
-/#
-#/
-			*/
-			self dodamage( self.health + 100, ( 0, 0, -1 ) );
+			self dodamage( self.health + 100, ( 0, 0, 0 ) );
 			return;
 		}
 		else
@@ -4150,63 +3627,43 @@ round_spawn_failsafe()
 	}
 }
 
-round_wait()
+round_wait() //checked changed to match cerberus output
 {
 	level endon( "restart_round" );
-	/*
-/#
-	if ( getDvarInt( #"7688603C" ) )
-	{
-		level waittill( "forever" );
-#/
-	}
-/#
-	if ( getDvarInt( "zombie_cheat" ) == 2 || getDvarInt( "zombie_cheat" ) >= 4 )
-	{
-		level waittill( "forever" );
-#/
-	}
-	*/
 	wait 1;
 	if ( flag( "dog_round" ) )
 	{
-		wait 7;
+		wait 7 ;
 		while ( level.dog_intermission )
 		{
 			wait 0.5;
 		}
 		increment_dog_round_stat( "finished" );
 	}
-	else
+	while( 1 )
 	{
-		while ( 1 )
+		should_wait = 0;
+		if ( isdefined( level.is_ghost_round_started ) && [[ level.is_ghost_round_started ]]() )
 		{
-			should_wait = 0;
-			if ( isDefined( level.is_ghost_round_started ) && [[ level.is_ghost_round_started ]]() )
-			{
-				should_wait = 1;
-			}
-			else
-			{
-				if ( get_current_zombie_count() > 0 && level.zombie_total > 0 )
-				{
-					should_wait = level.intermission;
-				}
-			}
-			if ( !should_wait )
-			{
-				return;
-			}
-			if ( flag( "end_round_wait" ) )
-			{
-				return;
-			}
-			wait 1;
+			should_wait = 1;
 		}
+		if ( get_current_zombie_count() > 0 && level.zombie_total > 0 )
+		{
+			should_wait = level.intermission;
+		}
+		if(!should_wait)
+		{
+			return;
+		}
+		if(flag("end_round_wait"))
+		{
+			return;
+		}
+		wait 1;
 	}
 }
 
-zombify_player()
+zombify_player() //checked matches cerberus output
 {
 	self maps/mp/zombies/_zm_score::player_died_penalty();
 	bbprint( "zombie_playerdeaths", "round %d playername %s deathtype %s x %f y %f z %f", level.round_number, self.name, "died", self.origin );
@@ -4243,7 +3700,7 @@ zombify_player()
 	self thread playerzombie_soundboard();
 }
 
-playerzombie_player_damage()
+playerzombie_player_damage() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -4266,7 +3723,7 @@ playerzombie_player_damage()
 	}
 }
 
-playerzombie_downed_state()
+playerzombie_downed_state() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -4293,7 +3750,7 @@ playerzombie_downed_state()
 	self notify( "playerzombie_downed_state_done" );
 }
 
-playerzombie_downed_hud()
+playerzombie_downed_hud() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -4306,7 +3763,7 @@ playerzombie_downed_hud()
 	text.font = "default";
 	text.fontscale = 1.8;
 	text.alpha = 0;
-	text.color = ( 0, 0, -1 );
+	text.color = ( 1, 1, 1 );
 	text settext( &"ZOMBIE_PLAYERZOMBIE_DOWNED" );
 	text.y = -113;
 	if ( self issplitscreen() )
@@ -4320,7 +3777,7 @@ playerzombie_downed_hud()
 	text.alpha = 0;
 }
 
-playerzombie_infinite_health()
+playerzombie_infinite_health() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -4335,7 +3792,7 @@ playerzombie_infinite_health()
 	}
 }
 
-playerzombie_soundboard()
+playerzombie_soundboard() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -4353,9 +3810,9 @@ playerzombie_soundboard()
 	self.adssound_nexttime = getTime();
 	adssound = "playerzombie_adsbutton_sound";
 	self.inputsound_nexttime = getTime();
-	while ( 1 )
+	while( 1 )
 	{
-		while ( self.playerzombie_soundboard_disable )
+		while ( self.playerzombie_soundboard_disable ) //set to while loop instead of using continue
 		{
 			wait 0.05;
 		}
@@ -4365,7 +3822,7 @@ playerzombie_soundboard()
 			{
 				self thread playerzombie_play_sound( usesound );
 				self thread playerzombie_waitfor_buttonrelease( "use" );
-				self.usesound_nexttime = getTime() + self.usesound_waittime;
+				self.usesound_nexttime = GetTime() + self.usesound_waittime;
 			}
 		}
 		else if ( self attackbuttonpressed() )
@@ -4374,26 +3831,23 @@ playerzombie_soundboard()
 			{
 				self thread playerzombie_play_sound( attacksound );
 				self thread playerzombie_waitfor_buttonrelease( "attack" );
-				self.attacksound_nexttime = getTime() + self.attacksound_waittime;
+				self.attacksound_nexttime = GetTime() + self.attacksound_waittime;
 			}
 		}
-		else
+		else if ( self adsbuttonpressed() )
 		{
-			if ( self adsbuttonpressed() )
+			if ( self can_do_input( "ads" ) )
 			{
-				if ( self can_do_input( "ads" ) )
-				{
-					self thread playerzombie_play_sound( adssound );
-					self thread playerzombie_waitfor_buttonrelease( "ads" );
-					self.adssound_nexttime = getTime() + self.adssound_waittime;
-				}
+				self thread playerzombie_play_sound( adssound );
+				self thread playerzombie_waitfor_buttonrelease( "ads" );
+				self.adssound_nexttime = GetTime() + self.adssound_waittime;
 			}
 		}
 		wait 0.05;
 	}
 }
 
-can_do_input( inputtype )
+can_do_input( inputtype ) //checked matches cerberus output
 {
 	if ( getTime() < self.inputsound_nexttime )
 	{
@@ -4421,30 +3875,20 @@ can_do_input( inputtype )
 			}
 			break;
 		default:
-		/*
-/#
-			assertmsg( "can_do_input(): didn't recognize inputType of " + inputtype );
-#/
-		*/
 			break;
 	}
 	return cando;
 }
 
-playerzombie_play_sound( alias )
+playerzombie_play_sound( alias ) //checked matches cerberus output
 {
 	self play_sound_on_ent( alias );
 }
 
-playerzombie_waitfor_buttonrelease( inputtype )
+playerzombie_waitfor_buttonrelease( inputtype ) //checked changed to match cerberus output
 {
 	if ( inputtype != "use" && inputtype != "attack" && inputtype != "ads" )
 	{
-	/*
-/#
-		assertmsg( "playerzombie_waitfor_buttonrelease(): inputType of " + inputtype + " is not recognized." );
-#/
-	*/
 		return;
 	}
 	notifystring = "waitfor_buttonrelease_" + inputtype;
@@ -4468,21 +3912,18 @@ playerzombie_waitfor_buttonrelease( inputtype )
 		}
 		self.buttonpressed_attack = 0;
 	}
-	else
+	else if ( inputtype == "ads" )
 	{
-		if ( inputtype == "ads" )
+		self.buttonpressed_ads = 1;
+		while ( self adsbuttonpressed() )
 		{
-			self.buttonpressed_ads = 1;
-			while ( self adsbuttonpressed() )
-			{
-				wait 0.05;
-			}
-			self.buttonpressed_ads = 0;
+			wait 0.05;
 		}
+		self.buttonpressed_ads = 0;
 	}
 }
 
-remove_ignore_attacker()
+remove_ignore_attacker() //checked matches cerberus output
 {
 	self notify( "new_ignore_attacker" );
 	self endon( "new_ignore_attacker" );
@@ -4495,7 +3936,7 @@ remove_ignore_attacker()
 	self.ignoreattacker = undefined;
 }
 
-player_shield_facing_attacker( vdir, limit )
+player_shield_facing_attacker( vdir, limit ) //checked matches cerberus output
 {
 	orientation = self getplayerangles();
 	forwardvec = anglesToForward( orientation );
@@ -4505,16 +3946,16 @@ player_shield_facing_attacker( vdir, limit )
 	tofaceevec2d = ( tofaceevec[ 0 ], tofaceevec[ 1 ], 0 );
 	unittofaceevec2d = vectornormalize( tofaceevec2d );
 	dotproduct = vectordot( unitforwardvec2d, unittofaceevec2d );
-	return dotproduct > limit;
+	return dotproduct > limit; //is this valid?
 }
 
-player_damage_override_cheat( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+player_damage_override_cheat( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked matches cerberus output
 {
 	player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 	return 0;
 }
 
-player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked changed to match cerberus output
 {
 	if ( isDefined( level._game_module_player_damage_callback ) )
 	{
@@ -4556,15 +3997,12 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 					return 0;
 				}
 			}
-			else
+			else if ( !isDefined( self.riotshieldentity ) )
 			{
-				if ( !isDefined( self.riotshieldentity ) )
+				if ( !self player_shield_facing_attacker( vdir, -0.2 ) && isDefined( self.player_shield_apply_damage ) )
 				{
-					if ( !self player_shield_facing_attacker( vdir, -0.2 ) && isDefined( self.player_shield_apply_damage ) )
-					{
-						self [[ self.player_shield_apply_damage ]]( 100, 0 );
-						return 0;
-					}
+					self [[ self.player_shield_apply_damage ]]( 100, 0 );
+					return 0;
 				}
 			}
 		}
@@ -4609,9 +4047,9 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 			{
 				if ( isDefined( self.pers_upgrades_awarded[ "flopper" ] ) && self.pers_upgrades_awarded[ "flopper" ] )
 				{
-					if ( smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_GRENADE" )
+					if ( smeansofdeath != "MOD_PROJECTILE_SPLASH" && smeansofdeath != "MOD_GRENADE" && smeansofdeath != "MOD_GRENADE_SPLASH" )
 					{
-						canexert = smeansofdeath != "MOD_GRENADE_SPLASH";
+						canexert = smeansofdeath;
 					}
 				}
 			}
@@ -4706,13 +4144,10 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 			self maps/mp/zombies/_zm_stats::increment_client_stat( "killed_by_zdog" );
 			self maps/mp/zombies/_zm_stats::increment_player_stat( "killed_by_zdog" );
 		}
-		else
+		else if ( isDefined( eattacker.is_avogadro ) && eattacker.is_avogadro )
 		{
-			if ( isDefined( eattacker.is_avogadro ) && eattacker.is_avogadro )
-			{
-				self maps/mp/zombies/_zm_stats::increment_client_stat( "killed_by_avogadro", 0 );
-				self maps/mp/zombies/_zm_stats::increment_player_stat( "killed_by_avogadro" );
-			}
+			self maps/mp/zombies/_zm_stats::increment_client_stat( "killed_by_avogadro", 0 );
+			self maps/mp/zombies/_zm_stats::increment_player_stat( "killed_by_avogadro" );
 		}
 	}
 	self thread clear_path_timers();
@@ -4722,7 +4157,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	}
 	if ( level.scr_zm_ui_gametype == "zcleansed" && idamage > 0 )
 	{
-		if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker.team != self.team && isDefined( self.laststand ) && !self.laststand || !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !isDefined( self.last_player_attacker ) )
+		if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker.team != self.team && isDefined( self.laststand ) && !self.laststand || !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || !isDefined( self.last_player_attacker ) )
 		{
 			if ( isDefined( eattacker.maxhealth ) && isDefined( eattacker.is_zombie ) && eattacker.is_zombie )
 			{
@@ -4746,14 +4181,13 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	}
 	players = get_players();
 	count = 0;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
-		if ( self != players[ i ] && !players[ i ].is_zombie || players[ i ] maps/mp/zombies/_zm_laststand::player_is_in_laststand() && players[ i ].sessionstate == "spectator" )
+		//count of dead or downed players
+		if ( players[ i ] == self && players[ i ].is_zombie || players[i] maps/mp/zombies/_zm_laststand::player_is_in_laststand() || players[ i ].sessionstate == "spectator" )
 		{
 			count++;
 		}
-		i++;
 	}
 	if ( count < players.size || isDefined( level._game_module_game_end_check ) && !( [[ level._game_module_game_end_check ]]() ) )
 	{
@@ -4770,7 +4204,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 			self.intermission = 1;
 		}
 	}
-	if ( players.size == 1 && flag( "solo_game" ) )
+	if ( players.size == 1 && flag( "solo_game" ) || self.lives == 0 )
 	{
 		if ( self.lives != 0 )
 		{
@@ -4784,13 +4218,13 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 			non_solo_death = !flag( "solo_game" );
 		}
 	}
-	if ( !solo_death && non_solo_death && isDefined( level.no_end_game_check ) && !level.no_end_game_check )
+	if ( !solo_death || non_solo_death && isDefined( level.no_end_game_check ) && !level.no_end_game_check )
 	{
 		level notify( "stop_suicide_trigger" );
 		self thread maps/mp/zombies/_zm_laststand::playerlaststand( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime );
 		if ( !isDefined( vdir ) )
 		{
-			vdir = ( 0, 0, -1 );
+			vdir = ( 1, 0, 0 );
 		}
 		self fakedamagefrom( vdir );
 		if ( isDefined( level.custom_player_fake_death ) )
@@ -4841,42 +4275,37 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	}
 }
 
-clear_path_timers()
+clear_path_timers() //checked changed to match cerberus output
 {
 	zombies = getaiarray( level.zombie_team );
-	_a5596 = zombies;
-	_k5596 = getFirstArrayKey( _a5596 );
-	while ( isDefined( _k5596 ) )
+	foreach ( zombie in zombies )
 	{
-		zombie = _a5596[ _k5596 ];
-		if ( isDefined( zombie.favoriteenemy ) && zombie.favoriteenemy == self )
+		if ( isdefined( zombie.favoriteenemy ) && zombie.favoriteenemy == self )
 		{
 			zombie.zombie_path_timer = 0;
 		}
-		_k5596 = getNextArrayKey( _a5596, _k5596 );
 	}
 }
 
-check_player_damage_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+check_player_damage_callbacks( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.player_damage_callbacks ) )
 	{
 		return idamage;
 	}
 	i = 0;
-	while ( i < level.player_damage_callbacks.size )
+	for ( i = 0; i < level.player_damage_callbacks.size; i++ )
 	{
 		newdamage = self [[ level.player_damage_callbacks[ i ] ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 		if ( newdamage != -1 )
 		{
 			return newdamage;
 		}
-		i++;
 	}
 	return idamage;
 }
 
-register_player_damage_callback( func )
+register_player_damage_callback( func ) //checked matches cerberus output
 {
 	if ( !isDefined( level.player_damage_callbacks ) )
 	{
@@ -4885,7 +4314,7 @@ register_player_damage_callback( func )
 	level.player_damage_callbacks[ level.player_damage_callbacks.size ] = func;
 }
 
-wait_and_revive()
+wait_and_revive() //checked changed to match cerberus output
 {
 	flag_set( "wait_and_revive" );
 	if ( isDefined( self.waiting_to_revive ) && self.waiting_to_revive == 1 )
@@ -4901,12 +4330,9 @@ wait_and_revive()
 	{
 		self thread [[ level.exit_level_func ]]();
 	}
-	else
+	else if ( get_players().size == 1 )
 	{
-		if ( get_players().size == 1 )
-		{
-			self thread default_exit_level();
-		}
+		self thread default_exit_level();
 	}
 	solo_revive_time = 10;
 	self.revive_hud settext( &"ZOMBIE_REVIVING_SOLO", self );
@@ -4927,7 +4353,7 @@ wait_and_revive()
 	}
 }
 
-actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self ) || !isDefined( attacker ) )
 	{
@@ -4937,12 +4363,9 @@ actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon,
 	{
 		self.knuckles_extinguish_flames = 1;
 	}
-	else
+	else if ( weapon != "none" )
 	{
-		if ( weapon != "none" )
-		{
-			self.knuckles_extinguish_flames = undefined;
-		}
+		self.knuckles_extinguish_flames = undefined;
 	}
 	if ( isDefined( attacker.animname ) && attacker.animname == "quad_zombie" )
 	{
@@ -4980,14 +4403,6 @@ actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon,
 	{
 		final_damage = [[ self.actor_damage_func ]]( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 	}
-	/*
-/#
-	if ( getDvarInt( #"5ABA6445" ) )
-	{
-		println( "Perk/> Damage Factor: " + ( final_damage / old_damage ) + " - Pre Damage: " + old_damage + " - Post Damage: " + final_damage );
-#/
-	}
-	*/
 	if ( attacker.classname == "script_vehicle" && isDefined( attacker.owner ) )
 	{
 		attacker = attacker.owner;
@@ -5006,7 +4421,7 @@ actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon,
 	}
 	if ( isDefined( level.headshots_only ) && level.headshots_only && isDefined( attacker ) && isplayer( attacker ) )
 	{
-		if ( meansofdeath == "MOD_MELEE" || shitloc == "head" && shitloc == "helmet" )
+		if ( meansofdeath == "MOD_MELEE" || shitloc == "head" || shitloc == "helmet" )
 		{
 			return int( final_damage );
 		}
@@ -5014,18 +4429,15 @@ actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon,
 		{
 			return int( final_damage );
 		}
-		else
+		else if ( !is_headshot( weapon, shitloc, meansofdeath ) )
 		{
-			if ( !is_headshot( weapon, shitloc, meansofdeath ) )
-			{
-				return 0;
-			}
+			return 0;
 		}
 	}
 	return int( final_damage );
 }
 
-actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked does not match cerberus output did not change
 {
 	damage_override = self actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 	if ( damage_override < self.health || isDefined( self.dont_die_on_me ) && !self.dont_die_on_me )
@@ -5034,7 +4446,7 @@ actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofdeath,
 	}
 }
 
-actor_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime )
+actor_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime ) //checked matches cerberus output
 {
 	if ( game[ "state" ] == "postgame" )
 	{
@@ -5088,7 +4500,7 @@ actor_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vd
 	}
 }
 
-round_end_monitor()
+round_end_monitor() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -5099,15 +4511,10 @@ round_end_monitor()
 	}
 }
 
-end_game()
+end_game() //checked changed to match cerberus output
 {
 	level waittill( "end_game" );
 	check_end_game_intermission_delay();
-	/*
-/#
-	println( "end_game TRIGGERED " );
-#/
-	*/
 	clientnotify( "zesn" );
 	if ( isDefined( level.sndgameovermusicoverride ) )
 	{
@@ -5118,14 +4525,11 @@ end_game()
 		level thread maps/mp/zombies/_zm_audio::change_zombie_music( "game_over" );
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		setclientsysstate( "lsm", "0", players[ i ] );
-		i++;
 	}
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( players[ i ] player_is_in_laststand() )
 		{
@@ -5134,11 +4538,10 @@ end_game()
 			players[ i ] maps/mp/zombies/_zm_stats::increment_client_stat( "deaths" );
 			players[ i ] maps/mp/zombies/_zm_pers_upgrades_functions::pers_upgrade_jugg_player_death_stat();
 		}
-		if ( isDefined( players[ i ].revivetexthud ) )
+		if ( isdefined( players[ i ].revivetexthud) )
 		{
 			players[ i ].revivetexthud destroy();
 		}
-		i++;
 	}
 	stopallrumbles();
 	level.intermission = 1;
@@ -5150,19 +4553,14 @@ end_game()
 	survived = [];
 	players = get_players();
 	setmatchflag( "disableIngameMenu", 1 );
-	_a5934 = players;
-	_k5934 = getFirstArrayKey( _a5934 );
-	while ( isDefined( _k5934 ) )
+	foreach ( player in players )
 	{
-		player = _a5934[ _k5934 ];
 		player closemenu();
 		player closeingamemenu();
-		_k5934 = getNextArrayKey( _a5934, _k5934 );
 	}
 	while ( !isDefined( level._supress_survived_screen ) )
 	{
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			if ( isDefined( level.custom_game_over_hud_elem ) )
 			{
@@ -5217,12 +4615,9 @@ end_game()
 						player_survival_time_in_mins = maps/mp/zombies/_zm::to_mins( player_survival_time );
 						survived[ i ] settext( &"ZOMBIE_SURVIVED_NOMANS", player_survival_time_in_mins );
 					}
-					else
+					else if ( level.left_nomans_land == 2 )
 					{
-						if ( level.left_nomans_land == 2 )
-						{
-							survived[ i ] settext( &"ZOMBIE_SURVIVED_ROUND" );
-						}
+						survived[ i ] settext( &"ZOMBIE_SURVIVED_ROUND" );
 					}
 				}
 				else
@@ -5236,19 +4631,16 @@ end_game()
 			}
 			survived[ i ] fadeovertime( 1 );
 			survived[ i ].alpha = 1;
-			i++;
 		}
 	}
 	if ( isDefined( level.custom_end_screen ) )
 	{
 		level [[ level.custom_end_screen ]]();
 	}
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] setclientammocounterhide( 1 );
 		players[ i ] setclientminiscoreboardhide( 1 );
-		i++;
 	}
 	uploadstats();
 	maps/mp/zombies/_zm_stats::update_players_stats_at_match_end( players );
@@ -5256,31 +4648,24 @@ end_game()
 	wait 1;
 	wait 3.95;
 	players = get_players();
-	_a6045 = players;
-	_k6045 = getFirstArrayKey( _a6045 );
-	while ( isDefined( _k6045 ) )
+	foreach ( player in players )
 	{
-		player = _a6045[ _k6045 ];
-		if ( isDefined( player.sessionstate ) && player.sessionstate == "spectator" )
+		if ( isdefined( player.sessionstate ) && player.sessionstate == "spectator" )
 		{
 			player.sessionstate = "playing";
 		}
-		_k6045 = getNextArrayKey( _a6045, _k6045 );
 	}
 	wait 0.05;
 	players = get_players();
 	if ( !isDefined( level._supress_survived_screen ) )
 	{
-		i = 0;
-		while ( i < players.size )
+		for(i = 0; i < players.size; i++)
 		{
 			survived[ i ] destroy();
 			game_over[ i ] destroy();
-			i++;
 		}
 	}
-	else i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( players[ i ].survived_hud ) )
 		{
@@ -5290,7 +4675,6 @@ end_game()
 		{
 			players[ i ].game_over_hud destroy();
 		}
-		i++;
 	}
 	intermission();
 	wait level.zombie_vars[ "zombie_intermission_time" ];
@@ -5299,24 +4683,22 @@ end_game()
 	bbprint( "zombie_epilogs", "rounds %d", level.round_number );
 	wait 1.5;
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] cameraactivate( 0 );
-		i++;
 	}
 	exitlevel( 0 );
 	wait 666;
 }
 
-disable_end_game_intermission( delay )
+disable_end_game_intermission( delay ) //checked matches cerberus output
 {
 	level.disable_intermission = 1;
 	wait delay;
 	level.disable_intermission = undefined;
 }
 
-check_end_game_intermission_delay()
+check_end_game_intermission_delay() //checked changed to match cerberus output
 {
 	while ( isDefined( level.disable_intermission ) )
 	{
@@ -5326,26 +4708,21 @@ check_end_game_intermission_delay()
 			{
 				return;
 			}
-			else
-			{
-				wait 0.01;
-			}
+			wait 0.01;
 		}
 	}
 }
 
-upload_leaderboards()
+upload_leaderboards() //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] uploadleaderboards();
-		i++;
 	}
 }
 
-initializestattracking()
+initializestattracking() //checked matches cerberus output
 {
 	level.global_zombies_killed = 0;
 	level.zombies_timeout_spawn = 0;
@@ -5357,14 +4734,14 @@ initializestattracking()
 	level.zombie_breadcrumb_failed = 0;
 }
 
-uploadglobalstatcounters()
+uploadglobalstatcounters() //checked matches cerberus output
 {
 	incrementcounter( "global_zombies_killed", level.global_zombies_killed );
 	incrementcounter( "global_zombies_killed_by_players", level.zombie_player_killed_count );
 	incrementcounter( "global_zombies_killed_by_traps", level.zombie_trap_killed_count );
 }
 
-player_fake_death()
+player_fake_death() //checked matches cerberus output
 {
 	level notify( "fake_death" );
 	self notify( "fake_death" );
@@ -5378,7 +4755,7 @@ player_fake_death()
 	self freezecontrols( 1 );
 }
 
-player_exit_level()
+player_exit_level() //checked matches cerberus output
 {
 	self allowstand( 1 );
 	self allowcrouch( 0 );
@@ -5392,12 +4769,12 @@ player_exit_level()
 	}
 }
 
-player_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+player_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output
 {
 	level waittill( "forever" );
 }
 
-player_zombie_breadcrumb()
+player_zombie_breadcrumb() //checked changed to match cerberus output
 {
 	self notify( "stop_player_zombie_breadcrumb" );
 	self endon( "stop_player_zombie_breadcrumb" );
@@ -5423,7 +4800,7 @@ player_zombie_breadcrumb()
 		crumb = self.origin;
 		if ( !self isonground() && self isinvehicle() )
 		{
-			trace = bullettrace( self.origin + vectorScale( ( 0, 0, -1 ), 10 ), self.origin, 0, undefined );
+			trace = bullettrace( self.origin + vectorScale( ( 0, 0, 1 ), 10 ), self.origin, 0, undefined );
 			crumb = trace[ "position" ];
 		}
 		if ( !airborne && distancesquared( crumb, last_crumb ) < self.zombie_breadcrumb_distance )
@@ -5457,13 +4834,12 @@ player_zombie_breadcrumb()
 	}
 }
 
-store_crumb( origin )
+store_crumb( origin ) //checked changed to match cerberus output
 {
 	offsets = [];
 	height_offset = 32;
 	index = 0;
-	j = 1;
-	while ( j <= self.zombie_breadcrumb_area_num )
+	for ( j = 1; j <= self.zombie_breadcrumb_area_num; j++ )
 	{
 		offset = j * self.zombie_breadcrumb_area_distance;
 		offsets[ 0 ] = ( origin[ 0 ] - offset, origin[ 1 ], origin[ 2 ] );
@@ -5474,18 +4850,16 @@ store_crumb( origin )
 		offsets[ 5 ] = ( origin[ 0 ] + offset, origin[ 1 ], origin[ 2 ] + height_offset );
 		offsets[ 6 ] = ( origin[ 0 ], origin[ 1 ] - offset, origin[ 2 ] + height_offset );
 		offsets[ 7 ] = ( origin[ 0 ], origin[ 1 ] + offset, origin[ 2 ] + height_offset );
-		i = 0;
-		while ( i < offsets.size )
+		for ( i = 0; i < offsets.size; i++ )
 		{
 			self.zombie_breadcrumbs[ index ] = offsets[ i ];
 			index++;
-			i++;
 		}
 		j++;
 	}
 }
 
-to_mins( seconds )
+to_mins( seconds ) //checked matches cerberus output
 {
 	hours = 0;
 	minutes = 0;
@@ -5518,13 +4892,12 @@ to_mins( seconds )
 	return combined;
 }
 
-intermission()
+intermission() //checked changed to match cerberus output
 {
 	level.intermission = 1;
 	level notify( "intermission" );
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		setclientsysstate( "levelNotify", "zi", players[ i ] );
 		players[ i ] setclientthirdperson( 0 );
@@ -5532,63 +4905,47 @@ intermission()
 		players[ i ].health = 100;
 		players[ i ] thread [[ level.custom_intermission ]]();
 		players[ i ] stopsounds();
-		i++;
 	}
 	wait 0.25;
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		setclientsysstate( "lsm", "0", players[ i ] );
-		i++;
 	}
 	level thread zombie_game_over_death();
 }
 
-zombie_game_over_death()
+zombie_game_over_death() //checked changed to match cerberus output
 {
 	zombies = getaiarray( level.zombie_team );
-	i = 0;
-	while ( i < zombies.size )
+	for ( i = 0; i < zombies.size; i++ )
 	{
 		if ( !isalive( zombies[ i ] ) )
 		{
-			i++;
 			continue;
 		}
-		else
-		{
-			zombies[ i ] setgoalpos( zombies[ i ].origin );
-		}
-		i++;
+		zombies[ i ] setgoalpos( zombies[ i ].origin );
 	}
-	i = 0;
-	while ( i < zombies.size )
+	for( i = 0; i < zombies.size; i++ )
 	{
 		if ( !isalive( zombies[ i ] ) )
 		{
-			i++;
 			continue;
 		}
-		else if ( isDefined( zombies[ i ].ignore_game_over_death ) && zombies[ i ].ignore_game_over_death )
+		if ( isDefined( zombies[ i ].ignore_game_over_death ) && zombies[ i ].ignore_game_over_death )
 		{
-			i++;
 			continue;
 		}
-		else
+		wait ( 0.5 + randomfloat( 2 ) );
+		if ( isDefined( zombies[ i ] ) )
 		{
-			wait ( 0.5 + randomfloat( 2 ) );
-			if ( isDefined( zombies[ i ] ) )
-			{
-				zombies[ i ] maps/mp/zombies/_zm_spawner::zombie_head_gib();
-				zombies[ i ] dodamage( zombies[ i ].health + 666, zombies[ i ].origin );
-			}
+			zombies[ i ] maps/mp/zombies/_zm_spawner::zombie_head_gib();
+			zombies[ i ] dodamage( zombies[ i ].health + 666, zombies[ i ].origin );
 		}
-		i++;
 	}
 }
 
-player_intermission()
+player_intermission() //checked changed to match cerberus output
 {
 	self closemenu();
 	self closeingamemenu();
@@ -5609,11 +4966,6 @@ player_intermission()
 		points = getentarray( "info_intermission", "classname" );
 		if ( points.size < 1 )
 		{
-		/*
-/#
-			println( "NO info_intermission POINTS IN MAP" );
-#/
-	*/
 			return;
 		}
 	}
@@ -5623,45 +4975,43 @@ player_intermission()
 	self.game_over_bg setshader( "black", 640, 480 );
 	self.game_over_bg.alpha = 1;
 	org = undefined;
-	while ( 1 )
+
+	while(1)
 	{
 		points = array_randomize( points );
-		i = 0;
-		while ( i < points.size )
+		for ( i = 0; i < points.size; i++ )
 		{
 			point = points[ i ];
-			if ( !isDefined( org ) )
+			if ( !isdefined( org ) )
 			{
 				self spawn( point.origin, point.angles );
 			}
-			if ( isDefined( points[ i ].target ) )
+			if ( isdefined( points[ i ].target ) )
 			{
-				if ( !isDefined( org ) )
+				if ( !isdefined( org ) )
 				{
-					org = spawn( "script_model", self.origin + vectorScale( ( 0, 0, -1 ), 60 ) );
-					org setmodel( "tag_origin" );
+					org = spawn("script_model", self.origin + VectorScale( 0, 0, -1, 60));
+					org setmodel("tag_origin");
 				}
 				org.origin = points[ i ].origin;
 				org.angles = points[ i ].angles;
-				j = 0;
-				while ( j < get_players().size )
+				for( j = 0; j < get_players().size; j++ )
 				{
 					player = get_players()[ j ];
-					player camerasetposition( org );
+					player camerasetposition(org);
 					player camerasetlookat();
 					player cameraactivate( 1 );
-					j++;
 				}
 				speed = 20;
-				if ( isDefined( points[ i ].speed ) )
+				if ( isdefined( points[ i ].speed ) )
 				{
-					speed = points[ i ].speed;
+					speed = points[i].speed;
 				}
 				target_point = getstruct( points[ i ].target, "targetname" );
 				dist = distance( points[ i ].origin, target_point.origin );
 				time = dist / speed;
 				q_time = time * 0.25;
-				if ( q_time > 1 )
+				if(q_time > 1)
 				{
 					q_time = 1;
 				}
@@ -5669,66 +5019,51 @@ player_intermission()
 				self.game_over_bg.alpha = 0;
 				org moveto( target_point.origin, time, q_time, q_time );
 				org rotateto( target_point.angles, time, q_time, q_time );
-				wait ( time - q_time );
+				wait time - q_time ;
 				self.game_over_bg fadeovertime( q_time );
 				self.game_over_bg.alpha = 1;
-				wait q_time;
-				i++;
+				wait q_time ;
 				continue;
 			}
-			else
-			{
-				self.game_over_bg fadeovertime( 1 );
-				self.game_over_bg.alpha = 0;
-				wait 5;
-				self.game_over_bg thread fade_up_over_time( 1 );
-			}
-			i++;
+			self.game_over_bg fadeovertime( 1 );
+			self.game_over_bg.alpha = 0;
+			wait 5;
+			self.game_over_bg thread fade_up_over_time( 1 );
 		}
 	}
 }
 
-fade_up_over_time( t )
+
+fade_up_over_time( t ) //checked matches cerberus output
 {
 	self fadeovertime( t );
 	self.alpha = 1;
 }
 
-default_exit_level()
+default_exit_level() //checked changed to match cerberus output
 {
 	zombies = getaiarray( level.zombie_team );
-	i = 0;
-	while ( i < zombies.size )
+	for ( i = 0; i < zombies.size; i++ )
 	{
-		if ( isDefined( zombies[ i ].ignore_solo_last_stand ) && zombies[ i ].ignore_solo_last_stand )
+		if( isdefined(zombies[ i ].ignore_solo_last_stand ) && zombies[ i ].ignore_solo_last_stand )
 		{
-			i++;
 			continue;
 		}
-		else
+		if ( isdefined(zombies[ i ].find_exit_point ) ) 
 		{
-			if ( isDefined( zombies[ i ].find_exit_point ) )
-			{
-				zombies[ i ] thread [[ zombies[ i ].find_exit_point ]]();
-				i++;
-				continue;
-			}
-			else if ( zombies[ i ].ignoreme )
-			{
-				zombies[ i ] thread default_delayed_exit();
-				i++;
-				continue;
-			}
-			else
-			{
-				zombies[ i ] thread default_find_exit_point();
-			}
+			zombies[ i ] thread [[ zombies[i].find_exit_point ]]();
+			continue;
 		}
-		i++;
+		if ( zombies[ i ].ignoreme )
+		{
+			zombies[ i ] thread default_delayed_exit();
+			continue;
+		}
+		zombies[ i ] thread default_find_exit_point();
 	}
 }
 
-default_delayed_exit()
+default_delayed_exit() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -5741,15 +5076,12 @@ default_delayed_exit()
 		{
 			break;
 		}
-		else
-		{
-			wait 0.1;
-		}
+		wait 0.1;
 	}
 	self thread default_find_exit_point();
 }
 
-default_find_exit_point()
+default_find_exit_point() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	player = get_players()[ 0 ];
@@ -5759,8 +5091,7 @@ default_find_exit_point()
 	away = vectornormalize( self.origin - player.origin );
 	endpos = self.origin + vectorScale( away, 600 );
 	locs = array_randomize( level.enemy_dog_locations );
-	i = 0;
-	while ( i < locs.size )
+	for ( i = 0; i < locs.size; i++ )
 	{
 		dist_zombie = distancesquared( locs[ i ].origin, endpos );
 		dist_player = distancesquared( locs[ i ].origin, player.origin );
@@ -5768,10 +5099,6 @@ default_find_exit_point()
 		{
 			dest = i;
 			break;
-		}
-		else
-		{
-			i++;
 		}
 	}
 	self notify( "stop_find_flesh" );
@@ -5791,15 +5118,12 @@ default_find_exit_point()
 		{
 			break;
 		}
-		else
-		{
-			wait 0.1;
-		}
+		wait 0.1;
 	}
 	self thread maps/mp/zombies/_zm_ai_basic::find_flesh();
 }
 
-play_level_start_vox_delayed()
+play_level_start_vox_delayed() //checked matches cerberus output
 {
 	wait 3;
 	players = get_players();
@@ -5807,7 +5131,7 @@ play_level_start_vox_delayed()
 	players[ num ] maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "intro" );
 }
 
-register_sidequest( id, sidequest_stat )
+register_sidequest( id, sidequest_stat ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.zombie_sidequest_stat ) )
 	{
@@ -5826,19 +5150,17 @@ register_sidequest( id, sidequest_stat )
 		return;
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( players[ i ] maps/mp/zombies/_zm_stats::get_global_stat( level.zombie_sidequest_stat[ id ] ) )
 		{
 			level.zombie_sidequest_previously_completed[ id ] = 1;
 			return;
 		}
-		i++;
 	}
 }
 
-is_sidequest_previously_completed( id )
+is_sidequest_previously_completed( id ) //checked does not match cerberus output did not change
 {
 	if ( isDefined( level.zombie_sidequest_previously_completed[ id ] ) )
 	{
@@ -5846,7 +5168,7 @@ is_sidequest_previously_completed( id )
 	}
 }
 
-set_sidequest_completed( id )
+set_sidequest_completed( id ) //checked changed to match cerberus output
 {
 	level notify( "zombie_sidequest_completed" );
 	level.zombie_sidequest_previously_completed[ id ] = 1;
@@ -5863,8 +5185,7 @@ set_sidequest_completed( id )
 		return;
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( level.zombie_sidequest_stat[ id ] ) )
 		{
@@ -5874,7 +5195,7 @@ set_sidequest_completed( id )
 	}
 }
 
-playswipesound( mod, attacker )
+playswipesound( mod, attacker ) //checked matches cerberus output
 {
 	if ( isDefined( attacker.is_zombie ) && attacker.is_zombie )
 	{
@@ -5883,7 +5204,7 @@ playswipesound( mod, attacker )
 	}
 }
 
-precache_zombie_leaderboards()
+precache_zombie_leaderboards() //checked changed to match cerberus output
 {
 	if ( sessionmodeissystemlink() )
 	{
@@ -5907,11 +5228,11 @@ precache_zombie_leaderboards()
 		return;
 	}
 	maplocationname = level.scr_zm_map_start_location;
-	if ( maplocationname != "default" && maplocationname == "" && isDefined( level.default_start_location ) )
+	if ( maplocationname != "default" || maplocationname == "" && isDefined( level.default_start_location ) )
 	{
 		maplocationname = level.default_start_location;
 	}
-	if ( level.scr_zm_ui_gametype_group != "zclassic" && level.scr_zm_ui_gametype_group == "zsurvival" && level.scr_zm_ui_gametype != "zcleansed" )
+	if ( level.scr_zm_ui_gametype_group == "zclassic" || level.scr_zm_ui_gametype_group == "zsurvival" && level.scr_zm_ui_gametype != "zcleansed" )
 	{
 		expectedplayernum = getnumexpectedplayers();
 		if ( expectedplayernum == 1 )
@@ -5930,7 +5251,7 @@ precache_zombie_leaderboards()
 	precacheleaderboards( globalleaderboards + gamemodeleaderboard );
 }
 
-zm_on_player_connect()
+zm_on_player_connect() //checked matches cerberus output
 {
 	if ( level.passed_introscreen )
 	{
@@ -5940,12 +5261,12 @@ zm_on_player_connect()
 	self thread watchdisconnect();
 }
 
-zm_on_player_disconnect()
+zm_on_player_disconnect() //checked matches cerberus output
 {
 	thread refresh_player_navcard_hud();
 }
 
-watchdisconnect()
+watchdisconnect() //checked matches cerberus output
 {
 	self notify( "watchDisconnect" );
 	self endon( "watchDisconnect" );
@@ -5953,51 +5274,42 @@ watchdisconnect()
 	zm_on_player_disconnect();
 }
 
-increment_dog_round_stat( stat )
+increment_dog_round_stat( stat ) //checked changed to match cerberus output
 {
 	players = get_players();
-	_a6853 = players;
-	_k6853 = getFirstArrayKey( _a6853 );
-	while ( isDefined( _k6853 ) )
+	foreach ( player in players )
 	{
-		player = _a6853[ _k6853 ];
 		player maps/mp/zombies/_zm_stats::increment_client_stat( "zdog_rounds_" + stat );
-		_k6853 = getNextArrayKey( _a6853, _k6853 );
 	}
 }
 
-setup_player_navcard_hud()
+setup_player_navcard_hud() //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	thread refresh_player_navcard_hud();
 }
 
-refresh_player_navcard_hud()
+refresh_player_navcard_hud() //checked changed to match cerberus output
 {
 	if ( !isDefined( level.navcards ) )
 	{
 		return;
 	}
 	players = get_players();
-	_a6871 = players;
-	_k6871 = getFirstArrayKey( _a6871 );
-	while ( isDefined( _k6871 ) )
+	foreach( player in players )
 	{
-		player = _a6871[ _k6871 ];
 		navcard_bits = 0;
-		i = 0;
-		while ( i < level.navcards.size )
+		for ( i = 0; i < level.navcards.size; i++ )
 		{
 			hasit = player maps/mp/zombies/_zm_stats::get_global_stat( level.navcards[ i ] );
-			if ( isDefined( player.navcard_grabbed ) && player.navcard_grabbed == level.navcards[ i ] )
+			if ( isdefined( player.navcard_grabbed) && player.navcard_grabbed == level.navcards[ i ] )
 			{
 				hasit = 1;
 			}
 			if ( hasit )
 			{
-				//navcard_bits +=( 1 << i );
+				navcard_bits = navcard_bits + 1;
 			}
-			i++;
 		}
 		wait_network_frame();
 		player setclientfield( "navcard_held", 0 );
@@ -6006,12 +5318,11 @@ refresh_player_navcard_hud()
 			wait_network_frame();
 			player setclientfield( "navcard_held", navcard_bits );
 		}
-		_k6871 = getNextArrayKey( _a6871, _k6871 );
 	}
 }
 
 
-check_quickrevive_for_hotjoin( disconnecting_player )
+check_quickrevive_for_hotjoin( disconnecting_player ) //checked changed to match cerberus output
 {
 	solo_mode = 0;
 	subtract_num = 0;
@@ -6030,14 +5341,11 @@ check_quickrevive_for_hotjoin( disconnecting_player )
 		}
 		flag_set( "solo_game" );
 	}
-	else
+	else if ( flag( "solo_game" ) )
 	{
-		if ( flag( "solo_game" ) )
-		{
-			should_update = 1;
-		}
-		flag_clear( "solo_game" );
+		should_update = 1;
 	}
+	flag_clear( "solo_game" );
 	level.using_solo_revive = solo_mode;
 	level.revive_machine_is_solo = solo_mode;
 	set_default_laststand_pistol( solo_mode );
@@ -6047,7 +5355,7 @@ check_quickrevive_for_hotjoin( disconnecting_player )
 	}
 }
 
-set_default_laststand_pistol( solo_mode )
+set_default_laststand_pistol( solo_mode ) //checked matches cerberus output
 {
 	if ( !solo_mode )
 	{
@@ -6059,7 +5367,7 @@ set_default_laststand_pistol( solo_mode )
 	}
 }
 
-update_quick_revive( solo_mode )
+update_quick_revive( solo_mode ) //checked matches cerberus output
 {
 	if ( !isDefined( solo_mode ) )
 	{
@@ -6074,7 +5382,7 @@ update_quick_revive( solo_mode )
 }
 
 
-player_too_many_players_check()
+player_too_many_players_check() //checked matches cerberus output
 {
 	max_players = 4;
 	if ( level.scr_zm_ui_gametype == "zgrief" || level.scr_zm_ui_gametype == "zmeat" )
@@ -6087,6 +5395,9 @@ player_too_many_players_check()
 		level notify( "end_game" );
 	}
 }
+
+
+
 
 
 
