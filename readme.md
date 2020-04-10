@@ -4,6 +4,10 @@ The way scripts are categorized is based on their current functionality.
 ***The objective of this project is to get as many scripts in the No Known Erorrs category.*** 
 Eventually, once scripts have been tested even more thoroughly there will be a new category for scripts that have parity with the original scripts.
 
+## What is the purpose of these scripts and what do I do with them?
+
+Recompileable scripts can be used to override the base game scripts so your scripts are used instead of the base game scripts. You would want to do this if you wanted to make custom gamemodes, change local variables, or delete functions.
+
 ### The current categories are:
 
 **No Known Errors**: This means that during a short gameplay test no errors are observed.
