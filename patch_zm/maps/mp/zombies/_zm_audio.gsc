@@ -7,7 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	registerclientfield( "allplayers", "charindex", 1, 3, "int" );
 	registerclientfield( "toplayer", "isspeaking", 1, 1, "int" );
@@ -18,15 +18,15 @@ init()
 	onplayerconnect_callback( ::init_audio_functions );
 }
 
-setexertvoice( exert_id )
+setexertvoice( exert_id ) //checked matches cerberus output
 {
 	self.player_exert_id = exert_id;
 	self setclientfield( "charindex", self.player_exert_id );
 }
 
-playerexert( exert )
+playerexert( exert ) //checked changed to match cerberus output
 {
-	if ( isDefined( self.isspeaking ) || self.isspeaking && isDefined( self.isexerting ) && self.isexerting )
+	if ( isDefined( self.isspeaking ) && self.isspeaking || isDefined( self.isexerting ) && self.isexerting )
 	{
 		return;
 	}
@@ -47,14 +47,14 @@ playerexert( exert )
 	self playsound( id );
 }
 
-exert_timer()
+exert_timer() //checked matches cerberus output
 {
 	self endon( "disconnect" );
-	wait randomfloatrange( 1,5, 3 );
+	wait randomfloatrange( 1.5, 3 );
 	self.isexerting = 0;
 }
 
-zmbvox()
+zmbvox() //checked matches cerberus output
 {
 	level.votimer = [];
 	level.vox = zmbvoxcreate();
@@ -209,7 +209,7 @@ zmbvox()
 	}
 }
 
-init_standard_response_chances()
+init_standard_response_chances() //checked matches cerberus output
 {
 	level.response_chances = [];
 	add_vox_response_chance( "sickle", 40 );
@@ -231,7 +231,7 @@ init_standard_response_chances()
 	add_vox_response_chance( "default", 1 );
 }
 
-init_audio_functions()
+init_audio_functions() //checked matches cerberus output
 {
 	self thread zombie_behind_vox();
 	self thread player_killstreak_timer();
@@ -245,7 +245,7 @@ init_audio_functions()
 	}
 }
 
-zombie_behind_vox()
+zombie_behind_vox() //checked changed to match cerberus output one change made at one discretion
 {
 	self endon( "death_or_disconnect" );
 	if ( !isDefined( level._zbv_vox_last_update_time ) )
@@ -264,57 +264,45 @@ zombie_behind_vox()
 		}
 		zombs = level._audio_zbv_shared_ent_list;
 		played_sound = 0;
-		i = 0;
-		while ( i < zombs.size )
+		for ( i = 0; i < zombs.size; i++ )
 		{
-			if ( !isDefined( zombs[ i ] ) )
+			if ( !isdefined( zombs[ i ] ) )
 			{
-				i++;
 				continue;
 			}
-			else if ( zombs[ i ].isdog )
+			if ( zombs[ i ].isdog )
 			{
-				i++;
 				continue;
 			}
-			else
+			dist = 200;
+			z_dist = 50;
+			alias = level.vox_behind_zombie;
+			if ( isdefined( zombs[ i ].zombie_move_speed ) )
 			{
-				dist = 200;
-				z_dist = 50;
-				alias = level.vox_behind_zombie;
-				if ( isDefined( zombs[ i ].zombie_move_speed ) )
+				switch ( zombs[ i ].zombie_move_speed )
 				{
-					switch( zombs[ i ].zombie_move_speed )
-					{
-						case "walk":
-							dist = 200;
-							break;
+					case "walk":
+						dist = 200;
 						break;
-						case "run":
-							dist = 250;
-							break;
+					case "run":
+						dist = 250;
 						break;
-						case "sprint":
-							dist = 275;
-							break;
+					case "sprint":
+						dist = 275;
 						break;
-					}
-				}
-				if ( distancesquared( zombs[ i ].origin, self.origin ) < ( dist * dist ) )
-				{
-					yaw = self maps/mp/zombies/_zm_utility::getyawtospot( zombs[ i ].origin );
-					z_diff = self.origin[ 2 ] - zombs[ i ].origin[ 2 ];
-					if ( yaw < -95 && yaw > 95 && abs( z_diff ) < 50 )
-					{
-						zombs[ i ] thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "behind", zombs[ i ].animname );
-						played_sound = 1;
-						break;
-					}
 				}
 			}
-			else
+			if ( distancesquared( zombs[ i ].origin, self.origin ) < dist * dist )
 			{
-				i++;
+				yaw = self maps/mp/zombies/_zm_utility::getyawtospot( zombs[ i ].origin );
+				z_diff = self.origin[ 2 ] - zombs[ i ].origin[ 2 ];
+				//if ( yaw < -95 || yaw > 95 && Abs( z_diff ) < 50 ) //original
+				if ( ( yaw < -95 || yaw > 95 ) && Abs( z_diff ) < 50 ) 
+				{
+					zombs[ i ] thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "behind", zombs[ i ].animname );
+					played_sound = 1;
+					break;
+				}
 			}
 		}
 		if ( played_sound )
@@ -324,7 +312,7 @@ zombie_behind_vox()
 	}
 }
 
-attack_vox_network_choke()
+attack_vox_network_choke() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -333,7 +321,7 @@ attack_vox_network_choke()
 	}
 }
 
-do_zombies_playvocals( alias_type, zombie_type )
+do_zombies_playvocals( alias_type, zombie_type ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( !isDefined( zombie_type ) )
@@ -359,12 +347,9 @@ do_zombies_playvocals( alias_type, zombie_type )
 			zombie_type = "capzomb";
 			self.zmb_vocals_attack = "zmb_vocals_capzomb_attack";
 		}
-		else
+		else if ( isDefined( self.sndname ) )
 		{
-			if ( isDefined( self.sndname ) )
-			{
-				zombie_type = self.sndname;
-			}
+			zombie_type = self.sndname;
 		}
 	}
 	if ( !isDefined( level.zmb_vox[ zombie_type ] ) )
@@ -403,23 +388,20 @@ do_zombies_playvocals( alias_type, zombie_type )
 			self playsound( alias );
 		}
 	}
-	else
+	else if ( !self.talking )
 	{
-		if ( !self.talking )
+		self.talking = 1;
+		if ( self is_last_zombie() )
 		{
-			self.talking = 1;
-			if ( self is_last_zombie() )
-			{
-				alias += "_loud";
-			}
-			self playsoundwithnotify( alias, "sounddone" );
-			self waittill( "sounddone" );
-			self.talking = 0;
+			alias += "_loud";
 		}
+		self playsoundwithnotify( alias, "sounddone" );
+		self waittill( "sounddone" );
+		self.talking = 0;
 	}
 }
 
-sndisnetworksafe()
+sndisnetworksafe() //checked matches cerberus output
 {
 	if ( !isDefined( level._num_attack_vox ) )
 	{
@@ -433,7 +415,7 @@ sndisnetworksafe()
 	return 1;
 }
 
-is_last_zombie()
+is_last_zombie() //checked matches cerberus output
 {
 	if ( get_current_zombie_count() <= 1 )
 	{
@@ -442,7 +424,7 @@ is_last_zombie()
 	return 0;
 }
 
-oh_shit_vox()
+oh_shit_vox() //checked changed to match cerberus output
 {
 	self endon( "death_or_disconnect" );
 	while ( 1 )
@@ -453,8 +435,7 @@ oh_shit_vox()
 		if ( players.size > 1 )
 		{
 			close_zombs = 0;
-			i = 0;
-			while ( i < zombs.size )
+			for ( i = 0; i < zombs.size; i++ )
 			{
 				if ( isDefined( zombs[ i ].favoriteenemy ) || zombs[ i ].favoriteenemy == self && !isDefined( zombs[ i ].favoriteenemy ) )
 				{
@@ -463,7 +444,6 @@ oh_shit_vox()
 						close_zombs++;
 					}
 				}
-				i++;
 			}
 			if ( close_zombs > 4 )
 			{
@@ -477,9 +457,9 @@ oh_shit_vox()
 	}
 }
 
-create_and_play_dialog( category, type, response, force_variant, override )
+create_and_play_dialog( category, type, response, force_variant, override ) //checked changed to match cerberus output
 {
-	waittime = 0,25;
+	waittime = 0.25;
 	if ( !isDefined( self.zmbvoxid ) )
 	{
 		return;
@@ -504,7 +484,7 @@ create_and_play_dialog( category, type, response, force_variant, override )
 		{
 			return;
 		}
-		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || type != "revive_down" && type != "revive_up" )
+		if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && type != "revive_down" || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && type != "revive_up" )
 		{
 			return;
 		}
@@ -531,12 +511,9 @@ create_and_play_dialog( category, type, response, force_variant, override )
 			self thread do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type, override, isresponse );
 		}
 	}
-	else
-	{
-	}
 }
 
-do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type, override, isresponse )
+do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type, override, isresponse ) //checked partially changed to match cerberus output
 {
 	self endon( "death_or_disconnect" );
 	if ( isDefined( level.skit_vox_override ) && level.skit_vox_override && isDefined( override ) && !override )
@@ -567,7 +544,7 @@ do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type
 		}
 		if ( playbacktime >= 0 )
 		{
-			playbacktime *= 0,001;
+			playbacktime *= 0.001;
 		}
 		else
 		{
@@ -599,7 +576,7 @@ do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type
 		}
 		if ( isDefined( level.vox.speaker[ self.zmbvoxid ].response ) && isDefined( level.vox.speaker[ self.zmbvoxid ].response[ category ] ) && isDefined( level.vox.speaker[ self.zmbvoxid ].response[ category ][ type ] ) )
 		{
-			if ( isDefined( self.isnpc ) || self.isnpc && !flag( "solo_game" ) )
+			if ( isDefined( self.isnpc ) && self.isnpc || !flag( "solo_game" ) )
 			{
 				if ( isDefined( level._audio_custom_response_line ) )
 				{
@@ -617,7 +594,7 @@ do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type
 	}
 }
 
-setup_response_line( player, index, category, type )
+setup_response_line( player, index, category, type ) //checked matches cerberus output
 {
 	dempsey = 0;
 	nikolai = 1;
@@ -641,28 +618,22 @@ setup_response_line( player, index, category, type )
 	return;
 }
 
-setup_hero_rival( player, hero, rival, category, type )
+setup_hero_rival( player, hero, rival, category, type ) //checked changed to match cerberus output
 {
 	players = get_players();
 	hero_player = undefined;
 	rival_player = undefined;
-	_a803 = players;
-	_k803 = getFirstArrayKey( _a803 );
-	while ( isDefined( _k803 ) )
+	foreach ( ent in players )
 	{
-		ent = _a803[ _k803 ];
 		if ( ent.characterindex == hero )
 		{
 			hero_player = ent;
+			continue;
 		}
-		else
+		if ( ent.characterindex == rival )
 		{
-			if ( ent.characterindex == rival )
-			{
-				rival_player = ent;
-			}
+			rival_player = ent;
 		}
-		_k803 = getNextArrayKey( _a803, _k803 );
 	}
 	if ( isDefined( hero_player ) && isDefined( rival_player ) )
 	{
@@ -679,16 +650,13 @@ setup_hero_rival( player, hero, rival, category, type )
 	{
 		hero_player create_and_play_dialog( category, type, "hr_" );
 	}
-	else
+	else if ( isDefined( rival_player ) && distancesquared( player.origin, rival_player.origin ) < 250000 )
 	{
-		if ( isDefined( rival_player ) && distancesquared( player.origin, rival_player.origin ) < 250000 )
-		{
-			rival_player create_and_play_dialog( category, type, "riv_" );
-		}
+		rival_player create_and_play_dialog( category, type, "riv_" );
 	}
 }
 
-do_announcer_playvox( category, type, team )
+do_announcer_playvox( category, type, team ) //checked matches cerberus output
 {
 	if ( !isDefined( level.vox.speaker[ "announcer" ].alias[ category ] ) || !isDefined( level.vox.speaker[ "announcer" ].alias[ category ][ type ] ) )
 	{
@@ -721,7 +689,7 @@ do_announcer_playvox( category, type, team )
 	}
 }
 
-zmbvoxannouncertoteam( category, type, team )
+zmbvoxannouncertoteam( category, type, team ) //checked changed to match cerberus output
 {
 	prefix = level.vox.speaker[ "announcer" ].prefix;
 	alias_to_team = prefix + level.vox.speaker[ "announcer" ].ent zmbvoxgetlinevariant( prefix, level.vox.speaker[ "announcer" ].alias[ category ][ type ] );
@@ -730,34 +698,27 @@ zmbvoxannouncertoteam( category, type, team )
 		alias_to_rival = prefix + level.vox.speaker[ "announcer" ].ent zmbvoxgetlinevariant( prefix, level.vox.speaker[ "announcer" ].response[ category ][ type ] );
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
-		if ( !isDefined( players[ i ]._encounters_team ) )
+		if ( !isdefined( players[ i ]._encounters_team ) )
 		{
-			i++;
 			continue;
 		}
-		else if ( players[ i ]._encounters_team == team )
+		if ( players[ i ]._encounters_team == team )
 		{
 			level.vox.speaker[ "announcer" ].ent playsoundtoplayer( alias_to_team, players[ i ] );
-			i++;
 			continue;
 		}
-		else
+		if(isdefined(alias_to_rival))
 		{
-			if ( isDefined( alias_to_rival ) )
-			{
-				level.vox.speaker[ "announcer" ].ent playsoundtoplayer( alias_to_rival, players[ i ] );
-			}
+			level.vox.speaker[ "announcer" ].ent playsoundtoplayer( alias_to_rival, players[ i ] );
 		}
-		i++;
 	}
 	wait 3;
 	level.vox.speaker[ "announcer" ].ent notify( "sounddone" );
 }
 
-player_killstreak_timer()
+player_killstreak_timer() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -796,7 +757,7 @@ player_killstreak_timer()
 	}
 }
 
-player_zombie_kill_vox( hit_location, player, mod, zombie )
+player_zombie_kill_vox( hit_location, player, mod, zombie ) //checked does not match cerberus output did not change
 {
 	weapon = player getcurrentweapon();
 	dist = distancesquared( player.origin, zombie.origin );
@@ -819,7 +780,7 @@ player_zombie_kill_vox( hit_location, player, mod, zombie )
 	}
 }
 
-get_response_chance( event )
+get_response_chance( event ) //checked matches cerberus output
 {
 	if ( !isDefined( level.response_chances[ event ] ) )
 	{
@@ -828,7 +789,7 @@ get_response_chance( event )
 	return level.response_chances[ event ];
 }
 
-get_mod_type( impact, mod, weapon, zombie, instakill, dist, player )
+get_mod_type( impact, mod, weapon, zombie, instakill, dist, player ) //checked does not match cerberus output did not change
 {
 	close_dist = 4096;
 	med_dist = 15376;
@@ -989,7 +950,7 @@ get_mod_type( impact, mod, weapon, zombie, instakill, dist, player )
 	return "default";
 }
 
-timer_actual( kills, time )
+timer_actual( kills, time ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -1003,14 +964,14 @@ timer_actual( kills, time )
 			self.killcounter = 0;
 			timer = -1;
 		}
-		wait 0,1;
+		wait 0.1;
 	}
 	wait 10;
 	self.killcounter = 0;
 	self.timerisrunning = 0;
 }
 
-perks_a_cola_jingle_timer()
+perks_a_cola_jingle_timer() //checked matches cerberus output
 {
 	if ( isDefined( level.sndperksacolaloopoverride ) )
 	{
@@ -1029,7 +990,7 @@ perks_a_cola_jingle_timer()
 	}
 }
 
-play_jingle_or_stinger( perksacola )
+play_jingle_or_stinger( perksacola ) //checked matches cerberus output
 {
 	if ( isDefined( level.sndperksacolajingleoverride ) )
 	{
@@ -1064,7 +1025,7 @@ play_jingle_or_stinger( perksacola )
 	}
 }
 
-play_random_broken_sounds()
+play_random_broken_sounds() //checked matches cerberus output
 {
 	self endon( "death" );
 	level endon( "jingle_playing" );
@@ -1088,7 +1049,7 @@ play_random_broken_sounds()
 	}
 }
 
-perk_vox( perk )
+perk_vox( perk ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -1099,11 +1060,11 @@ perk_vox( perk )
 	self create_and_play_dialog( "perk", perk );
 }
 
-dialog_debugger( category, type )
+dialog_debugger( category, type ) //checked dev call deleted
 {
 }
 
-init_music_states()
+init_music_states() //checked matches cerberus output
 {
 	level.music_override = 0;
 	level.music_round_override = 0;
@@ -1123,7 +1084,7 @@ init_music_states()
 	level thread setupmusicstate( "last_life", "LAST_LIFE", 0, 1, undefined, undefined );
 }
 
-setupmusicstate( state, alias, is_alias, override, round_override, musicstate )
+setupmusicstate( state, alias, is_alias, override, round_override, musicstate ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zmb_music_states[ state ] ) )
 	{
@@ -1136,9 +1097,9 @@ setupmusicstate( state, alias, is_alias, override, round_override, musicstate )
 	level.zmb_music_states[ state ].musicstate = musicstate;
 }
 
-change_zombie_music( state )
+change_zombie_music( state ) //checked changed to match cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	m = level.zmb_music_states[ state ];
 	if ( !isDefined( m ) )
 	{
@@ -1155,12 +1116,9 @@ change_zombie_music( state )
 		{
 			return;
 		}
-		else
+		else if ( level.old_music_state.music == "mus_zombie_game_over" )
 		{
-			if ( level.old_music_state.music == "mus_zombie_game_over" )
-			{
-				return;
-			}
+			return;
 		}
 	}
 	if ( !isDefined( m.round_override ) )
@@ -1190,7 +1148,7 @@ change_zombie_music( state )
 	level.old_music_state = m;
 }
 
-weapon_toggle_vox( alias, weapon )
+weapon_toggle_vox( alias, weapon ) //checked changed to match cerberus output
 {
 	self notify( "audio_activated_trigger" );
 	self endon( "audio_activated_trigger" );
@@ -1206,16 +1164,16 @@ weapon_toggle_vox( alias, weapon )
 		}
 	}
 	self stopsounds();
-	wait 0,05;
+	wait 0.05;
 	if ( isDefined( type ) )
 	{
-		self playsoundwithnotify( ( prefix + "weapon_" ) + type, "sounddone" );
+		self playsoundwithnotify( prefix + "weapon_" + type, "sounddone" );
 		self waittill( "sounddone" );
 	}
 	self playsound( sound_to_play + "_0" );
 }
 
-get_weapon_num( weapon )
+get_weapon_num( weapon ) //checked matches cerberus output
 {
 	weapon_num = undefined;
 	switch( weapon )
@@ -1233,7 +1191,7 @@ get_weapon_num( weapon )
 	return weapon_num;
 }
 
-addasspeakernpc( ignorenearbyspeakers )
+addasspeakernpc( ignorenearbyspeakers ) //checked matches cerberus output
 {
 	if ( !isDefined( level.npcs ) )
 	{
@@ -1251,7 +1209,7 @@ addasspeakernpc( ignorenearbyspeakers )
 	level.npcs[ level.npcs.size ] = self;
 }
 
-arenearbyspeakersactive()
+arenearbyspeakersactive() //checked partially changed to match cerberus output
 {
 	radius = 1000;
 	nearbyspeakeractive = 0;
@@ -1260,46 +1218,42 @@ arenearbyspeakersactive()
 	{
 		speakers = arraycombine( speakers, level.npcs, 1, 0 );
 	}
-	_a1453 = speakers;
-	_k1453 = getFirstArrayKey( _a1453 );
-	while ( isDefined( _k1453 ) )
+	foreach ( person in speakers )
 	{
-		person = _a1453[ _k1453 ];
 		if ( self == person )
 		{
+			continue;
 		}
-		else if ( person is_player() )
+		if ( person is_player() )
 		{
 			if ( person.sessionstate != "playing" )
 			{
+				continue;
 			}
-			else if ( person maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+			if ( person maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 			{
-			}
-			else
-			{
-			}
-			if ( isDefined( person.isspeaking ) && person.isspeaking && isDefined( person.ignorenearbyspkrs ) && !person.ignorenearbyspkrs )
-			{
-				if ( distancesquared( self.origin, person.origin ) < ( radius * radius ) )
-				{
-					nearbyspeakeractive = 1;
-				}
+				continue;
 			}
 		}
-		_k1453 = getNextArrayKey( _a1453, _k1453 );
+		if ( isdefined( person.isspeaking ) && person.isspeaking && isdefined( person.ignorenearbyspkrs ) && !person.ignorenearbyspkrs )
+		{
+			if ( distancesquared( self.origin, person.origin ) < radius * radius )
+			{
+				nearbyspeakeractive = 1;
+			}
+		}
 	}
 	return nearbyspeakeractive;
 }
 
-zmbvoxcreate()
+zmbvoxcreate() //checked matches cerberus output
 {
 	vox = spawnstruct();
 	vox.speaker = [];
 	return vox;
 }
 
-zmbvoxinitspeaker( speaker, prefix, ent )
+zmbvoxinitspeaker( speaker, prefix, ent ) //checked matches cerberus output
 {
 	ent.zmbvoxid = speaker;
 	if ( !isDefined( self.speaker[ speaker ] ) )
@@ -1311,7 +1265,7 @@ zmbvoxinitspeaker( speaker, prefix, ent )
 	self.speaker[ speaker ].ent = ent;
 }
 
-zmbvoxadd( speaker, category, type, alias, response )
+zmbvoxadd( speaker, category, type, alias, response ) //checked matches cerberus output
 {
 	if ( !isDefined( self.speaker[ speaker ] ) )
 	{
@@ -1338,7 +1292,7 @@ zmbvoxadd( speaker, category, type, alias, response )
 	create_vox_timer( type );
 }
 
-zmbvoxgetlinevariant( prefix, alias_suffix, force_variant, override )
+zmbvoxgetlinevariant( prefix, alias_suffix, force_variant, override ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.sound_dialog ) )
 	{
@@ -1352,21 +1306,17 @@ zmbvoxgetlinevariant( prefix, alias_suffix, force_variant, override )
 		{
 			return undefined;
 		}
-		i = 0;
-		while ( i < num_variants )
+		for ( i = 0; i < num_variants; i++ )
 		{
 			self.sound_dialog[ alias_suffix ][ i ] = i;
-			i++;
 		}
 		self.sound_dialog_available[ alias_suffix ] = [];
 	}
 	while ( self.sound_dialog_available[ alias_suffix ].size <= 0 )
 	{
-		i = 0;
-		while ( i < self.sound_dialog[ alias_suffix ].size )
+		for ( i = 0; i < self.sound_dialog[ alias_suffix ].size; i++ )
 		{
 			self.sound_dialog_available[ alias_suffix ][ i ] = self.sound_dialog[ alias_suffix ][ i ];
-			i++;
 		}
 	}
 	variation = random( self.sound_dialog_available[ alias_suffix ] );
@@ -1382,7 +1332,7 @@ zmbvoxgetlinevariant( prefix, alias_suffix, force_variant, override )
 	return ( alias_suffix + "_" ) + variation;
 }
 
-zmbvoxcrowdonteam( alias, team, other_alias )
+zmbvoxcrowdonteam( alias, team, other_alias ) //checked changed to match cerberus output
 {
 	alias = "vox_crowd_" + alias;
 	if ( !isDefined( team ) )
@@ -1391,32 +1341,25 @@ zmbvoxcrowdonteam( alias, team, other_alias )
 		return;
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
-		if ( !isDefined( players[ i ]._encounters_team ) )
+		if ( !isdefined( players[ i ]._encounters_team ) )
 		{
-			i++;
 			continue;
 		}
-		else if ( players[ i ]._encounters_team == team )
+		if ( players[ i ]._encounters_team == team )
 		{
 			players[ i ] playsoundtoplayer( alias, players[ i ] );
-			i++;
 			continue;
 		}
-		else
+		if ( isdefined( other_alias ) )
 		{
-			if ( isDefined( other_alias ) )
-			{
-				players[ i ] playsoundtoplayer( other_alias, players[ i ] );
-			}
+			players[ i ] playsoundtoplayer( other_alias, players[ i ] );
 		}
-		i++;
 	}
 }
 
-playvoxtoplayer( category, type, force_variant )
+playvoxtoplayer( category, type, force_variant ) //checked matches cerberus output
 {
 	if ( self.sessionstate != "playing" )
 	{
@@ -1441,7 +1384,7 @@ playvoxtoplayer( category, type, force_variant )
 	}
 }
 
-sndmusicstingerevent( type, player )
+sndmusicstingerevent( type, player ) //checked matches cerberus output
 {
 	if ( isDefined( level.sndmusicstingerevent ) )
 	{
@@ -1449,7 +1392,7 @@ sndmusicstingerevent( type, player )
 	}
 }
 
-custom_kill_damaged_vo( player )
+custom_kill_damaged_vo( player ) //checked matches cerberus output
 {
 	self notify( "sound_damage_player_updated" );
 	self endon( "death" );
@@ -1458,4 +1401,5 @@ custom_kill_damaged_vo( player )
 	wait 5;
 	self.sound_damage_player = undefined;
 }
+
 

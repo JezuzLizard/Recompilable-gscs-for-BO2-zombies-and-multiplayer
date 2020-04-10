@@ -8,6 +8,7 @@ patch_zm/maps/mp/gametypes_zm/zclassic.gsc
 patch_zm/maps/mp/zombies/_zm_ai_basic.gsc
 patch_zm/maps/mp/zombies/_zm_ai_dogs.gsc
 patch_zm/maps/mp/zombies/_zm_ai_faller.gsc
+patch_zm/maps/mp/zombies/_zm_audio.gsc
 patch_zm/maps/mp/zombies/_zm_audio_announcer.gsc
 patch_zm/maps/mp/zombies/_zm_bot.gsc
 patch_zm/maps/mp/zombies/_zm_clone.gsc
@@ -58,7 +59,6 @@ patch_zm/maps/mp/zombies/_load.gsc
 
 ### The following scripts are not tested yet, uploaded to setup a baseline:
 ```
-patch_zm/maps/mp/zombies/_zm_audio.gsc
 ```
 
 ### notes:
