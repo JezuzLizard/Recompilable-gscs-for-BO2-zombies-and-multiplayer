@@ -13,6 +13,7 @@ init() //checked matches cerberus output
 	{
 		return;
 	}
+	level.start_weapon = "slowgun_zm";
 	registerclientfield( "actor", "slowgun_fx", 12000, 3, "int" );
 	registerclientfield( "actor", "anim_rate", 7000, 5, "float" );
 	registerclientfield( "allplayers", "anim_rate", 7000, 5, "float" );
@@ -77,59 +78,47 @@ watch_slowgun_fired() //checked changed to match cerberus output
 	for ( ;; )
 	{
 		self waittill( "weapon_fired", weapon );
+		wait 0.05;
 		if ( weapon == "slowgun_zm" )
 		{
 			self slowgun_fired( 0 );
-			continue;
 		}
-		if ( weapon == "slowgun_upgraded_zm" )
+		else if ( weapon == "slowgun_upgraded_zm" )
 		{
 			self slowgun_fired( 1 );
 		}
 	}
 }
 
-slowgun_fired( upgraded )
+slowgun_fired( upgraded ) //checked changed to match cerberus output
 {
 	origin = self getweaponmuzzlepoint();
 	forward = self getweaponforwarddir();
-/#
-	show_muzzle( origin, forward );
-#/
+
 	targets = self get_targets_in_range( upgraded, origin, forward );
-	while ( targets.size )
+	foreach ( target in targets )
 	{
-		_a148 = targets;
-		_k148 = getFirstArrayKey( _a148 );
-		while ( isDefined( _k148 ) )
+		if ( isplayer( target ) )
 		{
-			target = _a148[ _k148 ];
-			if ( isplayer( target ) )
+			if ( is_player_valid( target ) && self != target )
 			{
-				if ( is_player_valid( target ) && self != target )
-				{
-					target thread player_paralyzed( self, upgraded );
-				}
+				target thread player_paralyzed( self, upgraded );
 			}
-			else if ( isDefined( target.paralyzer_hit_callback ) )
-			{
-				target thread [[ target.paralyzer_hit_callback ]]( self, upgraded );
-			}
-			else
-			{
-				target thread zombie_paralyzed( self, upgraded );
-			}
-			_k148 = getNextArrayKey( _a148, _k148 );
 		}
+		if ( isdefined(target.paralyzer_hit_callback ) )
+		{
+			target thread [[ target.paralyzer_hit_callback ]]( self, upgraded );
+		}
+		target thread zombie_paralyzed( self, upgraded );
 	}
-	dot = vectordot( forward, ( 0, 1, 0 ) );
-	if ( dot > 0,8 )
+	dot = vectordot( forward, ( 0, 0, -1 ) );
+	if ( dot > 0.8 )
 	{
 		self thread player_paralyzed( self, upgraded );
 	}
 }
 
-slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets )
+slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets ) //checked changed to match cerberus output
 {
 	inner_range = 12;
 	outer_range = 660;
@@ -145,67 +134,57 @@ slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets )
 	cylinder_radius_squared = cylinder_radius * cylinder_radius;
 	forward_view_angles = forward;
 	end_pos = view_pos + vectorScale( forward_view_angles, outer_range );
-/#
-	if ( getDvarInt( #"61A711C2" ) == 2 )
-	{
-		near_circle_pos = view_pos + vectorScale( forward_view_angles, 2 );
-		circle( near_circle_pos, cylinder_radius, ( 0, 1, 0 ), 0, 0, 100 );
-		line( near_circle_pos, end_pos, ( 0, 1, 0 ), 1, 0, 100 );
-		circle( end_pos, cylinder_radius, ( 0, 1, 0 ), 0, 0, 100 );
-#/
-	}
 	i = 0;
 	while ( i < possible_targets.size )
 	{
-		if ( !isDefined( possible_targets[ i ] ) || !isalive( possible_targets[ i ] ) )
+		logline1 = "the value of i is: " + i + "\n";
+		logPrint( logline1 );
+		logline2 = "the possible targets are: " + possible_targets.size + "\n";
+		logPrint( logline2 );
+		if ( !isdefined( possible_targets[ i ] ) || !isalive( possible_targets[ i ] ) )
 		{
 			i++;
 			continue;
 		}
-		else
+		test_origin = possible_targets[ i ] getcentroid();
+		test_range_squared = distancesquared( view_pos, test_origin );
+		if ( test_range_squared > slowgun_outer_range_squared )
 		{
-			test_origin = possible_targets[ i ] getcentroid();
-			test_range_squared = distancesquared( view_pos, test_origin );
-			if ( test_range_squared > slowgun_outer_range_squared )
-			{
-				possible_targets[ i ] slowgun_debug_print( "range", ( 0, 1, 0 ) );
-				i++;
-				continue;
-			}
-			else normal = vectornormalize( test_origin - view_pos );
-			dot = vectordot( forward_view_angles, normal );
-			if ( dot <= 0 )
-			{
-				possible_targets[ i ] slowgun_debug_print( "dot", ( 0, 1, 0 ) );
-				i++;
-				continue;
-			}
-			else radial_origin = pointonsegmentnearesttopoint( view_pos, end_pos, test_origin );
-			if ( distancesquared( test_origin, radial_origin ) > cylinder_radius_squared )
-			{
-				possible_targets[ i ] slowgun_debug_print( "cylinder", ( 0, 1, 0 ) );
-				i++;
-				continue;
-			}
-			else if ( possible_targets[ i ] damageconetrace( view_pos, self ) == 0 )
-			{
-				possible_targets[ i ] slowgun_debug_print( "cone", ( 0, 1, 0 ) );
-				i++;
-				continue;
-			}
-			else
-			{
-				level.slowgun_enemies[ level.slowgun_enemies.size ] = possible_targets[ i ];
-			}
+			//possible_targets[ i ] slowgun_debug_print("range",  1, 0, 0 );
+			i++;
+			continue;
+		}
+		normal = vectornormalize( test_origin - view_pos );
+		dot = vectordot(forward_view_angles, normal);
+		if ( 0 > dot )
+		{
+			//possible_targets[ i ] slowgun_debug_print( "dot",  1, 0, 0 );
+			i++;
+			continue;
+		}
+		radial_origin = pointonsegmentnearesttopoint( view_pos, end_pos, test_origin );
+		if ( distancesquared( test_origin, radial_origin ) > cylinder_radius_squared )
+		{
+			//possible_targets[ i ] slowgun_debug_print( "cylinder",  1, 0, 0 );
+			i++;
+			continue;
+		}
+		if ( 0 == possible_targets[ i ] damageconetrace( view_pos, self ) )
+		{
+			//possible_targets[ i ] slowgun_debug_print( "cone",  1, 0, 0 );
+			i++;
+			continue;
 		}
 		i++;
+		level.slowgun_enemies[ level.slowgun_enemies.size ] = possible_targets [ i ];
 	}
 	return level.slowgun_enemies;
 }
 
-get_targets_in_range( upgraded, position, forward )
+
+get_targets_in_range( upgraded, position, forward ) //checked matches cerberus output
 {
-	if ( !isDefined( self.slowgun_targets ) || ( getTime() - self.slowgun_target_time ) > 150 )
+	if ( !isDefined( self.slowgun_targets ) || getTime() - self.slowgun_target_time > 150 )
 	{
 		targets = [];
 		possible_targets = getaispeciesarray( level.zombie_team, "all" );
@@ -221,7 +200,7 @@ get_targets_in_range( upgraded, position, forward )
 	return self.slowgun_targets;
 }
 
-slowgun_on_zombie_spawned()
+slowgun_on_zombie_spawned() //checked matches cerberus output
 {
 	self set_anim_rate( 1 );
 	self.paralyzer_hit_callback = ::zombie_paralyzed;
@@ -231,7 +210,7 @@ slowgun_on_zombie_spawned()
 	self setclientfield( "slowgun_fx", 0 );
 }
 
-can_be_paralyzed( zombie )
+can_be_paralyzed( zombie ) //checked matches cerberus output
 {
 	if ( is_true( zombie.is_ghost ) )
 	{
@@ -248,7 +227,7 @@ can_be_paralyzed( zombie )
 	return 0;
 }
 
-set_anim_rate( rate )
+set_anim_rate( rate ) //checked matches cerberus output
 {
 	if ( isDefined( self ) )
 	{
@@ -266,7 +245,7 @@ set_anim_rate( rate )
 	}
 }
 
-reset_anim()
+reset_anim() //checked matches cerberus output
 {
 	wait_network_frame();
 	if ( !isDefined( self ) )
@@ -291,7 +270,7 @@ reset_anim()
 	}
 }
 
-zombie_change_rate( time, newrate )
+zombie_change_rate( time, newrate ) //checked matches cerberus output
 {
 	self set_anim_rate( newrate );
 	if ( isDefined( self.reset_anim ) )
@@ -308,13 +287,13 @@ zombie_change_rate( time, newrate )
 	}
 }
 
-zombie_slow_for_time( time, multiplier )
+zombie_slow_for_time( time, multiplier ) //checked changed to match cerberus output
 {
 	if ( !isDefined( multiplier ) )
 	{
 		multiplier = 2;
 	}
-	paralyzer_time_per_frame = 0,1 * ( 1 + multiplier );
+	paralyzer_time_per_frame = 0.1 * ( 1 + multiplier );
 	if ( self.paralyzer_slowtime <= time )
 	{
 		self.paralyzer_slowtime = time + paralyzer_time_per_frame;
@@ -331,13 +310,13 @@ zombie_slow_for_time( time, multiplier )
 	{
 		self.slowgun_desired_anim_rate = 1;
 	}
-	if ( self.slowgun_desired_anim_rate > 0,3 )
+	if ( self.slowgun_desired_anim_rate > 0.3 )
 	{
-		self.slowgun_desired_anim_rate -= 0,2;
+		self.slowgun_desired_anim_rate -= 0.2;
 	}
 	else
 	{
-		self.slowgun_desired_anim_rate = 0,05;
+		self.slowgun_desired_anim_rate = 0.05;
 	}
 	if ( is_true( self.slowing ) )
 	{
@@ -345,62 +324,54 @@ zombie_slow_for_time( time, multiplier )
 	}
 	self.slowing = 1;
 	self.preserve_asd_substates = 1;
-	self playloopsound( "wpn_paralyzer_slowed_loop", 0,1 );
+	self playloopsound( "wpn_paralyzer_slowed_loop", 0.1 );
 	while ( self.paralyzer_slowtime > 0 && isalive( self ) )
 	{
-		if ( self.paralyzer_slowtime < 0,1 )
+		if ( self.paralyzer_slowtime < 0.1 )
 		{
 			self.slowgun_desired_anim_rate = 1;
 		}
-		else if ( self.paralyzer_slowtime < ( 2 * 0,1 ) )
+		else if ( self.paralyzer_slowtime < ( 2 * 0.1 ) )
 		{
-			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0,8 );
+			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0.8 );
 		}
-		else if ( self.paralyzer_slowtime < ( 3 * 0,1 ) )
+		else if ( self.paralyzer_slowtime < ( 3 * 0.1 ) )
 		{
-			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0,6 );
+			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0.6 );
 		}
-		else if ( self.paralyzer_slowtime < ( 4 * 0,1 ) )
+		else if ( self.paralyzer_slowtime < ( 4 * 0.1 ) )
 		{
-			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0,4 );
+			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0.4 );
 		}
-		else
+		else if ( self.paralyzer_slowtime < ( 5 * 0.1 ) )
 		{
-			if ( self.paralyzer_slowtime < ( 5 * 0,1 ) )
-			{
-				self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0,2 );
-			}
+			self.slowgun_desired_anim_rate = max( self.slowgun_desired_anim_rate, 0.2 );
 		}
 		if ( self.slowgun_desired_anim_rate == self.slowgun_anim_rate )
 		{
-			self.paralyzer_slowtime -= 0,1;
-			wait 0,1;
-			continue;
+			self.paralyzer_slowtime -= 0.1;
+			wait 0.1;
 		}
 		else if ( self.slowgun_desired_anim_rate >= self.slowgun_anim_rate )
 		{
 			new_rate = self.slowgun_desired_anim_rate;
-			if ( ( self.slowgun_desired_anim_rate - self.slowgun_anim_rate ) > 0,2 )
+			if ( ( self.slowgun_desired_anim_rate - self.slowgun_anim_rate ) > 0.2 )
 			{
-				new_rate = self.slowgun_anim_rate + 0,2;
+				new_rate = self.slowgun_anim_rate + 0.2;
 			}
-			self.paralyzer_slowtime -= 0,1;
-			zombie_change_rate( 0,1, new_rate );
+			self.paralyzer_slowtime -= 0.1;
+			zombie_change_rate( 0.1, new_rate );
 			self.paralyzer_damaged_multiplier = 1;
-			continue;
 		}
-		else
+		if ( self.slowgun_desired_anim_rate <= self.slowgun_anim_rate )
 		{
-			if ( self.slowgun_desired_anim_rate <= self.slowgun_anim_rate )
+			new_rate = self.slowgun_desired_anim_rate;
+			if ( ( self.slowgun_anim_rate - self.slowgun_desired_anim_rate ) > 0.2 )
 			{
-				new_rate = self.slowgun_desired_anim_rate;
-				if ( ( self.slowgun_anim_rate - self.slowgun_desired_anim_rate ) > 0,2 )
-				{
-					new_rate = self.slowgun_anim_rate - 0,2;
-				}
-				self.paralyzer_slowtime -= 0,25;
-				zombie_change_rate( 0,25, new_rate );
+				new_rate = self.slowgun_anim_rate - 0.2;
 			}
+			self.paralyzer_slowtime -= 0.25;
+			zombie_change_rate( 0.25, new_rate );
 		}
 	}
 	if ( self.slowgun_anim_rate < 1 )
@@ -411,10 +382,10 @@ zombie_slow_for_time( time, multiplier )
 	self.slowing = 0;
 	self.paralyzer_damaged_multiplier = 1;
 	self setclientfield( "slowgun_fx", 0 );
-	self stoploopsound( 0,1 );
+	self stoploopsound( 0.1 );
 }
 
-zombie_paralyzed( player, upgraded )
+zombie_paralyzed( player, upgraded ) //checked changed to match cerberus output
 {
 	if ( !can_be_paralyzed( self ) )
 	{
@@ -429,7 +400,7 @@ zombie_paralyzed( player, upgraded )
 	{
 		self setclientfield( "slowgun_fx", 1 );
 	}
-	if ( self.slowgun_anim_rate <= 0,1 || insta && self.slowgun_anim_rate <= 0,5 )
+	if ( self.slowgun_anim_rate <= 0.1 || insta && self.slowgun_anim_rate <= 0.5 )
 	{
 		if ( upgraded )
 		{
@@ -439,8 +410,19 @@ zombie_paralyzed( player, upgraded )
 		{
 			damage = level.slowgun_damage;
 		}
-		damage *= randomfloatrange( 0,667, 1,5 );
+		damage *= randomfloatrange( 0.667, 1.5 );
 		damage *= self.paralyzer_damaged_multiplier;
+		//extra code from cerberus output that was missing
+		if ( !isdefined(self.paralyzer_damage ) )
+		{
+			self.paralyzer_damage = 0;
+		}
+		if ( self.paralyzer_damage > 47073 )
+		{
+			damage = damage * 47073 / self.paralyzer_damage;
+		}
+		self.paralyzer_damage = self.paralyzer_damage + damage;
+		
 		if ( insta )
 		{
 			damage = self.health + 666;
@@ -449,22 +431,24 @@ zombie_paralyzed( player, upgraded )
 		{
 			self dodamage( damage, player.origin, player, player, "none", level.slowgun_damage_mod, 0, "slowgun_zm" );
 		}
-		self.paralyzer_damaged_multiplier *= 1,15;
+		self.paralyzer_damaged_multiplier *= 1.15;
+		//extra code from cerberus output
+		self.paralyzer_damaged_multiplier = min( self.paralyzer_damaged_multiplier, 50 );
 	}
 	else
 	{
 		self.paralyzer_damaged_multiplier = 1;
 	}
-	self zombie_slow_for_time( 0,2 );
+	self zombie_slow_for_time( 0.2 );
 }
 
-get_extra_damage( amount, mod, slow )
+get_extra_damage( amount, mod, slow ) //checked matches cerberus output
 {
 	mult = 1 - slow;
 	return amount * slow;
 }
 
-slowgun_zombie_damage_response( mod, hit_location, hit_origin, player, amount )
+slowgun_zombie_damage_response( mod, hit_location, hit_origin, player, amount ) //checked changed to match cerberus output
 {
 	if ( !self is_slowgun_damage( self.damagemod, self.damageweapon ) )
 	{
@@ -488,7 +472,10 @@ slowgun_zombie_damage_response( mod, hit_location, hit_origin, player, amount )
 	if ( ( getTime() - self.paralyzer_score_time_ms ) >= 500 )
 	{
 		self.paralyzer_score_time_ms = getTime();
-		player maps/mp/zombies/_zm_score::player_add_points( "damage", mod, hit_location, self.isdog, level.zombie_team );
+		if ( self.paralyzer_damage < 47073 )
+		{
+			player maps/mp/zombies/_zm_score::player_add_points( "damage", mod, hit_location, self.isdog, level.zombie_team );
+		}
 	}
 	if ( player maps/mp/zombies/_zm_powerups::is_insta_kill_active() )
 	{
@@ -501,7 +488,7 @@ slowgun_zombie_damage_response( mod, hit_location, hit_origin, player, amount )
 	return 1;
 }
 
-explosion_choke()
+explosion_choke() //checked matches cerberus output
 {
 	if ( !isDefined( level.slowgun_explosion_time ) )
 	{
@@ -514,7 +501,7 @@ explosion_choke()
 	}
 	while ( level.slowgun_explosion_count > 4 )
 	{
-		wait 0,05;
+		wait 0.05;
 		if ( level.slowgun_explosion_time != getTime() )
 		{
 			level.slowgun_explosion_count = 0;
@@ -525,7 +512,7 @@ explosion_choke()
 	return;
 }
 
-explode_into_dust( player, upgraded )
+explode_into_dust( player, upgraded ) //checked matches cerberus output
 {
 	if ( isDefined( self.marked_for_insta_upgraded_death ) )
 	{
@@ -544,7 +531,7 @@ explode_into_dust( player, upgraded )
 	self ghost();
 }
 
-slowgun_zombie_death_response()
+slowgun_zombie_death_response() //checked matches cerberus output
 {
 	if ( !self is_slowgun_damage( self.damagemod, self.damageweapon ) )
 	{
@@ -555,18 +542,19 @@ slowgun_zombie_death_response()
 	return 1;
 }
 
-is_slowgun_damage( mod, weapon )
+is_slowgun_damage( mod, weapon ) //checked does not match cerberus output changed at own discretion
 {
 	if ( isDefined( weapon ) )
 	{
-		if ( weapon != "slowgun_zm" )
+		if ( weapon == "slowgun_upgraded_zm" || weapon == "slowgun_zm" )
 		{
-			return weapon == "slowgun_upgraded_zm";
+			return 1;
 		}
 	}
+	return 0;
 }
 
-setjumpenabled( onoff )
+setjumpenabled( onoff ) //checked changed to match cerberus output
 {
 	if ( onoff )
 	{
@@ -580,16 +568,13 @@ setjumpenabled( onoff )
 			self allowjump( 1 );
 		}
 	}
-	else
+	else if ( !isDefined( self.jump_was_enabled ) )
 	{
-		if ( !isDefined( self.jump_was_enabled ) )
-		{
-			self.jump_was_enabled = self allowjump( 0 );
-		}
+		self.jump_was_enabled = self allowjump( 0 );
 	}
 }
 
-get_ahead_ent()
+get_ahead_ent() //checked changed to match cerberus output
 {
 	velocity = self getvelocity();
 	if ( lengthsquared( velocity ) < 225 )
@@ -597,17 +582,17 @@ get_ahead_ent()
 		return undefined;
 	}
 	start = self geteyeapprox();
-	end = start + ( velocity * 0,25 );
-	mins = ( 0, 1, 0 );
-	maxs = ( 0, 1, 0 );
-	trace = physicstrace( start, end, vectorScale( ( 0, 1, 0 ), 15 ), vectorScale( ( 0, 1, 0 ), 15 ), self, level.physicstracemaskclip );
+	end = start + ( velocity * 0.25 );
+	mins = ( 0, 0, 0 );
+	maxs = ( 0, 0, 0 );
+	trace = physicstrace( start, end, vectorScale( ( -1, -1, 0 ), 15 ), vectorScale( ( 1, 1, 0 ), 15 ), self, level.physicstracemaskclip );
 	if ( isDefined( trace[ "entity" ] ) )
 	{
 		return trace[ "entity" ];
 	}
 	else
 	{
-		if ( trace[ "fraction" ] < 0,99 || trace[ "surfacetype" ] != "none" )
+		if ( trace[ "fraction" ] < 0.99 || trace[ "surfacetype" ] != "none" )
 		{
 			return level;
 		}
@@ -615,13 +600,13 @@ get_ahead_ent()
 	return undefined;
 }
 
-bump()
+bump() //checked matched cerberus output
 {
 	self playrumbleonentity( "damage_heavy" );
-	earthquake( 0,5, 0,15, self.origin, 1000, self );
+	earthquake( 0.5, 0.15, self.origin, 1000, self );
 }
 
-player_fly_rumble()
+player_fly_rumble() //checked matches cerberus output
 {
 	self endon( "player_slow_stop_flying" );
 	self endon( "disconnect" );
@@ -667,11 +652,11 @@ player_fly_rumble()
 			}
 			last_ahead = ahead;
 		}
-		wait 0,15;
+		wait 0.15;
 	}
 }
 
-dont_tread_on_z()
+dont_tread_on_z() //checked matches cerberus output
 {
 	if ( !isDefined( level.ghost_head_damage ) )
 	{
@@ -692,7 +677,7 @@ dont_tread_on_z()
 				self dodamage( level.ghost_head_damage, ground.origin, ground );
 				if ( is_true( ground.is_ghost ) )
 				{
-					level.ghost_head_damage *= 1,5;
+					level.ghost_head_damage *= 1.5;
 					if ( self.score > 4000 )
 					{
 						self.score -= 4000;
@@ -707,13 +692,13 @@ dont_tread_on_z()
 			{
 				self dodamage( level.ghost_head_damage, first_ground.origin, first_ground );
 			}
-			wait 0,25;
+			wait 0.25;
 			ground = self getgroundent();
 		}
 	}
 }
 
-player_slow_for_time( time )
+player_slow_for_time( time ) //checked matches cerberus output
 {
 	self notify( "player_slow_for_time" );
 	self endon( "player_slow_for_time" );
@@ -723,21 +708,21 @@ player_slow_for_time( time )
 		self thread player_fly_rumble();
 	}
 	self setclientfieldtoplayer( "slowgun_fx", 1 );
-	self set_anim_rate( 0,05 );
+	self set_anim_rate( 0.05 );
 	wait time;
 	self set_anim_rate( 1 );
 	self setclientfieldtoplayer( "slowgun_fx", 0 );
 	self.slowgun_flying = 0;
 }
 
-player_paralyzed( byplayer, upgraded )
+player_paralyzed( byplayer, upgraded ) //checked changed to match cerberus output
 {
 	self notify( "player_paralyzed" );
 	self endon( "player_paralyzed" );
 	self endon( "death" );
 	if ( isDefined( level.slowgun_allow_player_paralyze ) )
 	{
-		if ( !( self [[ level.slowgun_allow_player_paralyze ]]() ) )
+		if ( !self [[ level.slowgun_allow_player_paralyze ]]() )
 		{
 			return;
 		}
@@ -754,11 +739,12 @@ player_paralyzed( byplayer, upgraded )
 			playfxontag( level._effect[ sizzle ], self, "J_SpineLower" );
 		}
 	}
-	self thread player_slow_for_time( 0,25 );
+	self thread player_slow_for_time( 0.25 );
 }
 
 slowgun_debug_print( msg, color )
 {
+/*
 /#
 	if ( getDvarInt( #"61A711C2" ) != 2 )
 	{
@@ -770,10 +756,12 @@ slowgun_debug_print( msg, color )
 	}
 	print3d( self.origin + vectorScale( ( 0, 1, 0 ), 60 ), msg, color, 1, 1, 40 );
 #/
+*/
 }
 
 show_anim_rate( pos, dsquared )
 {
+/*
 /#
 	if ( distancesquared( pos, self.origin ) > dsquared )
 	{
@@ -784,10 +772,12 @@ show_anim_rate( pos, dsquared )
 	text = "" + int( rate * 100 ) + " S";
 	print3d( self.origin + ( 0, 1, 0 ), text, color, 1, 0,5, 1 );
 #/
+*/
 }
 
 show_slow_time( pos, dsquared, insta )
 {
+/*
 /#
 	if ( distancesquared( pos, self.origin ) > dsquared )
 	{
@@ -809,10 +799,12 @@ show_slow_time( pos, dsquared, insta )
 	text = "" + rate + "";
 	print3d( self.origin + vectorScale( ( 0, 1, 0 ), 50 ), text, color, 1, 0,5, 1 );
 #/
+*/
 }
 
 show_anim_rates()
 {
+/*
 /#
 	while ( 1 )
 	{
@@ -864,10 +856,12 @@ show_anim_rates()
 		wait 0,05;
 #/
 	}
+*/
 }
 
 show_muzzle( origin, forward )
 {
+/*
 /#
 	if ( getDvarInt( #"61A711C2" ) == 4 )
 	{
@@ -880,5 +874,6 @@ show_muzzle( origin, forward )
 		line( start, end, green, 1, 0, frames );
 #/
 	}
+*/
 }
 
