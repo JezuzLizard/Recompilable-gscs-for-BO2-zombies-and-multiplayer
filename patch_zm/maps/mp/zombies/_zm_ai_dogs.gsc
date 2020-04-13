@@ -19,7 +19,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.dogs_enabled = 1;
 	level.dog_rounds_enabled = 0;
@@ -56,7 +56,7 @@ init()
 	level thread dog_clip_monitor();
 }
 
-enable_dog_rounds()
+enable_dog_rounds() //checked matches cerberus output
 {
 	level.dog_rounds_enabled = 1;
 	if ( !isDefined( level.dog_round_track_override ) )
@@ -66,7 +66,7 @@ enable_dog_rounds()
 	level thread [[ level.dog_round_track_override ]]();
 }
 
-dog_spawner_init()
+dog_spawner_init() //checked does not match cerberus output did not change
 {
 	level.dog_spawners = getentarray( "zombie_dog_spawner", "script_noteworthy" );
 	later_dogs = getentarray( "later_round_dog_spawners", "script_noteworthy" );
@@ -82,29 +82,26 @@ dog_spawner_init()
 		{
 			level.dog_spawners[ i ].is_enabled = 0;
 			i++;
-			continue;
 		}
 		else
 		{
 			level.dog_spawners[ i ].is_enabled = 1;
 			level.dog_spawners[ i ].script_forcespawn = 1;
+			i++;
 		}
-		i++;
 	}
 	level.dog_health = 100;
 	array_thread( level.dog_spawners, ::add_spawn_function, ::dog_init );
 	level.enemy_dog_spawns = getentarray( "zombie_spawner_dog_init", "targetname" );
 }
 
-dog_round_spawning()
+dog_round_spawning() //checked partially matches cerberus output
 {
 	level endon( "intermission" );
 	level.dog_targets = getplayers();
-	i = 0;
-	while ( i < level.dog_targets.size )
+	for ( i = 0; i < level.dog_targets.size; i++ )
 	{
 		level.dog_targets[ i ].hunted_by = 0;
-		i++;
 	}
 	if ( level.intermission )
 	{
@@ -131,7 +128,7 @@ dog_round_spawning()
 	while ( count < max )
 	{
 		num_player_valid = get_number_of_valid_players();
-		while ( get_current_zombie_count() >= ( num_player_valid * 2 ) )
+		while ( get_current_zombie_count() >= num_player_valid * 2 )
 		{
 			wait 2;
 			num_player_valid = get_number_of_valid_players();
@@ -147,7 +144,6 @@ dog_round_spawning()
 				ai.favoriteenemy = favorite_enemy;
 				spawn_loc thread dog_spawn_fx( ai, spawn_loc );
 				level.zombie_total--;
-
 				count++;
 			}
 		}
@@ -160,7 +156,6 @@ dog_round_spawning()
 				ai.favoriteenemy = favorite_enemy;
 				spawn_point thread dog_spawn_fx( ai, spawn_point );
 				level.zombie_total--;
-
 				count++;
 				flag_set( "dog_clips" );
 			}
@@ -169,7 +164,7 @@ dog_round_spawning()
 	}
 }
 
-waiting_for_next_dog_spawn( count, max )
+waiting_for_next_dog_spawn( count, max ) //checked matches cerberus output
 {
 	default_wait = 1.5;
 	if ( level.dog_round_count == 1 )
@@ -192,7 +187,7 @@ waiting_for_next_dog_spawn( count, max )
 	wait default_wait;
 }
 
-dog_round_aftermath()
+dog_round_aftermath() //checked matches cerberus output
 {
 	level waittill( "last_dog_down" );
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "dog_end" );
@@ -207,7 +202,7 @@ dog_round_aftermath()
 	level.dog_intermission = 0;
 }
 
-dog_spawn_fx( ai, ent )
+dog_spawn_fx( ai, ent ) //checked matches cerberus output
 {
 	ai endon( "death" );
 	ai setfreecameralockonallowed( 0 );
@@ -230,7 +225,7 @@ dog_spawn_fx( ai, ent )
 	ai notify( "visible" );
 }
 
-dog_spawn_sumpf_logic( dog_array, favorite_enemy )
+dog_spawn_sumpf_logic( dog_array, favorite_enemy ) //checked does not match cerberus output did not change
 {
 	dog_array = array_randomize( dog_array );
 	i = 0;
@@ -250,7 +245,7 @@ dog_spawn_sumpf_logic( dog_array, favorite_enemy )
 					i++;
 					continue;
 				}
-				else level.old_dog_spawn = dog_array[ i ];
+				level.old_dog_spawn = dog_array[ i ];
 				return dog_array[ i ];
 			}
 		}
@@ -259,65 +254,53 @@ dog_spawn_sumpf_logic( dog_array, favorite_enemy )
 	return dog_array[ 0 ];
 }
 
-dog_spawn_factory_logic( dog_array, favorite_enemy )
+dog_spawn_factory_logic( dog_array, favorite_enemy ) //checked matches cerberus output
 {
 	dog_locs = array_randomize( level.enemy_dog_locations );
-	i = 0;
-	while ( i < dog_locs.size )
+	for ( i = 0; i < dog_locs.size; i++ )
 	{
 		if ( isDefined( level.old_dog_spawn ) && level.old_dog_spawn == dog_locs[ i ] )
 		{
-			i++;
 			continue;
 		}
-		else
+		dist_squared = distancesquared( dog_locs[ i ].origin, favorite_enemy.origin );
+		if ( dist_squared > 160000 && dist_squared < 1000000 )
 		{
-			dist_squared = distancesquared( dog_locs[ i ].origin, favorite_enemy.origin );
-			if ( dist_squared > 160000 && dist_squared < 1000000 )
-			{
-				level.old_dog_spawn = dog_locs[ i ];
-				return dog_locs[ i ];
-			}
+			level.old_dog_spawn = dog_locs[ i ];
+			return dog_locs[ i ];
 		}
-		i++;
 	}
 	return dog_locs[ 0 ];
 }
 
-get_favorite_enemy()
+get_favorite_enemy() //checked changed to match cerberus output
 {
 	dog_targets = getplayers();
 	least_hunted = dog_targets[ 0 ];
-	i = 0;
-	while ( i < dog_targets.size )
+	for ( i = 0; i < dog_targets.size; i++ )
 	{
-		if ( !isDefined( dog_targets[ i ].hunted_by ) )
+		if ( !isdefined( dog_targets[ i ].hunted_by ) )
 		{
 			dog_targets[ i ].hunted_by = 0;
 		}
 		if ( !is_player_valid( dog_targets[ i ] ) )
 		{
-			i++;
 			continue;
 		}
-		else
+		if ( !is_player_valid( least_hunted ) )
 		{
-			if ( !is_player_valid( least_hunted ) )
-			{
-				least_hunted = dog_targets[ i ];
-			}
-			if ( dog_targets[ i ].hunted_by < least_hunted.hunted_by )
-			{
-				least_hunted = dog_targets[ i ];
-			}
+			least_hunted = dog_targets[ i ];
 		}
-		i++;
+		if ( dog_targets[ i ].hunted_by < least_hunted.hunted_by )
+		{
+			least_hunted = dog_targets[ i ];
+		}
 	}
 	least_hunted.hunted_by += 1;
 	return least_hunted;
 }
 
-dog_health_increase()
+dog_health_increase() //checked changed to match cerberus output
 {
 	players = getplayers();
 	if ( level.dog_round_count == 1 )
@@ -332,12 +315,9 @@ dog_health_increase()
 	{
 		level.dog_health = 1300;
 	}
-	else
+	else if ( level.dog_round_count == 4 )
 	{
-		if ( level.dog_round_count == 4 )
-		{
-			level.dog_health = 1600;
-		}
+		level.dog_health = 1600;
 	}
 	if ( level.dog_health > 1600 )
 	{
@@ -345,7 +325,7 @@ dog_health_increase()
 	}
 }
 
-dog_round_tracker()
+dog_round_tracker() //checked changed to match cerberus output
 {
 	level.dog_round_count = 1;
 	level.next_dog_round = level.round_number + randomintrange( 4, 7 );
@@ -362,23 +342,19 @@ dog_round_tracker()
 			dog_round_start();
 			level.round_spawn_func = ::dog_round_spawning;
 			level.next_dog_round = level.round_number + randomintrange( 4, 6 );
-			continue;
 		}
-		else
+		else if ( flag( "dog_round" ) )
 		{
-			if ( flag( "dog_round" ) )
-			{
-				dog_round_stop();
-				level.round_spawn_func = old_spawn_func;
-				level.round_wait_func = old_wait_func;
-				level.music_round_override = 0;
-				level.dog_round_count += 1;
-			}
+			dog_round_stop();
+			level.round_spawn_func = old_spawn_func;
+			level.round_wait_func = old_wait_func;
+			level.music_round_override = 0;
+			level.dog_round_count += 1;
 		}
 	}
 }
 
-dog_round_start()
+dog_round_start() //checked matches cerberus output
 {
 	flag_set( "dog_round" );
 	flag_set( "dog_clips" );
@@ -400,7 +376,7 @@ dog_round_start()
 	}
 }
 
-dog_round_stop()
+dog_round_stop() //checked matches cerberus output
 {
 	flag_clear( "dog_round" );
 	flag_clear( "dog_clips" );
@@ -416,7 +392,7 @@ dog_round_stop()
 	setdvar( "ai_meleeHeight", level.melee_height_sav );
 }
 
-play_dog_round()
+play_dog_round() //checked matches cerberus output
 {
 	self playlocalsound( "zmb_dog_round_start" );
 	variation_count = 5;
@@ -426,7 +402,7 @@ play_dog_round()
 	players[ num ] maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "dog_spawn" );
 }
 
-dog_init()
+dog_init() //checked matches cerberus output
 {
 	self.targetname = "zombie_dog";
 	self.script_noteworthy = undefined;
@@ -485,7 +461,7 @@ dog_init()
 	}
 }
 
-dog_fx_eye_glow()
+dog_fx_eye_glow() //checked matches cerberus output
 {
 	self.fx_dog_eye = spawn( "script_model", self gettagorigin( "J_EyeBall_LE" ) );
 	self.fx_dog_eye.angles = self gettagangles( "J_EyeBall_LE" );
@@ -493,7 +469,7 @@ dog_fx_eye_glow()
 	self.fx_dog_eye linkto( self, "J_EyeBall_LE" );
 }
 
-dog_fx_trail()
+dog_fx_trail() //checked matches cerberus output
 {
 	if ( !is_mature() || randomint( 100 ) > level.zombie_vars[ "dog_fire_trail_percent" ] )
 	{
@@ -512,7 +488,7 @@ dog_fx_trail()
 	self.fx_dog_trail linkto( self, "tag_origin" );
 }
 
-dog_death()
+dog_death() //checked changed to match cerberus output
 {
 	self waittill( "death" );
 	if ( get_current_zombie_count() == 0 && level.zombie_total == 0 )
@@ -540,6 +516,7 @@ dog_death()
 		self.attacker notify( "killed" );
 	}
 	self stoploopsound();
+	self.fx_dog_eye delete();
 	self.fx_dog_trail delete();
 	if ( isDefined( self.a.nodeath ) )
 	{
@@ -552,13 +529,13 @@ dog_death()
 	}
 }
 
-dog_explode_fx( origin )
+dog_explode_fx( origin ) //checked matches cerberus output
 {
 	playfx( level._effect[ "dog_gib" ], origin );
 	playsoundatposition( "zmb_hellhound_explode", origin );
 }
 
-zombie_setup_attack_properties_dog()
+zombie_setup_attack_properties_dog() //checked matches cerberus output
 {
 	self maps/mp/zombies/_zm_spawner::zombie_history( "zombie_setup_attack_properties()" );
 	self thread dog_behind_audio();
@@ -569,13 +546,13 @@ zombie_setup_attack_properties_dog()
 	self.disableexits = 1;
 }
 
-stop_dog_sound_on_death()
+stop_dog_sound_on_death() //checked matches cerberus output
 {
 	self waittill( "death" );
 	self stopsounds();
 }
 
-dog_behind_audio()
+dog_behind_audio() //checked does not match cerberus output changed at own discretion
 {
 	self thread stop_dog_sound_on_death();
 	self endon( "death" );
@@ -604,45 +581,39 @@ dog_behind_audio()
 	}
 }
 
-dog_clip_monitor()
+dog_clip_monitor() //checked changed to match cerberus output
 {
 	clips_on = 0;
 	level.dog_clips = getentarray( "dog_clips", "targetname" );
 	while ( 1 )
 	{
-		i = 0;
-		while ( i < level.dog_clips.size )
+		for ( i = 0; i < level.dog_clips.size; i++ )
 		{
 			level.dog_clips[ i ] trigger_off();
 			level.dog_clips[ i ] connectpaths();
-			i++;
 		}
 		flag_wait( "dog_clips" );
 		if ( isDefined( level.no_dog_clip ) && level.no_dog_clip == 1 )
 		{
 			return;
 		}
-		i = 0;
-		while ( i < level.dog_clips.size )
+		for ( i = 0; i < level.dog_clips.size; i++ )
 		{
 			level.dog_clips[ i ] trigger_on();
 			level.dog_clips[ i ] disconnectpaths();
 			wait_network_frame();
-			i++;
 		}
 		dog_is_alive = 1;
 		while ( dog_is_alive || flag( "dog_round" ) )
 		{
 			dog_is_alive = 0;
 			dogs = getentarray( "zombie_dog", "targetname" );
-			i = 0;
-			while ( i < dogs.size )
+			for ( i = 0; i < dogs.size; i++ )
 			{
 				if ( isalive( dogs[ i ] ) )
 				{
 					dog_is_alive = 1;
 				}
-				i++;
 			}
 			wait 1;
 		}
@@ -651,7 +622,7 @@ dog_clip_monitor()
 	}
 }
 
-special_dog_spawn( spawners, num_to_spawn )
+special_dog_spawn( spawners, num_to_spawn ) //checked matches cerberus output
 {
 	dogs = getaispeciesarray( "all", "zombie_dog" );
 	if ( isDefined( dogs ) && dogs.size >= 9 )
@@ -709,7 +680,7 @@ special_dog_spawn( spawners, num_to_spawn )
 	return 1;
 }
 
-dog_run_think()
+dog_run_think() //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittill( "visible" );
@@ -731,7 +702,7 @@ dog_run_think()
 	}
 }
 
-dog_stalk_audio()
+dog_stalk_audio() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "dog_running" );
@@ -743,12 +714,13 @@ dog_stalk_audio()
 	}
 }
 
-dog_thundergun_knockdown( player, gib )
+dog_thundergun_knockdown( player, gib ) //checked matches cerberus output
 {
 	self endon( "death" );
 	damage = int( self.maxhealth * 0.5 );
 	self dodamage( damage, player.origin, player );
 }
+
 
 
 
