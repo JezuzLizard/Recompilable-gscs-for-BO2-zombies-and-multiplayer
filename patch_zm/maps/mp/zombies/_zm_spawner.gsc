@@ -10,6 +10,7 @@
 #include maps/mp/animscripts/zm_run;
 #include maps/mp/animscripts/zm_death;
 #include maps/mp/zombies/_zm_blockers;
+#include maps/mp/zombies/_zm_audio;
 #include maps/mp/animscripts/zm_shared;
 #include maps/mp/animscripts/zm_utility;
 #include maps/mp/zombies/_zm_ai_basic;
@@ -21,9 +22,17 @@
 
 init() //checked changed to match cerberus output
 {
+	//begin debug code
+	level.custom_zm_spawner_loaded = 1;
+	maps/mp/zombies/_zm_bot::init();
+	if ( !isDefined( level.debugLogging_zm_spawner ) )
+	{	
+		level.debugLogging_zm_spawner = 0;	
+	}
+	//end debug code
 	level._contextual_grab_lerp_time = 0.3;
 	level.zombie_spawners = getentarray( "zombie_spawner", "script_noteworthy" );
-	while ( isDefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
+	if ( isDefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
 	{
 		level.zombie_spawn = [];
 		for ( i = 0; i < level.zombie_spawners.size; i++ )
@@ -300,7 +309,7 @@ zombie_damage_failsafe() //checked changed to match cerberus output
 	continue_failsafe_damage = 0;
 	while ( 1 )
 	{
-		wait 0,5;
+		wait 0.5;
 		if ( !isDefined( self.enemy ) || !isplayer( self.enemy ) )
 		{
 			continue;
@@ -1451,6 +1460,7 @@ headshot_blood_fx() //checked matches cerberus output
 
 zombie_gib_on_damage() //checked changed to match cerberus output
 {
+
 	while ( 1 )
 	{
 		self waittill( "damage", amount, attacker, direction_vec, point, type, tagname, modelname, partname, weaponname );
@@ -1520,6 +1530,7 @@ zombie_gib_on_damage() //checked changed to match cerberus output
 						{
 							refs = self derive_damage_refs( point );
 							break;
+						}
 					}
 					else
 					{
@@ -1531,6 +1542,7 @@ zombie_gib_on_damage() //checked changed to match cerberus output
 						refs[ refs.size ] = "no_legs";
 						break;
 					}
+			}
 		}
 		if ( isDefined( level.custom_derive_damage_refs ) )
 		{
@@ -1539,7 +1551,7 @@ zombie_gib_on_damage() //checked changed to match cerberus output
 		if ( refs.size )
 		{
 			self.a.gib_ref = maps/mp/animscripts/zm_death::get_random( refs );
-			if ( ( self.a.gib_ref == "no_legs" || self.a.gib_ref == "right_leg" || self.a.gib_ref == "left_leg" ) && self.health > 0 )
+			if ( self.a.gib_ref == "no_legs" && self.health > 0 || self.a.gib_ref == "right_leg" && self.health > 0 || self.a.gib_ref == "left_leg" && self.health > 0 )
 			{
 				self.has_legs = 0;
 				self allowedstances( "crouch" );
@@ -2324,7 +2336,7 @@ zombie_death_event( zombie ) //checked changed to match cerberus output
 	}
 	zombie thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "death", name );
 	zombie thread zombie_eye_glow_stop();
-	if ( isDefined( zombie.damageweapon ) && is_weapon_shotgun( zombie.damageweapon ) && !maps/mp/zombies/_zm_weapons::is_weapon_upgraded( zombie.damageweapon ) || isDefined( zombie.damageweapon ) && ( is_placeable_mine( zombie.damageweapon ) || zombie.damagemod == "MOD_GRENADE" || zombie.damagemod == "MOD_GRENADE_SPLASH" || zombie.damagemod == "MOD_EXPLOSIVE" || force_explode == 1 ) )
+	if ( isDefined( zombie.damageweapon ) && is_weapon_shotgun( zombie.damageweapon ) && !maps/mp/zombies/_zm_weapons::is_weapon_upgraded( zombie.damageweapon ) || isDefined( zombie.damageweapon ) && is_placeable_mine( zombie.damageweapon ) || zombie.damagemod == "MOD_GRENADE" || zombie.damagemod == "MOD_GRENADE_SPLASH" || zombie.damagemod == "MOD_EXPLOSIVE" || force_explode == 1 )
 	{
 		splode_dist = 180;
 		if ( isDefined( zombie.damagehit_origin ) && distancesquared( zombie.origin, zombie.damagehit_origin ) < ( splode_dist * splode_dist ) )
@@ -2634,7 +2646,7 @@ jitter_enemies_bad_breadcrumbs( start_crumb ) //checked changed to match cerberu
 	{
 		current_crumb = self.favoriteenemy.zombie_breadcrumbs[ index ];
 		next_crumb = self.favoriteenemy.zombie_breadcrumbs[ index + 1 ];
-		angles = vectorToAngle( current_crumb - next_crumb );
+		angles = vectorToAngles( current_crumb - next_crumb );
 		right = anglesToRight( angles );
 		left = anglesToRight( angles + vectorScale( ( 0, 1, 0 ), 180 ) );
 		dist_pos = current_crumb + vectorScale( right, trace_distance );
@@ -2939,7 +2951,7 @@ do_zombie_spawn() //checked changed to match cerberus output
 		target_org = get_desired_origin();
 		if ( isDefined( target_org ) )
 		{
-			anim_ang = vectorToAngle( target_org - self.origin );
+			anim_ang = vectorToAngles( target_org - self.origin );
 			self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0.05 );
 			self.anchor waittill( "rotatedone" );
 		}
@@ -2981,7 +2993,7 @@ do_zombie_rise( spot ) //checked changed to match cerberus output
 	target_org = get_desired_origin();
 	if ( isDefined( target_org ) )
 	{
-		anim_ang = vectorToAngle( target_org - self.origin );
+		anim_ang = vectorToAngles( target_org - self.origin );
 		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0.05 );
 		self.anchor waittill( "rotatedone" );
 	}

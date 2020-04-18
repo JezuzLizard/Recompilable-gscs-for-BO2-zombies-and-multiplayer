@@ -43,6 +43,7 @@ patch_zm/maps/mp/gametypes_zm/_zm_gametype.gsc
 patch_zm/maps/mp/zombies/_zm_chugabud.gsc
 patch_zm/maps/mp/zombies/_zm_perks.gsc
 patch_zm/maps/mp/zombies/_zm_powerups.gsc
+patch_zm/maps/mp/zombies/_zm_spawner.gsc
 patch_zm/maps/mp/zombies/_zm_weapons.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
@@ -57,7 +58,6 @@ patch_zm/maps/mp/zombies/_load.gsc
 ```
 ### The following scripts are not tested yet, uploaded to setup a baseline:
 ```
-patch_zm/maps/mp/zombies/_zm_spawner.gsc
 ```
 ### notes:
 ```
