@@ -19,15 +19,14 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked changed to match cerberus output
 {
-	level._contextual_grab_lerp_time = 0,3;
+	level._contextual_grab_lerp_time = 0.3;
 	level.zombie_spawners = getentarray( "zombie_spawner", "script_noteworthy" );
 	while ( isDefined( level.use_multiple_spawns ) && level.use_multiple_spawns )
 	{
 		level.zombie_spawn = [];
-		i = 0;
-		while ( i < level.zombie_spawners.size )
+		for ( i = 0; i < level.zombie_spawners.size; i++ )
 		{
 			if ( isDefined( level.zombie_spawners[ i ].script_int ) )
 			{
@@ -38,7 +37,6 @@ init()
 				}
 				level.zombie_spawn[ int ][ level.zombie_spawn[ int ].size ] = level.zombie_spawners[ i ];
 			}
-			i++;
 		}
 	}
 	precachemodel( "p6_anim_zm_barricade_board_01_upgrade" );
@@ -47,23 +45,21 @@ init()
 	precachemodel( "p6_anim_zm_barricade_board_04_upgrade" );
 	precachemodel( "p6_anim_zm_barricade_board_05_upgrade" );
 	precachemodel( "p6_anim_zm_barricade_board_06_upgrade" );
-	while ( isDefined( level.ignore_spawner_func ) )
+	if ( isDefined( level.ignore_spawner_func ) )
 	{
-		i = 0;
-		while ( i < level.zombie_spawners.size )
+		for ( i = 0; i < level.zombie_spawners.size; i++ )
 		{
 			ignore = [[ level.ignore_spawner_func ]]( level.zombie_spawners[ i ] );
 			if ( ignore )
 			{
 				arrayremovevalue( level.zombie_spawners, level.zombie_spawners[ i ] );
 			}
-			i++;
 		}
 	}
 	gametype = getDvar( "ui_gametype" );
 	if ( !isDefined( level.attack_player_thru_boards_range ) )
 	{
-		level.attack_player_thru_boards_range = 109,8;
+		level.attack_player_thru_boards_range = 109.8;
 	}
 	if ( isDefined( level._game_module_custom_spawn_init_func ) )
 	{
@@ -74,7 +70,7 @@ init()
 	registerclientfield( "actor", "zombie_gut_explosion", 9000, 1, "int" );
 }
 
-add_cusom_zombie_spawn_logic( func )
+add_cusom_zombie_spawn_logic( func ) //checked matches cerberus output
 {
 	if ( !isDefined( level._zombie_custom_spawn_logic ) )
 	{
@@ -83,7 +79,7 @@ add_cusom_zombie_spawn_logic( func )
 	level._zombie_custom_spawn_logic[ level._zombie_custom_spawn_logic.size ] = func;
 }
 
-player_attacks_enemy( player, amount, type, point )
+player_attacks_enemy( player, amount, type, point ) //checked matches cerberus output
 {
 	team = undefined;
 	if ( isDefined( self._race_team ) )
@@ -104,7 +100,7 @@ player_attacks_enemy( player, amount, type, point )
 	return 1;
 }
 
-player_attacker( attacker )
+player_attacker( attacker ) //checked matches cerberus output
 {
 	if ( isplayer( attacker ) )
 	{
@@ -113,7 +109,7 @@ player_attacker( attacker )
 	return 0;
 }
 
-enemy_death_detection()
+enemy_death_detection() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	for ( ;; )
@@ -123,7 +119,7 @@ enemy_death_detection()
 		{
 			continue;
 		}
-		else if ( !isalive( self ) || self.delayeddeath )
+		if ( !isalive( self ) || self.delayeddeath )
 		{
 			return;
 		}
@@ -131,21 +127,17 @@ enemy_death_detection()
 		{
 			continue;
 		}
-		else
-		{
-			self.has_been_damaged_by_player = 1;
-			self player_attacks_enemy( attacker, amount, type, point );
-		}
+		self.has_been_damaged_by_player = 1;
+		self player_attacks_enemy( attacker, amount, type, point );
 	}
 }
 
-is_spawner_targeted_by_blocker( ent )
+is_spawner_targeted_by_blocker( ent ) //checked changed to match cerberus output
 {
-	while ( isDefined( ent.targetname ) )
+	if ( isDefined( ent.targetname ) )
 	{
 		targeters = getentarray( ent.targetname, "target" );
-		i = 0;
-		while ( i < targeters.size )
+		for ( i = 0; i < targeters.size; i++ )
 		{
 			if ( targeters[ i ].targetname == "zombie_door" || targeters[ i ].targetname == "zombie_debris" )
 			{
@@ -162,7 +154,7 @@ is_spawner_targeted_by_blocker( ent )
 	return 0;
 }
 
-add_custom_zombie_spawn_logic( func )
+add_custom_zombie_spawn_logic( func ) //checked matches cerberus output
 {
 	if ( !isDefined( level._zombie_custom_spawn_logic ) )
 	{
@@ -171,7 +163,7 @@ add_custom_zombie_spawn_logic( func )
 	level._zombie_custom_spawn_logic[ level._zombie_custom_spawn_logic.size ] = func;
 }
 
-zombie_spawn_init( animname_set )
+zombie_spawn_init( animname_set ) //checked partially changed to match cerberus output
 {
 	if ( !isDefined( animname_set ) )
 	{
@@ -244,14 +236,15 @@ zombie_spawn_init( animname_set )
 	{
 		if ( isarray( level._zombie_custom_spawn_logic ) )
 		{
-			i = 0;
-			while ( i < level._zombie_custom_spawn_logic.size )
+			for ( i = 0; i < level._zombie_custom_spawn_logic.size; i++ )
 			{
 				self thread [[ level._zombie_custom_spawn_logic[ i ] ]]();
-				i++;
 			}
 		}
-		else self thread [[ level._zombie_custom_spawn_logic ]]();
+		else 
+		{
+			self thread [[ level._zombie_custom_spawn_logic ]]();
+		}
 	}
 	if ( !isDefined( self.no_eye_glow ) || !self.no_eye_glow )
 	{
@@ -284,21 +277,24 @@ zombie_spawn_init( animname_set )
 	self notify( "zombie_init_done" );
 }
 
-delayed_zombie_eye_glow()
+delayed_zombie_eye_glow() //checked changed to match cerberus output
 {
 	self endon( "zombie_delete" );
-	if ( isDefined( self.in_the_ground ) || self.in_the_ground && isDefined( self.in_the_ceiling ) && self.in_the_ceiling )
+	if ( isDefined( self.in_the_ground ) && self.in_the_ground || isDefined( self.in_the_ceiling ) && self.in_the_ceiling )
 	{
 		while ( !isDefined( self.create_eyes ) )
 		{
-			wait 0,1;
+			wait 0.1;
 		}
 	}
-	else wait 0,5;
+	else
+	{
+		wait 0.5;
+	}
 	self zombie_eye_glow();
 }
 
-zombie_damage_failsafe()
+zombie_damage_failsafe() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	continue_failsafe_damage = 0;
@@ -316,7 +312,7 @@ zombie_damage_failsafe()
 			{
 				wait 5;
 			}
-			while ( isDefined( self.enemy ) || !isplayer( self.enemy ) && self.enemy hasperk( "specialty_armorvest" ) )
+			if ( !isDefined( self.enemy ) || !isplayer( self.enemy ) || self.enemy hasperk( "specialty_armorvest" ) )
 			{
 				continue;
 			}
@@ -328,7 +324,6 @@ zombie_damage_failsafe()
 					continue_failsafe_damage = 1;
 				}
 			}
-			continue;
 		}
 		else
 		{
@@ -337,7 +332,7 @@ zombie_damage_failsafe()
 	}
 }
 
-should_skip_teardown( find_flesh_struct_string )
+should_skip_teardown( find_flesh_struct_string ) //checked matches cerberus output
 {
 	if ( isDefined( find_flesh_struct_string ) && find_flesh_struct_string == "find_flesh" )
 	{
@@ -350,12 +345,14 @@ should_skip_teardown( find_flesh_struct_string )
 	return 0;
 }
 
-zombie_think()
+zombie_think() //checked changed to match cerberus output
 {
 	self endon( "death" );
+	/*
 /#
 	assert( !self.isdog );
 #/
+	*/
 	self.ai_state = "zombie_think";
 	find_flesh_struct_string = undefined;
 	if ( isDefined( level.zombie_custom_think_logic ) )
@@ -370,18 +367,15 @@ zombie_think()
 	{
 		find_flesh_struct_string = "find_flesh";
 	}
+	else if ( isDefined( self.custom_location ) )
+	{
+		self thread [[ self.custom_location ]]();
+	}
 	else
 	{
-		if ( isDefined( self.custom_location ) )
-		{
-			self thread [[ self.custom_location ]]();
-		}
-		else
-		{
-			self thread do_zombie_spawn();
-		}
-		self waittill( "risen", find_flesh_struct_string );
+		self thread do_zombie_spawn();
 	}
+	self waittill( "risen", find_flesh_struct_string );
 	node = undefined;
 	desired_nodes = [];
 	self.entrance_nodes = [];
@@ -396,107 +390,100 @@ zombie_think()
 	if ( !isDefined( find_flesh_struct_string ) && isDefined( self.target ) && self.target != "" )
 	{
 		desired_origin = get_desired_origin();
+		/*
 /#
 		assert( isDefined( desired_origin ), "Spawner @ " + self.origin + " has a .target but did not find a target" );
 #/
+		*/
 		origin = desired_origin;
 		node = getclosest( origin, level.exterior_goals );
 		self.entrance_nodes[ self.entrance_nodes.size ] = node;
 		self zombie_history( "zombie_think -> #1 entrance (script_forcegoal) origin = " + self.entrance_nodes[ 0 ].origin );
 	}
-	else
+	else if ( self should_skip_teardown( find_flesh_struct_string ) )
 	{
-		if ( self should_skip_teardown( find_flesh_struct_string ) )
+		self zombie_setup_attack_properties();
+		if ( isDefined( self.target ) )
 		{
-			self zombie_setup_attack_properties();
-			if ( isDefined( self.target ) )
+			end_at_node = getnode( self.target, "targetname" );
+			if ( isDefined( end_at_node ) )
 			{
-				end_at_node = getnode( self.target, "targetname" );
-				if ( isDefined( end_at_node ) )
-				{
-					self setgoalnode( end_at_node );
-					self waittill( "goal" );
-				}
+				self setgoalnode( end_at_node );
+				self waittill( "goal" );
 			}
-			if ( isDefined( self.start_inert ) && self.start_inert )
-			{
-				self thread maps/mp/zombies/_zm_ai_basic::start_inert( 1 );
-				self zombie_complete_emerging_into_playable_area();
-			}
-			else
-			{
-				self thread maps/mp/zombies/_zm_ai_basic::find_flesh();
-				self thread zombie_entered_playable();
-			}
-			return;
 		}
-		else if ( isDefined( find_flesh_struct_string ) )
+		if ( isDefined( self.start_inert ) && self.start_inert )
 		{
-/#
-			assert( isDefined( find_flesh_struct_string ) );
-#/
-			i = 0;
-			while ( i < level.exterior_goals.size )
-			{
-				if ( isDefined( level.exterior_goals[ i ].script_string ) && level.exterior_goals[ i ].script_string == find_flesh_struct_string )
-				{
-					node = level.exterior_goals[ i ];
-					break;
-				}
-				else
-				{
-					i++;
-				}
-			}
-			self.entrance_nodes[ self.entrance_nodes.size ] = node;
-			self zombie_history( "zombie_think -> #1 entrance origin = " + node.origin );
-			self thread zombie_assure_node();
+			self thread maps/mp/zombies/_zm_ai_basic::start_inert( 1 );
+			self zombie_complete_emerging_into_playable_area();
 		}
 		else
 		{
-			origin = self.origin;
-			desired_origin = get_desired_origin();
-			if ( isDefined( desired_origin ) )
-			{
-				origin = desired_origin;
-			}
-			nodes = get_array_of_closest( origin, level.exterior_goals, undefined, 3 );
-			desired_nodes[ 0 ] = nodes[ 0 ];
-			prev_dist = distance( self.origin, nodes[ 0 ].origin );
-			i = 1;
-			while ( i < nodes.size )
-			{
-				dist = distance( self.origin, nodes[ i ].origin );
-				if ( ( dist - prev_dist ) > max_dist )
-				{
-					break;
-				}
-				else
-				{
-					prev_dist = dist;
-					desired_nodes[ i ] = nodes[ i ];
-					i++;
-				}
-			}
-			node = desired_nodes[ 0 ];
-			if ( desired_nodes.size > 1 )
-			{
-				node = desired_nodes[ randomint( desired_nodes.size ) ];
-			}
-			self.entrance_nodes = desired_nodes;
-			self zombie_history( "zombie_think -> #1 entrance origin = " + node.origin );
-			self thread zombie_assure_node();
+			self thread maps/mp/zombies/_zm_ai_basic::find_flesh();
+			self thread zombie_entered_playable();
 		}
+		return;
 	}
+	else if ( isDefined( find_flesh_struct_string ) )
+	{
+	/*
+/#
+		assert( isDefined( find_flesh_struct_string ) );
+#/
+	*/
+		for ( i = 0; i < level.exterior_goals.size; i++ )
+		{
+			if ( isDefined( level.exterior_goals[ i ].script_string ) && level.exterior_goals[ i ].script_string == find_flesh_struct_string )
+			{
+				node = level.exterior_goals[ i ];
+				break;
+			}
+		}
+		self.entrance_nodes[ self.entrance_nodes.size ] = node;
+		self zombie_history( "zombie_think -> #1 entrance origin = " + node.origin );
+		self thread zombie_assure_node();
+	}
+	else
+	{
+		origin = self.origin;
+		desired_origin = get_desired_origin();
+		if ( isDefined( desired_origin ) )
+		{
+			origin = desired_origin;
+		}
+		nodes = get_array_of_closest( origin, level.exterior_goals, undefined, 3 );
+		desired_nodes[ 0 ] = nodes[ 0 ];
+		prev_dist = distance( self.origin, nodes[ 0 ].origin );
+		for ( i = 1; i < nodes.size; i++ )
+		{
+			dist = distance( self.origin, nodes[ i ].origin );
+			if ( ( dist - prev_dist ) > max_dist )
+			{
+				break;
+			}
+			prev_dist = dist;
+			desired_nodes[ i ] = nodes[ i ];
+		}
+		node = desired_nodes[ 0 ];
+		if ( desired_nodes.size > 1 )
+		{
+			node = desired_nodes[ randomint( desired_nodes.size ) ];
+		}
+		self.entrance_nodes = desired_nodes;
+		self zombie_history( "zombie_think -> #1 entrance origin = " + node.origin );
+		self thread zombie_assure_node();
+	}
+/*
 /#
 	assert( isDefined( node ), "Did not find a node!!! [Should not see this!]" );
 #/
+*/
 	level thread draw_line_ent_to_pos( self, node.origin, "goal" );
 	self.first_node = node;
 	self thread zombie_goto_entrance( node );
 }
 
-zombie_entered_playable()
+zombie_entered_playable() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( !isDefined( level.playable_areas ) )
@@ -505,23 +492,19 @@ zombie_entered_playable()
 	}
 	while ( 1 )
 	{
-		_a614 = level.playable_areas;
-		_k614 = getFirstArrayKey( _a614 );
-		while ( isDefined( _k614 ) )
+		foreach ( area in level.playable_areas )
 		{
-			area = _a614[ _k614 ];
 			if ( self istouching( area ) )
 			{
 				self zombie_complete_emerging_into_playable_area();
 				return;
 			}
-			_k614 = getNextArrayKey( _a614, _k614 );
 		}
 		wait 1;
 	}
 }
 
-get_desired_origin()
+get_desired_origin() //checked matches cerberus output
 {
 	if ( isDefined( self.target ) )
 	{
@@ -534,19 +517,23 @@ get_desired_origin()
 		{
 			ent = getnode( self.target, "targetname" );
 		}
+		/*
 /#
 		assert( isDefined( ent ), "Cannot find the targeted ent/node/struct, "" + self.target + "" at " + self.origin );
 #/
+		*/
 		return ent.origin;
 	}
 	return undefined;
 }
 
-zombie_goto_entrance( node, endon_bad_path )
+zombie_goto_entrance( node, endon_bad_path ) //checked matches cerberus output
 {
+/*
 /#
 	assert( !self.isdog );
 #/
+*/
 	self endon( "death" );
 	self endon( "stop_zombie_goto_entrance" );
 	level endon( "intermission" );
@@ -584,61 +571,53 @@ zombie_goto_entrance( node, endon_bad_path )
 	self.barricade_enter = 0;
 }
 
-zombie_assure_node()
+zombie_assure_node() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "goal" );
 	level endon( "intermission" );
 	start_pos = self.origin;
-	while ( isDefined( self.entrance_nodes ) )
+	if ( isDefined( self.entrance_nodes ) )
 	{
-		i = 0;
-		while ( i < self.entrance_nodes.size )
+		for ( i = 0; i < self.entrance_nodes.size; i++ )
 		{
 			if ( self zombie_bad_path() )
 			{
 				self zombie_history( "zombie_assure_node -> assigned assured node = " + self.entrance_nodes[ i ].origin );
+				/*
 /#
 				println( "^1Zombie @ " + self.origin + " did not move for 1 second. Going to next closest node @ " + self.entrance_nodes[ i ].origin );
 #/
+				*/
 				level thread draw_line_ent_to_pos( self, self.entrance_nodes[ i ].origin, "goal" );
 				self.first_node = self.entrance_nodes[ i ];
 				self setgoalpos( self.entrance_nodes[ i ].origin );
-				i++;
 				continue;
 			}
-			else
-			{
-				return;
-			}
-			i++;
+			return;
 		}
 	}
 	wait 2;
 	nodes = get_array_of_closest( self.origin, level.exterior_goals, undefined, 20 );
-	while ( isDefined( nodes ) )
+	if ( isDefined( nodes ) )
 	{
 		self.entrance_nodes = nodes;
-		i = 0;
-		while ( i < self.entrance_nodes.size )
+		for ( i = 0; i < self.entrance_nodes.size; i++ )
 		{
 			if ( self zombie_bad_path() )
 			{
 				self zombie_history( "zombie_assure_node -> assigned assured node = " + self.entrance_nodes[ i ].origin );
+				/*
 /#
 				println( "^1Zombie @ " + self.origin + " did not move for 1 second. Going to next closest node @ " + self.entrance_nodes[ i ].origin );
 #/
+				*/
 				level thread draw_line_ent_to_pos( self, self.entrance_nodes[ i ].origin, "goal" );
 				self.first_node = self.entrance_nodes[ i ];
 				self setgoalpos( self.entrance_nodes[ i ].origin );
-				i++;
 				continue;
 			}
-			else
-			{
-				return;
-			}
-			i++;
+			return;
 		}
 	}
 	self zombie_history( "zombie_assure_node -> failed to find a good entrance point" );
@@ -647,7 +626,7 @@ zombie_assure_node()
 	level.zombies_timeout_spawn++;
 }
 
-zombie_bad_path()
+zombie_bad_path() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "goal" );
@@ -656,13 +635,13 @@ zombie_bad_path()
 	self.zombie_bad_path = undefined;
 	while ( !isDefined( self.zombie_bad_path ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self notify( "stop_zombie_bad_path" );
 	return self.zombie_bad_path;
 }
 
-zombie_bad_path_notify()
+zombie_bad_path_notify() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_bad_path" );
@@ -670,7 +649,7 @@ zombie_bad_path_notify()
 	self.zombie_bad_path = 1;
 }
 
-zombie_bad_path_timeout()
+zombie_bad_path_timeout() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_bad_path" );
@@ -678,7 +657,7 @@ zombie_bad_path_timeout()
 	self.zombie_bad_path = 0;
 }
 
-tear_into_building()
+tear_into_building() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "teleporting" );
@@ -700,11 +679,12 @@ tear_into_building()
 		{
 			self zombie_history( "tear_into_building -> all chunks destroyed" );
 		}
-		while ( !get_attack_spot( self.first_node ) )
+		if ( !get_attack_spot( self.first_node ) )
 		{
 			self zombie_history( "tear_into_building -> Could not find an attack spot" );
 			self thread do_a_taunt();
-			wait 0,5;
+			wait 0.5;
+			continue;
 		}
 		self.goalradius = 2;
 		if ( isDefined( level.tear_into_position ) )
@@ -729,11 +709,9 @@ tear_into_building()
 		if ( all_chunks_destroyed( self.first_node, self.first_node.barrier_chunks ) )
 		{
 			self zombie_history( "tear_into_building -> all chunks destroyed" );
-			i = 0;
-			while ( i < self.first_node.attack_spots_taken.size )
+			for ( i = 0; i < self.first_node.attack_spots_taken.size; i++ )
 			{
 				self.first_node.attack_spots_taken[ i ] = 0;
-				i++;
 			}
 			return;
 		}
@@ -746,24 +724,22 @@ tear_into_building()
 			chunk = get_closest_non_destroyed_chunk( self.origin, self.first_node, self.first_node.barrier_chunks );
 			if ( !isDefined( chunk ) )
 			{
-				while ( !all_chunks_destroyed( self.first_node, self.first_node.barrier_chunks ) )
+				if ( !all_chunks_destroyed( self.first_node, self.first_node.barrier_chunks ) )
 				{
 					attack = self should_attack_player_thru_boards();
 					if ( isDefined( attack ) && !attack && self.has_legs )
 					{
 						self do_a_taunt();
-						continue;
 					}
 					else
 					{
-						wait 0,1;
+						wait 0.1;
 					}
+					continue;
 				}
-				i = 0;
-				while ( i < self.first_node.attack_spots_taken.size )
+				for ( i = 0; i < self.first_node.attack_spots_taken.size; i++ )
 				{
 					self.first_node.attack_spots_taken[ i ] = 0;
-					i++;
 				}
 				return;
 			}
@@ -784,7 +760,7 @@ tear_into_building()
 			anim_sub_index = self getanimsubstatefromasd( animstatebase + "_in", animsubstate );
 			self animscripted( self.first_node.zbarrier.origin, self.first_node.zbarrier.angles, maps/mp/animscripts/zm_utility::append_missing_legs_suffix( animstatebase + "_in" ), anim_sub_index );
 			self zombie_tear_notetracks( "tear_anim", chunk, self.first_node );
-			while ( self.first_node.zbarrier.chunk_health[ chunk ] >= 0 )
+			while ( self.first_node.zbarrier.chunk_health[ chunk ] > 0 )
 			{
 				self animscripted( self.first_node.zbarrier.origin, self.first_node.zbarrier.angles, maps/mp/animscripts/zm_utility::append_missing_legs_suffix( animstatebase + "_loop" ), anim_sub_index );
 				self zombie_tear_notetracks( "tear_anim", chunk, self.first_node );
@@ -801,8 +777,7 @@ tear_into_building()
 			}
 			if ( all_chunks_destroyed( self.first_node, self.first_node.barrier_chunks ) )
 			{
-				i = 0;
-				while ( i < self.first_node.attack_spots_taken.size )
+				for ( i = 0; i < self.first_node.attack_spots_taken.size; i++ ) 
 				{
 					self.first_node.attack_spots_taken[ i ] = 0;
 					i++;
@@ -815,7 +790,7 @@ tear_into_building()
 	}
 }
 
-do_a_taunt()
+do_a_taunt() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( !self.has_legs )
@@ -845,7 +820,7 @@ do_a_taunt()
 	}
 }
 
-taunt_notetracks( msg )
+taunt_notetracks( msg ) //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -859,7 +834,7 @@ taunt_notetracks( msg )
 	}
 }
 
-should_attack_player_thru_boards()
+should_attack_player_thru_boards() //checked changed to match cerberus output
 {
 	if ( !self.has_legs )
 	{
@@ -880,15 +855,13 @@ should_attack_player_thru_boards()
 	players = get_players();
 	attack = 0;
 	self.player_targets = [];
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isalive( players[ i ] ) && !isDefined( players[ i ].revivetrigger ) && distance2d( self.origin, players[ i ].origin ) <= level.attack_player_thru_boards_range && isDefined( players[ i ].zombie_vars[ "zombie_powerup_zombie_blood_on" ] ) && !players[ i ].zombie_vars[ "zombie_powerup_zombie_blood_on" ] )
 		{
 			self.player_targets[ self.player_targets.size ] = players[ i ];
 			attack = 1;
 		}
-		i++;
 	}
 	if ( !attack || freq < randomint( 100 ) )
 	{
@@ -906,7 +879,7 @@ should_attack_player_thru_boards()
 	return 1;
 }
 
-window_notetracks( msg )
+window_notetracks( msg ) //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -931,8 +904,7 @@ window_notetracks( msg )
 					_melee_dist_sq = level.attack_player_thru_boards_range * level.attack_player_thru_boards_range;
 				}
 				_trigger_dist_sq = 2601;
-				i = 0;
-				while ( i < self.player_targets.size )
+				for ( i = 0; i < self.player_targets.size; i++ )
 				{
 					playerdistsq = distance2dsquared( self.player_targets[ i ].origin, self.origin );
 					heightdiff = abs( self.player_targets[ i ].origin[ 2 ] - self.origin[ 2 ] );
@@ -946,18 +918,17 @@ window_notetracks( msg )
 							break;
 						}
 					}
-					else
-					{
-						i++;
-					}
 				}
 			}
-			else self melee();
+			else 
+			{
+				self melee();
+			}
 		}
 	}
 }
 
-reset_attack_spot()
+reset_attack_spot() //checked matches cerberus output
 {
 	if ( isDefined( self.attacking_node ) )
 	{
@@ -969,7 +940,7 @@ reset_attack_spot()
 	}
 }
 
-get_attack_spot( node )
+get_attack_spot( node ) //checked matches cerberus output
 {
 	index = get_attack_spot_index( node );
 	if ( !isDefined( index ) )
@@ -983,17 +954,15 @@ get_attack_spot( node )
 	return 1;
 }
 
-get_attack_spot_index( node )
+get_attack_spot_index( node ) //checked changed to match cerberus output
 {
 	indexes = [];
-	i = 0;
-	while ( i < node.attack_spots.size )
+	for ( i = 0; i < node.attack_spots.size; i++ )
 	{
 		if ( !node.attack_spots_taken[ i ] )
 		{
 			indexes[ indexes.size ] = i;
 		}
-		i++;
 	}
 	if ( indexes.size == 0 )
 	{
@@ -1002,7 +971,7 @@ get_attack_spot_index( node )
 	return indexes[ randomint( indexes.size ) ];
 }
 
-zombie_tear_notetracks( msg, chunk, node )
+zombie_tear_notetracks( msg, chunk, node ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -1012,7 +981,7 @@ zombie_tear_notetracks( msg, chunk, node )
 		{
 			return;
 		}
-		if ( notetrack != "board" || notetrack == "destroy_piece" && notetrack == "bar" )
+		if ( notetrack == "board" || notetrack == "destroy_piece" || notetrack == "bar" )
 		{
 			if ( isDefined( level.zbarrier_zombie_tear_notetrack_override ) )
 			{
@@ -1023,7 +992,7 @@ zombie_tear_notetracks( msg, chunk, node )
 	}
 }
 
-zombie_boardtear_offset_fx_horizontle( chunk, node )
+zombie_boardtear_offset_fx_horizontle( chunk, node ) //checked changed to match cerberus output
 {
 	if ( isDefined( chunk.script_parameters ) || chunk.script_parameters == "repair_board" && chunk.script_parameters == "board" )
 	{
@@ -1034,28 +1003,22 @@ zombie_boardtear_offset_fx_horizontle( chunk, node )
 				playfx( level._effect[ "glass_break" ], chunk.origin, node.angles );
 				chunk.unbroken = 0;
 			}
-			else
+			else if ( isDefined( chunk.material ) && chunk.material == "metal" )
 			{
-				if ( isDefined( chunk.material ) && chunk.material == "metal" )
+				playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin );
+				chunk.unbroken = 0;
+			}
+			else if ( isDefined( chunk.material ) && chunk.material == "rock" )
+			{
+				if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
 				{
-					playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin );
-					chunk.unbroken = 0;
+					chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
 				}
 				else
 				{
-					if ( isDefined( chunk.material ) && chunk.material == "rock" )
-					{
-						if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
-						{
-							chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
-						}
-						else
-						{
-							playfx( level._effect[ "wall_break" ], chunk.origin );
-						}
-						chunk.unbroken = 0;
-					}
+					playfx( level._effect[ "wall_break" ], chunk.origin );
 				}
+				chunk.unbroken = 0;
 			}
 		}
 	}
@@ -1070,34 +1033,28 @@ zombie_boardtear_offset_fx_horizontle( chunk, node )
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin );
 		}
 	}
+	else if ( isDefined( chunk.material ) && chunk.material == "rock" )
+	{
+		if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+		{
+			chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
+		}
+		//return;
+	}
+	else if ( isDefined( level.use_clientside_board_fx ) )
+	{
+		chunk setclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
+		//return;
+	}
 	else
 	{
-		if ( isDefined( chunk.material ) && chunk.material == "rock" )
-		{
-			if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
-			{
-				chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
-			}
-			return;
-		}
-		else
-		{
-			if ( isDefined( level.use_clientside_board_fx ) )
-			{
-				chunk setclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
-				return;
-			}
-			else
-			{
-				playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 0 ), 30 ) );
-				wait randomfloatrange( 0,2, 0,4 );
-				playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 0 ), 30 ) );
-			}
-		}
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 1 ), 30 ) );
+		wait randomfloatrange( 0.2, 0.4 );
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, -1 ), 30 ) );
 	}
 }
 
-zombie_boardtear_offset_fx_verticle( chunk, node )
+zombie_boardtear_offset_fx_verticle( chunk, node ) //checked changed to match cerberus output
 {
 	if ( isDefined( chunk.script_parameters ) || chunk.script_parameters == "repair_board" && chunk.script_parameters == "board" )
 	{
@@ -1108,28 +1065,22 @@ zombie_boardtear_offset_fx_verticle( chunk, node )
 				playfx( level._effect[ "glass_break" ], chunk.origin, node.angles );
 				chunk.unbroken = 0;
 			}
-			else
+			else if ( isDefined( chunk.material ) && chunk.material == "metal" )
 			{
-				if ( isDefined( chunk.material ) && chunk.material == "metal" )
+				playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin );
+				chunk.unbroken = 0;
+			}
+			else if ( isDefined( chunk.material ) && chunk.material == "rock" )
+			{
+				if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
 				{
-					playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin );
-					chunk.unbroken = 0;
+					chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
 				}
 				else
 				{
-					if ( isDefined( chunk.material ) && chunk.material == "rock" )
-					{
-						if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
-						{
-							chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
-						}
-						else
-						{
-							playfx( level._effect[ "wall_break" ], chunk.origin );
-						}
-						chunk.unbroken = 0;
-					}
+					playfx( level._effect[ "wall_break" ], chunk.origin );
 				}
+				chunk.unbroken = 0;
 			}
 		}
 	}
@@ -1144,36 +1095,30 @@ zombie_boardtear_offset_fx_verticle( chunk, node )
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin );
 		}
 	}
+	if ( isDefined( chunk.material ) && chunk.material == "rock" )
+	{
+		if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+		{
+			chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
+		}
+		return;
+	}
+	if ( isDefined( level.use_clientside_board_fx ) )
+	{
+		chunk setclientflag( level._zombie_scriptmover_flag_board_vertical_fx );
+		return;
+	}
 	else
 	{
-		if ( isDefined( chunk.material ) && chunk.material == "rock" )
-		{
-			if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
-			{
-				chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
-			}
-			return;
-		}
-		else
-		{
-			if ( isDefined( level.use_clientside_board_fx ) )
-			{
-				chunk setclientflag( level._zombie_scriptmover_flag_board_vertical_fx );
-				return;
-			}
-			else
-			{
-				playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 0 ), 30 ) );
-				wait randomfloatrange( 0,2, 0,4 );
-				playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 0 ), 30 ) );
-			}
-		}
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 1, 0, 0 ), 30 ) );
+		wait randomfloatrange( 0.2, 0.4 );
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 	}
 }
 
-zombie_bartear_offset_fx_verticle( chunk )
+zombie_bartear_offset_fx_verticle( chunk ) //checked changed to match cerberus output
 {
-	if ( isDefined( chunk.script_parameters ) || chunk.script_parameters == "bar" && chunk.script_noteworthy == "board" )
+	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters == "bar" || chunk.script_noteworthy == "board" )
 	{
 		possible_tag_array_1 = [];
 		possible_tag_array_1[ 0 ] = "Tag_fx_top";
@@ -1196,111 +1141,93 @@ zombie_bartear_offset_fx_verticle( chunk )
 		{
 			case 0:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 			case 1:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_top" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 			case 2:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 			case 3:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_top" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 			case 4:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 			case 5:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
 				break;
-			return;
 			case 6:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 			case 7:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_top" );
 				break;
-			return;
 			case 8:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_bottom" );
 				break;
-			return;
 		}
 	}
 }
 
-zombie_bartear_offset_fx_horizontle( chunk )
+zombie_bartear_offset_fx_horizontle( chunk ) //checked changed to match cerberus output
 {
-	if ( isDefined( chunk.script_parameters ) || chunk.script_parameters == "bar" && chunk.script_noteworthy == "board" )
+	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters == "bar" || chunk.script_noteworthy == "board" )
 	{
 		switch( randomint( 10 ) )
 		{
 			case 0:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 1:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_left" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 2:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 3:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_left" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 4:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
-				wait randomfloatrange( 0, 0,3 );
+				wait randomfloatrange( 0, 0.3 );
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 5:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
 				break;
-			return;
 			case 6:
 				playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 7:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 			case 8:
 				playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_right" );
 				break;
-			return;
 		}
 	}
 }
 
-check_zbarrier_piece_for_zombie_inert( chunk_index, zbarrier, zombie )
+check_zbarrier_piece_for_zombie_inert( chunk_index, zbarrier, zombie ) //checked matches cerberus output
 {
 	zombie endon( "completed_emerging_into_playable_area" );
 	zombie waittill( "stop_zombie_goto_entrance" );
@@ -1310,7 +1237,7 @@ check_zbarrier_piece_for_zombie_inert( chunk_index, zbarrier, zombie )
 	}
 }
 
-check_zbarrier_piece_for_zombie_death( chunk_index, zbarrier, zombie )
+check_zbarrier_piece_for_zombie_death( chunk_index, zbarrier, zombie ) //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -1323,18 +1250,18 @@ check_zbarrier_piece_for_zombie_death( chunk_index, zbarrier, zombie )
 			zbarrier setzbarrierpiecestate( chunk_index, "closed" );
 			return;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-check_for_zombie_death( zombie )
+check_for_zombie_death( zombie ) //checked matches cerberus output
 {
 	self endon( "destroyed" );
-	wait 2,5;
+	wait 2.5;
 	self maps/mp/zombies/_zm_blockers::update_states( "repaired" );
 }
 
-zombie_hat_gib( attacker, means_of_death )
+zombie_hat_gib( attacker, means_of_death ) //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( !is_mature() )
@@ -1363,7 +1290,7 @@ zombie_hat_gib( attacker, means_of_death )
 	}
 }
 
-zombie_head_gib( attacker, means_of_death )
+zombie_head_gib( attacker, means_of_death ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( !is_mature() )
@@ -1377,8 +1304,7 @@ zombie_head_gib( attacker, means_of_death )
 	self.head_gibbed = 1;
 	self zombie_eye_glow_stop();
 	size = self getattachsize();
-	i = 0;
-	while ( i < size )
+	for ( i = 0; i < size; i++ )
 	{
 		model = self getattachmodelname( i );
 		if ( issubstr( model, "head" ) )
@@ -1394,10 +1320,6 @@ zombie_head_gib( attacker, means_of_death )
 			}
 			break;
 		}
-		else
-		{
-			i++;
-		}
 	}
 	temp_array = [];
 	temp_array[ 0 ] = level._zombie_gib_piece_index_head;
@@ -1411,10 +1333,10 @@ zombie_head_gib( attacker, means_of_death )
 	{
 		level [[ level.track_gibs ]]( self, temp_array );
 	}
-	self thread damage_over_time( ceil( self.health * 0,2 ), 1, attacker, means_of_death );
+	self thread damage_over_time( ceil( self.health * 0.2 ), 1, attacker, means_of_death );
 }
 
-damage_over_time( dmg, delay, attacker, means_of_death )
+damage_over_time( dmg, delay, attacker, means_of_death ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "exploding" );
@@ -1443,7 +1365,7 @@ damage_over_time( dmg, delay, attacker, means_of_death )
 	}
 }
 
-head_should_gib( attacker, type, point )
+head_should_gib( attacker, type, point ) //checked changed to match cerberus output
 {
 	if ( !is_mature() )
 	{
@@ -1471,33 +1393,27 @@ head_should_gib( attacker, type, point )
 				return 1;
 			}
 		}
-		else
+		else if ( type == "MOD_PROJECTILE" )
 		{
-			if ( type == "MOD_PROJECTILE" )
+			if ( distance( point, self gettagorigin( "j_head" ) ) > 10 )
 			{
-				if ( distance( point, self gettagorigin( "j_head" ) ) > 10 )
-				{
-					return 0;
-				}
-				else
-				{
-					return 1;
-				}
+				return 0;
 			}
 			else
 			{
-				if ( weaponclass( weapon ) != "spread" )
-				{
-					return 0;
-				}
+				return 1;
 			}
+		}
+		else if ( weaponclass( weapon ) != "spread" )
+		{
+			return 0;
 		}
 	}
 	if ( !self maps/mp/animscripts/zm_utility::damagelocationisany( "head", "helmet", "neck" ) )
 	{
 		return 0;
 	}
-	if ( weapon != "none" || weapon == level.start_weapon && weaponisgasweapon( self.weapon ) )
+	if ( weapon == "none" || weapon == level.start_weapon || weaponisgasweapon( self.weapon ) )
 	{
 		return 0;
 	}
@@ -1510,7 +1426,7 @@ head_should_gib( attacker, type, point )
 	return 1;
 }
 
-headshot_blood_fx()
+headshot_blood_fx() //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -1526,14 +1442,14 @@ headshot_blood_fx()
 	forwardvec = anglesToForward( self gettagangles( fxtag ) );
 	playfx( level._effect[ "headshot" ], fxorigin, forwardvec, upvec );
 	playfx( level._effect[ "headshot_nochunks" ], fxorigin, forwardvec, upvec );
-	wait 0,3;
+	wait 0.3;
 	if ( isDefined( self ) )
 	{
 		playfxontag( level._effect[ "bloodspurt" ], self, fxtag );
 	}
 }
 
-zombie_gib_on_damage()
+zombie_gib_on_damage() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -1542,17 +1458,18 @@ zombie_gib_on_damage()
 		{
 			return;
 		}
-		while ( !self zombie_should_gib( amount, attacker, type ) )
+		if ( !self zombie_should_gib( amount, attacker, type ) )
 		{
 			continue;
 		}
-		while ( self head_should_gib( attacker, type, point ) && type != "MOD_BURNED" )
+		if ( self head_should_gib( attacker, type, point ) && type != "MOD_BURNED" )
 		{
 			self zombie_head_gib( attacker, type );
+			continue; //added from cerberus output
 		}
 		if ( !self.gibbed )
 		{
-			while ( self maps/mp/animscripts/zm_utility::damagelocationisany( "head", "helmet", "neck" ) )
+			if ( self maps/mp/animscripts/zm_utility::damagelocationisany( "head", "helmet", "neck" ) )
 			{
 				continue;
 			}
@@ -1604,14 +1521,16 @@ zombie_gib_on_damage()
 							refs = self derive_damage_refs( point );
 							break;
 					}
-					else }
-				else refs[ refs.size ] = "guts";
-				refs[ refs.size ] = "right_arm";
-				refs[ refs.size ] = "left_arm";
-				refs[ refs.size ] = "right_leg";
-				refs[ refs.size ] = "left_leg";
-				refs[ refs.size ] = "no_legs";
-				break;
+					else
+					{
+						refs[ refs.size ] = "guts";
+						refs[ refs.size ] = "right_arm";
+						refs[ refs.size ] = "left_arm";
+						refs[ refs.size ] = "right_leg";
+						refs[ refs.size ] = "left_leg";
+						refs[ refs.size ] = "no_legs";
+						break;
+					}
 		}
 		if ( isDefined( level.custom_derive_damage_refs ) )
 		{
@@ -1620,7 +1539,7 @@ zombie_gib_on_damage()
 		if ( refs.size )
 		{
 			self.a.gib_ref = maps/mp/animscripts/zm_death::get_random( refs );
-			if ( self.a.gib_ref != "no_legs" && self.a.gib_ref != "right_leg" && self.a.gib_ref == "left_leg" && self.health > 0 )
+			if ( ( self.a.gib_ref == "no_legs" || self.a.gib_ref == "right_leg" || self.a.gib_ref == "left_leg" ) && self.health > 0 )
 			{
 				self.has_legs = 0;
 				self allowedstances( "crouch" );
@@ -1628,7 +1547,7 @@ zombie_gib_on_damage()
 				self allowpitchangle( 1 );
 				self setpitchorient();
 				health = self.health;
-				health *= 0,1;
+				health *= 0.1;
 				self thread maps/mp/animscripts/zm_run::needsdelayedupdate();
 				if ( isDefined( self.crawl_anim_override ) )
 				{
@@ -1646,9 +1565,8 @@ zombie_gib_on_damage()
 		}
 	}
 }
-}
 
-zombie_should_gib( amount, attacker, type )
+zombie_should_gib( amount, attacker, type ) //checked changed to match cerberus output
 {
 	if ( !is_mature() )
 	{
@@ -1695,17 +1613,14 @@ zombie_should_gib( amount, attacker, type )
 			return 0;
 		}
 	}
-	else
+	else if ( type == "MOD_PROJECTILE" )
 	{
-		if ( type == "MOD_PROJECTILE" )
+		if ( isDefined( attacker ) && isplayer( attacker ) )
 		{
-			if ( isDefined( attacker ) && isplayer( attacker ) )
+			weapon = attacker getcurrentweapon();
+			if ( weapon == "slipgun_zm" || weapon == "slipgun_upgraded_zm" )
 			{
-				weapon = attacker getcurrentweapon();
-				if ( weapon == "slipgun_zm" || weapon == "slipgun_upgraded_zm" )
-				{
-					return 0;
-				}
+				return 0;
 			}
 		}
 	}
@@ -1722,74 +1637,58 @@ zombie_should_gib( amount, attacker, type )
 	return 1;
 }
 
-derive_damage_refs( point )
+derive_damage_refs( point ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.gib_tags ) )
 	{
 		init_gib_tags();
 	}
 	closesttag = undefined;
-	i = 0;
-	while ( i < level.gib_tags.size )
+	for ( i = 0; i < level.gib_tags.size; i++ )
 	{
 		if ( !isDefined( closesttag ) )
 		{
 			closesttag = level.gib_tags[ i ];
-			i++;
 			continue;
 		}
-		else
+		if ( distancesquared( point, self gettagorigin( level.gib_tags[ i ] ) ) < distancesquared( point, self gettagorigin( closesttag ) ) )
 		{
-			if ( distancesquared( point, self gettagorigin( level.gib_tags[ i ] ) ) < distancesquared( point, self gettagorigin( closesttag ) ) )
-			{
-				closesttag = level.gib_tags[ i ];
-			}
+			closesttag = level.gib_tags[ i ];
 		}
-		i++;
 	}
 	refs = [];
-	if ( closesttag != "J_SpineLower" || closesttag == "J_SpineUpper" && closesttag == "J_Spine4" )
+	if ( closesttag != "J_SpineLower" || closesttag == "J_SpineUpper" || closesttag == "J_Spine4" )
 	{
 		refs[ refs.size ] = "guts";
 		refs[ refs.size ] = "right_arm";
 	}
-	else
+	else if ( closesttag != "J_Shoulder_LE" || closesttag == "J_Elbow_LE" && closesttag == "J_Wrist_LE" )
 	{
-		if ( closesttag != "J_Shoulder_LE" || closesttag == "J_Elbow_LE" && closesttag == "J_Wrist_LE" )
-		{
-			refs[ refs.size ] = "left_arm";
-		}
-		else
-		{
-			if ( closesttag != "J_Shoulder_RI" || closesttag == "J_Elbow_RI" && closesttag == "J_Wrist_RI" )
-			{
-				refs[ refs.size ] = "right_arm";
-			}
-			else
-			{
-				if ( closesttag != "J_Hip_LE" || closesttag == "J_Knee_LE" && closesttag == "J_Ankle_LE" )
-				{
-					refs[ refs.size ] = "left_leg";
-					refs[ refs.size ] = "no_legs";
-				}
-				else
-				{
-					if ( closesttag != "J_Hip_RI" || closesttag == "J_Knee_RI" && closesttag == "J_Ankle_RI" )
-					{
-						refs[ refs.size ] = "right_leg";
-						refs[ refs.size ] = "no_legs";
-					}
-				}
-			}
-		}
+		refs[ refs.size ] = "left_arm";
 	}
+	else if ( closesttag != "J_Shoulder_RI" || closesttag == "J_Elbow_RI" && closesttag == "J_Wrist_RI" )
+	{
+		refs[ refs.size ] = "right_arm";
+	}
+	else if ( closesttag != "J_Hip_LE" || closesttag == "J_Knee_LE" && closesttag == "J_Ankle_LE" )
+	{
+		refs[ refs.size ] = "left_leg";
+		refs[ refs.size ] = "no_legs";
+	}
+	else if ( closesttag != "J_Hip_RI" || closesttag == "J_Knee_RI" && closesttag == "J_Ankle_RI" )
+	{
+		refs[ refs.size ] = "right_leg";
+		refs[ refs.size ] = "no_legs";
+	}
+	/*
 /#
 	assert( array_validate( refs ), "get_closest_damage_refs(): couldn't derive refs from closestTag " + closesttag );
 #/
+	*/
 	return refs;
 }
 
-init_gib_tags()
+init_gib_tags() //checked matches cerberus output
 {
 	tags = [];
 	tags[ tags.size ] = "J_SpineLower";
@@ -1810,7 +1709,7 @@ init_gib_tags()
 	level.gib_tags = tags;
 }
 
-zombie_can_drop_powerups( zombie )
+zombie_can_drop_powerups( zombie ) //checked matches cerberus output
 {
 	if ( is_tactical_grenade( zombie.damageweapon ) || !flag( "zombie_drop_powerups" ) )
 	{
@@ -1823,13 +1722,13 @@ zombie_can_drop_powerups( zombie )
 	return 1;
 }
 
-zombie_delay_powerup_drop( origin )
+zombie_delay_powerup_drop( origin ) //checked matches cerberus output
 {
 	wait_network_frame(); 
 	level thread maps/mp/zombies/_zm_powerups::powerup_drop( origin );
 }
 
-zombie_death_points( origin, mod, hit_location, attacker, zombie, team )
+zombie_death_points( origin, mod, hit_location, attacker, zombie, team ) //checked matches cerberus output
 {
 	if ( !isDefined( attacker ) || !isplayer( attacker ) )
 	{
@@ -1839,13 +1738,13 @@ zombie_death_points( origin, mod, hit_location, attacker, zombie, team )
 	{
 		if ( isDefined( zombie.in_the_ground ) && zombie.in_the_ground == 1 )
 		{
-			trace = bullettrace( zombie.origin + vectorScale( ( 0, 0, 0 ), 100 ), zombie.origin + vectorScale( ( 0, 0, 0 ), 100 ), 0, undefined );
+			trace = bullettrace( zombie.origin + vectorScale( ( 0, 0, 1 ), 100 ), zombie.origin + vectorScale( ( 0, 0, 0 ), 100 ), 0, undefined );
 			origin = trace[ "position" ];
 			level thread zombie_delay_powerup_drop( origin );
 		}
 		else
 		{
-			trace = groundtrace( zombie.origin + vectorScale( ( 0, 0, 0 ), 5 ), zombie.origin + vectorScale( ( 0, 0, 0 ), 300 ), 0, undefined );
+			trace = groundtrace( zombie.origin + vectorScale( ( 0, 0, 1 ), 5 ), zombie.origin + vectorScale( ( 0, 0, 0 ), 300 ), 0, undefined );
 			origin = trace[ "position" ];
 			level thread zombie_delay_powerup_drop( origin );
 		}
@@ -1868,20 +1767,18 @@ zombie_death_points( origin, mod, hit_location, attacker, zombie, team )
 	attacker maps/mp/zombies/_zm_score::player_add_points( event, mod, hit_location, undefined, team, attacker.currentweapon );
 }
 
-get_number_variants( aliasprefix )
+get_number_variants( aliasprefix ) //checked matches cerberus output
 {
-	i = 0;
-	while ( i < 100 )
+	for ( i = 0; i < 100; i++ )
 	{
-		if ( !soundexists( ( aliasprefix + "_" ) + i ) )
+		if ( !soundexists( aliasprefix + "_" + i ) )
 		{
 			return i;
 		}
-		i++;
 	}
 }
 
-dragons_breath_flame_death_fx()
+dragons_breath_flame_death_fx() //checked matches cerberus output
 {
 	if ( self.isdog )
 	{
@@ -1889,9 +1786,11 @@ dragons_breath_flame_death_fx()
 	}
 	if ( !isDefined( level._effect ) || !isDefined( level._effect[ "character_fire_death_sm" ] ) )
 	{
+	/*
 /#
 		println( "^3ANIMSCRIPT WARNING: You are missing level._effect["character_fire_death_sm"], please set it in your levelname_fx.gsc. Use "env/fire/fx_fire_zombie_md"" );
 #/
+	*/
 		return;
 	}
 	playfxontag( level._effect[ "character_fire_death_sm" ], self, "J_SpineLower" );
@@ -1920,7 +1819,7 @@ dragons_breath_flame_death_fx()
 	playfxontag( level._effect[ "character_fire_death_sm" ], self, tagarray[ 0 ] );
 }
 
-zombie_ragdoll_then_explode( launchvector, attacker )
+zombie_ragdoll_then_explode( launchvector, attacker ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -1930,7 +1829,7 @@ zombie_ragdoll_then_explode( launchvector, attacker )
 	self setclientfield( "zombie_ragdoll_explode", 1 );
 	self notify( "exploding" );
 	self notify( "end_melee" );
-	self notify( "death" );
+	self notify( "death", attacker );
 	self.dont_die_on_me = 1;
 	self.exploding = 1;
 	self.a.nodeath = 1;
@@ -1942,15 +1841,15 @@ zombie_ragdoll_then_explode( launchvector, attacker )
 	{
 		self launchragdoll( launchvector );
 	}
-	wait 2,1;
+	wait 2.1;
 	if ( isDefined( self ) )
 	{
 		self ghost();
-		self delay_thread( 0,25, ::self_delete );
+		self delay_thread( 0.25, ::self_delete );
 	}
 }
 
-zombie_death_animscript()
+zombie_death_animscript() //checked changed to match cerberus output
 {
 	team = undefined;
 	recalc_zombie_array();
@@ -1978,13 +1877,13 @@ zombie_death_animscript()
 		{
 			if ( isDefined( self.in_the_ground ) && self.in_the_ground == 1 )
 			{
-				trace = bullettrace( self.origin + vectorScale( ( 0, 0, 0 ), 100 ), self.origin + vectorScale( ( 0, 0, 0 ), 100 ), 0, undefined );
+				trace = bullettrace( self.origin + vectorScale( ( 0, 0, 1 ), 100 ), self.origin + vectorScale( ( 0, 0, 0 ), 100 ), 0, undefined );
 				origin = trace[ "position" ];
 				level thread zombie_delay_powerup_drop( origin );
 			}
 			else
 			{
-				trace = groundtrace( self.origin + vectorScale( ( 0, 0, 0 ), 5 ), self.origin + vectorScale( ( 0, 0, 0 ), 300 ), 0, undefined );
+				trace = groundtrace( self.origin + vectorScale( ( 0, 0, 1 ), 5 ), self.origin + vectorScale( ( 0, 0, 0 ), 300 ), 0, undefined );
 				origin = trace[ "position" ];
 				level thread zombie_delay_powerup_drop( self.origin );
 			}
@@ -1996,7 +1895,7 @@ zombie_death_animscript()
 	}
 	if ( isDefined( self.attacker ) && isai( self.attacker ) )
 	{
-		self.attacker notify( "killed" );
+		self.attacker notify( "killed", self );
 	}
 	if ( self.damageweapon == "rottweil72_upgraded_zm" && self.damagemod == "MOD_RIFLE_BULLET" )
 	{
@@ -2018,25 +1917,23 @@ zombie_death_animscript()
 	return 0;
 }
 
-check_zombie_death_animscript_callbacks()
+check_zombie_death_animscript_callbacks() //checked changed to match cerberus output
 {
 	if ( !isDefined( level.zombie_death_animscript_callbacks ) )
 	{
 		return 0;
 	}
-	i = 0;
-	while ( i < level.zombie_death_animscript_callbacks.size )
+	for ( i = 0; i < level.zombie_death_animscript_callbacks.size; i++ )
 	{
 		if ( self [[ level.zombie_death_animscript_callbacks[ i ] ]]() )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-register_zombie_death_animscript_callback( func )
+register_zombie_death_animscript_callback( func ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_death_animscript_callbacks ) )
 	{
@@ -2045,7 +1942,7 @@ register_zombie_death_animscript_callback( func )
 	level.zombie_death_animscript_callbacks[ level.zombie_death_animscript_callbacks.size ] = func;
 }
 
-damage_on_fire( player )
+damage_on_fire( player ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_flame_damage" );
@@ -2080,7 +1977,7 @@ damage_on_fire( player )
 	}
 }
 
-player_using_hi_score_weapon( player )
+player_using_hi_score_weapon( player ) //checked matches cerberus output
 {
 	weapon = player getcurrentweapon();
 	if ( weapon == "none" || weaponissemiauto( weapon ) )
@@ -2090,7 +1987,7 @@ player_using_hi_score_weapon( player )
 	return 0;
 }
 
-zombie_damage( mod, hit_location, hit_origin, player, amount, team )
+zombie_damage( mod, hit_location, hit_origin, player, amount, team ) //checked changed to match cerberus output
 {
 	if ( is_magic_bullet_shield_enabled( self ) )
 	{
@@ -2124,20 +2021,17 @@ zombie_damage( mod, hit_location, hit_origin, player, amount, team )
 			player maps/mp/zombies/_zm_score::player_add_points( "damage", mod, hit_location, self.isdog, team );
 		}
 	}
+	else if ( player_using_hi_score_weapon( player ) )
+	{
+		damage_type = "damage";
+	}
 	else
 	{
-		if ( player_using_hi_score_weapon( player ) )
-		{
-			damage_type = "damage";
-		}
-		else
-		{
-			damage_type = "damage_light";
-		}
-		if ( isDefined( self.no_damage_points ) && !self.no_damage_points )
-		{
-			player maps/mp/zombies/_zm_score::player_add_points( damage_type, mod, hit_location, self.isdog, team, self.damageweapon );
-		}
+		damage_type = "damage_light";
+	}
+	if ( isDefined( self.no_damage_points ) && !self.no_damage_points )
+	{
+		player maps/mp/zombies/_zm_score::player_add_points( damage_type, mod, hit_location, self.isdog, team, self.damageweapon );
 	}
 	if ( isDefined( self.zombie_damage_fx_func ) )
 	{
@@ -2172,18 +2066,15 @@ zombie_damage( mod, hit_location, hit_origin, player, amount, team )
 			self dodamage( level.round_number + randomintrange( 100, 200 ), self.origin, undefined, self, hit_location, modname );
 		}
 	}
-	else
+	else if ( mod != "MOD_PROJECTILE" || mod == "MOD_EXPLOSIVE" && mod == "MOD_PROJECTILE_SPLASH" )
 	{
-		if ( mod != "MOD_PROJECTILE" || mod == "MOD_EXPLOSIVE" && mod == "MOD_PROJECTILE_SPLASH" )
+		if ( isDefined( player ) && isalive( player ) )
 		{
-			if ( isDefined( player ) && isalive( player ) )
-			{
-				self dodamage( level.round_number * randomintrange( 0, 100 ), self.origin, player, self, hit_location, modname );
-			}
-			else
-			{
-				self dodamage( level.round_number * randomintrange( 0, 100 ), self.origin, undefined, self, hit_location, modname );
-			}
+			self dodamage( level.round_number * randomintrange( 0, 100 ), self.origin, player, self, hit_location, modname );
+		}
+		else
+		{
+			self dodamage( level.round_number * randomintrange( 0, 100 ), self.origin, undefined, self, hit_location, modname );
 		}
 	}
 	if ( isDefined( self.a.gib_ref ) && self.a.gib_ref == "no_legs" && isalive( self ) )
@@ -2197,19 +2088,16 @@ zombie_damage( mod, hit_location, hit_origin, player, amount, team )
 			}
 		}
 	}
-	else
+	else if ( isDefined( self.a.gib_ref ) || self.a.gib_ref == "right_arm" && self.a.gib_ref == "left_arm" )
 	{
-		if ( isDefined( self.a.gib_ref ) || self.a.gib_ref == "right_arm" && self.a.gib_ref == "left_arm" )
+		if ( self.has_legs && isalive( self ) )
 		{
-			if ( self.has_legs && isalive( self ) )
+			if ( isDefined( player ) )
 			{
-				if ( isDefined( player ) )
+				rand = randomintrange( 0, 100 );
+				if ( rand < 7 )
 				{
-					rand = randomintrange( 0, 100 );
-					if ( rand < 7 )
-					{
-						player create_and_play_dialog( "general", "shoot_arm" );
-					}
+					player create_and_play_dialog( "general", "shoot_arm" );
 				}
 			}
 		}
@@ -2217,7 +2105,7 @@ zombie_damage( mod, hit_location, hit_origin, player, amount, team )
 	self thread maps/mp/zombies/_zm_powerups::check_for_instakill( player, mod, hit_location );
 }
 
-zombie_damage_ads( mod, hit_location, hit_origin, player, amount, team )
+zombie_damage_ads( mod, hit_location, hit_origin, player, amount, team ) //checked changed to match cerberus output
 {
 	if ( is_magic_bullet_shield_enabled( self ) )
 	{
@@ -2247,43 +2135,38 @@ zombie_damage_ads( mod, hit_location, hit_origin, player, amount, team )
 			player maps/mp/zombies/_zm_score::player_add_points( "damage_ads", mod, hit_location, undefined, team );
 		}
 	}
+	else if ( player_using_hi_score_weapon( player ) )
+	{
+		damage_type = "damage";
+	}
 	else
 	{
-		if ( player_using_hi_score_weapon( player ) )
-		{
-			damage_type = "damage";
-		}
-		else
-		{
-			damage_type = "damage_light";
-		}
-		if ( isDefined( self.no_damage_points ) && !self.no_damage_points )
-		{
-			player maps/mp/zombies/_zm_score::player_add_points( damage_type, mod, hit_location, undefined, team, self.damageweapon );
-		}
+		damage_type = "damage_light";
+	}
+	if ( isDefined( self.no_damage_points ) && !self.no_damage_points )
+	{
+		player maps/mp/zombies/_zm_score::player_add_points( damage_type, mod, hit_location, undefined, team, self.damageweapon );
 	}
 	self thread maps/mp/zombies/_zm_powerups::check_for_instakill( player, mod, hit_location );
 }
 
-check_zombie_damage_callbacks( mod, hit_location, hit_origin, player, amount )
+check_zombie_damage_callbacks( mod, hit_location, hit_origin, player, amount ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.zombie_damage_callbacks ) )
 	{
 		return 0;
 	}
-	i = 0;
-	while ( i < level.zombie_damage_callbacks.size )
+	for ( i = 0; i < level.zombie_damage_callbacks.size; i++ )
 	{
 		if ( self [[ level.zombie_damage_callbacks[ i ] ]]( mod, hit_location, hit_origin, player, amount ) )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-register_zombie_damage_callback( func )
+register_zombie_damage_callback( func ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_damage_callbacks ) )
 	{
@@ -2292,7 +2175,7 @@ register_zombie_damage_callback( func )
 	level.zombie_damage_callbacks[ level.zombie_damage_callbacks.size ] = func;
 }
 
-zombie_give_flame_damage_points()
+zombie_give_flame_damage_points() //checked matches cerberus output
 {
 	if ( getTime() > self.flame_damage_time )
 	{
@@ -2302,7 +2185,7 @@ zombie_give_flame_damage_points()
 	return 0;
 }
 
-zombie_flame_damage( mod, player )
+zombie_flame_damage( mod, player ) //checked changed to match cerberus output
 {
 	if ( mod == "MOD_BURNED" )
 	{
@@ -2313,8 +2196,7 @@ zombie_flame_damage( mod, player )
 		do_flame_death = 1;
 		dist = 10000;
 		ai = getaiarray( level.zombie_team );
-		i = 0;
-		while ( i < ai.size )
+		for ( i = 0; i < ai.size; i++ )
 		{
 			if ( isDefined( ai[ i ].is_on_fire ) && ai[ i ].is_on_fire )
 			{
@@ -2323,10 +2205,6 @@ zombie_flame_damage( mod, player )
 					do_flame_death = 0;
 					break;
 				}
-			}
-			else
-			{
-				i++;
 			}
 		}
 		if ( do_flame_death )
@@ -2338,7 +2216,7 @@ zombie_flame_damage( mod, player )
 	return 0;
 }
 
-is_weapon_shotgun( sweapon )
+is_weapon_shotgun( sweapon ) //checked matches cerberus output
 {
 	if ( isDefined( sweapon ) && weaponclass( sweapon ) == "spread" )
 	{
@@ -2347,7 +2225,7 @@ is_weapon_shotgun( sweapon )
 	return 0;
 }
 
-zombie_death_event( zombie )
+zombie_death_event( zombie ) //checked changed to match cerberus output
 {
 	zombie.marked_for_recycle = 0;
 	force_explode = 0;
@@ -2446,7 +2324,7 @@ zombie_death_event( zombie )
 	}
 	zombie thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "death", name );
 	zombie thread zombie_eye_glow_stop();
-	if ( isDefined( zombie.damageweapon ) && is_weapon_shotgun( zombie.damageweapon ) && !maps/mp/zombies/_zm_weapons::is_weapon_upgraded( zombie.damageweapon ) && isDefined( zombie.damageweapon ) || is_placeable_mine( zombie.damageweapon ) && zombie.damagemod != "MOD_GRENADE" && zombie.damagemod != "MOD_GRENADE_SPLASH" || zombie.damagemod == "MOD_EXPLOSIVE" && force_explode == 1 )
+	if ( isDefined( zombie.damageweapon ) && is_weapon_shotgun( zombie.damageweapon ) && !maps/mp/zombies/_zm_weapons::is_weapon_upgraded( zombie.damageweapon ) || isDefined( zombie.damageweapon ) && ( is_placeable_mine( zombie.damageweapon ) || zombie.damagemod == "MOD_GRENADE" || zombie.damagemod == "MOD_GRENADE_SPLASH" || zombie.damagemod == "MOD_EXPLOSIVE" || force_explode == 1 ) )
 	{
 		splode_dist = 180;
 		if ( isDefined( zombie.damagehit_origin ) && distancesquared( zombie.origin, zombie.damagehit_origin ) < ( splode_dist * splode_dist ) )
@@ -2475,46 +2353,40 @@ zombie_death_event( zombie )
 		level.zombie_total++;
 		level.zombie_total_subtract++;
 	}
-	else
+	else if ( isDefined( zombie.attacker ) && isplayer( zombie.attacker ) )
 	{
-		if ( isDefined( zombie.attacker ) && isplayer( zombie.attacker ) )
+		level.zombie_player_killed_count++;
+		if ( isDefined( zombie.sound_damage_player ) && zombie.sound_damage_player == zombie.attacker )
 		{
-			level.zombie_player_killed_count++;
-			if ( isDefined( zombie.sound_damage_player ) && zombie.sound_damage_player == zombie.attacker )
+			chance = get_response_chance( "damage" );
+			if ( chance != 0 )
 			{
-				chance = get_response_chance( "damage" );
-				if ( chance != 0 )
-				{
-					if ( chance > randomintrange( 1, 100 ) )
-					{
-						zombie.attacker maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "damage" );
-					}
-				}
-				else
+				if ( chance > randomintrange( 1, 100 ) )
 				{
 					zombie.attacker maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "damage" );
 				}
 			}
-			zombie.attacker notify( "zom_kill" );
-			damageloc = zombie.damagelocation;
-			damagemod = zombie.damagemod;
-			attacker = zombie.attacker;
-			weapon = zombie.damageweapon;
-			bbprint( "zombie_kills", "round %d zombietype %s damagetype %s damagelocation %s playername %s playerweapon %s playerx %f playery %f playerz %f zombiex %f zombiey %f zombiez %f", level.round_number, zombie.animname, damagemod, damageloc, attacker.name, weapon, attacker.origin, zombie.origin );
-		}
-		else
-		{
-			if ( zombie.ignoreall && isDefined( zombie.marked_for_death ) && !zombie.marked_for_death )
+			else
 			{
-				level.zombies_timeout_spawn++;
+				zombie.attacker maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "damage" );
 			}
 		}
+		zombie.attacker notify( "zom_kill" );
+		damageloc = zombie.damagelocation;
+		damagemod = zombie.damagemod;
+		attacker = zombie.attacker;
+		weapon = zombie.damageweapon;
+		bbprint( "zombie_kills", "round %d zombietype %s damagetype %s damagelocation %s playername %s playerweapon %s playerx %f playery %f playerz %f zombiex %f zombiey %f zombiez %f", level.round_number, zombie.animname, damagemod, damageloc, attacker.name, weapon, attacker.origin, zombie.origin );
+	}
+	else if ( zombie.ignoreall && isDefined( zombie.marked_for_death ) && !zombie.marked_for_death )
+	{
+		level.zombies_timeout_spawn++;
 	}
 	level notify( "zom_kill" );
 	level.total_zombies_killed++;
 }
 
-zombie_gut_explosion()
+zombie_gut_explosion() //checked matches cerberus output
 {
 	self.guts_explosion = 1;
 	if ( is_mature() )
@@ -2523,7 +2395,7 @@ zombie_gut_explosion()
 	}
 	if ( isDefined( self.isdog ) && !self.isdog )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	if ( isDefined( self ) )
 	{
@@ -2531,7 +2403,7 @@ zombie_gut_explosion()
 	}
 }
 
-zombie_death_achievement_sliquifier_check( e_player, e_zombie )
+zombie_death_achievement_sliquifier_check( e_player, e_zombie ) //checked matches cerberus output
 {
 	if ( !isplayer( e_player ) )
 	{
@@ -2551,21 +2423,19 @@ zombie_death_achievement_sliquifier_check( e_player, e_zombie )
 	}
 }
 
-check_zombie_death_event_callbacks()
+check_zombie_death_event_callbacks() //checked changed to match cerberus output
 {
 	if ( !isDefined( level.zombie_death_event_callbacks ) )
 	{
 		return;
 	}
-	i = 0;
-	while ( i < level.zombie_death_event_callbacks.size )
+	for ( i = 0; i < level.zombie_death_event_callbacks.size; i++ )
 	{
 		self [[ level.zombie_death_event_callbacks[ i ] ]]();
-		i++;
 	}
 }
 
-register_zombie_death_event_callback( func )
+register_zombie_death_event_callback( func ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_death_event_callbacks ) )
 	{
@@ -2574,7 +2444,7 @@ register_zombie_death_event_callback( func )
 	level.zombie_death_event_callbacks[ level.zombie_death_event_callbacks.size ] = func;
 }
 
-deregister_zombie_death_event_callback( func )
+deregister_zombie_death_event_callback( func ) //checked matches cerberus output
 {
 	if ( isDefined( level.zombie_death_event_callbacks ) )
 	{
@@ -2582,7 +2452,7 @@ deregister_zombie_death_event_callback( func )
 	}
 }
 
-zombie_setup_attack_properties()
+zombie_setup_attack_properties() //checked matches cerberus output
 {
 	self zombie_history( "zombie_setup_attack_properties()" );
 	self.ignoreall = 0;
@@ -2593,7 +2463,7 @@ zombie_setup_attack_properties()
 	self.disableexits = 1;
 }
 
-attractors_generated_listener()
+attractors_generated_listener() //checked matches cerberus output
 {
 	self endon( "death" );
 	level endon( "intermission" );
@@ -2603,24 +2473,26 @@ attractors_generated_listener()
 	self.zombie_path_timer = 0;
 }
 
-zombie_pathing()
+zombie_pathing() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "zombie_acquire_enemy" );
 	level endon( "intermission" );
+	/*
 /#
 	if ( !isDefined( self.favoriteenemy ) )
 	{
 		assert( isDefined( self.enemyoverride ) );
 	}
 #/
+	*/
 	self._skip_pathing_first_delay = 1;
 	self thread zombie_follow_enemy();
 	self waittill( "bad_path" );
 	level.zombie_pathing_failed++;
 	if ( isDefined( self.enemyoverride ) )
 	{
-		debug_print( "Zombie couldn't path to point of interest at origin: " + self.enemyoverride[ 0 ] + " Falling back to breadcrumb system" );
+		//debug_print( "Zombie couldn't path to point of interest at origin: " + self.enemyoverride[ 0 ] + " Falling back to breadcrumb system" );
 		if ( isDefined( self.enemyoverride[ 1 ] ) )
 		{
 			self.enemyoverride = self.enemyoverride[ 1 ] invalidate_attractor_pos( self.enemyoverride, self );
@@ -2630,11 +2502,11 @@ zombie_pathing()
 	}
 	else if ( isDefined( self.favoriteenemy ) )
 	{
-		debug_print( "Zombie couldn't path to player at origin: " + self.favoriteenemy.origin + " Falling back to breadcrumb system" );
+		//debug_print( "Zombie couldn't path to player at origin: " + self.favoriteenemy.origin + " Falling back to breadcrumb system" );
 	}
 	else
 	{
-		debug_print( "Zombie couldn't path to a player ( the other 'prefered' player might be ignored for encounters mode ). Falling back to breadcrumb system" );
+		//debug_print( "Zombie couldn't path to a player ( the other 'prefered' player might be ignored for encounters mode ). Falling back to breadcrumb system" );
 	}
 	if ( !isDefined( self.favoriteenemy ) )
 	{
@@ -2647,14 +2519,12 @@ zombie_pathing()
 	}
 	players = get_players();
 	valid_player_num = 0;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( is_player_valid( players[ i ], 1 ) )
 		{
 			valid_player_num += 1;
 		}
-		i++;
 	}
 	if ( players.size > 1 )
 	{
@@ -2685,33 +2555,29 @@ zombie_pathing()
 		goal = zombie_pathing_get_breadcrumb( self.favoriteenemy.origin, crumb_list, bad_crumbs, randomint( 100 ) < 20 );
 		if ( !isDefined( goal ) )
 		{
-			debug_print( "Zombie exhausted breadcrumb search" );
+			//debug_print( "Zombie exhausted breadcrumb search" );
 			level.zombie_breadcrumb_failed++;
 			goal = self.favoriteenemy.spectator_respawn.origin;
 		}
-		debug_print( "Setting current breadcrumb to " + goal );
+		//debug_print( "Setting current breadcrumb to " + goal );
 		self.zombie_path_timer += 100;
 		self setgoalpos( goal );
 		self waittill( "bad_path" );
-		debug_print( "Zombie couldn't path to breadcrumb at " + goal + " Finding next breadcrumb" );
-		i = 0;
-		while ( i < crumb_list.size )
+		//debug_print( "Zombie couldn't path to breadcrumb at " + goal + " Finding next breadcrumb" );
+		for ( i = 0; i < crumb_list.size; i++ )
 		{
 			if ( goal == crumb_list[ i ] )
 			{
 				bad_crumbs[ bad_crumbs.size ] = i;
 				break;
 			}
-			else
-			{
-				i++;
-			}
 		}
 	}
 }
 
-zombie_pathing_get_breadcrumb( origin, breadcrumbs, bad_crumbs, pick_random )
+zombie_pathing_get_breadcrumb( origin, breadcrumbs, bad_crumbs, pick_random ) //checked changed to match cerberus output
 {
+/*
 /#
 	assert( isDefined( origin ) );
 #/
@@ -2727,8 +2593,8 @@ zombie_pathing_get_breadcrumb( origin, breadcrumbs, bad_crumbs, pick_random )
 		debug_print( "Finding random breadcrumb" );
 #/
 	}
-	i = 0;
-	while ( i < breadcrumbs.size )
+*/
+	for ( i = 0; i < breadcrumbs.size; i++ )
 	{
 		if ( pick_random )
 		{
@@ -2740,33 +2606,26 @@ zombie_pathing_get_breadcrumb( origin, breadcrumbs, bad_crumbs, pick_random )
 		}
 		if ( crumb_is_bad( crumb_index, bad_crumbs ) )
 		{
-			i++;
 			continue;
 		}
-		else
-		{
-			return breadcrumbs[ crumb_index ];
-		}
-		i++;
+		return breadcrumbs[ crumb_index ];
 	}
 	return undefined;
 }
 
-crumb_is_bad( crumb, bad_crumbs )
+crumb_is_bad( crumb, bad_crumbs ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < bad_crumbs.size )
+	for ( i = 0; i < bad_crumbs.size; i++ )
 	{
 		if ( bad_crumbs[ i ] == crumb )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-jitter_enemies_bad_breadcrumbs( start_crumb )
+jitter_enemies_bad_breadcrumbs( start_crumb ) //checked changed to match cerberus output
 {
 	trace_distance = 35;
 	jitter_distance = 2;
@@ -2777,44 +2636,44 @@ jitter_enemies_bad_breadcrumbs( start_crumb )
 		next_crumb = self.favoriteenemy.zombie_breadcrumbs[ index + 1 ];
 		angles = vectorToAngle( current_crumb - next_crumb );
 		right = anglesToRight( angles );
-		left = anglesToRight( angles + vectorScale( ( 0, 0, 0 ), 180 ) );
+		left = anglesToRight( angles + vectorScale( ( 0, 1, 0 ), 180 ) );
 		dist_pos = current_crumb + vectorScale( right, trace_distance );
 		trace = bullettrace( current_crumb, dist_pos, 1, undefined );
 		vector = trace[ "position" ];
-		while ( distance( vector, current_crumb ) < 17 )
+		if ( distance( vector, current_crumb ) < 17 )
 		{
 			self.favoriteenemy.zombie_breadcrumbs[ index ] = current_crumb + vectorScale( left, jitter_distance );
+			continue;
 		}
 		dist_pos = current_crumb + vectorScale( left, trace_distance );
 		trace = bullettrace( current_crumb, dist_pos, 1, undefined );
 		vector = trace[ "position" ];
-		while ( distance( vector, current_crumb ) < 17 )
+		if ( distance( vector, current_crumb ) < 17 )
 		{
 			self.favoriteenemy.zombie_breadcrumbs[ index ] = current_crumb + vectorScale( right, jitter_distance );
+			continue;
 		}
 		index++;
 	}
 }
 
-zombie_repath_notifier()
+zombie_repath_notifier() //checked changed to match cerberus output
 {
 	note = 0;
 	notes = [];
-	i = 0;
-	while ( i < 4 )
+	for ( i = 0; i < 4; i++ )
 	{
 		notes[ notes.size ] = "zombie_repath_notify_" + i;
-		i++;
 	}
 	while ( 1 )
 	{
 		level notify( notes[ note ] );
 		note = ( note + 1 ) % 4;
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-zombie_follow_enemy()
+zombie_follow_enemy() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "zombie_acquire_enemy" );
@@ -2827,7 +2686,7 @@ zombie_follow_enemy()
 	}
 	if ( !isDefined( self.zombie_repath_notify ) )
 	{
-		self.zombie_repath_notify = "zombie_repath_notify_" + ( self getentitynumber() % 4 );
+		self.zombie_repath_notify = "zombie_repath_notify_" + self getentitynumber() % 4;
 	}
 	while ( 1 )
 	{
@@ -2857,38 +2716,30 @@ zombie_follow_enemy()
 			}
 			self setgoalpos( goalpos );
 		}
-		else
+		else if ( isDefined( self.favoriteenemy ) )
 		{
-			if ( isDefined( self.favoriteenemy ) )
+			self.ignoreall = 0;
+			self orientmode( "face default" );
+			goalpos = self.favoriteenemy.origin;
+			if ( isDefined( level.enemy_location_override_func ) )
 			{
-				self.ignoreall = 0;
-				self orientmode( "face default" );
-				goalpos = self.favoriteenemy.origin;
-				if ( isDefined( level.enemy_location_override_func ) )
+				goalpos = [[ level.enemy_location_override_func ]]( self, self.favoriteenemy );
+			}
+			self setgoalpos( goalpos );
+			if ( !isDefined( level.ignore_path_delays ) )
+			{
+				distsq = distancesquared( self.origin, self.favoriteenemy.origin );
+				if ( distsq > 10240000 )
 				{
-					goalpos = [[ level.enemy_location_override_func ]]( self, self.favoriteenemy );
+					wait ( 2 + randomfloat( 1 ) );
 				}
-				self setgoalpos( goalpos );
-				if ( !isDefined( level.ignore_path_delays ) )
+				else if ( distsq > 4840000 )
 				{
-					distsq = distancesquared( self.origin, self.favoriteenemy.origin );
-					if ( distsq > 10240000 )
-					{
-						wait ( 2 + randomfloat( 1 ) );
-						break;
-					}
-					else if ( distsq > 4840000 )
-					{
-						wait ( 1 + randomfloat( 0,5 ) );
-						break;
-					}
-					else
-					{
-						if ( distsq > 1440000 )
-						{
-							wait ( 0,5 + randomfloat( 0,5 ) );
-						}
-					}
+					wait ( 1 + randomfloat( 0.5 ) );
+				}
+				else if ( distsq > 1440000 )
+				{
+					wait ( 0.5 + randomfloat( 0.5 ) );
 				}
 			}
 		}
@@ -2899,7 +2750,7 @@ zombie_follow_enemy()
 	}
 }
 
-zombie_eye_glow()
+zombie_eye_glow() //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -2911,7 +2762,7 @@ zombie_eye_glow()
 	}
 }
 
-zombie_eye_glow_stop()
+zombie_eye_glow_stop() //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -2923,8 +2774,9 @@ zombie_eye_glow_stop()
 	}
 }
 
-zombie_history( msg )
+zombie_history( msg ) //dev call did not check
 {
+/*
 /#
 	if ( !isDefined( self.zombie_history ) || self.zombie_history.size > 32 )
 	{
@@ -2932,9 +2784,10 @@ zombie_history( msg )
 	}
 	self.zombie_history[ self.zombie_history.size ] = msg;
 #/
+*/
 }
 
-do_zombie_spawn()
+do_zombie_spawn() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	spots = [];
@@ -2944,39 +2797,29 @@ do_zombie_spawn()
 		self thread do_zombie_rise( spot );
 		return;
 	}
-	while ( isDefined( level.zombie_spawn_locations ) )
+	if ( isDefined( level.zombie_spawn_locations ) )
 	{
-		i = 0;
-		while ( i < level.zombie_spawn_locations.size )
+		for ( i = 0; i < level.zombie_spawn_locations.size; i++ )
 		{
 			if ( isDefined( level.use_multiple_spawns ) && level.use_multiple_spawns && isDefined( self.script_int ) )
 			{
-				if ( isDefined( level.spawner_int ) && self.script_int != level.spawner_int && !isDefined( level.zombie_spawn_locations[ i ].script_int ) && !isDefined( level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int ) )
+				if ( isDefined( level.spawner_int ) && self.script_int == level.spawner_int && ( !isDefined( level.zombie_spawn_locations[ i ].script_int ) || !isDefined( level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int ) ) )
 				{
-					i++;
 					continue;
 				}
-				else
+				if ( isDefined( level.zombie_spawn_locations[ i ].script_int ) && level.zombie_spawn_locations[ i ].script_int != self.script_int )
 				{
-					if ( isDefined( level.zombie_spawn_locations[ i ].script_int ) && level.zombie_spawn_locations[ i ].script_int != self.script_int )
-					{
-						i++;
-						continue;
-					}
-					else if ( isDefined( level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int ) && level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int != self.script_int )
-					{
-						i++;
-						continue;
-					}
+					continue;
 				}
-				else
+				else if ( isDefined( level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int ) && level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int != self.script_int )
 				{
-					spots[ spots.size ] = level.zombie_spawn_locations[ i ];
+					continue;
 				}
+				spots[ spots.size ] = level.zombie_spawn_locations[ i ];
 			}
-			i++;
 		}
 	}
+	/*
 /#
 	if ( getDvarInt( #"A8C231AA" ) )
 	{
@@ -3005,11 +2848,15 @@ do_zombie_spawn()
 			}
 		}
 	}
+	*/
+	/*
 /#
 	assert( spots.size > 0, "No spawn locations found" );
 #/
+	*/
 	spot = random( spots );
 	self.spawn_point = spot;
+	/*
 /#
 	if ( isDefined( level.toggle_show_spawn_locations ) && level.toggle_show_spawn_locations )
 	{
@@ -3019,6 +2866,7 @@ do_zombie_spawn()
 		iprintln( "Distance to player: " + ( distance / 12 ) + "feet" );
 #/
 	}
+	*/
 	if ( isDefined( spot.target ) )
 	{
 		self.target = spot.target;
@@ -3032,12 +2880,9 @@ do_zombie_spawn()
 		self.script_parameters = spot.script_parameters;
 	}
 	tokens = strtok( spot.script_noteworthy, " " );
-	_a3588 = tokens;
-	index = getFirstArrayKey( _a3588 );
-	while ( isDefined( index ) )
+	foreach ( token in tokens )
 	{
-		token = _a3588[ index ];
-		if ( isDefined( self.spawn_point_override ) )
+		if ( isdefined( self.spawn_point_override ) )
 		{
 			spot = self.spawn_point_override;
 			token = spot.script_noteworthy;
@@ -3045,77 +2890,74 @@ do_zombie_spawn()
 		if ( token == "custom_spawner_entry" )
 		{
 			next_token = index + 1;
-			if ( isDefined( tokens[ next_token ] ) )
+			if ( isdefined( tokens[ next_token ] ) )
 			{
 				str_spawn_entry = tokens[ next_token ];
-				if ( isDefined( level.custom_spawner_entry ) && isDefined( level.custom_spawner_entry[ str_spawn_entry ] ) )
+				if ( isdefined( level.custom_spawner_entry ) && isdefined( level.custom_spawner_entry[ str_spawn_entry ] ) )
 				{
-					self thread [[ level.custom_spawner_entry[ str_spawn_entry ] ]]( spot );
+					self thread [[ level.custom_spawner_entry[ str_spawn_entry ] ]](spot);
+					continue;
 				}
 			}
 		}
-		else
+		if ( token == "riser_location" )
 		{
-			if ( token == "riser_location" )
-			{
-				self thread do_zombie_rise( spot );
-				break;
-			}
-			else if ( token == "faller_location" )
-			{
-				self thread maps/mp/zombies/_zm_ai_faller::do_zombie_fall( spot );
-				break;
-			}
-			else if ( token == "dog_location" )
-			{
-				break;
-			}
-			else if ( token == "screecher_location" )
-			{
-				break;
-			}
-			else if ( token == "leaper_location" )
-			{
-				break;
-			}
-			else if ( isDefined( self.anchor ) )
-			{
-				return;
-			}
-			self.anchor = spawn( "script_origin", self.origin );
-			self.anchor.angles = self.angles;
-			self linkto( self.anchor );
-			if ( !isDefined( spot.angles ) )
-			{
-				spot.angles = ( 0, 0, 0 );
-			}
-			self ghost();
-			self.anchor moveto( spot.origin, 0,05 );
-			self.anchor waittill( "movedone" );
-			target_org = get_desired_origin();
-			if ( isDefined( target_org ) )
-			{
-				anim_ang = vectorToAngle( target_org - self.origin );
-				self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0,05 );
-				self.anchor waittill( "rotatedone" );
-			}
-			if ( isDefined( level.zombie_spawn_fx ) )
-			{
-				playfx( level.zombie_spawn_fx, spot.origin );
-			}
-			self unlink();
-			if ( isDefined( self.anchor ) )
-			{
-				self.anchor delete();
-			}
-			self show();
-			self notify( "risen" );
+			self thread do_zombie_rise( spot );
+			continue;
 		}
-		index = getNextArrayKey( _a3588, index );
+		if ( token == "faller_location" )
+		{
+			self thread maps/mp/zombies/_zm_ai_faller::do_zombie_fall( spot );
+			continue;
+		}
+		if ( token == "dog_location" )
+		{
+			continue;
+		}
+		if ( token == "screecher_location" )
+		{
+			continue;
+		}
+		if ( token == "leaper_location" )
+		{
+			continue;
+		}
+		if ( isdefined(self.anchor ) )
+		{
+			return;
+		}
+		self.anchor = spawn( "script_origin", self.origin );
+		self.anchor.angles = self.angles;
+		self linkto( self.anchor );
+		if ( !isDefined( spot.angles ) )
+		{
+			spot.angles = ( 0, 0, 0 );
+		}
+		self ghost();
+		self.anchor moveto( spot.origin, 0.05 );
+		self.anchor waittill( "movedone" );
+		target_org = get_desired_origin();
+		if ( isDefined( target_org ) )
+		{
+			anim_ang = vectorToAngle( target_org - self.origin );
+			self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0.05 );
+			self.anchor waittill( "rotatedone" );
+		}
+		if ( isDefined( level.zombie_spawn_fx ) )
+		{
+			playfx( level.zombie_spawn_fx, spot.origin );
+		}
+		self unlink();
+		if ( isDefined( self.anchor ) )
+		{
+			self.anchor delete();
+		}
+		self show();
+		self notify( "risen" );
 	}
 }
 
-do_zombie_rise( spot )
+do_zombie_rise( spot ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self.in_the_ground = 1;
@@ -3134,13 +2976,13 @@ do_zombie_rise( spot )
 	anim_ang = spot.angles;
 	anim_org += ( 0, 0, 0 );
 	self ghost();
-	self.anchor moveto( anim_org, 0,05 );
+	self.anchor moveto( anim_org, 0.05 );
 	self.anchor waittill( "movedone" );
 	target_org = get_desired_origin();
 	if ( isDefined( target_org ) )
 	{
 		anim_ang = vectorToAngle( target_org - self.origin );
-		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0,05 );
+		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0.05 );
 		self.anchor waittill( "rotatedone" );
 	}
 	self unlink();
@@ -3160,12 +3002,9 @@ do_zombie_rise( spot )
 	{
 		substate = 2;
 	}
-	else
+	else if ( self.zombie_move_speed == "sprint" )
 	{
-		if ( self.zombie_move_speed == "sprint" )
-		{
-			substate = 3;
-		}
+		substate = 3;
 	}
 	self orientmode( "face default" );
 	self animscripted( self.origin, spot.angles, "zm_rise", substate );
@@ -3173,13 +3012,13 @@ do_zombie_rise( spot )
 	self notify( "rise_anim_finished" );
 	spot notify( "stop_zombie_rise_fx" );
 	self.in_the_ground = 0;
-	self notify( "risen" );
+	self notify( "risen", spot.script_string );
 }
 
-hide_pop()
+hide_pop() //checked matches cerberus output
 {
 	self endon( "death" );
-	wait 0,5;
+	wait 0.5;
 	if ( isDefined( self ) )
 	{
 		self show();
@@ -3191,7 +3030,7 @@ hide_pop()
 	}
 }
 
-handle_rise_notetracks( note, spot )
+handle_rise_notetracks( note, spot ) //checked matches cerberus output
 {
 	if ( note == "deathout" || note == "deathhigh" )
 	{
@@ -3202,7 +3041,7 @@ handle_rise_notetracks( note, spot )
 	}
 }
 
-zombie_rise_death( zombie, spot )
+zombie_rise_death( zombie, spot ) //checked matches cerberus output
 {
 	zombie.zombie_rise_death_out = 0;
 	zombie endon( "rise_anim_finished" );
@@ -3218,7 +3057,7 @@ zombie_rise_death( zombie, spot )
 	}
 }
 
-zombie_rise_fx( zombie )
+zombie_rise_fx( zombie ) //checked matches cerberus output
 {
 	if ( isDefined( level.riser_fx_on_client ) && !level.riser_fx_on_client )
 	{
@@ -3238,7 +3077,7 @@ zombie_rise_fx( zombie )
 	}
 }
 
-zombie_rise_burst_fx( zombie )
+zombie_rise_burst_fx( zombie ) //checked changed to match cerberus output
 {
 	self endon( "stop_zombie_rise_fx" );
 	self endon( "rise_anim_finished" );
@@ -3246,52 +3085,42 @@ zombie_rise_burst_fx( zombie )
 	{
 		zombie setclientfield( "zombie_riser_fx_water", 1 );
 	}
-	else
+	else if ( isDefined( self.script_parameters ) && self.script_parameters == "in_foliage" && isDefined( level._foliage_risers ) && level._foliage_risers )
 	{
-		if ( isDefined( self.script_parameters ) && self.script_parameters == "in_foliage" && isDefined( level._foliage_risers ) && level._foliage_risers )
+		zombie setclientfield( "zombie_riser_fx_foliage", 1 );
+		return;
+	}
+	else if ( isDefined( self.script_parameters ) && self.script_parameters == "in_snow" )
+	{
+		zombie setclientfield( "zombie_riser_fx", 1 );
+		return;
+	}
+	else if ( isDefined( zombie.zone_name ) && isDefined( level.zones[ zombie.zone_name ] ) )
+	{
+		low_g_zones = getentarray( zombie.zone_name, "targetname" );
+		if ( isDefined( low_g_zones[ 0 ].script_string ) && low_g_zones[ 0 ].script_string == "lowgravity" )
 		{
-			zombie setclientfield( "zombie_riser_fx_foliage", 1 );
-			return;
+			zombie setclientfield( "zombie_riser_fx_lowg", 1 );
 		}
 		else
 		{
-			if ( isDefined( self.script_parameters ) && self.script_parameters == "in_snow" )
-			{
-				zombie setclientfield( "zombie_riser_fx", 1 );
-				return;
-			}
-			else
-			{
-				if ( isDefined( zombie.zone_name ) && isDefined( level.zones[ zombie.zone_name ] ) )
-				{
-					low_g_zones = getentarray( zombie.zone_name, "targetname" );
-					if ( isDefined( low_g_zones[ 0 ].script_string ) && low_g_zones[ 0 ].script_string == "lowgravity" )
-					{
-						zombie setclientfield( "zombie_riser_fx_lowg", 1 );
-					}
-					else
-					{
-						zombie setclientfield( "zombie_riser_fx", 1 );
-					}
-					return;
-				}
-				else
-				{
-					zombie setclientfield( "zombie_riser_fx", 1 );
-				}
-			}
+			zombie setclientfield( "zombie_riser_fx", 1 );
 		}
+	}
+	else
+	{
+		zombie setclientfield( "zombie_riser_fx", 1 );
 	}
 }
 
-zombie_rise_dust_fx( zombie )
+zombie_rise_dust_fx( zombie ) //checked does not match cerberus output did not change
 {
 	dust_tag = "J_SpineUpper";
 	self endon( "stop_zombie_rise_dust_fx" );
 	self thread stop_zombie_rise_dust_fx( zombie );
 	wait 2;
-	dust_time = 5,5;
-	dust_interval = 0,3;
+	dust_time = 5.5;
+	dust_interval = 0.3;
 	if ( isDefined( self.script_string ) && self.script_string == "in_water" )
 	{
 		t = 0;
@@ -3302,7 +3131,7 @@ zombie_rise_dust_fx( zombie )
 			t += dust_interval;
 		}
 	}
-	else if ( isDefined( self.script_string ) && self.script_string == "in_snow" )
+	if ( isDefined( self.script_string ) && self.script_string == "in_snow" )
 	{
 		t = 0;
 		while ( t < dust_time )
@@ -3312,7 +3141,7 @@ zombie_rise_dust_fx( zombie )
 			t += dust_interval;
 		}
 	}
-	else if ( isDefined( self.script_string ) && self.script_string == "in_foliage" )
+	if ( isDefined( self.script_string ) && self.script_string == "in_foliage" )
 	{
 		t = 0;
 		while ( t < dust_time )
@@ -3322,7 +3151,6 @@ zombie_rise_dust_fx( zombie )
 			t += dust_interval;
 		}
 	}
-	else t = 0;
 	while ( t < dust_time )
 	{
 		playfxontag( level._effect[ "rise_dust" ], zombie, dust_tag );
@@ -3331,13 +3159,13 @@ zombie_rise_dust_fx( zombie )
 	}
 }
 
-stop_zombie_rise_dust_fx( zombie )
+stop_zombie_rise_dust_fx( zombie ) //checked matches cerberus output
 {
 	zombie waittill( "death" );
 	self notify( "stop_zombie_rise_dust_fx" );
 }
 
-get_rise_death_anim()
+get_rise_death_anim() //checked matches cerberus output
 {
 	if ( self.zombie_rise_death_out )
 	{
@@ -3348,7 +3176,7 @@ get_rise_death_anim()
 	return "zm_rise_death_in";
 }
 
-zombie_tesla_head_gib()
+zombie_tesla_head_gib() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( self.animname == "quad_zombie" )
@@ -3357,7 +3185,7 @@ zombie_tesla_head_gib()
 	}
 	if ( randomint( 100 ) < level.zombie_vars[ "tesla_head_gib_chance" ] )
 	{
-		wait randomfloatrange( 0,53, 1 );
+		wait randomfloatrange( 0.53, 1 );
 		self zombie_head_gib();
 	}
 	else
@@ -3366,7 +3194,7 @@ zombie_tesla_head_gib()
 	}
 }
 
-play_ambient_zombie_vocals()
+play_ambient_zombie_vocals() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( self.animname == "monkey_zombie" || isDefined( self.is_avogadro ) && self.is_avogadro )
@@ -3379,7 +3207,7 @@ play_ambient_zombie_vocals()
 		float = 2;
 		while ( !isDefined( self.zombie_move_speed ) )
 		{
-			wait 0,5;
+			wait 0.5;
 		}
 		switch( self.zombie_move_speed )
 		{
@@ -3400,12 +3228,9 @@ play_ambient_zombie_vocals()
 		{
 			type = "crawler";
 		}
-		else
+		else if ( self.animname == "thief_zombie" || self.animname == "leaper_zombie" )
 		{
-			if ( self.animname == "thief_zombie" || self.animname == "leaper_zombie" )
-			{
-				float = 1,2;
-			}
+			float = 1.2;
 		}
 		name = self.animname;
 		if ( isDefined( self.sndname ) )
@@ -3417,7 +3242,7 @@ play_ambient_zombie_vocals()
 	}
 }
 
-zombie_complete_emerging_into_playable_area()
+zombie_complete_emerging_into_playable_area() //checked matches cerberus output
 {
 	self.completed_emerging_into_playable_area = 1;
 	self notify( "completed_emerging_into_playable_area" );
@@ -3425,9 +3250,10 @@ zombie_complete_emerging_into_playable_area()
 	self thread zombie_free_cam_allowed();
 }
 
-zombie_free_cam_allowed()
+zombie_free_cam_allowed() //checked matches cerberus output
 {
 	self endon( "death" );
-	wait 1,5;
+	wait 1.5;
 	self setfreecameralockonallowed( 1 );
 }
+
