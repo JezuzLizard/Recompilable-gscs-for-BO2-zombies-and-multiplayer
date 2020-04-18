@@ -55,11 +55,10 @@ patch_zm/maps/mp/zombies/_zm_equipment.gsc
 ```
 patch_zm/maps/mp/zombies/_load.gsc
 ```
-
 ### The following scripts are not tested yet, uploaded to setup a baseline:
 ```
+patch_zm/maps/mp/zombies/_zm_spawner.gsc
 ```
-
 ### notes:
 ```
 The shaders that _zm_timer.gsc relies on do not exist.
