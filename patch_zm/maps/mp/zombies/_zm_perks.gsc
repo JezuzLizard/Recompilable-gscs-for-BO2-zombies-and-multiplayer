@@ -14,8 +14,17 @@
 #include common_scripts/utility;
 #include maps/mp/zombies/_zm_magicbox;
 
-init() //checked
+init() //checked partially changed to match cerberus output
 {
+	//begin debug code
+	level.custom_zm_perks_loaded = 1;
+	maps/mp/zombies/_zm_bot::init();
+	if ( !isDefined( level.debugLogging_zm_perks ) )
+	{
+		level.debugLogging_zm_perks = 0;
+	}
+	
+	//end debug code
 	level.additionalprimaryweapon_limit = 3;
 	level.perk_purchase_limit = 4;
 	if ( !level.createfx_enabled )
@@ -28,26 +37,22 @@ init() //checked
 	}
 	initialize_custom_perk_arrays();
 	perk_machine_spawn_init();
-	
 	//not broken
 	vending_weapon_upgrade_trigger = [];
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
-	i = 0;
-	while ( i < vending_triggers.size )
+	for ( i = 0; i < vending_triggers.size; i++ )
 	{
 		if ( isDefined( vending_triggers[ i ].script_noteworthy ) && vending_triggers[ i ].script_noteworthy == "specialty_weapupgrade" )
 		{
 			vending_weapon_upgrade_trigger[ vending_weapon_upgrade_trigger.size ] = vending_triggers[ i ];
 			arrayremovevalue( vending_triggers, vending_triggers[ i ] );
 		}
-		i++;
 	}
 	old_packs = getentarray( "zombie_vending_upgrade", "targetname" );
 	i = 0;
-	while ( i < old_packs.size )
+	for ( i = 0; i < old_packs.size; i++ )
 	{
 		vending_weapon_upgrade_trigger[ vending_weapon_upgrade_trigger.size ] = old_packs[ i ];
-		i++;
 	}
 	flag_init( "pack_machine_in_use" );
 	if ( vending_triggers.size < 1 )
@@ -73,9 +78,7 @@ init() //checked
 	set_zombie_var( "zombie_perk_juggernaut_health_upgrade", 190 );
 	array_thread( vending_triggers, ::vending_trigger_think );
 	array_thread( vending_triggers, ::electric_perks_dialog );
-	
-	
-	
+
 	if ( isDefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
 	{
 		level thread turn_doubletap_on();
@@ -112,14 +115,14 @@ init() //checked
 	{
 		level thread turn_chugabud_on();
 	}
-	if(level._custom_perks.size > 0)
+	if ( level._custom_perks.size > 0 )
 	{
-		a_keys = getarraykeys(level._custom_perks);
-		for(i = 0; i < a_keys.size; i++)
+		a_keys = getarraykeys( level._custom_perks );
+		for ( i = 0; i < a_keys.size; i++ )
 		{
-			if(isdefined(level._custom_perks[ a_keys[ i ] ].perk_machine_thread))
+			if ( isdefined( level._custom_perks[ a_keys[ i ] ].perk_machine_thread ) )
 			{
-				level thread [[level._custom_perks[ a_keys[ i ] ].perk_machine_thread]]();
+				level thread [[ level._custom_perks[ a_keys[ i ] ].perk_machine_thread ]]();
 			}
 		}
 	}
@@ -139,7 +142,7 @@ init() //checked
 
 }
 
-default_vending_precaching() //checked
+default_vending_precaching() //checked changed to match cerberus output
 {
 	if ( isDefined( level.zombiemode_using_pack_a_punch ) && level.zombiemode_using_pack_a_punch )
 	{
@@ -274,20 +277,20 @@ default_vending_precaching() //checked
 		level.machine_assets[ "whoswho" ].off_model = "p6_zm_vending_chugabud";
 		level.machine_assets[ "whoswho" ].on_model = "p6_zm_vending_chugabud_on";
 	}
-	if(level._custom_perks.size > 0) //changed
+	if ( level._custom_perks.size > 0 ) //changed
 	{
-		a_keys = getarraykeys(level._custom_perks);
-		for(i = 0; i < a_keys.size; i++)
+		a_keys = getarraykeys( level._custom_perks );
+		for ( i = 0; i < a_keys.size; i++ )
 		{
-			if(isdefined(level._custom_perks[ a_keys[ i ] ].precache_func))
+			if ( isdefined( level._custom_perks[ a_keys[ i ] ].precache_func ) )
 			{
-				level [[level._custom_perks[ a_keys[ i ] ].precache_func]]();
+				level [[ level._custom_perks[ a_keys[ i ] ].precache_func ]]();
 			}
 		}
 	}
 }
 
-pap_weapon_move_in( trigger, origin_offset, angles_offset ) //changed
+pap_weapon_move_in( trigger, origin_offset, angles_offset ) //checked matches cerberus output
 {
 	level endon( "Pack_A_Punch_off" );
 	trigger endon( "pap_player_disconnected" );
@@ -305,7 +308,7 @@ pap_weapon_move_in( trigger, origin_offset, angles_offset ) //changed
 	}
 }
 
-pap_weapon_move_out( trigger, origin_offset, interact_offset ) //changed
+pap_weapon_move_out( trigger, origin_offset, interact_offset ) //checked matches cerberus output
 {
 	level endon( "Pack_A_Punch_off" );
 	trigger endon( "pap_player_disconnected" );
@@ -331,13 +334,13 @@ pap_weapon_move_out( trigger, origin_offset, interact_offset ) //changed
 	}
 }
 
-fx_ent_failsafe()
+fx_ent_failsafe() //checked matches cerberus output
 {
 	wait 25;
 	self delete();
 }
 
-third_person_weapon_upgrade( current_weapon, upgrade_weapon, packa_rollers, perk_machine, trigger ) //changed
+third_person_weapon_upgrade( current_weapon, upgrade_weapon, packa_rollers, perk_machine, trigger ) //checked matches cerberus output
 {
 	level endon( "Pack_A_Punch_off" );
 	trigger endon( "pap_player_disconnected" );
@@ -439,7 +442,7 @@ third_person_weapon_upgrade( current_weapon, upgrade_weapon, packa_rollers, perk
 	return trigger.worldgun;
 }
 
-can_pack_weapon( weaponname ) //checked
+can_pack_weapon( weaponname ) //checked did not match cebrerus output changed at own discretion
 {
 	if ( weaponname == "riotshield_zm" )
 	{
@@ -447,7 +450,7 @@ can_pack_weapon( weaponname ) //checked
 	}
 	if ( flag( "pack_machine_in_use" ) )
 	{
-		return 1;
+		return 0; //was 1
 	}
 	weaponname = self get_nonalternate_weapon( weaponname );
 	if ( !maps/mp/zombies/_zm_weapons::is_weapon_or_base_included( weaponname ) )
@@ -461,9 +464,9 @@ can_pack_weapon( weaponname ) //checked
 	return 1;
 }
 
-player_use_can_pack_now() //checked
+player_use_can_pack_now() //checked changed to match cerberus output
 {
-	if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && isDefined( self.intermission ) || self.intermission && self isthrowinggrenade() )
+	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( self.intermission ) && self.intermission || self isthrowinggrenade() )
 	{
 		return 0;
 	}
@@ -482,27 +485,27 @@ player_use_can_pack_now() //checked
 	return 1;
 }
 
-vending_machine_trigger_think() //changed 3/30/20 4:17 pm
+vending_machine_trigger_think() //changed 3/30/20 4:17 pm //checked matches cerberus output
 {
 	self endon("death");
 	self endon("Pack_A_Punch_off");
-	while(1)
+	while( 1 )
 	{
 		players = get_players();
-		for(i = 0; i < players.size; i++)
+		for ( i = 0; i < players.size; i++ )
 		{
-			if(isdefined(self.pack_player) && self.pack_player != players[i] || !players[i] player_use_can_pack_now())
+			if ( isdefined( self.pack_player ) && self.pack_player != players[ i ] || !players[ i ] player_use_can_pack_now() )
 			{
-				self setinvisibletoplayer(players[i], 1);
+				self setinvisibletoplayer( players[ i ], 1 );
 				continue;
 			}
-			self setinvisibletoplayer(players[i], 0);
+			self setinvisibletoplayer( players[ i ], 0 );
 		}
-		wait(0.1);
+		wait 0.1;
 	}
 }
 
-vending_weapon_upgrade() //changed
+vending_weapon_upgrade() //checked matches cerberus output
 {
 	level endon( "Pack_A_Punch_off" );
 	wait 0.01;
@@ -683,7 +686,7 @@ vending_weapon_upgrade() //changed
 	}
 }
 
-shutoffpapsounds( ent1, ent2, ent3 ) //checked 3/30/20 4:18 pm
+shutoffpapsounds( ent1, ent2, ent3 ) //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -695,13 +698,13 @@ shutoffpapsounds( ent1, ent2, ent3 ) //checked 3/30/20 4:18 pm
 	}
 }
 
-turnonpapsounds( ent ) //checked 3/30/20 4:18 pm
+turnonpapsounds( ent ) //checked 3/30/20 4:18 pm //checked matches cerberus output
 {
 	level waittill( "Pack_A_Punch_on" );
 	ent playloopsound( "zmb_perks_packa_loop" );
 }
 
-vending_weapon_upgrade_cost() //checked 3/30/20 4:19 pm
+vending_weapon_upgrade_cost() //checked 3/30/20 4:19 pm //checked matches cerberus output
 {
 	level endon( "Pack_A_Punch_off" );
 	while ( 1 )
@@ -731,7 +734,7 @@ vending_weapon_upgrade_cost() //checked 3/30/20 4:19 pm
 	}
 }
 
-wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //changed 3/30/20 4:22 pm
+wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //changed 3/30/20 4:22 pm //checked matches cerberus output
 {
 	current_weapon = self.current_weapon;
 	upgrade_name = self.upgrade_name;
@@ -817,7 +820,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 	}
 }
 
-wait_for_timeout( weapon, packa_timer, player ) //checked
+wait_for_timeout( weapon, packa_timer, player ) //checked //checked matches cerberus output
 {
 	self endon( "pap_taken" );
 	self endon( "pap_player_disconnected" );
@@ -834,7 +837,7 @@ wait_for_timeout( weapon, packa_timer, player ) //checked
 	}
 }
 
-wait_for_disconnect( player ) //checked
+wait_for_disconnect( player ) //checked //checked matches cerberus output
 {
 	self endon( "pap_taken" );
 	self endon( "pap_timeout" );
@@ -850,7 +853,7 @@ wait_for_disconnect( player ) //checked
 	self notify( "pap_player_disconnected" );
 }
 
-destroy_weapon_on_disconnect( player ) //checked
+destroy_weapon_on_disconnect( player ) //checked //checked matches cerberus output
 {
 	self endon( "pap_timeout" );
 	self endon( "pap_taken" );
@@ -866,7 +869,7 @@ destroy_weapon_on_disconnect( player ) //checked
 	}
 }
 
-destroy_weapon_in_blackout( player ) //checked
+destroy_weapon_in_blackout( player ) //checked //checked matches cerberus output
 {
 	self endon( "pap_timeout" );
 	self endon( "pap_taken" );
@@ -885,7 +888,7 @@ destroy_weapon_in_blackout( player ) //checked
 	}
 }
 
-do_knuckle_crack() //checked
+do_knuckle_crack() //checked //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	gun = self upgrade_knuckle_crack_begin();
@@ -893,7 +896,7 @@ do_knuckle_crack() //checked
 	self upgrade_knuckle_crack_end( gun );
 }
 
-upgrade_knuckle_crack_begin()
+upgrade_knuckle_crack_begin() //checked matches cerberus output
 {
 	self increment_is_drinking();
 	self disable_player_move_states( 1 );
@@ -914,7 +917,7 @@ upgrade_knuckle_crack_begin()
 	return gun;
 }
 
-upgrade_knuckle_crack_end( gun ) //changed
+upgrade_knuckle_crack_end( gun ) //changed //checked matches cerberus output
 {
 /*
 /#
@@ -952,48 +955,42 @@ upgrade_knuckle_crack_end( gun ) //changed
 	}
 }
 
-turn_packapunch_on()
+turn_packapunch_on() //checked changed to match cerberus output
 {
 	vending_weapon_upgrade_trigger = getentarray( "specialty_weapupgrade", "script_noteworthy" );
 	level.pap_triggers = vending_weapon_upgrade_trigger;
-	i = 0;
-	while ( i < vending_weapon_upgrade_trigger.size )
+	for ( i = 0; i < vending_weapon_upgrade_trigger.size; i++ )
 	{
 		perk = getent( vending_weapon_upgrade_trigger[ i ].target, "targetname" );
 		if ( isDefined( perk ) )
 		{
 			perk setmodel( level.machine_assets[ "packapunch" ].off_model );
 		}
-		i++;
 	}
 	for ( ;; )
 	{
 		level waittill( "Pack_A_Punch_on" );
-		i = 0;
-		while ( i < vending_weapon_upgrade_trigger.size )
+		for ( i = 0; i < vending_weapon_upgrade_trigger.size; i++ )
 		{
 			perk = getent( vending_weapon_upgrade_trigger[ i ].target, "targetname" );
 			if ( isDefined( perk ) )
 			{
 				perk thread activate_packapunch();
 			}
-			i++;
 		}
 		level waittill( "Pack_A_Punch_off" );
-		i = 0;
-		while ( i < vending_weapon_upgrade_trigger.size )
+		for ( i = 0; i < vending_weapon_upgrade_trigger.size; i++ )
 		{
 			perk = getent( vending_weapon_upgrade_trigger[ i ].target, "targetname" );
 			if ( isDefined( perk ) )
 			{
 				perk thread deactivate_packapunch();
 			}
-			i++;
 		}
 	}
 }
 
-activate_packapunch()
+activate_packapunch() //checked matches cerberus output
 {
 	self setmodel( level.machine_assets[ "packapunch" ].on_model );
 	self playsound( "zmb_perks_power_on" );
@@ -1002,12 +999,12 @@ activate_packapunch()
 	duration = 0.05;
 }
 
-deactivate_packapunch()
+deactivate_packapunch() //checked matches cerberus output
 {
 	self setmodel( level.machine_assets[ "packapunch" ].off_model );
 }
 
-do_initial_power_off_callback( machine_array, perkname )
+do_initial_power_off_callback( machine_array, perkname ) //checked matches cerberus output
 {
 	if ( !isDefined( level.machine_assets[ perkname ] ) )
 	{
@@ -1026,30 +1023,26 @@ do_initial_power_off_callback( machine_array, perkname )
 	array_thread( machine_array, level.machine_assets[ perkname ].power_off_callback );
 }
 
-turn_sleight_on()
+turn_sleight_on() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		machine = getentarray( "vending_sleight", "targetname" );
 		machine_triggers = getentarray( "vending_sleight", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "speedcola" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "speedcola" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "sleight_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "speedcola" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "sleight_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		array_thread( machine_triggers, ::set_power_on, 1 );
 		if ( isDefined( level.machine_assets[ "speedcola" ].power_on_callback ) )
@@ -1066,7 +1059,7 @@ turn_sleight_on()
 	}
 }
 
-use_solo_revive()
+use_solo_revive() //checked matches cerberus output
 {
 	if ( isDefined( level.using_solo_revive ) )
 	{
@@ -1082,7 +1075,7 @@ use_solo_revive()
 	return solo_mode;
 }
 
-turn_revive_on()
+turn_revive_on() //checked partially changed to match cerberus output
 {
 	level endon( "stop_quickrevive_logic" );
 	machine = getentarray( "vending_revive", "targetname" );
@@ -1106,8 +1099,7 @@ turn_revive_on()
 	{
 		machine = getentarray( "vending_revive", "targetname" );
 		machine_triggers = getentarray( "vending_revive", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			if ( flag_exists( "solo_game" ) && flag_exists( "solo_revive" ) && flag( "solo_game" ) && flag( "solo_revive" ) )
 			{
@@ -1124,7 +1116,6 @@ turn_revive_on()
 				level.quick_revive_default_angles = machine[ i ].angles;
 			}
 			level.quick_revive_machine = machine[ i ];
-			i++;
 		}
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		if ( isDefined( start_state ) && !start_state )
@@ -1143,23 +1134,20 @@ turn_revive_on()
 					i++;
 					continue;
 				}
-				else
+				machine[ i ] setmodel( level.machine_assets[ "revive" ].on_model );
+				machine[ i ] playsound( "zmb_perks_power_on" );
+				machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
+				machine_model = machine[ i ];
+				machine[ i ] thread perk_fx( "revive_light" );
+				machine[ i ] notify( "stop_loopsound" );
+				machine[ i ] thread play_loop_on_machine();
+				if ( isDefined( machine_triggers[ i ] ) )
 				{
-					machine[ i ] setmodel( level.machine_assets[ "revive" ].on_model );
-					machine[ i ] playsound( "zmb_perks_power_on" );
-					machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
-					machine_model = machine[ i ];
-					machine[ i ] thread perk_fx( "revive_light" );
-					machine[ i ] notify( "stop_loopsound" );
-					machine[ i ] thread play_loop_on_machine();
-					if ( isDefined( machine_triggers[ i ] ) )
-					{
-						machine_clip = machine_triggers[ i ].clip;
-					}
-					if ( isDefined( machine_triggers[ i ] ) )
-					{
-						blocker_model = machine_triggers[ i ].blocker_model;
-					}
+					machine_clip = machine_triggers[ i ].clip;
+				}
+				if ( isDefined( machine_triggers[ i ] ) )
+				{
+					blocker_model = machine_triggers[ i ].blocker_model;
 				}
 			}
 			i++;
@@ -1189,19 +1177,17 @@ turn_revive_on()
 		{
 			array_thread( machine, level.machine_assets[ "revive" ].power_off_callback );
 		}
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			if ( isDefined( machine[ i ].classname ) && machine[ i ].classname == "script_model" )
 			{
 				machine[ i ] turn_perk_off( should_hide );
 			}
-			i++;
 		}
 	}
 }
 
-revive_solo_fx( machine_clip, blocker_model )
+revive_solo_fx( machine_clip, blocker_model ) //checked matches cerberus output
 {
 	if ( level flag_exists( "solo_revive" ) && flag( "solo_revive" ) && !flag( "solo_game" ) )
 	{
@@ -1274,30 +1260,26 @@ revive_solo_fx( machine_clip, blocker_model )
 	level notify( "revive_hide" );
 }
 
-turn_jugger_on()
+turn_jugger_on() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		machine = getentarray( "vending_jugg", "targetname" );
 		machine_triggers = getentarray( "vending_jugg", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "juggernog" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "juggernog" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "juggernog_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "juggernog" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "jugger_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_armorvest_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -1314,30 +1296,26 @@ turn_jugger_on()
 	}
 }
 
-turn_doubletap_on()
+turn_doubletap_on() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		machine = getentarray( "vending_doubletap", "targetname" );
 		machine_triggers = getentarray( "vending_doubletap", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "doubletap" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "doubletap" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "doubletap_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "doubletap" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "doubletap_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_rof_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -1354,23 +1332,20 @@ turn_doubletap_on()
 	}
 }
 
-turn_marathon_on()
+turn_marathon_on() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		machine = getentarray( "vending_marathon", "targetname" );
 		machine_triggers = getentarray( "vending_marathon", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "marathon" ].off_model );
-			i++;
 		}
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level thread do_initial_power_off_callback( machine, "marathon" );
 		level waittill( "marathon_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "marathon" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
@@ -1394,30 +1369,26 @@ turn_marathon_on()
 	}
 }
 
-turn_deadshot_on()
+turn_deadshot_on() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		machine = getentarray( "vending_deadshot_model", "targetname" );
 		machine_triggers = getentarray( "vending_deadshot", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "deadshot" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "deadshot" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "deadshot_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "deadshot" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "deadshot_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_deadshot_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -1434,31 +1405,27 @@ turn_deadshot_on()
 	}
 }
 
-turn_tombstone_on()
+turn_tombstone_on() //checked changed to match cerberus output
 {
 	level endon( "tombstone_removed" );
 	while ( 1 )
 	{
 		machine = getentarray( "vending_tombstone", "targetname" );
 		machine_triggers = getentarray( "vending_tombstone", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "tombstone" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "tombstone" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "tombstone_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "tombstone" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "tombstone_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_scavenger_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -1473,41 +1440,33 @@ turn_tombstone_on()
 		}
 		array_thread( machine, ::turn_perk_off );
 		players = get_players();
-		_a1718 = players;
-		_k1718 = getFirstArrayKey( _a1718 );
-		while ( isDefined( _k1718 ) )
+		foreach ( player in players )
 		{
-			player = _a1718[ _k1718 ];
 			player.hasperkspecialtytombstone = undefined;
-			_k1718 = getNextArrayKey( _a1718, _k1718 );
 		}
 	}
 }
 
-turn_additionalprimaryweapon_on()
+turn_additionalprimaryweapon_on() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		machine = getentarray( "vending_additionalprimaryweapon", "targetname" );
 		machine_triggers = getentarray( "vending_additionalprimaryweapon", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "additionalprimaryweapon" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "additionalprimaryweapon" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "additionalprimaryweapon_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "additionalprimaryweapon" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "additionalprimaryweapon_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_additionalprimaryweapon_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -1524,7 +1483,7 @@ turn_additionalprimaryweapon_on()
 	}
 }
 
-turn_chugabud_on()
+turn_chugabud_on() //checked changed to match cerberus output
 {
 	maps/mp/zombies/_zm_chugabud::init();
 	if ( isDefined( level.vsmgr_prio_visionset_zm_whos_who ) )
@@ -1535,24 +1494,20 @@ turn_chugabud_on()
 	{
 		machine = getentarray( "vending_chugabud", "targetname" );
 		machine_triggers = getentarray( "vending_chugabud", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "whoswho" ].off_model );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "whoswho" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "chugabud_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( level.machine_assets[ "whoswho" ].on_model );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "tombstone_light" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_finalstand_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -1567,23 +1522,19 @@ turn_chugabud_on()
 		}
 		array_thread( machine, ::turn_perk_off );
 		players = get_players();
-		_a1819 = players;
-		_k1819 = getFirstArrayKey( _a1819 );
-		while ( isDefined( _k1819 ) )
+		foreach ( player in players )
 		{
-			player = _a1819[ _k1819 ];
 			player.hasperkspecialtychugabud = undefined;
-			_k1819 = getNextArrayKey( _a1819, _k1819 );
 		}
 	}
 }
 
-set_power_on( state )
+set_power_on( state ) //checked matches cerberus output
 {
 	self.power_on = state;
 }
 
-turn_perk_off( ishidden )
+turn_perk_off( ishidden ) //checked matches cerberus output
 {
 	self notify( "stop_loopsound" );
 	newmachine = spawn( "script_model", self.origin );
@@ -1597,7 +1548,7 @@ turn_perk_off( ishidden )
 	self delete();
 }
 
-play_loop_on_machine()
+play_loop_on_machine() //checked matches cerberus output
 {
 	if ( isDefined( level.sndperksacolaloopoverride ) )
 	{
@@ -1611,7 +1562,7 @@ play_loop_on_machine()
 	sound_ent delete();
 }
 
-perk_fx( fx, turnofffx )
+perk_fx( fx, turnofffx ) //checked matches cerberus output
 {
 	if ( isDefined( turnofffx ) )
 	{
@@ -1628,7 +1579,7 @@ perk_fx( fx, turnofffx )
 	}
 }
 
-electric_perks_dialog()
+electric_perks_dialog() //checked partially changed to match cerberus output
 {
 	self endon( "death" );
 	wait 0.01;
@@ -1672,24 +1623,21 @@ electric_perks_dialog()
 					i++;
 					continue;
 				}
-				else
-				{
-					players[ i ] thread do_player_vo( "vox_start", 5 );
-					wait 3;
-					self notify( "warning_dialog" );
-					/*
+				players[ i ] thread do_player_vo( "vox_start", 5 );
+				wait 3;
+				self notify( "warning_dialog" );
+				/*
 /#
-					iprintlnbold( "warning_given" );
+				iprintlnbold( "warning_given" );
 #/
-					*/
-				}
+				*/
 			}
 			i++;
 		}
 	}
 }
 
-reset_vending_hint_string()
+reset_vending_hint_string() //checked matches cerberus output
 {
 	perk = self.script_noteworthy;
 	solo = maps/mp/zombies/_zm_perks::use_solo_revive();
@@ -1750,7 +1698,7 @@ reset_vending_hint_string()
 	}
 }
 
-vending_trigger_think() //checked to a degree
+vending_trigger_think() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	wait 0.01;
@@ -1759,8 +1707,7 @@ vending_trigger_think() //checked to a degree
 	start_on = 0;
 	level.revive_machine_is_solo = 0;
 	
-	//fixed
-	if( isdefined( perk ) && perk == "specialty_quickrevive" )
+	if ( isdefined( perk ) && perk == "specialty_quickrevive" || perk == "specialty_quickrevive_upgrade" )
 	{
 		flag_wait("start_zombie_round_logic");
 		solo = use_solo_revive();
@@ -1768,18 +1715,18 @@ vending_trigger_think() //checked to a degree
 		level.quick_revive_trigger = self;
 		if( solo )
 		{
-			if(!is_true(level.revive_machine_is_solo))
+			if ( !is_true( level.revive_machine_is_solo ) )
 			{
 				start_on = 1;
 				players = get_players();
-				foreach(player in players)
+				foreach ( player in players )
 				{
-					if(!isdefined(player.lives))
+					if ( !isdefined( player.lives ) )
 					{
 						player.lives = 0;
 					}
 				}
-				level maps/mp/zombies/_zm::set_default_laststand_pistol(1);
+				level maps/mp/zombies/_zm::set_default_laststand_pistol( 1 );
 			}
 			level.revive_machine_is_solo = 1;
 		}
@@ -1845,11 +1792,9 @@ vending_trigger_think() //checked to a degree
 	{
 		level._perkmachinenetworkchoke++;
 	}
-	i = 0;
-	while ( i < level._perkmachinenetworkchoke )
+	for ( i = 0; i < level._perkmachinenetworkchoke; i++ )
 	{
 		wait_network_frame();
-		i++;
 	}
 	self thread maps/mp/zombies/_zm_audio::perks_a_cola_jingle_timer();
 	self thread check_player_has_perk( perk );
@@ -1908,35 +1853,72 @@ vending_trigger_think() //checked to a degree
 	for ( ;; )
 	{
 		self waittill( "trigger", player );
+		if ( level.debugLogging_zm_perks )
+		{
+			if ( !isDefined( player ) )
+			{
+				logline10 = "_zm_perks.gsc vending_trigger_think() player is not defined for trigger!" + "\n";
+				logprint( logline10 );
+			}
+		}
 		index = maps/mp/zombies/_zm_weapons::get_player_index( player );
 		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( player.intermission ) && player.intermission )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline11 = "_zm_perks.gsc vending_trigger_think() player is in laststand or game is intermission; continue" + "\n";
+				logprint( logline11 );
+			}
 			wait 0.1;
 			continue;
 		}
-
 		if ( player in_revive_trigger() )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline11 = "_zm_perks.gsc vending_trigger_think() player is in revive trigger; continue" + "\n";
+				logprint( logline11 );
+			}
 			wait 0.1;
 			continue;
 		}
 		if ( !player maps/mp/zombies/_zm_magicbox::can_buy_weapon() )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline12 = "_zm_perks.gsc vending_trigger_think() player is in revive trigger; continue" + "\n";
+				logprint( logline12 );
+			}
 			wait 0.1;
 			continue;
 		}
 		if ( player isthrowinggrenade() )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline13 = "_zm_perks.gsc vending_trigger_think() player is throwing grenade; continue" + "\n";
+				logprint( logline13 );
+			}
 			wait 0.1;
 			continue;
 		}
 		if ( player isswitchingweapons() )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline14 = "_zm_perks.gsc vending_trigger_think() player is switching weapons; continue" + "\n";
+				logprint( logline14 );
+			}
 			wait 0.1;
 			continue;
 		}
 		if ( player.is_drinking > 0 )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline15 = "_zm_perks.gsc vending_trigger_think() player is drinking; continue" + "\n";
+				logprint( logline15 );
+			}
 			wait 0.1;
 			continue;
 		}
@@ -1953,6 +1935,11 @@ vending_trigger_think() //checked to a degree
 			*/
 			if ( cheat != 1 )
 			{
+				if ( level.debugLogging_zm_perks ) 
+				{
+					logline16 = "_zm_perks.gsc vending_trigger_think() player has perk; continue!" + "\n";
+					logprint( logline16 );
+				}
 				self playsound( "deny" );
 				player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "perk_deny", undefined, 1 );
 				continue;
@@ -1963,6 +1950,11 @@ vending_trigger_think() //checked to a degree
 			valid = self [[ level.custom_perk_validation ]]( player );
 			if ( !valid )
 			{
+				if ( level.debugLogging_zm_perks )
+				{
+					logline17 = "_zm_perks.gsc vending_trigger_think() [[ level.custom_perk_validation ]] determines player is not eligble for perk; continue" + "\n";
+					logprint( logline17 );
+				}
 				continue;
 			}
 		}
@@ -1973,6 +1965,11 @@ vending_trigger_think() //checked to a degree
 		}
 		if ( player.score < current_cost )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline18 = "_zm_perks.gsc vending_trigger_think() player does not have enough points for perk; continue" + "\n";
+				logprint( logline18 );
+			}
 			self playsound( "evt_perk_deny" );
 			player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "perk_deny", undefined, 0 );
 			continue;
@@ -1980,6 +1977,11 @@ vending_trigger_think() //checked to a degree
 		
 		if ( player.num_perks >= player get_player_perk_purchase_limit() )
 		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline19 = "_zm_perks.gsc vending_trigger_think() player has reach their perk limit; continue" + "\n";
+				logprint( logline19 );
+			}
 			self playsound( "evt_perk_deny" );
 			player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "sigh" );
 			continue;
@@ -1993,16 +1995,37 @@ vending_trigger_think() //checked to a degree
 	}
 }
 
-vending_trigger_post_think( player, perk ) //something is broken here
+vending_trigger_post_think( player, perk ) //checked matches cerberus output
 {
 	player endon( "disconnect" );
 	player endon( "end_game" );
 	player endon( "perk_abort_drinking" );
 	gun = player perk_give_bottle_begin( perk );
+	if ( level.debugLogging_zm_perks )
+	{
+		logline29 = "_zm_perks.gsc vending_trigger_post_think(); perk_give_bottle_begin() completed its operation  " + " \n";
+		logprint( logline29 );
+	}
 	evt = player waittill_any_return( "fake_death", "death", "player_downed", "weapon_change_complete" );
+	//evt = waittill( "weapon_change_complete" );
+	if ( level.debugLogging_zm_perks )
+	{
+		logline28 = "_zm_perks.gsc vending_trigger_post_think() finished waiting for event: " + evt + " \n";
+		logprint( logline28 );
+	}
 	if ( evt == "weapon_change_complete" )
 	{
+		if ( level.debugLogging_zm_perks )
+		{
+			logline26 = "_zm_perks.gsc vending_trigger_post_think() weapon_change_complete occured calling wait_give_perk() " + " \n";
+			logprint( logline26 );
+		}
 		player thread wait_give_perk( perk, 1 );
+	}
+	if ( level.debugLogging_zm_perks )
+	{
+		logline27 = "_zm_perks.gsc vending_trigger_post_think(); wait_give_perk() finished; calling perk_give_bottle_end() " + " \n";
+		logprint( logline27 );
 	}
 	player perk_give_bottle_end( gun, perk );
 	if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( player.intermission ) && player.intermission )
@@ -2031,21 +2054,17 @@ vending_trigger_post_think( player, perk ) //something is broken here
 	bbprint( "zombie_uses", "playername %s playerscore %d round %d name %s x %f y %f z %f type %s", player.name, player.score, level.round_number, perk, self.origin, "perk" );
 }
 
-solo_revive_buy_trigger_move( revive_trigger_noteworthy )
+solo_revive_buy_trigger_move( revive_trigger_noteworthy ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	revive_perk_triggers = getentarray( revive_trigger_noteworthy, "script_noteworthy" );
-	_a2384 = revive_perk_triggers;
-	_k2384 = getFirstArrayKey( _a2384 );
-	while ( isDefined( _k2384 ) )
+	foreach ( revive_perk_trigger in revive_perk_triggers )
 	{
-		revive_perk_trigger = _a2384[ _k2384 ];
 		self thread solo_revive_buy_trigger_move_trigger( revive_perk_trigger );
-		_k2384 = getNextArrayKey( _a2384, _k2384 );
 	}
 }
 
-solo_revive_buy_trigger_move_trigger( revive_perk_trigger )
+solo_revive_buy_trigger_move_trigger( revive_perk_trigger ) //checked matches cerberus output
 {
 	self endon( "death" );
 	revive_perk_trigger setinvisibletoplayer( self );
@@ -2065,37 +2084,43 @@ solo_revive_buy_trigger_move_trigger( revive_perk_trigger )
 	revive_perk_trigger setvisibletoplayer( self );
 }
 
-wait_give_perk( perk, bought )
+wait_give_perk( perk, bought ) //checked matches cerberus output
 {
 	self endon( "player_downed" );
 	self endon( "disconnect" );
 	self endon( "end_game" );
 	self endon( "perk_abort_drinking" );
 	self waittill_notify_or_timeout( "burp", 0.5 );
+	if ( level.debugLogging_zm_perks )
+	{
+		logline23 = "_zm_perks.gsc wait_give_perk() gives player a perk" + "\n";
+		logprint( logline23 );
+	}
 	self give_perk( perk, bought );
 }
 
-return_retained_perks()
+return_retained_perks() //checked changed to match cerberus output
 {
-	while ( isDefined( self._retain_perks_array ) )
+	if ( isDefined( self._retain_perks_array ) )
 	{
 		keys = getarraykeys( self._retain_perks_array );
-		_a2445 = keys;
-		_k2445 = getFirstArrayKey( _a2445 );
-		while ( isDefined( _k2445 ) )
+		foreach ( perk in keys )
 		{
-			perk = _a2445[ _k2445 ];
-			if ( isDefined( self._retain_perks_array[ perk ] ) && self._retain_perks_array[ perk ] )
+			if ( isdefined( self._retain_perks_array[ perk ] ) && self._retain_perks_array[ perk ] )
 			{
 				self give_perk( perk, 0 );
 			}
-			_k2445 = getNextArrayKey( _a2445, _k2445 );
 		}
 	}
 }
 
-give_perk( perk, bought )
+give_perk( perk, bought ) //checked changed to match cerberus output
 {
+	if ( level.debugLogging_zm_perks )
+	{
+		logline24 = "_zm_perks.gsc give_perk() gives player perk: " + perk + " \n";
+		logprint( logline24 );
+	}
 	self setperk( perk );
 	self.num_perks++;
 	if ( isDefined( bought ) && bought )
@@ -2112,7 +2137,7 @@ give_perk( perk, bought )
 		self setblur( 4, 0.1 );
 		wait 0.1;
 		self setblur( 0, 0.1 );
-		self notify( "perk_bought" );
+		self notify( "perk_bought", perk );
 	}
 	self perk_set_max_health_if_jugg( perk, 1, 0 );
 	if ( isDefined( level.disable_deadshot_clientfield ) && !level.disable_deadshot_clientfield )
@@ -2121,12 +2146,9 @@ give_perk( perk, bought )
 		{
 			self setclientfieldtoplayer( "deadshot_perk", 1 );
 		}
-		else
+		else if ( perk == "specialty_deadshot_upgrade" )
 		{
-			if ( perk == "specialty_deadshot_upgrade" )
-			{
-				self setclientfieldtoplayer( "deadshot_perk", 1 );
-			}
+			self setclientfieldtoplayer( "deadshot_perk", 1 );
 		}
 	}
 	if ( perk == "specialty_scavenger" )
@@ -2182,10 +2204,15 @@ give_perk( perk, bought )
 	}
 	self.perks_active[ self.perks_active.size ] = perk;
 	self notify( "perk_acquired" );
+	if ( level.debugLogging_zm_perks )
+	{
+		logline25 = "_zm_perks.gsc give_perk() calls perk_think" + " \n";
+		logprint( logline25 );
+	}
 	self thread perk_think( perk );
 }
 
-perk_set_max_health_if_jugg( perk, set_premaxhealth, clamp_health_to_max_health )
+perk_set_max_health_if_jugg( perk, set_premaxhealth, clamp_health_to_max_health ) //checked matches cerberus output
 {
 	max_total_health = undefined;
 	if ( perk == "specialty_armorvest" )
@@ -2243,7 +2270,7 @@ perk_set_max_health_if_jugg( perk, set_premaxhealth, clamp_health_to_max_health 
 	}
 }
 
-check_player_has_perk( perk )
+check_player_has_perk( perk ) //checked partially changed to match cerberus output
 {
 	self endon( "death" );
 	/*
@@ -2269,10 +2296,7 @@ check_player_has_perk( perk )
 					i++;
 					continue;
 				}
-				else
-				{
-					self setinvisibletoplayer( players[ i ], 1 );
-				}
+				self setinvisibletoplayer( players[ i ], 1 );
 			}
 			i++;
 		}
@@ -2280,7 +2304,7 @@ check_player_has_perk( perk )
 	}
 }
 
-vending_set_hintstring( perk )
+vending_set_hintstring( perk ) //checked matches cerberus output
 {
 	switch( perk )
 	{
@@ -2290,7 +2314,7 @@ vending_set_hintstring( perk )
 	}
 }
 
-perk_think( perk )
+perk_think( perk ) //checked changed to match cerberus output
 {
 /*
 /#
@@ -2316,12 +2340,9 @@ perk_think( perk )
 		{
 			return;
 		}
-		else
+		else if ( isDefined( self._retain_perks_array ) && isDefined( self._retain_perks_array[ perk ] ) && self._retain_perks_array[ perk ] )
 		{
-			if ( isDefined( self._retain_perks_array ) && isDefined( self._retain_perks_array[ perk ] ) && self._retain_perks_array[ perk ] )
-			{
-				return;
-			}
+			return;
 		}
 	}
 	self unsetperk( perk );
@@ -2368,7 +2389,7 @@ perk_think( perk )
 	self notify( "perk_lost" );
 }
 
-set_perk_clientfield( perk, state )
+set_perk_clientfield( perk, state ) //checked matches cerberus output
 {
 	switch( perk )
 	{
@@ -2402,7 +2423,7 @@ set_perk_clientfield( perk, state )
 		case "specialty_finalstand":
 			self setclientfieldtoplayer( "perk_chugabud", state );
 			break;
-		case default:
+		default:
 		if ( isDefined( level._custom_perks[ perk ] ) && isDefined( level._custom_perks[ perk ].clientfield_set ) )
 		{
 			self [[ level._custom_perks[ perk ].clientfield_set ]]( state );
@@ -2410,12 +2431,13 @@ set_perk_clientfield( perk, state )
 	}
 }
 
-perk_hud_destroy( perk )
+perk_hud_destroy( perk ) //checked changed to match cerberus output
 {
 	self.perk_hud[ perk ] destroy_hud();
+	self.perk_hud[ perk ] = undefined;
 }
 
-perk_hud_grey( perk, grey_on_off )
+perk_hud_grey( perk, grey_on_off ) //checked matches cerberus output
 {
 	if ( grey_on_off )
 	{
@@ -2427,7 +2449,7 @@ perk_hud_grey( perk, grey_on_off )
 	}
 }
 
-perk_hud_flash()
+perk_hud_flash() //checked matches cerberus output
 {
 	self endon( "death" );
 	self.flash = 1;
@@ -2438,7 +2460,7 @@ perk_hud_flash()
 	self.flash = 0;
 }
 
-perk_flash_audio( perk )
+perk_flash_audio( perk ) //checked matches cerberus output
 {
 	alias = undefined;
 	switch( perk )
@@ -2471,7 +2493,7 @@ perk_flash_audio( perk )
 	}
 }
 
-perk_hud_start_flash( perk )
+perk_hud_start_flash( perk ) //checked does not match cerberus output did not change
 {
 	if ( self hasperk( perk ) && isDefined( self.perk_hud ) )
 	{
@@ -2487,7 +2509,7 @@ perk_hud_start_flash( perk )
 	}
 }
 
-perk_hud_stop_flash( perk, taken )
+perk_hud_stop_flash( perk, taken ) //checked matches cerberus output
 {
 	if ( self hasperk( perk ) && isDefined( self.perk_hud ) )
 	{
@@ -2503,7 +2525,7 @@ perk_hud_stop_flash( perk, taken )
 	}
 }
 
-perk_give_bottle_begin( perk )
+perk_give_bottle_begin( perk ) //checked matches cerberus output
 {
 	self increment_is_drinking();
 	self disable_player_move_states( 1 );
@@ -2556,12 +2578,22 @@ perk_give_bottle_begin( perk )
 	{
 		weapon = level._custom_perks[ perk ].perk_bottle;
 	}
+	if ( level.debugLogging_zm_perks )
+	{
+		logline20 = "_zm_perks.gsc perk_give_bottle_begin() gives perk bottle to player" + "\n";
+		logprint( logline20 );
+	}
 	self giveweapon( weapon );
 	self switchtoweapon( weapon );
+	if ( level.debugLogging_zm_perks )
+	{
+		logline21 = "_zm_perks.gsc perk_give_bottle_begin() returns gun" + "\n";
+		logprint( logline21 );
+	}
 	return gun;
 }
 
-perk_give_bottle_end( gun, perk ) //changed
+perk_give_bottle_end( gun, perk ) //checked matches cerberus output
 {
 	self endon( "perk_abort_drinking" );
 	/*
@@ -2651,15 +2683,20 @@ perk_give_bottle_end( gun, perk ) //changed
 			self switchtoweapon( primaryweapons[ 0 ] );
 		}
 	}
-	self waittill( "weapon_change_complete" ); //event doesn't occur because there is no notifier bug
+	self waittill( "weapon_change_complete" );
 	self decrement_is_drinking();
 	if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && isDefined( self.intermission ) && !self.intermission )
 	{
 		self decrement_is_drinking();
 	}
+	if ( level.debugLogging_zm_perks )
+	{
+		logline22 = "_zm_perks.gsc perk_give_bottle_end() finishes returning gun to player" + "\n";
+		logprint( logline22 );
+	}
 }
 
-perk_abort_drinking( post_delay )
+perk_abort_drinking( post_delay ) //checked matches cerberus output
 {
 	if ( self.is_drinking )
 	{
@@ -2673,7 +2710,7 @@ perk_abort_drinking( post_delay )
 	}
 }
 
-give_random_perk()
+give_random_perk() //checked partially changed to match cerberus output
 {
 	random_perk = undefined;
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
@@ -2687,20 +2724,14 @@ give_random_perk()
 			i++;
 			continue;
 		}
-		else
+		if ( perk == "specialty_weapupgrade" )
 		{
-			if ( perk == "specialty_weapupgrade" )
-			{
-				i++;
-				continue;
-			}
-			else
-			{
-				if ( !self hasperk( perk ) && !self has_perk_paused( perk ) )
-				{
-					perks[ perks.size ] = perk;
-				}
-			}
+			i++;
+			continue;
+		}
+		if ( !self hasperk( perk ) && !self has_perk_paused( perk ) )
+		{
+			perks[ perks.size ] = perk;
 		}
 		i++;
 	}
@@ -2717,7 +2748,7 @@ give_random_perk()
 	return random_perk;
 }
 
-lose_random_perk()
+lose_random_perk() //checked partially changed to match cerberus output
 {
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
 	perks = [];
@@ -2730,12 +2761,9 @@ lose_random_perk()
 			i++;
 			continue;
 		}
-		else
+		if ( self hasperk( perk ) || self has_perk_paused( perk ) )
 		{
-			if ( self hasperk( perk ) || self has_perk_paused( perk ) )
-			{
-				perks[ perks.size ] = perk;
-			}
+			perks[ perks.size ] = perk;
 		}
 		i++;
 	}
@@ -2755,47 +2783,41 @@ lose_random_perk()
 
 update_perk_hud()
 {
-	while ( isDefined( self.perk_hud ) )
+	if ( isDefined( self.perk_hud ) )
 	{
 		keys = getarraykeys( self.perk_hud );
-		i = 0;
-		while ( i < self.perk_hud.size )
+		for ( i = 0; i < self.perk_hud.size; i++)
 		{
 			self.perk_hud[ keys[ i ] ].x = i * 30;
-			i++;
 		}
 	}
 }
 
-quantum_bomb_give_nearest_perk_validation( position )
+quantum_bomb_give_nearest_perk_validation( position ) //checked changed to match cerberus output
 {
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
 	range_squared = 32400;
-	i = 0;
-	while ( i < vending_triggers.size )
+	for ( i = 0; i < vending_triggers.size; i++ )
 	{
 		if ( distancesquared( vending_triggers[ i ].origin, position ) < range_squared )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-quantum_bomb_give_nearest_perk_result( position )
+quantum_bomb_give_nearest_perk_result( position ) //checked partially changed to match cerberus output
 {
 	[[ level.quantum_bomb_play_mystery_effect_func ]]( position );
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
 	nearest = 0;
-	i = 1;
-	while ( i < vending_triggers.size )
+	for ( i = 1; i < vending_triggers.size; i++ )
 	{
 		if ( distancesquared( vending_triggers[ i ].origin, position ) < distancesquared( vending_triggers[ nearest ].origin, position ) )
 		{
 			nearest = i;
 		}
-		i++;
 	}
 	players = get_players();
 	perk = vending_triggers[ nearest ].script_noteworthy;
@@ -2808,30 +2830,26 @@ quantum_bomb_give_nearest_perk_result( position )
 			i++;
 			continue;
 		}
-		else
+		if ( !player hasperk( perk ) && isDefined( player.perk_purchased ) && player.perk_purchased != perk && randomint( 5 ) )
 		{
-			if ( !player hasperk( perk ) && isDefined( player.perk_purchased ) && player.perk_purchased != perk && randomint( 5 ) )
+			if ( player == self )
 			{
-				if ( player == self )
-				{
-					self thread maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "quant_good" );
-				}
-				player give_perk( perk );
-				player [[ level.quantum_bomb_play_player_effect_func ]]();
+				self thread maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "quant_good" );
 			}
+			player give_perk( perk );
+			player [[ level.quantum_bomb_play_player_effect_func ]]();
 		}
 		i++;
 	}
 }
 
-perk_pause( perk )
+perk_pause( perk ) //checked changed to match cerberus output
 {
 	if ( perk == "Pack_A_Punch" || perk == "specialty_weapupgrade" )
 	{
 		return;
 	}
-	j = 0;
-	while ( j < get_players().size )
+	for ( j = 0; j < get_players().size; j++ )
 	{
 		player = get_players()[ j ];
 		if ( !isDefined( player.disabled_perks ) )
@@ -2868,11 +2886,10 @@ perk_pause( perk )
 #/
 			*/
 		}
-		j++;
 	}
 }
 
-perk_unpause( perk )
+perk_unpause( perk ) //checked changed to match cerberus output
 {
 	if ( !isDefined( perk ) )
 	{
@@ -2882,8 +2899,7 @@ perk_unpause( perk )
 	{
 		return;
 	}
-	j = 0;
-	while ( j < get_players().size )
+	for ( j = 0; j < get_players().size; j++ )
 	{
 		player = get_players()[ j ];
 		if ( isDefined( player.disabled_perks ) && isDefined( player.disabled_perks[ perk ] ) && player.disabled_perks[ perk ] )
@@ -2906,37 +2922,28 @@ perk_unpause( perk )
 				player thread [[ level._custom_perks[ perk ].player_thread_give ]]();
 			}
 		}
-		j++;
 	}
 }
 
-perk_pause_all_perks()
+perk_pause_all_perks() //checked changed to match cerberus output
 {
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
-	_a3378 = vending_triggers;
-	_k3378 = getFirstArrayKey( _a3378 );
-	while ( isDefined( _k3378 ) )
+	foreach ( trigger in vending_triggers )
 	{
-		trigger = _a3378[ _k3378 ];
 		maps/mp/zombies/_zm_perks::perk_pause( trigger.script_noteworthy );
-		_k3378 = getNextArrayKey( _a3378, _k3378 );
 	}
 }
 
-perk_unpause_all_perks()
+perk_unpause_all_perks() //checked changed to match cerberus output
 {
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
-	_a3388 = vending_triggers;
-	_k3388 = getFirstArrayKey( _a3388 );
-	while ( isDefined( _k3388 ) )
+	foreach ( trigger in vending_triggers )
 	{
-		trigger = _a3388[ _k3388 ];
 		maps/mp/zombies/_zm_perks::perk_unpause( trigger.script_noteworthy );
-		_k3388 = getNextArrayKey( _a3388, _k3388 );
 	}
 }
 
-has_perk_paused( perk )
+has_perk_paused( perk ) //checked matches cerberus output
 {
 	if ( isDefined( self.disabled_perks ) && isDefined( self.disabled_perks[ perk ] ) && self.disabled_perks[ perk ] )
 	{
@@ -2945,7 +2952,7 @@ has_perk_paused( perk )
 	return 0;
 }
 
-getvendingmachinenotify()
+getvendingmachinenotify() //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -2994,68 +3001,50 @@ getvendingmachinenotify()
 	return str_perk;
 }
 
-perk_machine_removal( machine, replacement_model )
+perk_machine_removal( machine, replacement_model ) //checked changed to match cerberus output
 {
-	if ( !isDefined( machine ) )
+	if ( !isdefined( machine ) )
 	{
 		return;
 	}
 	trig = getent( machine, "script_noteworthy" );
 	machine_model = undefined;
-	if ( isDefined( trig ) )
+	if ( isdefined( trig ) )
 	{
 		trig notify( "warning_dialog" );
-		while ( isDefined( trig.target ) )
+		if ( isdefined( trig.target ) )
 		{
 			parts = getentarray( trig.target, "targetname" );
-			i = 0;
-			while ( i < parts.size )
+			for ( i = 0; i < parts.size; i++ )
 			{
-				if ( isDefined( parts[ i ].classname ) && parts[ i ].classname == "script_model" )
+				if ( isdefined( parts[ i ].classname ) && parts[ i ].classname == "script_model" )
 				{
-					machine_model = parts[ i ];
-					i++;
-					continue;
+					machine_model = parts[i];
 				}
-				else
+				if ( isdefined( parts[ i ].script_noteworthy ) && parts[ i ].script_noteworthy == "clip" )
 				{
-					if ( parts[ i ].script_noteworthy )
-					{
-						if ( isDefined( parts[ i ].script_noteworthy == "clip" ) )
-						{
-							model_clip = parts[ i ];
-						}
-						i++;
-						continue;
-					}
-					else
-					{
-						parts[ i ] delete();
-					}
+					model_clip = parts[ i ];
 				}
-				i++;
+				parts[ i ] delete();
 			}
 		}
-		if ( isDefined( replacement_model ) && isDefined( machine_model ) )
+		else if ( isdefined( replacement_model ) && isdefined( machine_model ) )
 		{
 			machine_model setmodel( replacement_model );
 		}
-		else
+		else if ( !isdefined( replacement_model ) && isdefined( machine_model ) )
 		{
-			if ( !isDefined( replacement_model ) && isDefined( machine_model ) )
+			machine_model delete();
+			if ( isdefined( model_clip ) )
 			{
-				machine_model delete();
-				if ( isDefined( model_clip ) )
-				{
-					model_clip delete();
-				}
-				if ( isDefined( trig.clip ) )
-				{
-					trig.clip delete();
-				}
+				model_clip delete();
+			}
+			if ( isdefined( trig.clip ) )
+			{
+				trig.clip delete();
 			}
 		}
-		if ( isDefined( trig.bump ) )
+		if ( isdefined( trig.bump ) )
 		{
 			trig.bump delete();
 		}
@@ -3065,84 +3054,138 @@ perk_machine_removal( machine, replacement_model )
 
 perk_machine_spawn_init()
 {
+
 	match_string = "";
 
 	location = level.scr_zm_map_start_location;
-	if ((location == "default" || location == "" ) && IsDefined(level.default_start_location))
+	if ( ( location == "default" || location == "" ) && IsDefined( level.default_start_location ) )
 	{
 		location = level.default_start_location;
 	}		
 
 	match_string = level.scr_zm_ui_gametype + "_perks_" + location;
 	pos = [];
-	structs = getstructarray("zm_perk_machine", "targetname");
-	_a3578 = structs;
-	_k3578 = getFirstArrayKey( _a3578 );
-	while ( isDefined( _k3578 ) )
+	if ( isdefined( level.override_perk_targetname ) )
 	{
-		struct = _a3578[ _k3578 ];
-		if ( isDefined( struct.script_string ) )
+		structs = getstructarray( level.override_perk_targetname, "targetname" );
+	}
+	else
+	{
+		structs = getstructarray( "zm_perk_machine", "targetname" );
+	}
+	if ( match_string == "zclassic_perks_rooftop" || match_string == "zclassic_perks_tomb" || match_string == "zstandard_perks_nuked" )
+	{
+		if ( level.debugLogging_zm_perks )
 		{
-			tokens = strtok( struct.script_string, " " );
-			_a3583 = tokens;
-			_k3583 = getFirstArrayKey( _a3583 );
-			while ( isDefined( _k3583 ) )
+			logline1 = "_zm_perks.gsc: perk_machine_spawn_init() uses default location " + "\n";
+			logprint( logline1 );
+		}
+		useDefaultLocation = 1;
+	}
+	if ( level.debugLogging_zm_perks )
+	{
+		logline2 = "_zm_perks.gsc: perk_machine_spawn_init() found: " + structs.size + " zm_perk_machines" + " \n";
+		logprint( logline2 );
+	}
+	i = 0;
+	while ( i < structs.size )
+	{
+		if ( isdefined( structs[ i ].script_string ) )
+		{
+			tokens = strtok( structs[ i ].script_string, " " );
+			if ( level.debugLogging_zm_perks )
 			{
-				token = _a3583[ _k3583 ];
-				if ( token == match_string )
+				logline3 = "_zm_perks.gsc: perk_machine_spawn_init() found: " + tokens.size + " match_strings" + " \n";
+				logprint( logline3 );
+			}
+			k = 0;
+			while ( k < tokens.size )
+			{
+				if ( tokens[ k ] == match_string )
 				{
-					pos[ pos.size ] = struct;
+					if ( level.debugLogging_zm_perks )
+					{
+						logline4 = "_zm_perks.gsc: perk_machine_spawn_init() found that token matches match_string, setting perk location to match_string location" + " \n";
+						logprint( logline4 );
+					}
+					pos[ pos.size ] = structs[ i ];
+					k++;
 				}
-				_k3583 = getNextArrayKey( _a3583, _k3583 );
+				else
+				{
+					if ( level.debugLogging_zm_perks )
+					{
+						logline5 = "_zm_perks.gsc: perk_machine_spawn_init() found that token did not match match_string, skipping " + "\n";
+						logprint( logline5 );
+					}
+					//pos[ pos.size ] = structs[ i ];
+					k++;
+				}
 			}
 		}
-		else
+		else if ( isDefined( useDefaultLocation ) && useDefaultLocation )
 		{
-			pos[ pos.size ] = struct;
+			if ( level.debugLogging_zm_perks )
+			{
+				logline6 = "_zm_perks.gsc: perk_machine_spawn_init() found that map only has one location, setting to match_string by default " + "\n";
+				logprint( logline6 );
+			}
+			pos[ pos.size ] = structs[ i ];
 		}
-		_k3578 = getNextArrayKey( _a3578, _k3578 );
+		i++;
 	}
-	
-	if(!IsDefined(pos) || pos.size == 0)
+	if ( !IsDefined( pos ) || pos.size == 0 )
 	{
+		if ( level.debugLogging_zm_perks )
+		{
+			logline7 = "_zm_perks.gsc: perk_machine_spawn_init() returning because pos is undefined or pos.size is 0 " + "\n";
+			logprint( logline7 );
+		}
 		return;
 	}
-	if ( level.script == "zm_prison" && is_classic() )
-	{
-		posSizeOffset = pos.size - 4;
-	}
 	PreCacheModel("zm_collision_perks1");
-	//everything above the for loop works
-	//broken
-
-	for ( i = 0; i < posSizeOffset; i++ )
+	for ( i = 0; i < pos.size; i++ )
 	{
-		perk = pos[i].script_noteworthy;
-		if(IsDefined(perk) && IsDefined(pos[i].model))
+		perk = pos[ i ].script_noteworthy;
+		if ( level.debugLogging_zm_perks )
 		{
-			use_trigger = Spawn( "trigger_radius_use", pos[i].origin + (0, 0, 30), 0, 40, 70 );
+			logline8 = "_zm_perks.gsc: perk_machine_spawn_init() checking perk: " + perk + " \n";
+			logprint( logline8 );
+		}
+		if ( IsDefined( perk ) && IsDefined( pos[ i ].model ) )
+		{
+			if ( level.debugLogging_zm_perks )
+			{
+				logline9 = "_zm_perks.gsc: perk_machine_spawn_init() found perk and perk model; spawning in: " + perk + " \n";
+				logprint( logline9 );
+			}
+			use_trigger = Spawn( "trigger_radius_use", pos[ i ].origin + ( 0, 0, 30 ), 0, 40, 70 );
 			use_trigger.targetname = "zombie_vending";			
 			use_trigger.script_noteworthy = perk;
 			use_trigger TriggerIgnoreTeam();
 			//use_trigger thread debug_spot();
 	
-			perk_machine = Spawn("script_model", pos[i].origin);
-			perk_machine.angles = pos[i].angles;
-			perk_machine SetModel(pos[i].model);
-				
-			bump_trigger = Spawn( "trigger_radius", pos[i].origin, 0, 35, 64);
-			bump_trigger.script_activated = 1;
-			bump_trigger.script_sound = "zmb_perks_bump_bottle";
-			bump_trigger.targetname = "audio_bump_trigger";
-			
-			if( perk != "specialty_weapupgrade" )
+			perk_machine = Spawn( "script_model", pos[ i ].origin );
+			perk_machine.angles = pos[ i ].angles;
+			perk_machine SetModel( pos[ i ].model );
+			if ( isdefined( level._no_vending_machine_bump_trigs ) && level._no_vending_machine_bump_trigs )
 			{
-				bump_trigger thread thread_bump_trigger();
+				bump_trigger = undefined;
 			}
-				
-			collision = Spawn("script_model", pos[i].origin, 1);
-			collision.angles = pos[i].angles;
-			collision SetModel("zm_collision_perks1");
+			else
+			{
+				bump_trigger = spawn("trigger_radius", pos[ i ].origin, 0, 35, 64);
+				bump_trigger.script_activated = 1;
+				bump_trigger.script_sound = "zmb_perks_bump_bottle";
+				bump_trigger.targetname = "audio_bump_trigger";
+				if ( perk != "specialty_weapupgrade" )
+				{
+					bump_trigger thread thread_bump_trigger();
+				}
+			}	
+			collision = Spawn( "script_model", pos[ i ].origin, 1 );
+			collision.angles = pos[ i ].angles;
+			collision SetModel( "zm_collision_perks1" );
 			collision.script_noteworthy = "clip";
 			collision DisconnectPaths();
 			
@@ -3150,7 +3193,19 @@ perk_machine_spawn_init()
 			use_trigger.clip = collision;
 			use_trigger.machine = perk_machine;
 			use_trigger.bump = bump_trigger;
-
+			//missing code found in cerberus output
+			if ( isdefined( pos[ i ].blocker_model ) )
+			{
+				use_trigger.blocker_model = pos[ i ].blocker_model;
+			}
+			if ( isdefined( pos[ i ].script_int ) )
+			{
+				perk_machine.script_int = pos[ i ].script_int;
+			}
+			if ( isdefined( pos[ i ].turn_on_notify ) )
+			{
+				perk_machine.turn_on_notify = pos[ i ].turn_on_notify;
+			}
 			switch( perk )
 			{
 				case "specialty_quickrevive":
@@ -3291,28 +3346,23 @@ perk_machine_spawn_init()
 						bump_trigger.script_string = "deadshot_vending";
 					}
 					break;
-				case default:
-					use_trigger.script_sound = "mus_perks_speed_jingle";
-					use_trigger.script_string = "speedcola_perk";
-					use_trigger.script_label = "mus_perks_speed_sting";
-					use_trigger.target = "vending_sleight";
-					perk_machine.script_string = "speedcola_perk";
-					perk_machine.targetname = "vending_sleight";
-					if ( isDefined( bump_trigger ) )
+				default:
+					if ( isdefined( level._custom_perks[ perk ] ) && isdefined( level._custom_perks[ perk ].perk_machine_set_kvps ) )
 					{
-						bump_trigger.script_string = "speedcola_perk";
+						[[ level._custom_perks[ perk ].perk_machine_set_kvps ]]( use_trigger, perk_machine, bump_trigger, collision );
+						if ( level.debugLogging_zm_perks )
+						{
+							logline30 = "_zm_perks.gsc: perk_machine_spawn_init() called level._custom_perks[ perk ].perk_machine_set_kvps on perk: " + perk + " \n";
+							logprint( logline30 );
+						}
 					}
 					break;
 			}
 		}
-		if(isdefined(level._custom_perks[perk]) && isdefined(level._custom_perks[perk].perk_machine_set_kvps))
-		{
-			[[level._custom_perks[perk].perk_machine_set_kvps]](use_trigger, perk_machine, bump_trigger, collision);
-		}
-	}	
+	}
 }	
 
-get_perk_machine_start_state( perk )
+get_perk_machine_start_state( perk ) //checked matches cerberus output
 {
 	if ( isDefined( level.vending_machines_powered_on_at_start ) && level.vending_machines_powered_on_at_start )
 	{
@@ -3320,17 +3370,12 @@ get_perk_machine_start_state( perk )
 	}
 	if ( perk == "specialty_quickrevive" || perk == "specialty_quickrevive_upgrade" )
 	{
-	/*
-/#
-		assert( isDefined( level.revive_machine_is_solo ) );
-#/
-	*/
 		return level.revive_machine_is_solo;
 	}
 	return 0;
 }
 
-perks_register_clientfield()
+perks_register_clientfield() //checked matches cerberus output
 {
 	if ( isDefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
 	{
@@ -3372,20 +3417,20 @@ perks_register_clientfield()
 	{
 		registerclientfield( "toplayer", "perk_chugabud", 1000, 1, "int" );
 	}
-	if(isdefined(level._custom_perks))
+	if ( isdefined( level._custom_perks ) )
 	{
 		a_keys = getarraykeys(level._custom_perks);
-		for(i = 0; i < a_keys.size; i++)
+		for ( i = 0; i < a_keys.size; i++ )
 		{
-			if(isdefined(level._custom_perks[ a_keys[ i ] ].clientfield_register))
+			if ( isdefined( level._custom_perks[ a_keys[ i ] ].clientfield_register ) )
 			{
-				level [[level._custom_perks[ a_keys[ i ] ].clientfield_register]]();
+				level [[ level._custom_perks[ a_keys[ i ] ].clientfield_register ]]();
 			}
 		}
 	}
 }
 
-thread_bump_trigger()
+thread_bump_trigger() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -3398,7 +3443,7 @@ thread_bump_trigger()
 	}
 }
 
-reenable_quickrevive( machine_clip, solo_mode )
+reenable_quickrevive( machine_clip, solo_mode ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.revive_machine_spawned ) && !is_true( level.revive_machine_spawned ) )
 	{
@@ -3411,23 +3456,16 @@ reenable_quickrevive( machine_clip, solo_mode )
 		power_state = 1;
 		should_pause = 1;
 		players = get_players();
-		_a3918 = players;
-		_k3918 = getFirstArrayKey( _a3918 );
-		while ( isDefined( _k3918 ) )
+		foreach ( player in players )
 		{
-			player = _a3918[ _k3918 ];
-			if ( isDefined( player.lives ) && player.lives > 0 && power_state )
+			if ( isdefined( player.lives ) && player.lives > 0 && power_state )
 			{
 				should_pause = 0;
 			}
-			else
+			if ( isdefined( player.lives ) && player.lives < 1 )
 			{
-				if ( isDefined( player.lives ) && player.lives < 1 )
-				{
-					should_pause = 1;
-				}
+				should_pause = 1;
 			}
-			_k3918 = getNextArrayKey( _a3918, _k3918 );
 		}
 		if ( should_pause )
 		{
@@ -3484,37 +3522,30 @@ reenable_quickrevive( machine_clip, solo_mode )
 	}
 	should_pause = 1;
 	players = get_players();
-	_a3996 = players;
-	_k3996 = getFirstArrayKey( _a3996 );
-	while ( isDefined( _k3996 ) )
+	foreach ( player in players )
 	{
-		player = _a3996[ _k3996 ];
 		if ( !is_player_valid( player ) )
 		{
+			continue;
 		}
-		else if ( player hasperk( "specialty_quickrevive" ) )
+		if ( player hasperk("specialty_quickrevive" ) )
 		{
-			if ( !isDefined( player.lives ) )
+			if ( !isdefined( player.lives ) )
 			{
 				player.lives = 0;
 			}
-			if ( !isDefined( level.solo_lives_given ) )
+			if ( !isdefined( level.solo_lives_given ) )
 			{
 				level.solo_lives_given = 0;
 			}
 			level.solo_lives_given++;
 			player.lives++;
-			if ( isDefined( player.lives ) && player.lives > 0 && power_state )
+			if ( isdefined( player.lives ) && player.lives > 0 && power_state )
 			{
 				should_pause = 0;
-				break;
 			}
-			else
-			{
-				should_pause = 1;
-			}
+			should_pause = 1;
 		}
-		_k3996 = getNextArrayKey( _a3996, _k3996 );
 	}
 	if ( should_pause )
 	{
@@ -3526,108 +3557,77 @@ reenable_quickrevive( machine_clip, solo_mode )
 	}
 }
 
-update_quickrevive_power_state( poweron )
+update_quickrevive_power_state( poweron ) //checked matches cerberus output
 {
-	_a4034 = level.powered_items;
-	_k4034 = getFirstArrayKey( _a4034 );
-	while ( isDefined( _k4034 ) )
+	foreach ( item in level.powered_items )
 	{
-		item = _a4034[ _k4034 ];
-		if ( isDefined( item.target ) && isDefined( item.target.script_noteworthy ) && item.target.script_noteworthy == "specialty_quickrevive" )
+		if ( isdefined( item.target ) && isdefined( item.target.script_noteworthy ) && item.target.script_noteworthy == "specialty_quickrevive" )
 		{
 			if ( item.power && !poweron )
 			{
-				if ( !isDefined( item.powered_count ) )
+				if ( !isdefined( item.powered_count ) )
 				{
 					item.powered_count = 0;
 				}
-				else
+				else if ( item.powered_count > 0 )
 				{
-					if ( item.powered_count > 0 )
-					{
-						item.powered_count--;
-
-					}
+					item.powered_count--;
 				}
 			}
-			else
+			else if ( !item.power && poweron )
 			{
-				if ( !item.power && poweron )
+				if ( !isdefined( item.powered_count ) )
 				{
-					if ( !isDefined( item.powered_count ) )
-					{
-						item.powered_count = 0;
-					}
-					item.powered_count++;
+					item.powered_count = 0;
 				}
+				item.powered_count++;
 			}
-			if ( !isDefined( item.depowered_count ) )
+			if ( !isdefined( item.depowered_count ) )
 			{
 				item.depowered_count = 0;
 			}
 			item.power = poweron;
 		}
-		_k4034 = getNextArrayKey( _a4034, _k4034 );
 	}
 }
 
-restart_quickrevive()
+restart_quickrevive() //checked changed to match cerberus output //changed at own discretion
 {
 	triggers = getentarray( "zombie_vending", "targetname" );
-	_a4074 = triggers;
-	_k4074 = getFirstArrayKey( _a4074 );
-	while ( isDefined( _k4074 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a4074[ _k4074 ];
-		if ( !isDefined( trigger.script_noteworthy ) )
+		if ( trigger.script_noteworthy == "specialty_quickrevive" || trigger.script_noteworthy == "specialty_quickrevive_upgrade" )
 		{
+			trigger notify( "stop_quickrevive_logic" );
+			trigger thread vending_trigger_think();
+			trigger trigger_on();
 		}
-		else
-		{
-			if ( trigger.script_noteworthy == "specialty_quickrevive" || trigger.script_noteworthy == "specialty_quickrevive_upgrade" )
-			{
-				trigger notify( "stop_quickrevive_logic" );
-				trigger thread vending_trigger_think();
-				trigger trigger_on();
-			}
-		}
-		_k4074 = getNextArrayKey( _a4074, _k4074 );
 	}
 }
 
-disable_quickrevive( machine_clip )
+disable_quickrevive( machine_clip ) //checked changed to match cerberus output
 {
 	if ( is_true( level.solo_revive_init ) && flag( "solo_revive" ) && isDefined( level.quick_revive_machine ) )
 	{
 		triggers = getentarray( "zombie_vending", "targetname" );
-		_a4096 = triggers;
-		_k4096 = getFirstArrayKey( _a4096 );
-		while ( isDefined( _k4096 ) )
+		foreach ( trigger in triggers )
 		{
-			trigger = _a4096[ _k4096 ];
-			if ( !isDefined( trigger.script_noteworthy ) )
+			if ( !isdefined( trigger.script_noteworthy ) )
 			{
+				continue;
 			}
-			else
+			if ( trigger.script_noteworthy == "specialty_quickrevive" || trigger.script_noteworthy == "specialty_quickrevive_upgrade" )
 			{
-				if ( trigger.script_noteworthy == "specialty_quickrevive" || trigger.script_noteworthy == "specialty_quickrevive_upgrade" )
-				{
-					trigger trigger_off();
-				}
+				trigger trigger_off();
 			}
-			_k4096 = getNextArrayKey( _a4096, _k4096 );
 		}
-		_a4108 = level.powered_items;
-		_k4108 = getFirstArrayKey( _a4108 );
-		while ( isDefined( _k4108 ) )
+		foreach ( item in level.powered_items )
 		{
-			item = _a4108[ _k4108 ];
-			if ( isDefined( item.target ) && isDefined( item.target.script_noteworthy ) && item.target.script_noteworthy == "specialty_quickrevive" )
+			if ( isdefined( item.target ) && isdefined( item.target.script_noteworthy ) && item.target.script_noteworthy == "specialty_quickrevive" )
 			{
 				item.power = 1;
 				item.self_powered = 1;
 			}
-			_k4108 = getNextArrayKey( _a4108, _k4108 );
 		}
 		if ( isDefined( level.quick_revive_machine.original_pos ) )
 		{
@@ -3676,7 +3676,7 @@ disable_quickrevive( machine_clip )
 	}
 }
 
-unhide_quickrevive()
+unhide_quickrevive() //checked matches cerberus output
 {
 	while ( players_are_in_perk_area( level.quick_revive_machine ) )
 	{
@@ -3751,7 +3751,7 @@ unhide_quickrevive()
 	level.quick_revive_machine.ishidden = 0;
 }
 
-players_are_in_perk_area( perk_machine )
+players_are_in_perk_area( perk_machine ) //checked changed to match cerberus output
 {
 	perk_area_origin = level.quick_revive_default_origin;
 	if ( isDefined( perk_machine._linked_ent ) )
@@ -3765,21 +3765,17 @@ players_are_in_perk_area( perk_machine )
 	in_area = 0;
 	players = get_players();
 	dist_check = 9216;
-	_a4286 = players;
-	_k4286 = getFirstArrayKey( _a4286 );
-	while ( isDefined( _k4286 ) )
+	foreach ( player in players )
 	{
-		player = _a4286[ _k4286 ];
 		if ( distancesquared( player.origin, perk_area_origin ) < dist_check )
 		{
 			return 1;
 		}
-		_k4286 = getNextArrayKey( _a4286, _k4286 );
 	}
 	return 0;
 }
 
-perk_hostmigration() //changed level._custom_perks
+perk_hostmigration() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	level notify( "perk_hostmigration" );
@@ -3796,129 +3792,93 @@ perk_hostmigration() //changed level._custom_perks
 		sleight = getentarray( "vending_sleight", "targetname" );
 		revive = getentarray( "vending_revive", "targetname" );
 		chugabud = getentarray( "vending_chugabud", "targetname" );
-		_a4321 = jug;
-		_k4321 = getFirstArrayKey( _a4321 );
-		while ( isDefined( _k4321 ) )
+		foreach ( perk in jug )
 		{
-			perk = _a4321[ _k4321 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "juggernog" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "juggernog" ].on_model ) 
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "jugger_light" );
 			}
-			_k4321 = getNextArrayKey( _a4321, _k4321 );
 		}
-		_a4330 = tap;
-		_k4330 = getFirstArrayKey( _a4330 );
-		while ( isDefined( _k4330 ) )
+		foreach ( perk in tap )
 		{
-			perk = _a4330[ _k4330 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "doubletap" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "doubletap" ].on_model )
 			{
-				perk perk_fx( undefined, 1 );
-				perk thread perk_fx( "doubletap_light" );
+				perk perk_fx(undefined, 1);
+				perk thread perk_fx("doubletap_light");
 			}
-			_k4330 = getNextArrayKey( _a4330, _k4330 );
 		}
-		_a4339 = mar;
-		_k4339 = getFirstArrayKey( _a4339 );
-		while ( isDefined( _k4339 ) )
+		foreach ( perk in mar )
 		{
-			perk = _a4339[ _k4339 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "marathon" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "marathon" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "marathon_light" );
 			}
-			_k4339 = getNextArrayKey( _a4339, _k4339 );
 		}
-		_a4348 = deadshot;
-		_k4348 = getFirstArrayKey( _a4348 );
-		while ( isDefined( _k4348 ) )
+		foreach ( perk in deadshot )
 		{
-			perk = _a4348[ _k4348 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "deadshot" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "deadshot" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "deadshot_light" );
 			}
-			_k4348 = getNextArrayKey( _a4348, _k4348 );
 		}
-		_a4357 = tomb;
-		_k4357 = getFirstArrayKey( _a4357 );
-		while ( isDefined( _k4357 ) )
+		foreach ( perk in tomb )
 		{
-			perk = _a4357[ _k4357 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "tombstone" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "tombstone" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "tombstone_light" );
 			}
-			_k4357 = getNextArrayKey( _a4357, _k4357 );
 		}
-		_a4366 = extraweap;
-		_k4366 = getFirstArrayKey( _a4366 );
-		while ( isDefined( _k4366 ) )
+		foreach ( perk in extraweap )
 		{
-			perk = _a4366[ _k4366 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "additionalprimaryweapon" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "additionalprimaryweapon" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "additionalprimaryweapon_light" );
 			}
-			_k4366 = getNextArrayKey( _a4366, _k4366 );
 		}
-		_a4375 = sleight;
-		_k4375 = getFirstArrayKey( _a4375 );
-		while ( isDefined( _k4375 ) )
+		foreach(perk in sleight)
 		{
-			perk = _a4375[ _k4375 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "speedcola" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "speedcola" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "sleight_light" );
 			}
-			_k4375 = getNextArrayKey( _a4375, _k4375 );
 		}
-		_a4384 = revive;
-		_k4384 = getFirstArrayKey( _a4384 );
-		while ( isDefined( _k4384 ) )
+		foreach ( perk in revive )
 		{
-			perk = _a4384[ _k4384 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "revive" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "revive" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "revive_light" );
 			}
-			_k4384 = getNextArrayKey( _a4384, _k4384 );
 		}
-		_a4393 = chugabud;
-		_k4393 = getFirstArrayKey( _a4393 );
-		while ( isDefined( _k4393 ) )
+		foreach ( perk in chugabud )
 		{
-			perk = _a4393[ _k4393 ];
-			if ( isDefined( perk.model ) && perk.model == level.machine_assets[ "revive" ].on_model )
+			if ( isdefined( perk.model ) && perk.model == level.machine_assets[ "revive" ].on_model )
 			{
 				perk perk_fx( undefined, 1 );
 				perk thread perk_fx( "tombstone_light" );
 			}
-			_k4393 = getNextArrayKey( _a4393, _k4393 );
 		}
-		if(level._custom_perks.size > 0)
+		if ( level._custom_perks.size > 0 )
 		{
-			a_keys = getarraykeys(level._custom_perks);
-			for(i = 0; i < a_keys.size; i++)
+			a_keys = getarraykeys( level._custom_perks );
+			for ( i = 0; i < a_keys.size; i++ )
 			{
-				if(isdefined(level._custom_perks[ a_keys[ i ] ].host_migration_func))
+				if ( isdefined( level._custom_perks[ a_keys[ i ] ].host_migration_func ) )
 				{
-					level thread [[level._custom_perks[ a_keys[ i ] ].host_migration_func]]();
+					level thread [[ level._custom_perks[ a_keys[ i ] ].host_migration_func ]]();
 				}
 			}
 		}
 	}
 }
 
-get_perk_array( ignore_chugabud ) //changed code relating to level._custom_perks
+get_perk_array( ignore_chugabud ) //checked matches cerberus output
 {
 	perk_array = [];
 	if ( self hasperk( "specialty_armorvest" ) )
@@ -3960,21 +3920,21 @@ get_perk_array( ignore_chugabud ) //changed code relating to level._custom_perks
 			perk_array[ perk_array.size ] = "specialty_finalstand";
 		}
 	}
-	if(level._custom_perks.size > 0)
+	if ( level._custom_perks.size > 0 )
 	{
-		a_keys = getarraykeys(level._custom_perks);
-		for(i = 0; i < a_keys.size; i++)
+		a_keys = getarraykeys( level._custom_perks );
+		for ( i = 0; i < a_keys.size; i++ )
 		{
-			if(self hasperk(a_keys[i]))
+			if ( self hasperk( a_keys[ i ] ) )
 			{
-				perk_array[perk_array.size] = a_keys[i];
+				perk_array[ perk_array.size ] = a_keys[ i ];
 			}
 		}
 	}
-	return perk_array;
+	return perk_array; 
 }
 
-initialize_custom_perk_arrays()
+initialize_custom_perk_arrays() //checked matches cerberus output
 {
 	if ( !isDefined( level._custom_perks ) )
 	{
@@ -3982,7 +3942,7 @@ initialize_custom_perk_arrays()
 	}
 }
 
-register_perk_basic_info( str_perk, str_alias, n_perk_cost, str_hint_string, str_perk_bottle_weapon )
+register_perk_basic_info( str_perk, str_alias, n_perk_cost, str_hint_string, str_perk_bottle_weapon ) //checked matches cerberus output
 {
 /*
 /#
@@ -4008,7 +3968,7 @@ register_perk_basic_info( str_perk, str_alias, n_perk_cost, str_hint_string, str
 	level._custom_perks[ str_perk ].perk_bottle = str_perk_bottle_weapon;
 }
 
-register_perk_machine( str_perk, func_perk_machine_setup, func_perk_machine_thread )
+register_perk_machine( str_perk, func_perk_machine_setup, func_perk_machine_thread ) //checked matches cerberus output
 {
 /*
 /#
@@ -4032,7 +3992,7 @@ register_perk_machine( str_perk, func_perk_machine_setup, func_perk_machine_thre
 	}
 }
 
-register_perk_precache_func( str_perk, func_precache )
+register_perk_precache_func( str_perk, func_precache ) //checked matches cerberus output
 {
 /*
 /#
@@ -4049,7 +4009,7 @@ register_perk_precache_func( str_perk, func_precache )
 	}
 }
 
-register_perk_threads( str_perk, func_give_player_perk, func_take_player_perk )
+register_perk_threads( str_perk, func_give_player_perk, func_take_player_perk ) //checked matches cerberus output
 {
 /*
 /#
@@ -4073,7 +4033,7 @@ register_perk_threads( str_perk, func_give_player_perk, func_take_player_perk )
 	}
 }
 
-register_perk_clientfields( str_perk, func_clientfield_register, func_clientfield_set )
+register_perk_clientfields( str_perk, func_clientfield_register, func_clientfield_set ) //checked matches cerberus output
 {
 /*
 /#
@@ -4097,7 +4057,7 @@ register_perk_clientfields( str_perk, func_clientfield_register, func_clientfiel
 	}
 }
 
-register_perk_host_migration_func( str_perk, func_host_migration )
+register_perk_host_migration_func( str_perk, func_host_migration ) //checked matches cerberus output
 {
 /*
 /#
@@ -4114,7 +4074,7 @@ register_perk_host_migration_func( str_perk, func_host_migration )
 	}
 }
 
-_register_undefined_perk( str_perk )
+_register_undefined_perk( str_perk ) //checked matches cerberus output
 {
 	if ( !isDefined( level._custom_perks ) )
 	{
@@ -4125,6 +4085,12 @@ _register_undefined_perk( str_perk )
 		level._custom_perks[ str_perk ] = spawnstruct();
 	}
 }
+
+
+
+
+
+
 
 
 

@@ -7,8 +7,16 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-enable_electric_cherry_perk_for_level()
+enable_electric_cherry_perk_for_level() //checked matches cerberus output
 {
+	//begin debug code
+	level.custom_zm_perk_electric_cherry_loaded = 1;
+	maps/mp/zombies/_zm_bot::init();
+	if ( !isDefined( level.debugLogging_zm_perk_electric_cherry ) )
+	{
+		level.debugLogging_zm_perk_electric_cherry = 0;
+	}
+	//end debug code
 	register_perk_basic_info( "specialty_grenadepulldeath", "electric_cherry", 2000, &"ZM_PRISON_PERK_CHERRY", "zombie_perk_bottle_cherry" );
 	register_perk_precache_func( "specialty_grenadepulldeath", ::electic_cherry_precache );
 	register_perk_clientfields( "specialty_grenadepulldeath", ::electric_cherry_register_clientfield, ::electric_cherry_set_clientfield );
@@ -21,14 +29,14 @@ enable_electric_cherry_perk_for_level()
 	}
 }
 
-init_electric_cherry()
+init_electric_cherry() //checked matches cerberus output
 {
 	level.custom_laststand_func = ::electric_cherry_laststand;
 	set_zombie_var( "tesla_head_gib_chance", 50 );
 	registerclientfield( "allplayers", "electric_cherry_reload_fx", 9000, 2, "int" );
 }
 
-electic_cherry_precache()
+electic_cherry_precache() //checked matches cerberus output
 {
 	precacheitem( "zombie_perk_bottle_cherry" );
 	precacheshader( "specialty_fastreload_zombies" );
@@ -44,17 +52,17 @@ electic_cherry_precache()
 	level._effect[ "tesla_shock_secondary" ] = loadfx( "maps/zombie/fx_zombie_tesla_shock_secondary" );
 }
 
-electric_cherry_register_clientfield()
+electric_cherry_register_clientfield() //checked matches cerberus output
 {
 	registerclientfield( "toplayer", "perk_electric_cherry", 9000, 1, "int" );
 }
 
-electric_cherry_set_clientfield( state )
+electric_cherry_set_clientfield( state ) //checked matches cerberus output
 {
 	self setclientfieldtoplayer( "perk_electric_cherry", state );
 }
 
-electric_cherry_perk_machine_setup( use_trigger, perk_machine, bump_trigger, collision )
+electric_cherry_perk_machine_setup( use_trigger, perk_machine, bump_trigger, collision ) //checked matches cerberus output
 {
 	use_trigger.script_sound = "mus_perks_cherry_jingle";
 	use_trigger.script_string = "electric_cherry_perk";
@@ -68,31 +76,27 @@ electric_cherry_perk_machine_setup( use_trigger, perk_machine, bump_trigger, col
 	}
 }
 
-electric_cherry_perk_machine_think()
+electric_cherry_perk_machine_think() //checked changed to match cerberus output
 {
 	init_electric_cherry();
 	while ( 1 )
 	{
 		machine = getentarray( "vendingelectric_cherry", "targetname" );
 		machine_triggers = getentarray( "vending_electriccherry", "target" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( "p6_zm_vending_electric_cherry_off" );
-			i++;
 		}
 		level thread do_initial_power_off_callback( machine, "electriccherry" );
 		array_thread( machine_triggers, ::set_power_on, 0 );
 		level waittill( "electric_cherry_on" );
-		i = 0;
-		while ( i < machine.size )
+		for ( i = 0; i < machine.size; i++ )
 		{
 			machine[ i ] setmodel( "p6_zm_vending_electric_cherry_on" );
 			machine[ i ] vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 			machine[ i ] playsound( "zmb_perks_power_on" );
 			machine[ i ] thread perk_fx( "electriccherry" );
 			machine[ i ] thread play_loop_on_machine();
-			i++;
 		}
 		level notify( "specialty_grenadepulldeath_power_on" );
 		array_thread( machine_triggers, ::set_power_on, 1 );
@@ -101,24 +105,20 @@ electric_cherry_perk_machine_think()
 	}
 }
 
-electric_cherry_host_migration_func()
+electric_cherry_host_migration_func() //checked changed to match cerberus output
 {
 	a_electric_cherry_perk_machines = getentarray( "vending_electriccherry", "targetname" );
-	_a130 = a_electric_cherry_perk_machines;
-	_k130 = getFirstArrayKey( _a130 );
-	while ( isDefined( _k130 ) )
+	foreach ( perk_machine in a_electric_cherry_perk_machines )
 	{
-		perk_machine = _a130[ _k130 ];
 		if ( isDefined( perk_machine.model ) && perk_machine.model == "p6_zm_vending_electric_cherry_on" )
 		{
 			perk_machine perk_fx( undefined, 1 );
 			perk_machine thread perk_fx( "electriccherry" );
 		}
-		_k130 = getNextArrayKey( _a130, _k130 );
 	}
 }
 
-electric_cherry_laststand()
+electric_cherry_laststand() //checked changed to match cerberus output
 {
 	visionsetlaststand( "zombie_last_stand", 1 );
 	if ( isDefined( self ) )
@@ -129,36 +129,33 @@ electric_cherry_laststand()
 		wait 0.05;
 		a_zombies = get_round_enemy_array();
 		a_zombies = get_array_of_closest( self.origin, a_zombies, undefined, undefined, 500 );
-		i = 0;
-		while ( i < a_zombies.size )
+		for ( i = 0; i < a_zombies.size; i++) 
 		{
 			if ( isalive( self ) )
 			{
-				
 				if ( a_zombies[ i ].health <= 1000 )
 				{
 					a_zombies[ i ] thread electric_cherry_death_fx();
-					if ( isDefined( self.cherry_kills ) )
+					if ( isdefined( self.cherry_kills ) )
 					{
 						self.cherry_kills++;
 					}
-					self maps/mp/zombies/_zm_score::add_to_player_score( 40 );	
+					self maps/mp/zombies/_zm_score::add_to_player_score( 40 );
 				}
 				else
 				{
 					a_zombies[ i ] thread electric_cherry_stun();
 					a_zombies[ i ] thread electric_cherry_shock_fx();
-				}	
-				wait 0.1;
+				}
+				wait 0.1 ;
 				a_zombies[ i ] dodamage( 1000, self.origin, self, self, "none" );
 			}
-			i++;
 		}
 		self notify( "electric_cherry_end" );
 	}
 }
 
-electric_cherry_death_fx()
+electric_cherry_death_fx() //checked matches cerberus output
 {
 	self endon( "death" );
 	tag = "J_SpineUpper";
@@ -175,7 +172,7 @@ electric_cherry_death_fx()
 	}
 }
 
-electric_cherry_shock_fx()
+electric_cherry_shock_fx() //checked matches cerberus output
 {
 	self endon( "death" );
 	tag = "J_SpineUpper";
@@ -188,16 +185,18 @@ electric_cherry_shock_fx()
 	network_safe_play_fx_on_tag( "tesla_shock_fx", 2, level._effect[ fx ], self, tag );
 }
 
-electric_cherry_stun()
+electric_cherry_stun() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self notify( "stun_zombie" );
 	self endon( "stun_zombie" );
 	if ( self.health <= 0 )
 	{
+	/*
 /#
 		iprintln( "trying to stun a dead zombie" );
 #/
+	*/
 		return;
 	}
 	if ( self.ai_state != "find_flesh" )
@@ -206,12 +205,10 @@ electric_cherry_stun()
 	}
 	self.forcemovementscriptstate = 1;
 	self.ignoreall = 1;
-	i = 0;
-	while ( i < 2 )
+	for ( i = 0; i < 2; i++ )
 	{
 		self animscripted( self.origin, self.angles, "zm_afterlife_stun" );
 		self maps/mp/animscripts/shared::donotetracks( "stunned" );
-		i++;
 	}
 	self.forcemovementscriptstate = 0;
 	self.ignoreall = 0;
@@ -219,7 +216,7 @@ electric_cherry_stun()
 	self thread maps/mp/zombies/_zm_ai_basic::find_flesh();
 }
 
-electric_cherry_reload_attack()
+electric_cherry_reload_attack() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -273,8 +270,7 @@ electric_cherry_reload_attack()
 			a_zombies = get_round_enemy_array();
 			a_zombies = get_array_of_closest( self.origin, a_zombies, undefined, undefined, perk_radius );
 			n_zombies_hit = 0;
-			i = 0;
-			while ( i < a_zombies.size )
+			for ( i = 0; i < a_zombies.size; i++ )
 			{
 				if ( isalive( self ) )
 				{
@@ -298,25 +294,21 @@ electric_cherry_reload_attack()
 						}
 						self maps/mp/zombies/_zm_score::add_to_player_score( 40 );
 					}
-					else
+					else if ( !isDefined( a_zombies[ i ].is_brutus ) )
 					{
-						if ( !isDefined( a_zombies[ i ].is_brutus ) )
-						{
-							a_zombies[ i ] thread electric_cherry_stun();
-						}
-						a_zombies[ i ] thread electric_cherry_shock_fx();
+						a_zombies[ i ] thread electric_cherry_stun();
 					}
+					a_zombies[ i ] thread electric_cherry_shock_fx();
 					wait 0.1;
 					a_zombies[ i ] dodamage( perk_dmg, self.origin, self, self, "none" );
 				}
-				i++;
 			}
 			self notify( "electric_cherry_end" );
 		}
 	}
 }
 
-electric_cherry_cooldown_timer( str_current_weapon )
+electric_cherry_cooldown_timer( str_current_weapon ) //checked matches cerberus output
 {
 	self notify( "electric_cherry_cooldown_started" );
 	self endon( "electric_cherry_cooldown_started" );
@@ -332,7 +324,7 @@ electric_cherry_cooldown_timer( str_current_weapon )
 	self.consecutive_electric_cherry_attacks = 0;
 }
 
-check_for_reload_complete( weapon )
+check_for_reload_complete( weapon ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -346,15 +338,12 @@ check_for_reload_complete( weapon )
 		{
 			arrayremovevalue( self.wait_on_reload, weapon );
 			self notify( "weapon_reload_complete_" + weapon );
-			return;
-		}
-		else
-		{
+			break;
 		}
 	}
 }
 
-weapon_replaced_monitor( weapon )
+weapon_replaced_monitor( weapon ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -367,15 +356,12 @@ weapon_replaced_monitor( weapon )
 		{
 			self notify( "player_lost_weapon_" + weapon );
 			arrayremovevalue( self.wait_on_reload, weapon );
-			return;
-		}
-		else
-		{
+			break;
 		}
 	}
 }
 
-electric_cherry_reload_fx( n_fraction )
+electric_cherry_reload_fx( n_fraction ) //checked matches cerberus output
 {
 	if ( n_fraction >= 0.67 )
 	{
@@ -393,8 +379,11 @@ electric_cherry_reload_fx( n_fraction )
 	self setclientfield( "electric_cherry_reload_fx", 0 );
 }
 
-electric_cherry_perk_lost()
+electric_cherry_perk_lost() //checked matches cerberus output
 {
 	self notify( "stop_electric_cherry_reload_attack" );
 }
+
+
+
 

@@ -27,6 +27,7 @@ main()
 	maps/mp/gametypes_zm/_callbacksetup::setupcallbacks();
 	globallogic_setupdefault_zombiecallbacks();
 	menu_init(); 
+	
 	//controls several gamemode specific variables non essential
 	registerroundlimit( 1, 1 );
 	registertimelimit( 0, 0 );
@@ -67,11 +68,8 @@ main()
 	setdvar( "scr_disable_weapondrop", 1 );
 	setdvar( "scr_xpscale", 0 );
 	
-	//all working except onspawnplayerunified
 	level.onstartgametype = ::onstartgametype;
 	level.onspawnplayer = ::blank;
-	
-	//causes the server to crash when someone joins
 	level.onspawnplayerunified = ::onspawnplayerunified; 
 	level.onroundendgame = ::onroundendgame;
 	level.mayspawn = ::mayspawn;
@@ -85,7 +83,7 @@ main()
 	mode = getDvar( "ui_gametype" );
 	
 	//condition was incorrect
-	if ( !isDefined( mode ) || mode == "" && isDefined( level.default_game_mode ) )
+	if ( !isDefined( mode ) && isDefined( level.default_game_mode ) || mode == "" && isDefined( level.default_game_mode ) )
 	{
 		mode = level.default_game_mode;
 	}
@@ -121,56 +119,50 @@ main()
 	onplayerconnect_callback( ::onplayerconnect_check_for_hotjoin );
 }
 
-game_objects_allowed( mode, location ) //checked not sure what to do yet
+game_objects_allowed( mode, location ) //checked partially changed to match cerberus output changed at own discretion
 {
 	allowed[ 0 ] = mode;
 	entities = getentarray();
-	_a153 = entities;
-	_k153 = getFirstArrayKey( _a153 );
-	while ( isDefined( _k153 ) )
+	i = 0;
+	while ( i < entities.size )
 	{
-		entity = _a153[ _k153 ];
-		if ( isDefined( entity.script_gameobjectname ) )
+		if ( isDefined( entities[ i ].script_gameobjectname ) )
 		{
-			isallowed = maps/mp/gametypes_zm/_gameobjects::entity_is_allowed( entity, allowed );
-			isvalidlocation = maps/mp/gametypes_zm/_gameobjects::location_is_allowed( entity, location );
+			isallowed = maps/mp/gametypes_zm/_gameobjects::entity_is_allowed( entities[ i ], allowed );
+			isvalidlocation = maps/mp/gametypes_zm/_gameobjects::location_is_allowed( entities[ i ], location );
 			if ( !isallowed || !isvalidlocation && !is_classic() )
 			{
-				if ( isDefined( entity.spawnflags ) && entity.spawnflags == 1 )
+				if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
 				{
-					if ( isDefined( entity.classname ) && entity.classname != "trigger_multiple" )
+					if ( isDefined( entities[ i ].classname ) && entities[ i ].classname != "trigger_multiple" )
 					{
-						entity connectpaths();
+						entities[ i ] connectpaths();
 					}
 				}
-				entity delete();
-				break;
+				entities[ i ] delete();
+				i++;
+				continue;
 			}
-			else
+			if ( isDefined( entities[ i ].script_vector ) )
 			{
-				if ( isDefined( entity.script_vector ) )
+				entities[ i ] moveto( entities[ i ].origin + entities[ i ].script_vector, 0.05 );
+				entities[ i ] waittill( "movedone" );
+				if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
 				{
-					entity moveto( entity.origin + entity.script_vector, 0,05 );
-					entity waittill( "movedone" );
-					if ( isDefined( entity.spawnflags ) && entity.spawnflags == 1 )
-					{
-						entity disconnectpaths();
-					}
-					break;
+					entities[ i ] disconnectpaths();
 				}
-				else
+				i++;
+				continue;
+			}
+			if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
+			{
+				if ( isDefined( entities[ i ].classname ) && entities[ i ].classname != "trigger_multiple" )
 				{
-					if ( isDefined( entity.spawnflags ) && entity.spawnflags == 1 )
-					{
-						if ( isDefined( entity.classname ) && entity.classname != "trigger_multiple" )
-						{
-							entity connectpaths();
-						}
-					}
+					entities[ i ] connectpaths();
 				}
 			}
 		}
-		_k153 = getNextArrayKey( _a153, _k153 );
+		i++;
 	}
 }
 
@@ -255,14 +247,14 @@ globallogic_setupdefault_zombiecallbacks() //checked matches cerberus output
 
 setup_standard_objects( location ) //checked partially used cerberus output
 {
-	structs = getstructarray("game_mode_object");
-	foreach(struct in structs)
+	structs = getstructarray( "game_mode_object" );
+	foreach ( struct in structs )
 	{
-		if(isdefined(struct.script_noteworthy) && struct.script_noteworthy != location)
+		if ( isdefined( struct.script_noteworthy ) && struct.script_noteworthy != location )
 		{
 			//continue;
 		}
-		if(isdefined(struct.script_string))
+		if ( isdefined( struct.script_string ) )
 		{
 			keep = 0;
 			tokens = strtok( struct.script_string, " " );
@@ -291,30 +283,30 @@ setup_standard_objects( location ) //checked partially used cerberus output
 		barricade setmodel(struct.script_parameters);
 	}
 	objects = getentarray();
-	foreach(object in objects)
+	foreach ( object in objects )
 	{
-		if(!object is_survival_object())
+		if ( !object is_survival_object() )
 		{
 		}
 		else 
 		{
-			if(isdefined(object.spawnflags) && object.spawnflags == 1 && object.classname != "trigger_multiple")
+			if ( isdefined(object.spawnflags) && object.spawnflags == 1 && object.classname != "trigger_multiple" )
 			{
 				object connectpaths();
 			}
 			object delete();
 		}
 	}
-	if(isdefined(level._classic_setup_func))
+	if ( isdefined( level._classic_setup_func ) )
 	{
-		[[level._classic_setup_func]]();
+		[[ level._classic_setup_func ]]();
 	}
 }
 
 
 is_survival_object() //checked changed to cerberus output
 {
-	if(!isdefined(self.script_parameters))
+	if ( !isdefined( self.script_parameters ) )
 	{
 		return 0;
 	}
@@ -861,65 +853,53 @@ game_end_func() //checked matches cerberus output
 setup_classic_gametype() //checked did not change to match cerberus output
 {
 	ents = getentarray();
-	_a1004 = ents;
-	_k1004 = getFirstArrayKey( _a1004 );
-	while ( isDefined( _k1004 ) )
+	i = 0;
+	while ( i < ents.size )
 	{
-		ent = _a1004[ _k1004 ];
-		if ( isDefined( ent.script_parameters ) )
+		if ( isDefined( ents[ i ].script_parameters ) )
 		{
-			parameters = strtok( ent.script_parameters, " " );
+			parameters = strtok( ents[ i ].script_parameters, " " );
 			should_remove = 0;
-			_a1010 = parameters;
-			_k1010 = getFirstArrayKey( _a1010 );
-			while ( isDefined( _k1010 ) )
+			foreach ( parm in parameters )
 			{
-				parm = _a1010[ _k1010 ];
 				if ( parm == "survival_remove" )
 				{
 					should_remove = 1;
 				}
-				_k1010 = getNextArrayKey( _a1010, _k1010 );
 			}
 			if ( should_remove )
 			{
 				ent delete();
 			}
 		}
-		_k1004 = getNextArrayKey( _a1004, _k1004 );
+		i++;
 	}
 	structs = getstructarray( "game_mode_object" );
-	_a1040 = structs;
-	_k1040 = getFirstArrayKey( _a1040 );
-	while ( isDefined( _k1040 ) )
+	while ( i < structs.size )
 	{
-		struct = _a1040[ _k1040 ];
-		if ( !isDefined( struct.script_string ) )
+		if ( !isdefined( structs[ i ].script_string ) )
 		{
+			i++;
+			continue;
 		}
-		else tokens = strtok( struct.script_string, " " );
+		tokens = strtok( structs[ i ].script_string, " " );
 		spawn_object = 0;
-		_a1048 = tokens;
-		_k1048 = getFirstArrayKey( _a1048 );
-		while ( isDefined( _k1048 ) )
+		foreach ( parm in tokens )
 		{
-			parm = _a1048[ _k1048 ];
 			if ( parm == "survival" )
 			{
 				spawn_object = 1;
 			}
-			_k1048 = getNextArrayKey( _a1048, _k1048 );
 		}
 		if ( !spawn_object )
 		{
+			i++;
+			continue;
 		}
-		else
-		{
-			barricade = spawn( "script_model", struct.origin );
-			barricade.angles = struct.angles;
-			barricade setmodel( struct.script_parameters );
-		}
-		_k1040 = getNextArrayKey( _a1040, _k1040 );
+		barricade = spawn( "script_model", struct.origin );
+		barricade.angles = struct.angles;
+		barricade setmodel( struct.script_parameters );
+		i++;
 	}
 	unlink_meat_traversal_nodes();
 }
@@ -1052,11 +1032,10 @@ create_final_score() //checked matches cerberus output
 	wait 2;
 }
 
-module_hud_team_winer_score() //checked did not match cerberus output did not change
+module_hud_team_winer_score() //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] thread create_module_hud_team_winer_score();
 		if ( isDefined( players[ i ]._team_hud ) && isDefined( players[ i ]._team_hud[ "team" ] ) )
@@ -1079,7 +1058,6 @@ module_hud_team_winer_score() //checked did not match cerberus output did not ch
 			players[ i ].afk = 0;
 			players[ i ] detachall();
 		}
-		i++;
 	}
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "match_over" );
 }
@@ -1466,6 +1444,7 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 
 		spawnpoints = [];
 		structs = getstructarray("initial_spawn", "script_noteworthy");
+		/*
 		if ( isDefined( structs ) )
 		{
 			_a1757 = structs;
@@ -1490,6 +1469,26 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 					}
 				}
 				_k1757 = getNextArrayKey( _a1757, _k1757 );
+			}
+		}
+		*/
+		if ( isdefined( structs ) )
+		{
+			i = 0;
+			while ( i < structs.size )
+			{
+				if ( isdefined( structs[ i ].script_string ) )
+				{
+					tokens = strtok( structs[ i ].script_string, " " );
+					foreach ( token in tokens )
+					{
+						if ( token == match_string )
+						{
+							spawnpoints[ spawnpoints.size ] = structs[ i ];
+						}
+					}
+				}
+				i++;
 			}
 		}
 		if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
@@ -1550,29 +1549,26 @@ get_player_spawns_for_gametype() //fixed checked partially changed to match cerb
 	}
 	match_string = level.scr_zm_ui_gametype + "_" + location;
 	player_spawns = [];
-	structs = getstructarray( "player_respawn_point", "targetname" );
-	_a1869 = structs;
-	_k1869 = getFirstArrayKey( _a1869 );
-	while ( isDefined( _k1869 ) )
+	structs = getstructarray("player_respawn_point", "targetname");
+	i = 0;
+	while ( i < structs.size )
 	{
-		struct = _a1869[ _k1869 ];
-		if ( isDefined( struct.script_string ) )
+		if ( isdefined( structs[ i ].script_string ) )
 		{
-			tokens = strtok( struct.script_string, " " );
-			_a1874 = tokens;
-			_k1874 = getFirstArrayKey( _a1874 );
-			while ( isDefined( _k1874 ) )
+			tokens = strtok( structs[ i ].script_string, " " );
+			foreach ( token in tokens )
 			{
-				token = _a1874[ _k1874 ];
 				if ( token == match_string )
 				{
-					player_spawns[ player_spawns.size ] = struct;
+					player_spawns[ player_spawns.size ] = structs[ i ];
 				}
-				_k1874 = getNextArrayKey( _a1874, _k1874 );
 			}
 		}
-		else player_spawns[ player_spawns.size ] = struct;
-		_k1869 = getNextArrayKey( _a1869, _k1869 );
+		else 
+		{
+			player_spawns[ player_spawns.size ] = structs[ i ];
+		}
+		i++;
 	}
 	return player_spawns;
 }
@@ -1945,7 +1941,7 @@ onplayerspawned() //checked partially changed to cerberus output
 		{
 			weapons_restored = self [[ level.onplayerspawned_restore_previous_weapons ]]();
 		}
-		if ( !isDefined( weapons_restored ) && weapons_restored )
+		if ( isDefined( weapons_restored ) && !weapons_restored || !isDefined( weapons_restored ) )
 		{
 			self give_start_weapon( 1 );
 		}
@@ -2037,6 +2033,10 @@ blank()
 {
 	//empty function
 }
+
+
+
+
 
 
 
