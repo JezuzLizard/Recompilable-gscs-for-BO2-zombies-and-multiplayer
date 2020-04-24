@@ -9,7 +9,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main( bscriptgened, bcsvgened, bsgenabled )
+main( bscriptgened, bcsvgened, bsgenabled ) //checked partially changed to match cerberus output
 {
 	if ( !isDefined( level.script_gen_dump_reasons ) )
 	{
@@ -35,7 +35,10 @@ main( bscriptgened, bcsvgened, bsgenabled )
 	level.bscriptgened = bscriptgened;
 	level._loadstarted = 1;
 	struct_class_init();
-	level.clientscripts = getDvar( "cg_usingClientScripts" ) != "";
+	if ( getDvar( "cg_usingClientScripts" ) != "" ) //changed at own discretion
+	{
+		level.clientscripts = getDvar( "cg_usingClientScripts" );
+	}
 	level._client_exploders = [];
 	level._client_exploder_ids = [];
 	if ( !isDefined( level.flag ) )
@@ -62,13 +65,11 @@ main( bscriptgened, bcsvgened, bsgenabled )
 	{
 		script_gen_dump_addline( "maps\\mp\\createfx\\" + level.script + "_fx::main();", level.script + "_fx" );
 	}
-	while ( isDefined( level.script_gen_dump_preload ) )
+	if ( isDefined( level.script_gen_dump_preload ) )
 	{
-		i = 0;
-		while ( i < level.script_gen_dump_preload.size )
+		for ( i = 0; i < level.script_gen_dump_preload.size; i++ )
 		{
 			script_gen_dump_addline( level.script_gen_dump_preload[ i ].string, level.script_gen_dump_preload[ i ].signature );
-			i++;
 		}
 	}
 	if ( getDvar( "scr_RequiredMapAspectratio" ) == "" )
@@ -93,7 +94,10 @@ main( bscriptgened, bcsvgened, bsgenabled )
 	level.physicstracemaskwater = 4;
 	level.physicstracemaskclip = 8;
 	level.physicstracecontentsvehicleclip = 16;
-	level.createfx_enabled = getDvar( "createfx" ) != "";
+	if ( getDvar( "createfx" ) != "" ) //changed at own discretion
+	{
+		level.createfx_enabled = getDvar( "createfx" );
+	}
 	level thread start_intro_screen_zm();
 	thread maps/mp/_interactive_objects::init();
 	maps/mp/_audio::init();
@@ -130,8 +134,7 @@ main( bscriptgened, bcsvgened, bsgenabled )
 	}
 	thread maps/mp/_global_fx::main();
 	maps/mp/_demo::init();
-	p = 0;
-	while ( p < 6 )
+	for ( p = 0; p < 6; p++ )
 	{
 		switch( p )
 		{
@@ -160,8 +163,7 @@ main( bscriptgened, bcsvgened, bsgenabled )
 				break;
 		}
 		triggers = getentarray( triggertype, "classname" );
-		i = 0;
-		while ( i < triggers.size )
+		for ( i = 0; i < triggers.size; i++ )
 		{
 			if ( isDefined( triggers[ i ].script_prefab_exploder ) )
 			{
@@ -171,13 +173,11 @@ main( bscriptgened, bcsvgened, bsgenabled )
 			{
 				level thread maps/mp/zombies/_load::exploder_load( triggers[ i ] );
 			}
-			i++;
 		}
-		p++;
 	}
 }
 
-level_notify_listener()
+level_notify_listener() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -191,7 +191,7 @@ level_notify_listener()
 	}
 }
 
-client_notify_listener()
+client_notify_listener() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -205,7 +205,7 @@ client_notify_listener()
 	}
 }
 
-footsteps()
+footsteps() //checked matches cerberus output
 {
 	if ( is_true( level.fx_exclude_footsteps ) )
 	{
@@ -230,10 +230,9 @@ footsteps()
 	maps/mp/animscripts/utility::setfootstepeffect( "wood", loadfx( "bio/player/fx_footstep_dust" ) );
 }
 
-parse_structs()
+parse_structs() //checked matches cerberus output
 {
-	i = 0;
-	while ( i < level.struct.size )
+	for ( i = 0; i < level.struct.size; i++ )
 	{
 		if ( isDefined( level.struct[ i ].targetname ) )
 		{
@@ -253,11 +252,10 @@ parse_structs()
 				level._effect[ "spotlight_beam" ] = loadfx( "env/light/fx_ray_spotlight_md" );
 			}
 		}
-		i++;
 	}
 }
 
-exploder_load( trigger )
+exploder_load( trigger ) //checked matches cerberus output
 {
 	level endon( "killexplodertridgers" + trigger.script_exploder );
 	trigger waittill( "trigger" );
@@ -278,15 +276,13 @@ exploder_load( trigger )
 	level notify( "killexplodertridgers" + trigger.script_exploder );
 }
 
-setupexploders()
+setupexploders() //checked partially changed to match cerberus output
 {
 	ents = getentarray( "script_brushmodel", "classname" );
 	smodels = getentarray( "script_model", "classname" );
-	i = 0;
-	while ( i < smodels.size )
+	for ( i = 0; i < smodels.size; i++ )
 	{
 		ents[ ents.size ] = smodels[ i ];
-		i++;
 	}
 	i = 0;
 	while ( i < ents.size )
@@ -303,31 +299,24 @@ setupexploders()
 				i++;
 				continue;
 			}
-			else
+			if ( isDefined( ents[ i ].targetname ) && ents[ i ].targetname == "exploder" )
 			{
-				if ( isDefined( ents[ i ].targetname ) && ents[ i ].targetname == "exploder" )
-				{
-					ents[ i ] hide();
-					ents[ i ] notsolid();
-					i++;
-					continue;
-				}
-				else
-				{
-					if ( isDefined( ents[ i ].targetname ) && ents[ i ].targetname == "exploderchunk" )
-					{
-						ents[ i ] hide();
-						ents[ i ] notsolid();
-					}
-				}
+				ents[ i ] hide();
+				ents[ i ] notsolid();
+				i++;
+				continue;
+			}
+			if ( isDefined( ents[ i ].targetname ) && ents[ i ].targetname == "exploderchunk" )
+			{
+				ents[ i ] hide();
+				ents[ i ] notsolid();
 			}
 		}
 		i++;
 	}
 	script_exploders = [];
 	potentialexploders = getentarray( "script_brushmodel", "classname" );
-	i = 0;
-	while ( i < potentialexploders.size )
+	for ( i = 0; i < potentialexploders.size; i++ )
 	{
 		if ( isDefined( potentialexploders[ i ].script_prefab_exploder ) )
 		{
@@ -337,11 +326,9 @@ setupexploders()
 		{
 			script_exploders[ script_exploders.size ] = potentialexploders[ i ];
 		}
-		i++;
 	}
 	potentialexploders = getentarray( "script_model", "classname" );
-	i = 0;
-	while ( i < potentialexploders.size )
+	for ( i = 0; i < potentialexploders.size; i++ )
 	{
 		if ( isDefined( potentialexploders[ i ].script_prefab_exploder ) )
 		{
@@ -351,11 +338,9 @@ setupexploders()
 		{
 			script_exploders[ script_exploders.size ] = potentialexploders[ i ];
 		}
-		i++;
 	}
 	potentialexploders = getentarray( "item_health", "classname" );
-	i = 0;
-	while ( i < potentialexploders.size )
+	for ( i = 0; i < potentialexploders.size; i++ )
 	{
 		if ( isDefined( potentialexploders[ i ].script_prefab_exploder ) )
 		{
@@ -365,7 +350,6 @@ setupexploders()
 		{
 			script_exploders[ script_exploders.size ] = potentialexploders[ i ];
 		}
-		i++;
 	}
 	if ( !isDefined( level.createfxent ) )
 	{
@@ -375,8 +359,7 @@ setupexploders()
 	acceptabletargetnames[ "exploderchunk visible" ] = 1;
 	acceptabletargetnames[ "exploderchunk" ] = 1;
 	acceptabletargetnames[ "exploder" ] = 1;
-	i = 0;
-	while ( i < script_exploders.size )
+	for ( i = 0; i < script_exploders.size; i++ )
 	{
 		exploder = script_exploders[ i ];
 		ent = createexploder( exploder.script_fxid );
@@ -435,7 +418,6 @@ setupexploders()
 			ent.v[ "exploder_type" ] = "normal";
 		}
 		ent maps/mp/_createfx::post_entity_creation_function();
-		i++;
 	}
 	level.createfxexploders = [];
 	i = 0;
@@ -447,35 +429,30 @@ setupexploders()
 			i++;
 			continue;
 		}
-		else
+		ent.v[ "exploder_id" ] = getexploderid( ent );
+		if ( !isDefined( level.createfxexploders[ ent.v[ "exploder" ] ] ) )
 		{
-			ent.v[ "exploder_id" ] = getexploderid( ent );
-			if ( !isDefined( level.createfxexploders[ ent.v[ "exploder" ] ] ) )
-			{
-				level.createfxexploders[ ent.v[ "exploder" ] ] = [];
-			}
-			level.createfxexploders[ ent.v[ "exploder" ] ][ level.createfxexploders[ ent.v[ "exploder" ] ].size ] = ent;
+			level.createfxexploders[ ent.v[ "exploder" ] ] = [];
 		}
+		level.createfxexploders[ ent.v[ "exploder" ] ][ level.createfxexploders[ ent.v[ "exploder" ] ].size ] = ent;
 		i++;
 	}
 }
 
-setup_traversals()
+setup_traversals() //checked changed to match cerberus output
 {
 	potential_traverse_nodes = getallnodes();
-	i = 0;
-	while ( i < potential_traverse_nodes.size )
+	for ( i = 0; i < potential_traverse_nodes.size; i++ )
 	{
 		node = potential_traverse_nodes[ i ];
 		if ( node.type == "Begin" )
 		{
 			node maps/mp/animscripts/traverse/shared::init_traverse();
 		}
-		i++;
 	}
 }
 
-calculate_map_center()
+calculate_map_center() //checked matches cerberus output
 {
 	if ( !isDefined( level.mapcenter ) )
 	{
@@ -491,7 +468,7 @@ calculate_map_center()
 	}
 }
 
-start_intro_screen_zm()
+start_intro_screen_zm() //checked changed to match cerberus output
 {
 	if ( level.createfx_enabled )
 	{
@@ -512,12 +489,11 @@ start_intro_screen_zm()
 	}
 	level.introscreen.alpha = 1;
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] freezecontrols( 1 );
-		i++;
 	}
 	wait 1;
 }
+
 

@@ -20,15 +20,12 @@
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
-	//the bare minimum for a zombies game
 	maps/mp/gametypes_zm/_globallogic::init();
 	maps/mp/gametypes_zm/_callbacksetup::setupcallbacks();
 	globallogic_setupdefault_zombiecallbacks();
 	menu_init(); 
-	
-	//controls several gamemode specific variables non essential
 	registerroundlimit( 1, 1 );
 	registertimelimit( 0, 0 );
 	registerscorelimit( 0, 0 );
@@ -38,9 +35,6 @@ main()
 	maps/mp/gametypes_zm/_weapons::registerthrowngrenadeduddvar( level.gametype, 0, 0, 1440 );
 	maps/mp/gametypes_zm/_weapons::registerkillstreakdelay( level.gametype, 0, 0, 1440 );
 	maps/mp/gametypes_zm/_globallogic::registerfriendlyfiredelay( level.gametype, 15, 0, 1440 );
-	
-
-	//determines many aspects of the game non essential
 	level.takelivesondeath = 1;
 	level.teambased = 1;
 	level.disableprematchmessages = 1;
@@ -60,14 +54,11 @@ main()
 	level.dontshowendreason = 1;
 	level.forceallallies = 0;
 	level.allow_teamchange = 0;
-	
-	//non essential dvars
 	setdvar( "scr_disable_team_selection", 1 );
 	makedvarserverinfo( "scr_disable_team_selection", 1 );
 	setmatchflag( "hud_zombie", 1 );
 	setdvar( "scr_disable_weapondrop", 1 );
 	setdvar( "scr_xpscale", 0 );
-	
 	level.onstartgametype = ::onstartgametype;
 	level.onspawnplayer = ::blank;
 	level.onspawnplayerunified = ::onspawnplayerunified; 
@@ -77,12 +68,8 @@ main()
 	set_game_var( "ZM_scoreLimit", 1 );
 	set_game_var( "_team1_num", 0 );
 	set_game_var( "_team2_num", 0 );
-	
-	//all working non essential
 	map_name = level.script;
 	mode = getDvar( "ui_gametype" );
-	
-	//condition was incorrect
 	if ( !isDefined( mode ) && isDefined( level.default_game_mode ) || mode == "" && isDefined( level.default_game_mode ) )
 	{
 		mode = level.default_game_mode;
@@ -97,8 +84,6 @@ main()
 	set_gamemode_var_once( "location", location );
 	set_gamemode_var_once( "randomize_mode", getDvarInt( "zm_rand_mode" ) );
 	set_gamemode_var_once( "randomize_location", getDvarInt( "zm_rand_loc" ) );
-	
-	//non essential vars
 	set_gamemode_var_once( "team_1_score", 0 );
 	set_gamemode_var_once( "team_2_score", 0 );
 	set_gamemode_var_once( "current_round", 0 );
@@ -114,8 +99,6 @@ main()
 	set_gamemode_var( "match_end_notify", undefined );
 	set_gamemode_var( "match_end_func", undefined );
 	setscoreboardcolumns( "score", "kills", "downs", "revives", "headshots" );
-	
-	//causes no crashes probably fine
 	onplayerconnect_callback( ::onplayerconnect_check_for_hotjoin );
 }
 
@@ -248,54 +231,57 @@ globallogic_setupdefault_zombiecallbacks() //checked matches cerberus output
 setup_standard_objects( location ) //checked partially used cerberus output
 {
 	structs = getstructarray( "game_mode_object" );
-	foreach ( struct in structs )
+	i = 0;
+	while ( i < structs.size )
 	{
-		if ( isdefined( struct.script_noteworthy ) && struct.script_noteworthy != location )
+		if ( isdefined( structs[ i ].script_noteworthy ) && structs[ i ].script_noteworthy != location )
 		{
-			//continue;
+			i++;
+			continue;
 		}
-		if ( isdefined( struct.script_string ) )
+		if ( isdefined( structs[ i ].script_string ) )
 		{
 			keep = 0;
-			tokens = strtok( struct.script_string, " " );
-			_a300 = tokens;
-			_k300 = getFirstArrayKey( _a300 );
-			while ( isDefined( _k300 ) )
+			tokens = strtok( structs[ i ].script_string, " " );
+			i = 0;
+			while ( i < tokens.size )
 			{
-				token = _a300[ _k300 ];
-				if(token == level.scr_zm_ui_gametype && token != "zstandard")
+				if ( tokens[ i ] == level.scr_zm_ui_gametype && tokens[ i ] != "zstandard" )
+				{
+					keep = 1;
+					i++;
+					continue;
+				}
+				if ( tokens[ i ] == "zstandard" )
 				{
 					keep = 1;
 				}
-				if(token == "zstandard")
-				{
-					keep = 1;
-				}
-				_k300 = getNextArrayKey( _a300, _k300 );
 			}
 			if ( !keep )
 			{
-				//break;
+				i++;
+				continue;
 			}
 		}
-		barricade = spawn("script_model", struct.origin);
-		barricade.angles = struct.angles;
-		barricade setmodel(struct.script_parameters);
+		barricade = spawn( "script_model", structs[ i ].origin );
+		barricade.angles = structs[ i ].angles;
+		barricade setmodel( structs[ i ].script_parameters );
 	}
 	objects = getentarray();
-	foreach ( object in objects )
+	i = 0;
+	while ( i < objects.size )
 	{
-		if ( !object is_survival_object() )
+		if ( !objects[ i ] is_survival_object() )
 		{
+			i++;
+			continue;
 		}
-		else 
+		if ( isdefined( objects[ i ].spawnflags ) && objects[ i ].spawnflags == 1 && objects[ i ].classname != "trigger_multiple" )
 		{
-			if ( isdefined(object.spawnflags) && object.spawnflags == 1 && object.classname != "trigger_multiple" )
-			{
-				object connectpaths();
-			}
-			object delete();
+			objects[ i ] connectpaths();
 		}
+		objects[ i ] delete();
+		i++;
 	}
 	if ( isdefined( level._classic_setup_func ) )
 	{
@@ -310,11 +296,11 @@ is_survival_object() //checked changed to cerberus output
 	{
 		return 0;
 	}
-	tokens = strtok(self.script_parameters, " ");
+	tokens = strtok( self.script_parameters, " " );
 	remove = 0;
-	foreach(token in tokens)
+	foreach ( token in tokens )
 	{
-		if(token == "survival_remove")
+		if ( token == "survival_remove" )
 		{
 			remove = 1;
 		}
@@ -351,9 +337,9 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 					return;
 				}
 			}
-			else if(!isdefined(self.riotshieldentity))
+			else if ( !isdefined( self.riotshieldentity ) )
 			{
-				if(!self maps/mp/zombies/_zm::player_shield_facing_attacker(vdir, -0.2) && isdefined(self.player_shield_apply_damage))
+				if ( !self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, -0.2 ) && isdefined( self.player_shield_apply_damage ) )
 				{
 					return;
 				}
@@ -651,15 +637,15 @@ create_hud_scoreboard( duration, fade ) //checked matches cerberus output
 respawn_spectators_and_freeze_players() //checked changed to match cerberus output
 {
 	players = get_players();
-	foreach(player in players)
+	foreach ( player in players )
 	{
-		if(player.sessionstate == "spectator")
+		if ( player.sessionstate == "spectator" )
 		{
-			if(isdefined(player.spectate_hud))
+			if ( isdefined( player.spectate_hud ) )
 			{
 				player.spectate_hud destroy();
 			}
-			player [[level.spawnplayer]]();
+			player [[ level.spawnplayer ]]();
 		}
 		player freeze_player_controls(1);
 	}
@@ -774,11 +760,11 @@ revive_laststand_players() //checked changed to match cerberus output
 		return;
 	}
 	players = get_players();
-	foreach(player in players)
+	foreach ( player in players )
 	{
-		if(player maps/mp/zombies/_zm_laststand::player_is_in_laststand())
+		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
-			player thread maps/mp/zombies/_zm_laststand::auto_revive(player);
+			player thread maps/mp/zombies/_zm_laststand::auto_revive( player );
 		}
 	}
 }
@@ -917,10 +903,10 @@ unlink_meat_traversal_nodes() //checked changed to match cerberus output
 	meat_farm_nodes = getnodearray( "meat_farm_barrier_traversals", "targetname" );
 	nodes = arraycombine( meat_town_nodes, meat_tunnel_nodes, 1, 0 );
 	traversal_nodes = arraycombine( nodes, meat_farm_nodes, 1, 0 );
-	foreach(node in traversal_nodes)
+	foreach ( node in traversal_nodes )
 	{
-		end_node = getnode(node.target, "targetname");
-		unlink_nodes(node, end_node);
+		end_node = getnode( node.target, "targetname" );
+		unlink_nodes( node, end_node );
 	}
 }
 
@@ -1443,35 +1429,7 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 		match_string = level.scr_zm_ui_gametype + "_" + location;
 
 		spawnpoints = [];
-		structs = getstructarray("initial_spawn", "script_noteworthy");
-		/*
-		if ( isDefined( structs ) )
-		{
-			_a1757 = structs;
-			_k1757 = getFirstArrayKey( _a1757 );
-			while ( isDefined( _k1757 ) )
-			{
-				struct = _a1757[ _k1757 ];
-				if ( isDefined( struct.script_string ) )
-				{
-					tokens = strtok( struct.script_string, " " );
-					_a1763 = tokens;
-					_k1763 = getFirstArrayKey( _a1763 );
-					while ( isDefined( _k1763 ) )
-					{
-						token = _a1763[ _k1763 ];
-						if ( token == match_string )
-						{
-							spawnpoints[ spawnpoints.size ] = struct;
-
-						}
-						_k1763 = getNextArrayKey( _a1763, _k1763 );
-					}
-				}
-				_k1757 = getNextArrayKey( _a1757, _k1757 );
-			}
-		}
-		*/
+		structs = getstructarray( "initial_spawn", "script_noteworthy" );
 		if ( isdefined( structs ) )
 		{
 			i = 0;
@@ -1860,12 +1818,12 @@ custom_spawn_init_func() //checked matches cerberus output
 kill_all_zombies() //changed to match cerberus output
 {
 	ai = getaiarray( level.zombie_team );
-	foreach(zombie in ai)
+	foreach ( zombie in ai )
 	{
-		if(isdefined(zombie))
+		if ( isdefined( zombie ) )
 		{
-			zombie dodamage(zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE");
-			wait(0.05);
+			zombie dodamage( zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE" );
+			wait 0.05;
 		}
 	}
 }
@@ -2033,6 +1991,8 @@ blank()
 {
 	//empty function
 }
+
+
 
 
 

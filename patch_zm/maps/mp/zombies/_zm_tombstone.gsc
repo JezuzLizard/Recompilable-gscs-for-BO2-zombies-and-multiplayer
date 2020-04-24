@@ -7,7 +7,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	onplayerconnect_callback( ::tombstone_player_init );
 	level.tombstone_laststand_func = ::tombstone_laststand;
@@ -19,7 +19,7 @@ init()
 	}
 }
 
-tombstone_player_init()
+tombstone_player_init() //checked matches cerberus output
 {
 	while ( !isDefined( self.tombstone_index ) )
 	{
@@ -28,7 +28,7 @@ tombstone_player_init()
 	level.tombstones[ self.tombstone_index ] = spawnstruct();
 }
 
-tombstone_spawn()
+tombstone_spawn() //checked matches cerberus output
 {
 	dc = spawn( "script_model", self.origin + vectorScale( ( 0, 0, 1 ), 40 ) );
 	dc.angles = self.angles;
@@ -56,13 +56,13 @@ tombstone_spawn()
 	dc thread tombstone_grab();
 }
 
-tombstone_clear()
+tombstone_clear() //checked matches cerberus output
 {
 	result = self waittill_any_return( "tombstone_timedout", "tombstone_grabbed" );
 	level.tombstones[ self.tombstone_index ] = spawnstruct();
 }
 
-tombstone_revived( player )
+tombstone_revived( player ) //checked changed to match cerberus output
 {
 	self endon( "tombstone_timedout" );
 	player endon( "disconnect" );
@@ -77,19 +77,16 @@ tombstone_revived( player )
 				self.icon hide();
 			}
 		}
-		else
+		else if ( !shown )
 		{
-			if ( !shown )
-			{
-				shown = 1;
-				self.icon show();
-			}
+			shown = 1;
+			self.icon show();
 		}
 		wait 0.05;
 	}
 }
 
-tombstone_laststand()
+tombstone_laststand() //checked changed to match cerberus output
 {
 	primaries = self getweaponslistprimaries();
 	currentweapon = self getcurrentweapon();
@@ -97,18 +94,14 @@ tombstone_laststand()
 	dc.player = self;
 	dc.weapon = [];
 	dc.current_weapon = -1;
-	_a134 = primaries;
-	index = getFirstArrayKey( _a134 );
-	while ( isDefined( index ) )
+	foreach ( weapon in primaries )
 	{
-		weapon = _a134[ index ];
 		dc.weapon[ index ] = weapon;
 		dc.stockcount[ index ] = self getweaponammostock( weapon );
 		if ( weapon == currentweapon )
 		{
 			dc.current_weapon = index;
 		}
-		index = getNextArrayKey( _a134, index );
 	}
 	if ( isDefined( self.hasriotshield ) && self.hasriotshield )
 	{
@@ -141,7 +134,7 @@ tombstone_laststand()
 	}
 }
 
-tombstone_save_perks( ent )
+tombstone_save_perks( ent ) //checked matches cerberus output
 {
 	perk_array = [];
 	if ( ent hasperk( "specialty_armorvest" ) )
@@ -175,7 +168,7 @@ tombstone_save_perks( ent )
 	return perk_array;
 }
 
-tombstone_grab()
+tombstone_grab() //checked partially changed to match cerberus output
 {
 	self endon( "tombstone_timedout" );
 	wait 1;
@@ -190,41 +183,34 @@ tombstone_grab()
 				i++;
 				continue;
 			}
-			else
+			if ( isDefined( self.player ) && players[ i ] == self.player )
 			{
-				if ( isDefined( self.player ) && players[ i ] == self.player )
+				tombstone_machine_triggers = getentarray( "specialty_scavenger", "script_noteworthy" );
+				istombstonepowered = 0;
+				foreach ( trigger in tombstone_machine_triggers )
 				{
-					tombstone_machine_triggers = getentarray( "specialty_scavenger", "script_noteworthy" );
-					istombstonepowered = 0;
-					_a258 = tombstone_machine_triggers;
-					_k258 = getFirstArrayKey( _a258 );
-					while ( isDefined( _k258 ) )
+					if ( isdefined( trigger.power_on ) && trigger.power_on || isdefined( trigger.turbine_power_on ) && trigger.turbine_power_on )
 					{
-						trigger = _a258[ _k258 ];
-						if ( isDefined( trigger.power_on ) || trigger.power_on && isDefined( trigger.turbine_power_on ) && trigger.turbine_power_on )
-						{
-							istombstonepowered = 1;
-						}
-						_k258 = getNextArrayKey( _a258, _k258 );
+						istombstonepowered = 1;
 					}
-					if ( istombstonepowered )
+				}
+				if ( istombstonepowered )
+				{
+					dist = distance( players[ i ].origin, self.origin );
+					if ( dist < 64 )
 					{
-						dist = distance( players[ i ].origin, self.origin );
-						if ( dist < 64 )
-						{
-							playfx( level._effect[ "powerup_grabbed" ], self.origin );
-							playfx( level._effect[ "powerup_grabbed_wave" ], self.origin );
-							players[ i ] tombstone_give();
-							wait 0.1;
-							playsoundatposition( "zmb_tombstone_grab", self.origin );
-							self stoploopsound();
-							self.icon unlink();
-							self.icon delete();
-							self delete();
-							self notify( "tombstone_grabbed" );
-							players[ i ] clientnotify( "dc0" );
-							players[ i ] notify( "dance_on_my_grave" );
-						}
+						playfx( level._effect[ "powerup_grabbed" ], self.origin );
+						playfx( level._effect[ "powerup_grabbed_wave" ], self.origin );
+						players[ i ] tombstone_give();
+						wait 0.1;
+						playsoundatposition( "zmb_tombstone_grab", self.origin );
+						self stoploopsound();
+						self.icon unlink();
+						self.icon delete();
+						self delete();
+						self notify( "tombstone_grabbed" );
+						players[ i ] clientnotify( "dc0" );
+						players[ i ] notify( "dance_on_my_grave" );
 					}
 				}
 			}
@@ -234,21 +220,17 @@ tombstone_grab()
 	}
 }
 
-tombstone_give()
+tombstone_give() //checked partially changed to match cerberus output
 {
 	dc = level.tombstones[ self.tombstone_index ];
-	while ( !flag( "solo_game" ) )
+	if ( !flag( "solo_game" ) )
 	{
 		primaries = self getweaponslistprimaries();
-		while ( dc.weapon.size > 1 || primaries.size > 1 )
+		if ( dc.weapon.size > 1 || primaries.size > 1 )
 		{
-			_a310 = primaries;
-			_k310 = getFirstArrayKey( _a310 );
-			while ( isDefined( _k310 ) )
+			foreach ( weapon in primaries )
 			{
-				weapon = _a310[ _k310 ];
 				self takeweapon( weapon );
-				_k310 = getNextArrayKey( _a310, _k310 );
 			}
 		}
 		i = 0;
@@ -259,24 +241,21 @@ tombstone_give()
 				i++;
 				continue;
 			}
-			else if ( dc.weapon[ i ] == "none" )
+			if ( dc.weapon[ i ] == "none" )
 			{
 				i++;
 				continue;
 			}
-			else
+			weapon = dc.weapon[ i ];
+			stock = dc.stockcount[ i ];
+			if ( !self hasweapon( weapon ) )
 			{
-				weapon = dc.weapon[ i ];
-				stock = dc.stockcount[ i ];
-				if ( !self hasweapon( weapon ) )
+				self giveweapon( weapon, 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( weapon ) );
+				self setweaponammoclip( weapon, weaponclipsize( weapon ) );
+				self setweaponammostock( weapon, stock );
+				if ( i == dc.current_weapon )
 				{
-					self giveweapon( weapon, 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( weapon ) );
-					self setweaponammoclip( weapon, weaponclipsize( weapon ) );
-					self setweaponammostock( weapon, stock );
-					if ( i == dc.current_weapon )
-					{
-						self switchtoweapon( weapon );
-					}
+					self switchtoweapon( weapon );
 				}
 			}
 			i++;
@@ -303,7 +282,7 @@ tombstone_give()
 		self giveweapon( "emp_grenade_zm" );
 		self setweaponammoclip( "emp_grenade_zm", dc.empclip );
 	}
-	while ( isDefined( dc.perk ) && dc.perk.size > 0 )
+	if ( isDefined( dc.perk ) && dc.perk.size > 0 )
 	{
 		i = 0;
 		while ( i < dc.perk.size )
@@ -313,19 +292,16 @@ tombstone_give()
 				i++;
 				continue;
 			}
-			else if ( dc.perk[ i ] == "specialty_quickrevive" && flag( "solo_game" ) )
+			if ( dc.perk[ i ] == "specialty_quickrevive" && flag( "solo_game" ) )
 			{
 				i++;
 				continue;
 			}
-			else
-			{
-				maps/mp/zombies/_zm_perks::give_perk( dc.perk[ i ] );
-			}
+			maps/mp/zombies/_zm_perks::give_perk( dc.perk[ i ] );
 			i++;
 		}
 	}
-	if ( dc.grenade > 0 && !flag( "solo_game" ) )
+	else if ( dc.grenade > 0 && !flag( "solo_game" ) )
 	{
 		curgrenadecount = 0;
 		if ( self hasweapon( self get_player_lethal_grenade() ) )
@@ -348,7 +324,7 @@ tombstone_give()
 	}
 }
 
-tombstone_wobble()
+tombstone_wobble() //checked matches cerberus output
 {
 	self endon( "tombstone_grabbed" );
 	self endon( "tombstone_timedout" );
@@ -366,7 +342,7 @@ tombstone_wobble()
 	}
 }
 
-tombstone_timeout()
+tombstone_timeout() //checked partially changed to match cerberus output
 {
 	self endon( "tombstone_grabbed" );
 	self thread playtombstonetimeraudio();
@@ -388,16 +364,13 @@ tombstone_timeout()
 			i++;
 			continue;
 		}
-		else if ( i < 25 )
+		if ( i < 25 )
 		{
 			wait 0.25;
 			i++;
 			continue;
 		}
-		else
-		{
-			wait 0.1;
-		}
+		wait 0.1;
 		i++;
 	}
 	self notify( "tombstone_timedout" );
@@ -406,7 +379,7 @@ tombstone_timeout()
 	self delete();
 }
 
-playtombstonetimeraudio()
+playtombstonetimeraudio() //checked matches cerberus output
 {
 	self endon( "tombstone_grabbed" );
 	self endon( "tombstone_timedout" );
@@ -419,25 +392,24 @@ playtombstonetimeraudio()
 	}
 }
 
-playtombstonetimerout( player )
+playtombstonetimerout( player ) //checked matches cerberus output
 {
 	self endon( "tombstone_grabbed" );
 	self waittill( "tombstone_timedout" );
 	player playsoundtoplayer( "zmb_tombstone_timer_out", player );
 }
 
-save_weapons_for_tombstone( player )
+save_weapons_for_tombstone( player ) //checked changed to match cerberus output
 {
 	self.tombstone_melee_weapons = [];
-	i = 0;
-	while ( i < level._melee_weapons.size )
+
+	for ( i = 0; i < level._melee_weapons.size; i++; )
 	{
 		self save_weapon_for_tombstone( player, level._melee_weapons[ i ].weapon_name );
-		i++;
 	}
 }
 
-save_weapon_for_tombstone( player, weapon_name )
+save_weapon_for_tombstone( player, weapon_name ) //checked matches cerberus output
 {
 	if ( player hasweapon( weapon_name ) )
 	{
@@ -447,18 +419,16 @@ save_weapon_for_tombstone( player, weapon_name )
 
 restore_weapons_for_tombstone( player )
 {
-	i = 0;
-	while ( i < level._melee_weapons.size )
+	for ( i = 0; i < level._melee_weapons.size; i++ )
 	{
 		self restore_weapon_for_tombstone( player, level._melee_weapons[ i ].weapon_name );
-		i++;
 	}
 	self.tombstone_melee_weapons = undefined;
 }
 
-restore_weapon_for_tombstone( player, weapon_name )
+restore_weapon_for_tombstone( player, weapon_name ) //checked changed to match cerberus output
 {
-	if ( isDefined( weapon_name ) || !isDefined( self.tombstone_melee_weapons ) && !isDefined( self.tombstone_melee_weapons[ weapon_name ] ) )
+	if ( !isDefined( weapon_name ) || !isDefined( self.tombstone_melee_weapons ) || !isDefined( self.tombstone_melee_weapons[ weapon_name ] ) )
 	{
 		return;
 	}
@@ -470,7 +440,7 @@ restore_weapon_for_tombstone( player, weapon_name )
 	}
 }
 
-tombstone_hostmigration()
+tombstone_hostmigration() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	level notify( "tombstone_hostmigration" );
@@ -479,18 +449,14 @@ tombstone_hostmigration()
 	{
 		level waittill( "host_migration_end" );
 		tombstones = getentarray( "player_tombstone_model", "script_noteworthy" );
-		_a580 = tombstones;
-		_k580 = getFirstArrayKey( _a580 );
-		while ( isDefined( _k580 ) )
+		foreach ( model in tombstones )
 		{
-			model = _a580[ _k580 ];
 			playfxontag( level._effect[ "powerup_on" ], model, "tag_origin" );
-			_k580 = getNextArrayKey( _a580, _k580 );
 		}
 	}
 }
 
-is_weapon_available_in_tombstone( weapon, player_to_check )
+is_weapon_available_in_tombstone( weapon, player_to_check ) //checked partially changed to match cerberus output
 {
 	count = 0;
 	upgradedweapon = weapon;
@@ -507,34 +473,30 @@ is_weapon_available_in_tombstone( weapon, player_to_check )
 			tombstone_index++;
 			continue;
 		}
-		else if ( isDefined( player_to_check ) && dc.player != player_to_check )
+		if ( isDefined( player_to_check ) && dc.player != player_to_check )
 		{
 			tombstone_index++;
 			continue;
 		}
-		else
+		weapon_index = 0;
+		while ( weapon_index < dc.weapon.size )
 		{
-			weapon_index = 0;
-			while ( weapon_index < dc.weapon.size )
+			if ( !isDefined( dc.weapon[ weapon_index ] ) )
 			{
-				if ( !isDefined( dc.weapon[ weapon_index ] ) )
-				{
-					weapon_index++;
-					continue;
-				}
-				else
-				{
-					tombstone_weapon = dc.weapon[ weapon_index ];
-					if ( tombstone_weapon == weapon || tombstone_weapon == upgradedweapon )
-					{
-						count++;
-					}
-				}
 				weapon_index++;
+				continue;
 			}
+			tombstone_weapon = dc.weapon[ weapon_index ];
+			if ( tombstone_weapon == weapon || tombstone_weapon == upgradedweapon )
+			{
+				count++;
+			}
+			weapon_index++;
 		}
 		tombstone_index++;
 	}
 	return count;
 }
+
+
 

@@ -37,7 +37,6 @@ init() //checked partially changed to match cerberus output
 	}
 	initialize_custom_perk_arrays();
 	perk_machine_spawn_init();
-	//not broken
 	vending_weapon_upgrade_trigger = [];
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
 	for ( i = 0; i < vending_triggers.size; i++ )
@@ -450,7 +449,7 @@ can_pack_weapon( weaponname ) //checked did not match cebrerus output changed at
 	}
 	if ( flag( "pack_machine_in_use" ) )
 	{
-		return 0; //was 1
+		return 1;
 	}
 	weaponname = self get_nonalternate_weapon( weaponname );
 	if ( !maps/mp/zombies/_zm_weapons::is_weapon_or_base_included( weaponname ) )
@@ -492,14 +491,17 @@ vending_machine_trigger_think() //changed 3/30/20 4:17 pm //checked matches cerb
 	while( 1 )
 	{
 		players = get_players();
-		for ( i = 0; i < players.size; i++ )
+		i = 0;
+		while ( i < players.size )
 		{
 			if ( isdefined( self.pack_player ) && self.pack_player != players[ i ] || !players[ i ] player_use_can_pack_now() )
 			{
 				self setinvisibletoplayer( players[ i ], 1 );
+				i++;
 				continue;
 			}
 			self setinvisibletoplayer( players[ i ], 0 );
+			i++;
 		}
 		wait 0.1;
 	}
@@ -752,8 +754,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 	while ( 1 )
 	{
 		packa_timer playloopsound( "zmb_perks_packa_ticktock" );
-		self waittill( "trigger", trigger_player ); //working
-
+		self waittill( "trigger", trigger_player );
 		if ( isDefined( level.pap_grab_by_anyone ) && level.pap_grab_by_anyone )
 		{
 			player = trigger_player;
@@ -773,7 +774,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 #/
 			}
 			*/
-			if ( is_player_valid( player ) && !player.is_drinking > 0 && !is_placeable_mine( current_weapon ) && !is_equipment( current_weapon ) && level.revive_tool != current_weapon && current_weapon != "none" && !player hacker_active() )
+			if ( is_player_valid( player ) && !player.is_drinking && !is_placeable_mine( current_weapon ) && !is_equipment( current_weapon ) && level.revive_tool != current_weapon && current_weapon != "none" && !player hacker_active() )
 			{
 				maps/mp/_demo::bookmark( "zm_player_grabbed_packapunch", getTime(), player );
 				self notify( "pap_taken" );
@@ -816,7 +817,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 				return;
 			}
 		}
-		wait 0.05;
+		//wait 0.05;
 	}
 }
 
@@ -841,15 +842,11 @@ wait_for_disconnect( player ) //checked //checked matches cerberus output
 {
 	self endon( "pap_taken" );
 	self endon( "pap_timeout" );
+	name = player.name;
 	while ( isDefined( player ) )
 	{
 		wait 0.1;
 	}
-	/*
-/#
-	println( "*** PAP : User disconnected." );
-#/
-	*/
 	self notify( "pap_player_disconnected" );
 }
 
@@ -1604,7 +1601,10 @@ electric_perks_dialog() //checked partially changed to match cerberus output
 				i++;
 				continue;
 			}
-			else dist = distancesquared( players[ i ].origin, self.origin );
+			else
+			{
+				dist = distancesquared( players[ i ].origin, self.origin );
+			}
 			if ( dist > 4900 )
 			{
 				timer = 0;
@@ -1853,72 +1853,34 @@ vending_trigger_think() //checked changed to match cerberus output
 	for ( ;; )
 	{
 		self waittill( "trigger", player );
-		if ( level.debugLogging_zm_perks )
-		{
-			if ( !isDefined( player ) )
-			{
-				logline10 = "_zm_perks.gsc vending_trigger_think() player is not defined for trigger!" + "\n";
-				logprint( logline10 );
-			}
-		}
 		index = maps/mp/zombies/_zm_weapons::get_player_index( player );
 		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( player.intermission ) && player.intermission )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline11 = "_zm_perks.gsc vending_trigger_think() player is in laststand or game is intermission; continue" + "\n";
-				logprint( logline11 );
-			}
 			wait 0.1;
 			continue;
 		}
 		if ( player in_revive_trigger() )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline11 = "_zm_perks.gsc vending_trigger_think() player is in revive trigger; continue" + "\n";
-				logprint( logline11 );
-			}
 			wait 0.1;
 			continue;
 		}
 		if ( !player maps/mp/zombies/_zm_magicbox::can_buy_weapon() )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline12 = "_zm_perks.gsc vending_trigger_think() player is in revive trigger; continue" + "\n";
-				logprint( logline12 );
-			}
 			wait 0.1;
 			continue;
 		}
 		if ( player isthrowinggrenade() )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline13 = "_zm_perks.gsc vending_trigger_think() player is throwing grenade; continue" + "\n";
-				logprint( logline13 );
-			}
 			wait 0.1;
 			continue;
 		}
 		if ( player isswitchingweapons() )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline14 = "_zm_perks.gsc vending_trigger_think() player is switching weapons; continue" + "\n";
-				logprint( logline14 );
-			}
 			wait 0.1;
 			continue;
 		}
 		if ( player.is_drinking > 0 )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline15 = "_zm_perks.gsc vending_trigger_think() player is drinking; continue" + "\n";
-				logprint( logline15 );
-			}
 			wait 0.1;
 			continue;
 		}
@@ -1935,11 +1897,6 @@ vending_trigger_think() //checked changed to match cerberus output
 			*/
 			if ( cheat != 1 )
 			{
-				if ( level.debugLogging_zm_perks ) 
-				{
-					logline16 = "_zm_perks.gsc vending_trigger_think() player has perk; continue!" + "\n";
-					logprint( logline16 );
-				}
 				self playsound( "deny" );
 				player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "perk_deny", undefined, 1 );
 				continue;
@@ -1950,11 +1907,6 @@ vending_trigger_think() //checked changed to match cerberus output
 			valid = self [[ level.custom_perk_validation ]]( player );
 			if ( !valid )
 			{
-				if ( level.debugLogging_zm_perks )
-				{
-					logline17 = "_zm_perks.gsc vending_trigger_think() [[ level.custom_perk_validation ]] determines player is not eligble for perk; continue" + "\n";
-					logprint( logline17 );
-				}
 				continue;
 			}
 		}
@@ -1965,11 +1917,6 @@ vending_trigger_think() //checked changed to match cerberus output
 		}
 		if ( player.score < current_cost )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline18 = "_zm_perks.gsc vending_trigger_think() player does not have enough points for perk; continue" + "\n";
-				logprint( logline18 );
-			}
 			self playsound( "evt_perk_deny" );
 			player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "perk_deny", undefined, 0 );
 			continue;
@@ -1977,11 +1924,6 @@ vending_trigger_think() //checked changed to match cerberus output
 		
 		if ( player.num_perks >= player get_player_perk_purchase_limit() )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline19 = "_zm_perks.gsc vending_trigger_think() player has reach their perk limit; continue" + "\n";
-				logprint( logline19 );
-			}
 			self playsound( "evt_perk_deny" );
 			player maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "sigh" );
 			continue;
@@ -2001,31 +1943,10 @@ vending_trigger_post_think( player, perk ) //checked matches cerberus output
 	player endon( "end_game" );
 	player endon( "perk_abort_drinking" );
 	gun = player perk_give_bottle_begin( perk );
-	if ( level.debugLogging_zm_perks )
-	{
-		logline29 = "_zm_perks.gsc vending_trigger_post_think(); perk_give_bottle_begin() completed its operation  " + " \n";
-		logprint( logline29 );
-	}
 	evt = player waittill_any_return( "fake_death", "death", "player_downed", "weapon_change_complete" );
-	//evt = waittill( "weapon_change_complete" );
-	if ( level.debugLogging_zm_perks )
-	{
-		logline28 = "_zm_perks.gsc vending_trigger_post_think() finished waiting for event: " + evt + " \n";
-		logprint( logline28 );
-	}
 	if ( evt == "weapon_change_complete" )
 	{
-		if ( level.debugLogging_zm_perks )
-		{
-			logline26 = "_zm_perks.gsc vending_trigger_post_think() weapon_change_complete occured calling wait_give_perk() " + " \n";
-			logprint( logline26 );
-		}
 		player thread wait_give_perk( perk, 1 );
-	}
-	if ( level.debugLogging_zm_perks )
-	{
-		logline27 = "_zm_perks.gsc vending_trigger_post_think(); wait_give_perk() finished; calling perk_give_bottle_end() " + " \n";
-		logprint( logline27 );
 	}
 	player perk_give_bottle_end( gun, perk );
 	if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( player.intermission ) && player.intermission )
@@ -2091,11 +2012,6 @@ wait_give_perk( perk, bought ) //checked matches cerberus output
 	self endon( "end_game" );
 	self endon( "perk_abort_drinking" );
 	self waittill_notify_or_timeout( "burp", 0.5 );
-	if ( level.debugLogging_zm_perks )
-	{
-		logline23 = "_zm_perks.gsc wait_give_perk() gives player a perk" + "\n";
-		logprint( logline23 );
-	}
 	self give_perk( perk, bought );
 }
 
@@ -2116,11 +2032,6 @@ return_retained_perks() //checked changed to match cerberus output
 
 give_perk( perk, bought ) //checked changed to match cerberus output
 {
-	if ( level.debugLogging_zm_perks )
-	{
-		logline24 = "_zm_perks.gsc give_perk() gives player perk: " + perk + " \n";
-		logprint( logline24 );
-	}
 	self setperk( perk );
 	self.num_perks++;
 	if ( isDefined( bought ) && bought )
@@ -2204,11 +2115,6 @@ give_perk( perk, bought ) //checked changed to match cerberus output
 	}
 	self.perks_active[ self.perks_active.size ] = perk;
 	self notify( "perk_acquired" );
-	if ( level.debugLogging_zm_perks )
-	{
-		logline25 = "_zm_perks.gsc give_perk() calls perk_think" + " \n";
-		logprint( logline25 );
-	}
 	self thread perk_think( perk );
 }
 
@@ -2578,18 +2484,8 @@ perk_give_bottle_begin( perk ) //checked matches cerberus output
 	{
 		weapon = level._custom_perks[ perk ].perk_bottle;
 	}
-	if ( level.debugLogging_zm_perks )
-	{
-		logline20 = "_zm_perks.gsc perk_give_bottle_begin() gives perk bottle to player" + "\n";
-		logprint( logline20 );
-	}
 	self giveweapon( weapon );
 	self switchtoweapon( weapon );
-	if ( level.debugLogging_zm_perks )
-	{
-		logline21 = "_zm_perks.gsc perk_give_bottle_begin() returns gun" + "\n";
-		logprint( logline21 );
-	}
 	return gun;
 }
 
@@ -2689,11 +2585,7 @@ perk_give_bottle_end( gun, perk ) //checked matches cerberus output
 	{
 		self decrement_is_drinking();
 	}
-	if ( level.debugLogging_zm_perks )
-	{
-		logline22 = "_zm_perks.gsc perk_give_bottle_end() finishes returning gun to player" + "\n";
-		logprint( logline22 );
-	}
+
 }
 
 perk_abort_drinking( post_delay ) //checked matches cerberus output
@@ -3075,17 +2967,7 @@ perk_machine_spawn_init()
 	}
 	if ( match_string == "zclassic_perks_rooftop" || match_string == "zclassic_perks_tomb" || match_string == "zstandard_perks_nuked" )
 	{
-		if ( level.debugLogging_zm_perks )
-		{
-			logline1 = "_zm_perks.gsc: perk_machine_spawn_init() uses default location " + "\n";
-			logprint( logline1 );
-		}
 		useDefaultLocation = 1;
-	}
-	if ( level.debugLogging_zm_perks )
-	{
-		logline2 = "_zm_perks.gsc: perk_machine_spawn_init() found: " + structs.size + " zm_perk_machines" + " \n";
-		logprint( logline2 );
 	}
 	i = 0;
 	while ( i < structs.size )
@@ -3093,72 +2975,32 @@ perk_machine_spawn_init()
 		if ( isdefined( structs[ i ].script_string ) )
 		{
 			tokens = strtok( structs[ i ].script_string, " " );
-			if ( level.debugLogging_zm_perks )
-			{
-				logline3 = "_zm_perks.gsc: perk_machine_spawn_init() found: " + tokens.size + " match_strings" + " \n";
-				logprint( logline3 );
-			}
 			k = 0;
 			while ( k < tokens.size )
 			{
 				if ( tokens[ k ] == match_string )
 				{
-					if ( level.debugLogging_zm_perks )
-					{
-						logline4 = "_zm_perks.gsc: perk_machine_spawn_init() found that token matches match_string, setting perk location to match_string location" + " \n";
-						logprint( logline4 );
-					}
 					pos[ pos.size ] = structs[ i ];
-					k++;
 				}
-				else
-				{
-					if ( level.debugLogging_zm_perks )
-					{
-						logline5 = "_zm_perks.gsc: perk_machine_spawn_init() found that token did not match match_string, skipping " + "\n";
-						logprint( logline5 );
-					}
-					//pos[ pos.size ] = structs[ i ];
-					k++;
-				}
+				k++;
 			}
 		}
 		else if ( isDefined( useDefaultLocation ) && useDefaultLocation )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline6 = "_zm_perks.gsc: perk_machine_spawn_init() found that map only has one location, setting to match_string by default " + "\n";
-				logprint( logline6 );
-			}
 			pos[ pos.size ] = structs[ i ];
 		}
 		i++;
 	}
 	if ( !IsDefined( pos ) || pos.size == 0 )
 	{
-		if ( level.debugLogging_zm_perks )
-		{
-			logline7 = "_zm_perks.gsc: perk_machine_spawn_init() returning because pos is undefined or pos.size is 0 " + "\n";
-			logprint( logline7 );
-		}
 		return;
 	}
 	PreCacheModel("zm_collision_perks1");
 	for ( i = 0; i < pos.size; i++ )
 	{
 		perk = pos[ i ].script_noteworthy;
-		if ( level.debugLogging_zm_perks )
-		{
-			logline8 = "_zm_perks.gsc: perk_machine_spawn_init() checking perk: " + perk + " \n";
-			logprint( logline8 );
-		}
 		if ( IsDefined( perk ) && IsDefined( pos[ i ].model ) )
 		{
-			if ( level.debugLogging_zm_perks )
-			{
-				logline9 = "_zm_perks.gsc: perk_machine_spawn_init() found perk and perk model; spawning in: " + perk + " \n";
-				logprint( logline9 );
-			}
 			use_trigger = Spawn( "trigger_radius_use", pos[ i ].origin + ( 0, 0, 30 ), 0, 40, 70 );
 			use_trigger.targetname = "zombie_vending";			
 			use_trigger.script_noteworthy = perk;
@@ -3350,11 +3192,6 @@ perk_machine_spawn_init()
 					if ( isdefined( level._custom_perks[ perk ] ) && isdefined( level._custom_perks[ perk ].perk_machine_set_kvps ) )
 					{
 						[[ level._custom_perks[ perk ].perk_machine_set_kvps ]]( use_trigger, perk_machine, bump_trigger, collision );
-						if ( level.debugLogging_zm_perks )
-						{
-							logline30 = "_zm_perks.gsc: perk_machine_spawn_init() called level._custom_perks[ perk ].perk_machine_set_kvps on perk: " + perk + " \n";
-							logprint( logline30 );
-						}
 					}
 					break;
 			}
@@ -4085,6 +3922,9 @@ _register_undefined_perk( str_perk ) //checked matches cerberus output
 		level._custom_perks[ str_perk ] = spawnstruct();
 	}
 }
+
+
+
 
 
 

@@ -4,7 +4,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.score_cf_info = [];
 	score_cf_register_info( "damage", 1, 7 );
@@ -19,7 +19,7 @@ init()
 	}
 }
 
-score_cf_register_info( name, version, max_count )
+score_cf_register_info( name, version, max_count ) //checked matches cerberus output
 {
 	if ( level.createfx_enabled )
 	{
@@ -36,7 +36,7 @@ score_cf_register_info( name, version, max_count )
 	registerclientfield( "allplayers", info.cf_field, info.version, info.bit_count, "int" );
 }
 
-score_cf_increment_info( name )
+score_cf_increment_info( name ) //checked matches cerberus output
 {
 	info = level.score_cf_info[ name ];
 	player_ent_index = self getentitynumber();
@@ -52,7 +52,7 @@ score_cf_increment_info( name )
 	self setclientfield( info.cf_field, info.players[ player_ent_index ] );
 }
 
-score_cf_monitor()
+score_cf_monitor() //checked changed to match cerberus output
 {
 	if ( level.createfx_enabled )
 	{
@@ -63,25 +63,22 @@ score_cf_monitor()
 	{
 		wait_network_frame();
 		players = get_players();
-		player_index = 0;
-		while ( player_index < players.size )
+		for ( player_index = 0; player_index < players.size; player_index++ )
 		{
 			player = players[ player_index ];
 			player_ent_index = player getentitynumber();
 			info_index = 0;
-			while ( info_index < info_keys.size )
+			for ( info_index = 0; info_index < info_keys.size; info_index++ )
 			{
 				info = level.score_cf_info[ info_keys[ info_index ] ];
 				info.players[ player_ent_index ] = 0;
 				player setclientfield( info.cf_field, 0 );
-				info_index++;
 			}
-			player_index++;
 		}
 	}
 }
 
-player_add_points( event, mod, hit_location, is_dog, zombie_team, damage_weapon )
+player_add_points( event, mod, hit_location, is_dog, zombie_team, damage_weapon ) //checked changed to match cerberus output
 {
 	if ( level.intermission )
 	{
@@ -169,7 +166,7 @@ player_add_points( event, mod, hit_location, is_dog, zombie_team, damage_weapon 
 	}
 	player_points = multiplier * round_up_score( player_points, 5 );
 	team_points = multiplier * round_up_score( team_points, 5 );
-	if ( isDefined( self.point_split_receiver ) || event == "death" && event == "ballistic_knife_death" )
+	if ( isDefined( self.point_split_receiver ) && event == "death" || isDefined( self.point_split_receiver ) && event == "ballistic_knife_death" )
 	{
 		split_player_points = player_points - round_up_score( player_points * self.point_split_keep_percent, 10 );
 		self.point_split_receiver add_to_player_score( split_player_points );
@@ -187,7 +184,7 @@ player_add_points( event, mod, hit_location, is_dog, zombie_team, damage_weapon 
 	}
 }
 
-get_points_multiplier( player )
+get_points_multiplier( player ) //checked matches cerberus output
 {
 	multiplier = level.zombie_vars[ player.team ][ "zombie_point_scalar" ];
 	if ( isDefined( level.current_game_module ) && level.current_game_module == 2 )
@@ -204,7 +201,7 @@ get_points_multiplier( player )
 	return multiplier;
 }
 
-get_zombie_death_player_points()
+get_zombie_death_player_points() //checked matches cerberus output
 {
 	players = get_players();
 	if ( players.size == 1 )
@@ -226,7 +223,7 @@ get_zombie_death_player_points()
 	return points;
 }
 
-get_zombie_death_team_points()
+get_zombie_death_team_points() //checked matches cerberus output
 {
 	players = get_players();
 	if ( players.size == 1 )
@@ -248,7 +245,7 @@ get_zombie_death_team_points()
 	return points;
 }
 
-player_add_points_kill_bonus( mod, hit_location )
+player_add_points_kill_bonus( mod, hit_location ) //checked matches cerberus output
 {
 	if ( mod == "MOD_MELEE" )
 	{
@@ -287,7 +284,7 @@ player_add_points_kill_bonus( mod, hit_location )
 	return score;
 }
 
-player_reduce_points( event, mod, hit_location )
+player_reduce_points( event, mod, hit_location ) //checked matches cerberus output
 {
 	if ( level.intermission )
 	{
@@ -326,7 +323,7 @@ player_reduce_points( event, mod, hit_location )
 	self.score = points;
 }
 
-add_to_player_score( points, add_to_total )
+add_to_player_score( points, add_to_total ) //checked matches cerberus output
 {
 	if ( !isDefined( add_to_total ) )
 	{
@@ -345,7 +342,7 @@ add_to_player_score( points, add_to_total )
 	self incrementplayerstat( "score", points );
 }
 
-minus_to_player_score( points, ignore_double_points_upgrade )
+minus_to_player_score( points, ignore_double_points_upgrade ) //checked matches cerberus output
 {
 	if ( !isDefined( points ) || level.intermission )
 	{
@@ -363,29 +360,27 @@ minus_to_player_score( points, ignore_double_points_upgrade )
 	level notify( "spent_points" );
 }
 
-add_to_team_score( points )
+add_to_team_score( points ) //checked matches cerberus output
 {
 }
 
-minus_to_team_score( points )
+minus_to_team_score( points ) //checked matches cerberus output
 {
 }
 
-player_died_penalty()
+player_died_penalty() //checked changed to match cerberus output
 {
 	players = get_players( self.team );
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( players[ i ] != self && !players[ i ].is_zombie )
 		{
 			players[ i ] player_reduce_points( "no_revive_penalty" );
 		}
-		i++;
 	}
 }
 
-player_downed_penalty()
+player_downed_penalty() //checked matches cerberus output
 {
 /*
 /#
@@ -394,4 +389,5 @@ player_downed_penalty()
 */
 	self player_reduce_points( "downed" );
 }
+
 
