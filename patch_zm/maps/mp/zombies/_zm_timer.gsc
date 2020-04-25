@@ -2,7 +2,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precacheshader( "zombie_stopwatchneedle" );
 	precacheshader( "zombie_stopwatch" );
@@ -13,7 +13,7 @@ init()
 	}
 }
 
-start_timer( time, stop_notify )
+start_timer( time, stop_notify ) //checked matches cerberus output
 {
 	self notify( "stop_prev_timer" );
 	self endon( "stop_prev_timer" );
@@ -56,7 +56,7 @@ start_timer( time, stop_notify )
 	self.stopwatch_elem_glass.alpha = 0;
 }
 
-wait_for_stop_notify( stop_notify )
+wait_for_stop_notify( stop_notify ) //checked matches cerberus output
 {
 	self endon( "stop_prev_timer" );
 	self endon( "countdown_finished" );
@@ -65,7 +65,7 @@ wait_for_stop_notify( stop_notify )
 	self.stopwatch_elem_glass.alpha = 0;
 }
 
-update_hud_position()
+update_hud_position() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "stop_prev_timer" );

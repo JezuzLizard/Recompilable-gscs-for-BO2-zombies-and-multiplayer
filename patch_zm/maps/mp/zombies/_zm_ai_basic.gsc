@@ -6,7 +6,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-find_flesh()
+find_flesh() //checked partially changed to match cerberus output
 {
 	self endon( "death" );
 	level endon( "intermission" );
@@ -46,66 +46,62 @@ find_flesh()
 		{
 			self.ignore_player = [];
 		}
-		else
+		if ( !isDefined( level._should_skip_ignore_player_logic ) || !( [[ level._should_skip_ignore_player_logic ]]() ) )
 		{
-			while ( !isDefined( level._should_skip_ignore_player_logic ) || !( [[ level._should_skip_ignore_player_logic ]]() ) )
+			i = 0;
+			while ( i < self.ignore_player.size )
 			{
-				i = 0;
-				while ( i < self.ignore_player.size )
+				if ( isDefined( self.ignore_player[ i ] ) && isDefined( self.ignore_player[ i ].ignore_counter ) && self.ignore_player[ i ].ignore_counter > 3 )
 				{
-					while ( isDefined( self.ignore_player[ i ] ) && isDefined( self.ignore_player[ i ].ignore_counter ) && self.ignore_player[ i ].ignore_counter > 3 )
+					self.ignore_player[ i ].ignore_counter = 0;
+					self.ignore_player = arrayremovevalue( self.ignore_player, self.ignore_player[ i ] );
+					if ( !isDefined( self.ignore_player ) )
 					{
-						self.ignore_player[ i ].ignore_counter = 0;
-						self.ignore_player = arrayremovevalue( self.ignore_player, self.ignore_player[ i ] );
-						if ( !isDefined( self.ignore_player ) )
-						{
-							self.ignore_player = [];
-						}
-						i = 0;
+						self.ignore_player = [];
 					}
-					i++;
+					i = 0;
+					continue;
 				}
+				i++;
 			}
 		}
 		player = get_closest_valid_player( self.origin, self.ignore_player );
-		while ( !isDefined( player ) && !isDefined( zombie_poi ) )
+		if ( !isDefined( player ) && !isDefined( zombie_poi ) )
 		{
 			self maps/mp/zombies/_zm_spawner::zombie_history( "find flesh -> can't find player, continue" );
 			if ( isDefined( self.ignore_player ) )
 			{
-				while ( isDefined( level._should_skip_ignore_player_logic ) && [[ level._should_skip_ignore_player_logic ]]() )
+				if ( isDefined( level._should_skip_ignore_player_logic ) && [[ level._should_skip_ignore_player_logic ]]() )
 				{
 					wait 1;
+					continue;
 				}
 				self.ignore_player = [];
 			}
 			wait 1;
+			continue;
 		}
-		if ( !isDefined( level.check_for_alternate_poi ) || !( [[ level.check_for_alternate_poi ]]() ) )
+		if ( !isDefined( level.check_for_alternate_poi ) || ![[ level.check_for_alternate_poi ]]() )
 		{
 			self.enemyoverride = zombie_poi;
 			self.favoriteenemy = player;
 		}
 		self thread zombie_pathing();
-		while ( players.size > 1 )
+		if ( players.size > 1 )
 		{
-			i = 0;
-			while ( i < self.ignore_player.size )
+			for ( i = 0; i < self.ignore_player.size; i++ )
 			{
 				if ( isDefined( self.ignore_player[ i ] ) )
 				{
 					if ( !isDefined( self.ignore_player[ i ].ignore_counter ) )
 					{
 						self.ignore_player[ i ].ignore_counter = 0;
-						i++;
-						continue;
 					}
-					else
+					else 
 					{
 						self.ignore_player[ i ].ignore_counter += 1;
 					}
 				}
-				i++;
 			}
 		}
 		self thread attractors_generated_listener();
@@ -128,12 +124,12 @@ find_flesh()
 	}
 }
 
-init_inert_zombies()
+init_inert_zombies() //checked matches cerberus output
 {
 	level init_inert_substates();
 }
 
-init_inert_substates()
+init_inert_substates() //checked matches cerberus output
 {
 	level.inert_substates = [];
 	level.inert_substates[ level.inert_substates.size ] = "inert1";
@@ -176,7 +172,7 @@ init_inert_substates()
 	level.inert_crawl_substate_index = 0;
 }
 
-get_inert_substate()
+get_inert_substate() //checked matches cerberus output
 {
 	substate = level.inert_substates[ level.inert_substate_index ];
 	level.inert_substate_index++;
@@ -188,7 +184,7 @@ get_inert_substate()
 	return substate;
 }
 
-get_inert_crawl_substate()
+get_inert_crawl_substate() //checked matches cerberus output
 {
 	substate = level.inert_crawl_substates[ level.inert_crawl_substate_index ];
 	level.inert_crawl_substate_index++;
@@ -200,7 +196,7 @@ get_inert_crawl_substate()
 	return substate;
 }
 
-start_inert( in_place )
+start_inert( in_place ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( self.is_inert ) && self.is_inert )
@@ -247,11 +243,11 @@ start_inert( in_place )
 			self notify( "zombie_acquire_enemy" );
 		}
 	}
-	while ( isDefined( self.is_traversing ) && self.is_traversing )
+	if ( isDefined( self.is_traversing ) && self.is_traversing )
 	{
 		while ( self isinscriptedstate() )
 		{
-			wait 0,1;
+			wait 0.1;
 		}
 	}
 	if ( isDefined( self.doing_equipment_attack ) && self.doing_equipment_attack )
@@ -266,7 +262,7 @@ start_inert( in_place )
 	self inert_think( in_place );
 }
 
-inert_think( in_place )
+inert_think( in_place ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self.ignoreall = 1;
@@ -297,7 +293,7 @@ inert_think( in_place )
 			}
 			self setanimstatefromasd( "zm_inert", substate );
 			self maps/mp/zombies/_zm_spawner::zombie_history( "zm_inert ASD " + getTime() );
-			if ( substate != "inert3" && substate != "inert4" || substate == "inert5" && substate == "inert6" )
+			if ( substate == "inert3" && substate == "inert4" || substate == "inert5" && substate == "inert6" )
 			{
 				self thread inert_watch_goal();
 			}
@@ -326,15 +322,12 @@ inert_think( in_place )
 	{
 		self [[ self.inert_wakeup_override ]]();
 	}
-	else
+	else if ( isDefined( self.completed_emerging_into_playable_area ) && self.completed_emerging_into_playable_area )
 	{
-		if ( isDefined( self.completed_emerging_into_playable_area ) && self.completed_emerging_into_playable_area )
+		self.ignoreall = 0;
+		if ( isDefined( level.ignore_find_flesh ) && !self [[ level.ignore_find_flesh ]]() )
 		{
-			self.ignoreall = 0;
-			if ( isDefined( level.ignore_find_flesh ) && !( self [[ level.ignore_find_flesh ]]() ) )
-			{
-				self thread maps/mp/zombies/_zm_ai_basic::find_flesh();
-			}
+			self thread maps/mp/zombies/_zm_ai_basic::find_flesh();
 		}
 	}
 	self.becoming_inert = undefined;
@@ -344,7 +337,7 @@ inert_think( in_place )
 	self maps/mp/zombies/_zm_spawner::zombie_history( "is_inert cleared " + getTime() );
 }
 
-inert_watch_goal()
+inert_watch_goal() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_inert" );
@@ -352,18 +345,17 @@ inert_watch_goal()
 	{
 		self waittill( "goal" );
 		locs = array_randomize( level.enemy_dog_locations );
-		_a481 = locs;
-		_k481 = getFirstArrayKey( _a481 );
-		while ( isDefined( _k481 ) )
+		i = 0;
+		while ( i < locs.size )
 		{
-			loc = _a481[ _k481 ];
-			dist_sq = distancesquared( self.origin, loc.origin );
+			dist_sq = distancesquared( self.origin, locs[ i ].origin );
 			if ( dist_sq > 90000 )
 			{
-				self setgoalpos( loc.origin );
-				break;
+				self setgoalpos( locs[ i ].origin );
+				i++;
+				continue;
 			}
-			_k481 = getNextArrayKey( _a481, _k481 );
+			i++;
 		}
 		if ( locs.size > 0 )
 		{
@@ -372,7 +364,7 @@ inert_watch_goal()
 	}
 }
 
-inert_wakeup()
+inert_wakeup() //checked changed at own discretion parity in behavior to cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_inert" );
@@ -383,11 +375,8 @@ inert_wakeup()
 	{
 		current_time = getTime();
 		players = get_players();
-		_a522 = players;
-		_k522 = getFirstArrayKey( _a522 );
-		while ( isDefined( _k522 ) )
+		foreach ( player in players )
 		{
-			player = _a522[ _k522 ];
 			dist_sq = distancesquared( self.origin, player.origin );
 			if ( dist_sq < 4096 )
 			{
@@ -410,64 +399,60 @@ inert_wakeup()
 					return;
 				}
 			}
-			_k522 = getNextArrayKey( _a522, _k522 );
 		}
 		wait 0.1;
 	}
 }
 
-inert_bump()
+inert_bump() //checked changed at own discretion parity in behavior to cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_inert" );
 	while ( 1 )
 	{
 		zombies = getaiarray( level.zombie_team );
-		_a562 = zombies;
-		_k562 = getFirstArrayKey( _a562 );
-		while ( isDefined( _k562 ) )
+		i = 0;
+		while ( i < zombies.size )
 		{
-			zombie = _a562[ _k562 ];
-			if ( zombie == self )
+			if ( zombies[ i ] == self )
 			{
+				i++;
+				continue;
 			}
-			else if ( isDefined( zombie.is_inert ) && zombie.is_inert )
+			if ( isDefined( zombies[ i ].is_inert ) && zombies[ i ].is_inert )
 			{
+				i++;
+				continue;
 			}
-			else
+			if ( isDefined( zombies[ i ].becoming_inert ) && zombies[ i ].becoming_inert )
 			{
-				if ( isDefined( zombie.becoming_inert ) && zombie.becoming_inert )
-				{
-					break;
-				}
-				else
-				{
-					dist_sq = distancesquared( self.origin, zombie.origin );
-					if ( dist_sq < 1296 )
-					{
-						self stop_inert();
-						return;
-					}
-				}
+				i++;
+				continue;
 			}
-			_k562 = getNextArrayKey( _a562, _k562 );
+			dist_sq = distancesquared( self.origin, zombies[ i ].origin );
+			if ( dist_sq < 1296 )
+			{
+				self stop_inert();
+				return;
+			}
+			i++;
 		}
 		wait 0.2;
 	}
 }
 
-inert_damage()
+inert_damage() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_inert" );
 	while ( 1 )
 	{
 		self waittill( "damage", amount, inflictor, direction, point, type, tagname, modelname, partname, weaponname, idflags );
-		while ( weaponname == "emp_grenade_zm" )
+		if ( weaponname == "emp_grenade_zm" )
 		{
 			continue;
 		}
-		while ( isDefined( inflictor ) )
+		if ( isDefined( inflictor ) )
 		{
 			if ( isDefined( inflictor._trap_type ) && inflictor._trap_type == "fire" )
 			{
@@ -478,7 +463,7 @@ inert_damage()
 	self stop_inert();
 }
 
-grenade_watcher( grenade )
+grenade_watcher( grenade ) //checked changed to match cerberus output
 {
 	grenade waittill( "explode", grenade_origin );
 	zombies = get_array_of_closest( grenade_origin, get_round_enemy_array(), undefined, undefined, 2400 );
@@ -486,22 +471,18 @@ grenade_watcher( grenade )
 	{
 		return;
 	}
-	_a633 = zombies;
-	_k633 = getFirstArrayKey( _a633 );
-	while ( isDefined( _k633 ) )
+	foreach ( zombie in zombies )
 	{
-		zombie = _a633[ _k633 ];
 		zombie stop_inert();
-		_k633 = getNextArrayKey( _a633, _k633 );
 	}
 }
 
-stop_inert()
+stop_inert() //checked matches cerberus output
 {
 	self notify( "stop_zombie_inert" );
 }
 
-inert_transition()
+inert_transition() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_zombie_inert_transition" );
@@ -526,20 +507,17 @@ inert_transition()
 		}
 		trans_num = 2;
 	}
-	else
+	else if ( self.zombie_move_speed == "sprint" )
 	{
-		if ( self.zombie_move_speed == "sprint" )
+		if ( self.has_legs )
 		{
-			if ( self.has_legs )
-			{
-				trans_set = level.inert_trans_sprint;
-			}
-			else
-			{
-				trans_set = level.inert_crawl_trans_sprint;
-			}
-			trans_num = 2;
+			trans_set = level.inert_trans_sprint;
 		}
+		else
+		{
+			trans_set = level.inert_crawl_trans_sprint;
+		}
+		trans_num = 2;
 	}
 	self thread inert_eye_glow();
 	self setanimstatefromasd( animstate, trans_set[ randomint( trans_num ) ] );
@@ -547,7 +525,7 @@ inert_transition()
 	maps/mp/animscripts/zm_shared::donotetracks( "inert_trans_anim" );
 }
 
-inert_eye_glow()
+inert_eye_glow() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -556,16 +534,13 @@ inert_eye_glow()
 		if ( note == "end" )
 		{
 			return;
-			continue;
 		}
-		else
+		else if ( note == "zmb_awaken" )
 		{
-			if ( note == "zmb_awaken" )
-			{
-				self maps/mp/zombies/_zm_spawner::zombie_eye_glow();
-				return;
-			}
+			self maps/mp/zombies/_zm_spawner::zombie_eye_glow();
+			return;
 		}
 	}
 }
+
 

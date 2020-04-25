@@ -5,10 +5,14 @@ patch_zm/maps/mp/gametypes_zm/_globalentities.gsc
 patch_zm/maps/mp/gametypes_zm/_scoreboard.gsc
 patch_zm/maps/mp/gametypes_zm/_shellshock.gsc
 patch_zm/maps/mp/gametypes_zm/zclassic.gsc
+patch_zm/maps/mp/zombies/_zm_ai_basic.gsc
 patch_zm/maps/mp/zombies/_zm_ai_dogs.gsc
+patch_zm/maps/mp/zombies/_zm_ai_faller.gsc
 patch_zm/maps/mp/zombies/_zm_audio.gsc
 patch_zm/maps/mp/zombies/_zm_audio_announcer.gsc
 patch_zm/maps/mp/zombies/_zm_bot.gsc
+patch_zm/maps/mp/zombies/_zm_clone.gsc
+patch_zm/maps/mp/zombies/_zm_ffotd.gsc
 patch_zm/maps/mp/zombies/_zm_magicbox.gsc
 patch_zm/maps/mp/zombies/_zm_net.gsc
 patch_zm/maps/mp/zombies/_zm_perk_electric_cherry.gsc
@@ -64,12 +68,8 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 
 ### The following scripts have not been checked using the proper debugging methods:
 ```
-patch_zm/maps/mp/zombies/_zm_ai_basic.gsc
-patch_zm/maps/mp/zombies/_zm_ai_faller.gsc
-patch_zm/maps/mp/zombies/_zm_clone.gsc
 patch_zm/maps/mp/zombies/_zm_equip_hacker.gsc
 patch_zm/maps/mp/zombies/_zm_equip_gasmask.gsc
-patch_zm/maps/mp/zombies/_zm_ffotd.gsc
 patch_zm/maps/mp/zombies/_zm_hackables_boards.gsc
 patch_zm/maps/mp/zombies/_zm_hackables_box.gsc
 patch_zm/maps/mp/zombies/_zm_hackables_doors.gsc

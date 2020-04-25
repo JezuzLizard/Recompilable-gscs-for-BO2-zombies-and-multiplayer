@@ -5,7 +5,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-zombie_faller_delete()
+zombie_faller_delete() //checked matches cerberus output
 {
 	level.zombie_total++;
 	self maps/mp/zombies/_zm_spawner::reset_attack_spot();
@@ -17,15 +17,14 @@ zombie_faller_delete()
 	self delete();
 }
 
-faller_script_parameters()
+faller_script_parameters() //checked changed to match cerberus output
 {
-	while ( isDefined( self.script_parameters ) )
+	if ( isDefined( self.script_parameters ) )
 	{
 		parms = strtok( self.script_parameters, ";" );
-		while ( isDefined( parms ) && parms.size > 0 )
+		if ( isDefined( parms ) && parms.size > 0 )
 		{
-			i = 0;
-			while ( i < parms.size )
+			for ( i = 0; i < parms.size; i++ )
 			{
 				if ( parms[ i ] == "drop_now" )
 				{
@@ -43,13 +42,12 @@ faller_script_parameters()
 				{
 					self.emerge_bottom = 1;
 				}
-				i++;
 			}
 		}
 	}
 }
 
-setup_deathfunc( func_name )
+setup_deathfunc( func_name ) //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( isDefined( self.zombie_init_done ) && !self.zombie_init_done )
@@ -70,13 +68,13 @@ setup_deathfunc( func_name )
 	}
 }
 
-do_zombie_fall( spot )
+do_zombie_fall( spot ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self.zombie_faller_location = spot;
 	self.zombie_faller_location.is_enabled = 0;
 	self.zombie_faller_location faller_script_parameters();
-	if ( isDefined( self.zombie_faller_location.emerge_bottom ) || self.zombie_faller_location.emerge_bottom && isDefined( self.zombie_faller_location.emerge_top ) && self.zombie_faller_location.emerge_top )
+	if ( isDefined( self.zombie_faller_location.emerge_bottom ) && self.zombie_faller_location.emerge_bottom || isDefined( self.zombie_faller_location.emerge_top ) && self.zombie_faller_location.emerge_top )
 	{
 		self do_zombie_emerge( spot );
 		return;
@@ -89,18 +87,18 @@ do_zombie_fall( spot )
 	self linkto( self.anchor );
 	if ( !isDefined( spot.angles ) )
 	{
-		spot.angles = ( 0, 0, -1 );
+		spot.angles = ( 0, 0, 0 );
 	}
 	anim_org = spot.origin;
 	anim_ang = spot.angles;
 	self ghost();
-	self.anchor moveto( anim_org, 0,05 );
+	self.anchor moveto( anim_org, 0.05 );
 	self.anchor waittill( "movedone" );
 	target_org = get_desired_origin();
 	if ( isDefined( target_org ) )
 	{
 		anim_ang = vectorToAngles( target_org - self.origin );
-		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0,05 );
+		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0.05 );
 		self.anchor waittill( "rotatedone" );
 	}
 	self unlink();
@@ -114,10 +112,10 @@ do_zombie_fall( spot )
 	self thread zombie_faller_death_wait();
 	self thread zombie_faller_do_fall();
 	self.no_powerups = 0;
-	self notify( "risen" );
+	self notify( "risen", spot.script_string );
 }
 
-zombie_faller_do_fall()
+zombie_faller_do_fall() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self animscripted( self.origin, self.zombie_faller_location.angles, "zm_faller_emerge" );
@@ -136,7 +134,6 @@ zombie_faller_do_fall()
 			{
 				self.zombie_faller_should_drop = 1;
 			}
-			continue;
 		}
 		else if ( self zombie_faller_always_drop() )
 		{
@@ -153,21 +150,24 @@ zombie_faller_do_fall()
 			self.zombie_faller_should_drop = 1;
 			break;
 		}
-		else self animscripted( self.origin, self.zombie_faller_location.angles, "zm_faller_attack" );
-		self maps/mp/animscripts/zm_shared::donotetracks( "attack_anim", ::handle_fall_notetracks, self.zombie_faller_location );
+		else 
+		{
+			self animscripted( self.origin, self.zombie_faller_location.angles, "zm_faller_attack" );
+			self maps/mp/animscripts/zm_shared::donotetracks( "attack_anim", ::handle_fall_notetracks, self.zombie_faller_location );
+		}
 	}
 	self notify( "falling" );
 	spot = self.zombie_faller_location;
 	self zombie_faller_enable_location();
 	self animscripted( self.origin, spot.angles, "zm_faller_fall" );
 	self maps/mp/animscripts/zm_shared::donotetracks( "fall_anim", ::handle_fall_notetracks, spot );
-	self.deathfunction = ::zombie_death_animscript;
+	self.deathfunction = maps/mp/zombies/_zm_spawner::zombie_death_animscript;
 	self notify( "fall_anim_finished" );
 	spot notify( "stop_zombie_fall_fx" );
 	self stopanimscripted();
 	landanimdelta = 15;
 	ground_pos = groundpos_ignore_water_new( self.origin );
-	physdist = ( self.origin[ 2 ] - ground_pos[ 2 ] ) + landanimdelta;
+	physdist = self.origin[ 2 ] - ground_pos[ 2 ] + landanimdelta;
 	if ( physdist > 0 )
 	{
 		self animcustom( ::zombie_fall_loop );
@@ -180,33 +180,30 @@ zombie_faller_do_fall()
 	self.no_powerups = 0;
 }
 
-zombie_fall_loop()
+zombie_fall_loop() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self setanimstatefromasd( "zm_faller_fall_loop" );
 	while ( 1 )
 	{
 		ground_pos = groundpos_ignore_water_new( self.origin );
-		if ( ( self.origin[ 2 ] - ground_pos[ 2 ] ) < 20 )
+		if ( self.origin[ 2 ] - ground_pos[ 2 ] < 20 )
 		{
 			self notify( "faller_on_ground" );
-			return;
+			break;
 		}
-		else
-		{
-			wait 0.05;
-		}
+		wait 0.05;
 	}
 }
 
-zombie_land()
+zombie_land() //checked matches cerberus output
 {
 	self setanimstatefromasd( "zm_faller_land" );
 	maps/mp/animscripts/zm_shared::donotetracks( "land_anim" );
 	self notify( "zombie_land_done" );
 }
 
-zombie_faller_always_drop()
+zombie_faller_always_drop() //checked matches cerberus output
 {
 	if ( isDefined( self.zombie_faller_location.drop_now ) && self.zombie_faller_location.drop_now )
 	{
@@ -215,7 +212,7 @@ zombie_faller_always_drop()
 	return 0;
 }
 
-zombie_faller_drop_not_occupied()
+zombie_faller_drop_not_occupied() //checked matches cerberus output
 {
 	if ( isDefined( self.zombie_faller_location.drop_not_occupied ) && self.zombie_faller_location.drop_not_occupied )
 	{
@@ -227,18 +224,16 @@ zombie_faller_drop_not_occupied()
 	return 0;
 }
 
-zombie_faller_watch_all_players()
+zombie_faller_watch_all_players() //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		self thread zombie_faller_watch_player( players[ i ] );
-		i++;
 	}
 }
 
-zombie_faller_watch_player( player )
+zombie_faller_watch_player( player ) //checked changed to match cerberus output
 {
 	self endon( "falling" );
 	self endon( "death" );
@@ -250,7 +245,7 @@ zombie_faller_watch_player( player )
 	inrangetime = 0;
 	closerange = 60;
 	closerangesqr = closerange * closerange;
-	dirtoplayerenter = ( 0, 0, -1 );
+	dirtoplayerenter = ( 0, 0, 0 );
 	incloserange = 0;
 	while ( 1 )
 	{
@@ -262,7 +257,7 @@ zombie_faller_watch_player( player )
 				if ( ( inrangetime + timer ) < getTime() )
 				{
 					self.zombie_faller_should_drop = 1;
-					return;
+					break;
 				}
 			}
 			else
@@ -285,35 +280,29 @@ zombie_faller_watch_player( player )
 			}
 			incloserange = 1;
 		}
-		else
+		else if ( incloserange )
 		{
-			if ( incloserange )
+			dirtoplayerexit = player.origin - self.origin;
+			dirtoplayerexit = ( dirtoplayerexit[ 0 ], dirtoplayerexit[ 1 ], 0 );
+			dirtoplayerexit = vectornormalize( dirtoplayerexit );
+			if ( vectordot( dirtoplayerenter, dirtoplayerexit ) < 0 )
 			{
-				dirtoplayerexit = player.origin - self.origin;
-				dirtoplayerexit = ( dirtoplayerexit[ 0 ], dirtoplayerexit[ 1 ], 0 );
-				dirtoplayerexit = vectornormalize( dirtoplayerexit );
-				if ( vectordot( dirtoplayerenter, dirtoplayerexit ) < 0 )
-				{
-					self.zombie_faller_should_drop = 1;
-					return;
-				}
+				self.zombie_faller_should_drop = 1;
+				break;
 			}
-			else
-			{
-				incloserange = 0;
-			}
-			wait 0.1;
 		}
+		incloserange = 0;
+		wait 0.1;
 	}
 }
 
-zombie_fall_wait()
+zombie_fall_wait() //checked changed to match cerberus output
 {
 	self endon( "falling" );
 	self endon( "death" );
-	while ( isDefined( self.zone_name ) )
+	if ( isDefined( self.zone_name ) )
 	{
-		while ( isDefined( level.zones ) && isDefined( level.zones[ self.zone_name ] ) )
+		if ( isDefined( level.zones ) && isDefined( level.zones[ self.zone_name ] ) )
 		{
 			zone = level.zones[ self.zone_name ];
 			while ( 1 )
@@ -325,10 +314,13 @@ zombie_fall_wait()
 						if ( self.health != level.zombie_health )
 						{
 							self.zombie_faller_should_drop = 1;
+							break;
+						}
+						else 
+						{
+							self zombie_faller_delete();
 							return;
 						}
-						else self zombie_faller_delete();
-						return;
 					}
 				}
 				wait 0.5;
@@ -343,7 +335,7 @@ zombie_fall_should_attack( spot )
 	return victims.size > 0;
 }
 
-zombie_fall_get_vicitims( spot )
+zombie_fall_get_vicitims( spot ) //checked partially changed to match cerberus output //continues in for loops bad
 {
 	ret = [];
 	players = getplayers();
@@ -358,40 +350,34 @@ zombie_fall_get_vicitims( spot )
 			i++;
 			continue;
 		}
-		else stance = player getstance();
+		stance = player getstance();
 		if ( stance == "crouch" || stance == "prone" )
 		{
 			i++;
 			continue;
 		}
-		else
+		zcheck = self.origin[ 2 ] - player.origin[ 2 ];
+		if ( zcheck < 0 || zcheck > 120 )
 		{
-			zcheck = self.origin[ 2 ] - player.origin[ 2 ];
-			if ( zcheck < 0 || zcheck > 120 )
-			{
-				i++;
-				continue;
-			}
-			else
-			{
-				dist2 = distance2dsquared( player.origin, self.origin );
-				if ( dist2 < checkdist2 )
-				{
-					ret[ ret.size ] = player;
-				}
-			}
+			i++;
+			continue;
+		}
+		dist2 = distance2dsquared( player.origin, self.origin );
+		if ( dist2 < checkdist2 )
+		{
+			ret[ ret.size ] = player;
 		}
 		i++;
 	}
 	return ret;
 }
 
-get_fall_anim( spot )
+get_fall_anim( spot ) //checked matches cerberus output
 {
 	return level._zombie_fall_anims[ self.animname ][ "fall" ];
 }
 
-zombie_faller_enable_location()
+zombie_faller_enable_location() //checked matches cerberus output
 {
 	if ( isDefined( self.zombie_faller_location ) )
 	{
@@ -400,7 +386,7 @@ zombie_faller_enable_location()
 	}
 }
 
-zombie_faller_death_wait( endon_notify )
+zombie_faller_death_wait( endon_notify ) //checked matches cerberus output
 {
 	self endon( "falling" );
 	if ( isDefined( endon_notify ) )
@@ -411,14 +397,14 @@ zombie_faller_death_wait( endon_notify )
 	self zombie_faller_enable_location();
 }
 
-zombie_fall_death_func()
+zombie_fall_death_func() //checked matches cerberus output
 {
 	self animmode( "noclip" );
 	self.deathanim = "zm_faller_emerge_death";
 	return self maps/mp/zombies/_zm_spawner::zombie_death_animscript();
 }
 
-zombie_fall_death( spot )
+zombie_fall_death( spot ) //checked matches cerberus output
 {
 	self endon( "fall_anim_finished" );
 	while ( self.health > 1 )
@@ -429,7 +415,7 @@ zombie_fall_death( spot )
 	spot notify( "stop_zombie_fall_fx" );
 }
 
-_damage_mod_to_damage_type( type )
+_damage_mod_to_damage_type( type ) //checked changed to match cerberus output
 {
 	toks = strtok( type, "_" );
 	if ( toks.size < 2 )
@@ -437,17 +423,15 @@ _damage_mod_to_damage_type( type )
 		return type;
 	}
 	returnstr = toks[ 1 ];
-	i = 2;
-	while ( i < toks.size )
+	for ( i = 2; i < toks.size; i++ )
 	{
 		returnstr += toks[ i ];
-		i++;
 	}
 	returnstr = tolower( returnstr );
 	return returnstr;
 }
 
-zombie_fall_fx( spot )
+zombie_fall_fx( spot ) //checked matches cerberus output
 {
 	spot thread zombie_fall_dust_fx( self );
 	spot thread zombie_fall_burst_fx();
@@ -461,7 +445,7 @@ zombie_fall_fx( spot )
 	}
 }
 
-zombie_fall_burst_fx()
+zombie_fall_burst_fx() //checked matches cerberus output
 {
 	self endon( "stop_zombie_fall_fx" );
 	self endon( "fall_anim_finished" );
@@ -470,7 +454,7 @@ zombie_fall_burst_fx()
 	playfx( level._effect[ "rise_billow" ], self.origin + ( randomintrange( -10, 10 ), randomintrange( -10, 10 ), randomintrange( 5, 10 ) ) );
 }
 
-zombie_fall_dust_fx( zombie )
+zombie_fall_dust_fx( zombie ) //checked does not match cerberus output did not change
 {
 	dust_tag = "J_SpineUpper";
 	self endon( "stop_zombie_fall_dust_fx" );
@@ -486,42 +470,37 @@ zombie_fall_dust_fx( zombie )
 	}
 }
 
-stop_zombie_fall_dust_fx( zombie )
+stop_zombie_fall_dust_fx( zombie ) //checked matches cerberus output
 {
 	zombie waittill( "death" );
 	self notify( "stop_zombie_fall_dust_fx" );
 }
 
-handle_fall_notetracks( note, spot )
+handle_fall_notetracks( note, spot ) //checked changed to match cerberus output
 {
 	if ( note == "deathout" )
 	{
 		self.deathfunction = ::faller_death_ragdoll;
 	}
-	else
+	if ( note == "fire" )
 	{
-		while ( note == "fire" )
+		victims = zombie_fall_get_vicitims( spot );
+		for ( i = 0; i < victims.size; i++)
 		{
-			victims = zombie_fall_get_vicitims( spot );
-			i = 0;
-			while ( i < victims.size )
-			{
-				victims[ i ] dodamage( self.meleedamage, self.origin, self, self, "none", "MOD_MELEE" );
-				self.zombie_faller_should_drop = 1;
-				i++;
-			}
+			victims[ i ] dodamage( self.meleedamage, self.origin, self, self, "none", "MOD_MELEE" );
+			self.zombie_faller_should_drop = 1;
 		}
 	}
 }
 
-faller_death_ragdoll()
+faller_death_ragdoll() //checked matches cerberus output
 {
 	self startragdoll();
 	self launchragdoll( ( 0, 0, -1 ) );
 	return self maps/mp/zombies/_zm_spawner::zombie_death_animscript();
 }
 
-in_player_fov( player )
+in_player_fov( player ) //checked does not match cerberus output did not change
 {
 	playerangles = player getplayerangles();
 	playerforwardvec = anglesToForward( playerangles );
@@ -538,11 +517,11 @@ in_player_fov( player )
 	{
 		banzaivsplayerfovbuffer = 0.2;
 	}
-	inplayerfov = anglefromcenter <= ( ( playerfov * 0.5 ) * ( 1 - banzaivsplayerfovbuffer ) );
+	inplayerfov = anglefromcenter <= ( playerfov * 0.5 ) * ( 1 - banzaivsplayerfovbuffer );
 	return inplayerfov;
 }
 
-potentially_visible( how_close )
+potentially_visible( how_close ) //checked changed to match cerberus output
 {
 	if ( !isDefined( how_close ) )
 	{
@@ -550,8 +529,7 @@ potentially_visible( how_close )
 	}
 	potentiallyvisible = 0;
 	players = getplayers();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		dist = distancesquared( self.origin, players[ i ].origin );
 		if ( dist < how_close )
@@ -563,15 +541,11 @@ potentially_visible( how_close )
 				break;
 			}
 		}
-		else
-		{
-			i++;
-		}
 	}
 	return potentiallyvisible;
 }
 
-do_zombie_emerge( spot )
+do_zombie_emerge( spot ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self thread setup_deathfunc( ::faller_death_ragdoll );
@@ -588,11 +562,11 @@ do_zombie_emerge( spot )
 	self zombie_faller_emerge( spot );
 	self.create_eyes = 1;
 	wait 0.1;
-	self notify( "risen" );
+	self notify( "risen", spot.script_string );
 	self zombie_faller_enable_location();
 }
 
-zombie_faller_emerge( spot )
+zombie_faller_emerge( spot ) //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( self.zombie_faller_location.emerge_bottom ) && self.zombie_faller_location.emerge_bottom )
@@ -604,12 +578,12 @@ zombie_faller_emerge( spot )
 		self animscripted( self.zombie_faller_location.origin, self.zombie_faller_location.angles, "zombie_riser_elevator_from_ceiling" );
 	}
 	self maps/mp/animscripts/zm_shared::donotetracks( "rise_anim" );
-	self.deathfunction = ::zombie_death_animscript;
+	self.deathfunction = maps/mp/zombies/_zm_spawner::zombie_death_animscript;
 	self.in_the_ceiling = 0;
 	self.no_powerups = 0;
 }
 
-zombie_emerge_fx( spot )
+zombie_emerge_fx( spot ) //checked matches cerberus output
 {
 	spot thread zombie_emerge_dust_fx( self );
 	playsoundatposition( "zmb_zombie_spawn", spot.origin );
@@ -618,7 +592,7 @@ zombie_emerge_fx( spot )
 	wait 1;
 }
 
-zombie_emerge_dust_fx( zombie )
+zombie_emerge_dust_fx( zombie ) //checked does not match cerberus output did not change
 {
 	dust_tag = "J_SpineUpper";
 	self endon( "stop_zombie_fall_dust_fx" );
@@ -634,9 +608,10 @@ zombie_emerge_dust_fx( zombie )
 	}
 }
 
-stop_zombie_emerge_dust_fx( zombie )
+stop_zombie_emerge_dust_fx( zombie ) //checked matches cerberus output
 {
 	zombie waittill( "death" );
 	self notify( "stop_zombie_fall_dust_fx" );
 }
+
 

@@ -3,7 +3,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main_start()
+main_start() //checked matches cerberus output
 {
 	mapname = tolower( getDvar( "mapname" ) );
 	gametype = getDvar( "ui_gametype" );
@@ -25,24 +25,21 @@ main_start()
 	}
 }
 
-main_end()
+main_end() //checked matches cerberus output
 {
 	onfinalizeinitialization_callback( ::force_navcomputer_trigger_think );
 	level.original_melee_miss_func = level.melee_miss_func;
 	level.melee_miss_func = ::ffotd_melee_miss_func;
 }
 
-force_navcomputer_trigger_think()
+force_navcomputer_trigger_think() //checked changed to match cerberus output
 {
 	if ( !isDefined( level.zombie_include_buildables ) || !level.zombie_include_buildables.size )
 	{
 		return;
 	}
-	_a52 = level.zombie_include_buildables;
-	_k52 = getFirstArrayKey( _a52 );
-	while ( isDefined( _k52 ) )
+	foreach ( buildable in level.zombie_include_buildables )
 	{
-		buildable = _a52[ _k52 ];
 		if ( buildable.name == "sq_common" )
 		{
 			if ( isDefined( buildable.triggerthink ) )
@@ -55,22 +52,18 @@ force_navcomputer_trigger_think()
 				return;
 			}
 		}
-		_k52 = getNextArrayKey( _a52, _k52 );
 	}
 }
 
-transit_navcomputer_remove_card_on_success()
+transit_navcomputer_remove_card_on_success() //checked changed to match cerberus output
 {
 	wait_for_buildable( "sq_common" );
 	wait_network_frame();
 	trig_pos = getstruct( "sq_common_key", "targetname" );
 	trigs = getentarray( "trigger_radius_use", "classname" );
 	nav_trig = undefined;
-	_a81 = trigs;
-	_k81 = getFirstArrayKey( _a81 );
-	while ( isDefined( _k81 ) )
+	foreach ( trig in trigs )
 	{
-		trig = _a81[ _k81 ];
 		if ( trig.origin == trig_pos.origin )
 		{
 			nav_trig = trig;
@@ -88,33 +81,25 @@ transit_navcomputer_remove_card_on_success()
 			}
 		}
 		players = get_players();
-		_a101 = players;
-		_k101 = getFirstArrayKey( _a101 );
-		while ( isDefined( _k101 ) )
+		foreach ( player in players )
 		{
-			player = _a101[ _k101 ];
 			player maps/mp/zombies/_zm_stats::set_global_stat( level.navcard_needed, 0 );
-			_k101 = getNextArrayKey( _a101, _k101 );
 		}
 		level thread sq_refresh_player_navcard_hud();
 	}
 }
 
-sq_refresh_player_navcard_hud()
+sq_refresh_player_navcard_hud() //checked changed to match cerberus output
 {
 	if ( !isDefined( level.navcards ) )
 	{
 		return;
 	}
 	players = get_players();
-	_a116 = players;
-	_k116 = getFirstArrayKey( _a116 );
-	while ( isDefined( _k116 ) )
+	foreach ( player in players )
 	{
-		player = _a116[ _k116 ];
 		navcard_bits = 0;
-		i = 0;
-		while ( i < level.navcards.size )
+		for ( i = 0; i < level.navcards.size; i++ )
 		{
 			hasit = player maps/mp/zombies/_zm_stats::get_global_stat( level.navcards[ i ] );
 			if ( isDefined( player.navcard_grabbed ) && player.navcard_grabbed == level.navcards[ i ] )
@@ -125,7 +110,6 @@ sq_refresh_player_navcard_hud()
 			{
 				navcard_bits = navcard_bits + 1;
 			}
-			i++;
 		}
 		wait_network_frame();
 		player setclientfield( "navcard_held", 0 );
@@ -134,17 +118,16 @@ sq_refresh_player_navcard_hud()
 			wait_network_frame();
 			player setclientfield( "navcard_held", navcard_bits );
 		}
-		_k116 = getNextArrayKey( _a116, _k116 );
 	}
 }
 
 player_in_exploit_area( player_trigger_origin, player_trigger_radius )
 {
-	if ( distancesquared( player_trigger_origin, self.origin ) < ( player_trigger_radius * player_trigger_radius ) )
+	if ( distancesquared( player_trigger_origin, self.origin ) < player_trigger_radius * player_trigger_radius )
 	{
 	/*
 /#
-		iprintlnbold( "player exploit detectect" );
+		iprintlnbold( "player exploit detected" );
 #/
 	*/
 		return 1;
@@ -152,7 +135,7 @@ player_in_exploit_area( player_trigger_origin, player_trigger_radius )
 	return 0;
 }
 
-path_exploit_fix( zombie_trigger_origin, zombie_trigger_radius, zombie_trigger_height, player_trigger_origin, player_trigger_radius, zombie_goto_point )
+path_exploit_fix( zombie_trigger_origin, zombie_trigger_radius, zombie_trigger_height, player_trigger_origin, player_trigger_radius, zombie_goto_point ) //checked matches cerberus output
 {
 	spawnflags = 9;
 	zombie_trigger = spawn( "trigger_radius", zombie_trigger_origin, spawnflags, zombie_trigger_radius, zombie_trigger_height );
@@ -172,7 +155,7 @@ path_exploit_fix( zombie_trigger_origin, zombie_trigger_radius, zombie_trigger_h
 	}
 }
 
-exploit_reroute( zombie_trigger, player_trigger_origin, player_trigger_radius, zombie_goto_point )
+exploit_reroute( zombie_trigger, player_trigger_origin, player_trigger_radius, zombie_goto_point ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self.reroute = 1;
@@ -199,7 +182,7 @@ exploit_reroute( zombie_trigger, player_trigger_origin, player_trigger_radius, z
 	self.reroute = 0;
 }
 
-debug_exploit( player_origin, player_radius, enemy_origin, enemy_radius, zombie_goto_point )
+debug_exploit( player_origin, player_radius, enemy_origin, enemy_radius, zombie_goto_point ) //dev call commented out
 {
 /*
 /#
@@ -215,7 +198,7 @@ debug_exploit( player_origin, player_radius, enemy_origin, enemy_radius, zombie_
 */
 }
 
-ffotd_melee_miss_func()
+ffotd_melee_miss_func() //checked matches cerberus output
 {
 	if ( isDefined( self.enemy ) )
 	{

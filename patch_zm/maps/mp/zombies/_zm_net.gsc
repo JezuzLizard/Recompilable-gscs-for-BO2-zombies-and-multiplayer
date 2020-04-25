@@ -2,7 +2,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-network_choke_init( id, max )
+network_choke_init( id, max ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_network_choke_ids_max ) )
 	{
@@ -14,7 +14,7 @@ network_choke_init( id, max )
 	level thread network_choke_thread( id );
 }
 
-network_choke_thread( id )
+network_choke_thread( id ) //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -24,12 +24,12 @@ network_choke_thread( id )
 	}
 }
 
-network_choke_safe( id )
+network_choke_safe( id ) //checked matches cerberus output
 {
 	return level.zombie_network_choke_ids_count[ id ] < level.zombie_network_choke_ids_max[ id ];
 }
 
-network_choke_action( id, choke_action, arg1, arg2, arg3 )
+network_choke_action( id, choke_action, arg1, arg2, arg3 ) //checked matches cerberus output
 {
 /*
 /#
@@ -56,7 +56,7 @@ network_choke_action( id, choke_action, arg1, arg2, arg3 )
 	return [[ choke_action ]]( arg1, arg2, arg3 );
 }
 
-network_entity_valid( entity )
+network_entity_valid( entity ) //checked matches cerberus output
 {
 	if ( !isDefined( entity ) )
 	{
@@ -65,7 +65,7 @@ network_entity_valid( entity )
 	return 1;
 }
 
-network_safe_init( id, max )
+network_safe_init( id, max ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_network_choke_ids_max ) || !isDefined( level.zombie_network_choke_ids_max[ id ] ) )
 	{
@@ -78,18 +78,18 @@ network_safe_init( id, max )
 	*/
 }
 
-_network_safe_spawn( classname, origin )
+_network_safe_spawn( classname, origin ) //checked matches cerberus output
 {
 	return spawn( classname, origin );
 }
 
-network_safe_spawn( id, max, classname, origin )
+network_safe_spawn( id, max, classname, origin ) //checked matches cerberus output
 {
 	network_safe_init( id, max );
 	return network_choke_action( id, ::_network_safe_spawn, classname, origin );
 }
 
-_network_safe_play_fx_on_tag( fx, entity, tag )
+_network_safe_play_fx_on_tag( fx, entity, tag ) //checked matches cerberus output
 {
 	if ( network_entity_valid( entity ) )
 	{
@@ -97,7 +97,7 @@ _network_safe_play_fx_on_tag( fx, entity, tag )
 	}
 }
 
-network_safe_play_fx_on_tag( id, max, fx, entity, tag )
+network_safe_play_fx_on_tag( id, max, fx, entity, tag ) //checked matches cerberus output
 {
 	network_safe_init( id, max );
 	network_choke_action( id, ::_network_safe_play_fx_on_tag, fx, entity, tag );

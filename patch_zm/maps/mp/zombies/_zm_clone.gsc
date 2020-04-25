@@ -2,14 +2,14 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-//#using_animtree( "zm_ally" );
+//#using_animtree( "zm_ally" ); //cannot use this in gsc
 
-init()
+init() //checked matches cerberus output
 {
 	init_mover_tree();
 }
 
-spawn_player_clone( player, origin, forceweapon, forcemodel )
+spawn_player_clone( player, origin, forceweapon, forcemodel ) //checked matches cerberus output
 {
 	if ( !isDefined( origin ) )
 	{
@@ -66,17 +66,17 @@ spawn_player_clone( player, origin, forceweapon, forcemodel )
 	return clone;
 }
 
-clone_damage_func( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+clone_damage_func( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked changed to match cerberus output
 {
 	idamage = 0;
-	if ( sweapon != "knife_ballistic_upgraded_zm" && sweapon != "knife_ballistic_bowie_upgraded_zm" || sweapon == "knife_ballistic_no_melee_upgraded_zm" && sweapon == "knife_ballistic_sickle_upgraded_zm" )
+	if ( sweapon == "knife_ballistic_upgraded_zm" && sweapon == "knife_ballistic_bowie_upgraded_zm" || sweapon == "knife_ballistic_no_melee_upgraded_zm" && sweapon == "knife_ballistic_sickle_upgraded_zm" )
 	{
 		self notify( "player_revived" );
 	}
 	return idamage;
 }
 
-clone_give_weapon( weapon )
+clone_give_weapon( weapon ) //checked matches cerberus output
 {
 	weaponmodel = getweaponmodel( weapon );
 	if ( weaponmodel != "" && weaponmodel != "none" )
@@ -85,7 +85,7 @@ clone_give_weapon( weapon )
 	}
 }
 
-clone_animate( animtype )
+clone_animate( animtype ) //checked matches cerberus output
 {
 	if ( self.isactor )
 	{
@@ -97,7 +97,7 @@ clone_animate( animtype )
 	}
 }
 
-clone_actor_animate( animtype )
+clone_actor_animate( animtype ) //checked matches cerberus output
 {
 	wait 0.1;
 	switch( animtype )
@@ -112,12 +112,12 @@ clone_actor_animate( animtype )
 	}
 }
 
-init_mover_tree()
+init_mover_tree() //checked matches cerberus output
 {
 	scriptmodelsuseanimtree( -1 );
 }
 
-clone_mover_animate( animtype )
+clone_mover_animate( animtype ) //checked matches cerberus output
 {
 	self useanimtree( -1 );
 	switch( animtype )
