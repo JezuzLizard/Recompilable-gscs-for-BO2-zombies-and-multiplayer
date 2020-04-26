@@ -2,9 +2,15 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
-{
-	if ( isDefined( level.disable_blackscreen_clientfield ) && !level.disable_blackscreen_clientfield )
+init() //checked changed to match cerberus output //changed partially at own discretion
+{	
+/*
+	if ( isDefined( level.disable_blackscreen_clientfield ) && level.disable_blackscreen_clientfield )
+	{
+		registerclientfield( "toplayer", "blackscreen", 1, 1, "int" );
+	}
+*/	//the value of level.disable_blackscreen_clientfield is not defined in any map file except buried meaning
+	if ( !isDefined( level.disable_blackscreen_clientfield ) || !level.disable_blackscreen_clientfield )
 	{
 		registerclientfield( "toplayer", "blackscreen", 1, 1, "int" );
 	}
@@ -18,7 +24,7 @@ init()
 	}
 }
 
-player_teleport_blackscreen_on()
+player_teleport_blackscreen_on() //checked matches cerberus output
 {
 	if ( isDefined( level.disable_blackscreen_clientfield ) && level.disable_blackscreen_clientfield )
 	{
@@ -32,11 +38,11 @@ player_teleport_blackscreen_on()
 	}
 }
 
-player_connect_gump()
+player_connect_gump() //checked matches cerberus output
 {
 }
 
-player_watch_spectate_change()
+player_watch_spectate_change() //checked matches cerberus output
 {
 	if ( isDefined( level.disable_blackscreen_clientfield ) && level.disable_blackscreen_clientfield )
 	{
@@ -78,4 +84,6 @@ gump_test()
 	}
 */
 }
+
+
 

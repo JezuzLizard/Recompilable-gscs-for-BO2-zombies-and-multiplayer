@@ -403,7 +403,7 @@ save_weapons_for_tombstone( player ) //checked changed to match cerberus output
 {
 	self.tombstone_melee_weapons = [];
 
-	for ( i = 0; i < level._melee_weapons.size; i++; )
+	for ( i = 0; i < level._melee_weapons.size; i++ )
 	{
 		self save_weapon_for_tombstone( player, level._melee_weapons[ i ].weapon_name );
 	}

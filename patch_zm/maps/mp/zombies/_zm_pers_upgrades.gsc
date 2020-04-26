@@ -8,7 +8,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-pers_upgrade_init()
+pers_upgrade_init() //checked matches cerberus output
 {
 	setup_pers_upgrade_boards();
 	setup_pers_upgrade_revive();
@@ -27,7 +27,7 @@ pers_upgrade_init()
 	level thread pers_upgrades_monitor();
 }
 
-pers_abilities_init_globals()
+pers_abilities_init_globals() //checked matches cerberus output
 {
 	self.successful_revives = 0;
 	self.failed_revives = 0;
@@ -45,7 +45,7 @@ pers_abilities_init_globals()
 	}
 }
 
-is_pers_system_active()
+is_pers_system_active() //checked matches cerberus output
 {
 	if ( !is_classic() )
 	{
@@ -58,7 +58,7 @@ is_pers_system_active()
 	return 1;
 }
 
-is_pers_system_disabled()
+is_pers_system_disabled() //checked matches cerberus output
 {
 	if ( level flag_exists( "sq_minigame_active" ) && flag( "sq_minigame_active" ) )
 	{
@@ -67,7 +67,7 @@ is_pers_system_disabled()
 	return 0;
 }
 
-setup_pers_upgrade_boards()
+setup_pers_upgrade_boards() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_boards ) && level.pers_upgrade_boards )
 	{
@@ -77,7 +77,7 @@ setup_pers_upgrade_boards()
 	}
 }
 
-setup_pers_upgrade_revive()
+setup_pers_upgrade_revive() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_revive ) && level.pers_upgrade_revive )
 	{
@@ -87,7 +87,7 @@ setup_pers_upgrade_revive()
 	}
 }
 
-setup_pers_upgrade_multi_kill_headshots()
+setup_pers_upgrade_multi_kill_headshots() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_multi_kill_headshots ) && level.pers_upgrade_multi_kill_headshots )
 	{
@@ -97,7 +97,7 @@ setup_pers_upgrade_multi_kill_headshots()
 	}
 }
 
-setup_pers_upgrade_cash_back()
+setup_pers_upgrade_cash_back() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_cash_back ) && level.pers_upgrade_cash_back )
 	{
@@ -110,7 +110,7 @@ setup_pers_upgrade_cash_back()
 	}
 }
 
-setup_pers_upgrade_insta_kill()
+setup_pers_upgrade_insta_kill() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
 	{
@@ -120,7 +120,7 @@ setup_pers_upgrade_insta_kill()
 	}
 }
 
-setup_pers_upgrade_jugg()
+setup_pers_upgrade_jugg() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_jugg ) && level.pers_upgrade_jugg )
 	{
@@ -133,7 +133,7 @@ setup_pers_upgrade_jugg()
 	}
 }
 
-setup_pers_upgrade_carpenter()
+setup_pers_upgrade_carpenter() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_carpenter ) && level.pers_upgrade_carpenter )
 	{
@@ -142,7 +142,7 @@ setup_pers_upgrade_carpenter()
 	}
 }
 
-setup_pers_upgrade_flopper()
+setup_pers_upgrade_flopper() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_flopper ) && level.pers_upgrade_flopper )
 	{
@@ -154,7 +154,7 @@ setup_pers_upgrade_flopper()
 	}
 }
 
-setup_pers_upgrade_perk_lose()
+setup_pers_upgrade_perk_lose() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_perk_lose ) && level.pers_upgrade_perk_lose )
 	{
@@ -164,7 +164,7 @@ setup_pers_upgrade_perk_lose()
 	}
 }
 
-setup_pers_upgrade_pistol_points()
+setup_pers_upgrade_pistol_points() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_pistol_points ) && level.pers_upgrade_pistol_points )
 	{
@@ -175,7 +175,7 @@ setup_pers_upgrade_pistol_points()
 	}
 }
 
-setup_pers_upgrade_double_points()
+setup_pers_upgrade_double_points() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_double_points ) && level.pers_upgrade_double_points )
 	{
@@ -185,7 +185,7 @@ setup_pers_upgrade_double_points()
 	}
 }
 
-setup_pers_upgrade_sniper()
+setup_pers_upgrade_sniper() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_sniper ) && level.pers_upgrade_sniper )
 	{
@@ -197,7 +197,7 @@ setup_pers_upgrade_sniper()
 	}
 }
 
-setup_pers_upgrade_box_weapon()
+setup_pers_upgrade_box_weapon() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_box_weapon ) && level.pers_upgrade_box_weapon )
 	{
@@ -207,7 +207,7 @@ setup_pers_upgrade_box_weapon()
 	}
 }
 
-setup_pers_upgrade_nube()
+setup_pers_upgrade_nube() //checked matches cerberus output
 {
 	if ( isDefined( level.pers_upgrade_nube ) && level.pers_upgrade_nube )
 	{
@@ -218,7 +218,7 @@ setup_pers_upgrade_nube()
 	}
 }
 
-pers_upgrade_boards_active()
+pers_upgrade_boards_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	last_round_number = level.round_number;
@@ -240,7 +240,7 @@ pers_upgrade_boards_active()
 	}
 }
 
-pers_upgrade_revive_active()
+pers_upgrade_revive_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -258,7 +258,7 @@ pers_upgrade_revive_active()
 	}
 }
 
-pers_upgrade_headshot_active()
+pers_upgrade_headshot_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -277,7 +277,7 @@ pers_upgrade_headshot_active()
 	}
 }
 
-pers_upgrade_cash_back_active()
+pers_upgrade_cash_back_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -287,7 +287,6 @@ pers_upgrade_cash_back_active()
 	{
 		self waittill( "cash_back_failed_prone" );
 		wait 0.1;
-
 		if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 		{
 			self.failed_cash_back_prones++;
@@ -297,18 +296,16 @@ pers_upgrade_cash_back_active()
 				self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_cash_back_prone", 0 );
 				self.failed_cash_back_prones = 0;
 				wait 0.4;
-
 				return;
 			}
 		}
 	}
 }
 
-pers_upgrade_insta_kill_active()
+pers_upgrade_insta_kill_active() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.2;
-
 	wait 0.2;
 	while ( 1 )
 	{
@@ -327,16 +324,13 @@ pers_upgrade_insta_kill_active()
 			}
 			break;
 		}
-		else
-		{
-		}
 	}
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_insta_kill", 0 );
 	self kill_insta_kill_upgrade_hud_icon();
 	wait 0.4;
 }
 
-is_insta_kill_upgraded_and_active()
+is_insta_kill_upgraded_and_active() //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
@@ -351,7 +345,7 @@ is_insta_kill_upgraded_and_active()
 	return 0;
 }
 
-pers_upgrade_jugg_active()
+pers_upgrade_jugg_active() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -373,20 +367,16 @@ pers_upgrade_jugg_active()
 				}
 			}
 		}
-		else
-		{
-		}
 	}
 	self maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg( "jugg_upgrade", 1, 1 );
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_jugg", 0 );
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_jugg_downgrade_count", 0 );
 }
 
-pers_upgrade_carpenter_active()
+pers_upgrade_carpenter_active() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.2;
-
 	wait 0.2;
 	level waittill( "carpenter_finished" );
 	self.pers_carpenter_kill = undefined;
@@ -399,23 +389,18 @@ pers_upgrade_carpenter_active()
 			{
 				break;
 			}
-			else
-			{
-
-			}
-			self.pers_carpenter_kill = undefined;
 		}
+		self.pers_carpenter_kill = undefined;
 	}
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_carpenter", 0 );
 	wait 0.4;
 }
 
-persistent_carpenter_ability_check()
+persistent_carpenter_ability_check() //checked changed to match cerberus output
 {
 	if ( isDefined( level.pers_upgrade_carpenter ) && level.pers_upgrade_carpenter )
 	{
 		self endon( "disconnect" );
-
 		if ( isDefined( self.pers_upgrades_awarded[ "carpenter" ] ) && self.pers_upgrades_awarded[ "carpenter" ] )
 		{
 			level.pers_carpenter_boards_active = 1;
@@ -448,7 +433,10 @@ persistent_carpenter_ability_check()
 					{
 						break;
 					}
-					else self maps/mp/zombies/_zm_stats::increment_client_stat( "pers_carpenter", 0 );
+					else
+					{
+						self maps/mp/zombies/_zm_stats::increment_client_stat( "pers_carpenter", 0 );
+					}
 				}
 			}
 			wait 0.05;
@@ -459,7 +447,7 @@ persistent_carpenter_ability_check()
 	}
 }
 
-pers_zombie_death_location_check( attacker, v_pos )
+pers_zombie_death_location_check( attacker, v_pos ) //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
@@ -476,7 +464,7 @@ pers_zombie_death_location_check( attacker, v_pos )
 	}
 }
 
-insta_kill_pers_upgrade_icon()
+insta_kill_pers_upgrade_icon() //checked matches cerberus output
 {
 	if ( self.zombie_vars[ "zombie_powerup_insta_kill_ug_on" ] )
 	{
@@ -488,7 +476,7 @@ insta_kill_pers_upgrade_icon()
 	self thread time_remaining_pers_upgrade();
 }
 
-time_remaining_pers_upgrade()
+time_remaining_pers_upgrade() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "kill_insta_kill_upgrade_hud_icon" );
@@ -500,7 +488,7 @@ time_remaining_pers_upgrade()
 	self kill_insta_kill_upgrade_hud_icon();
 }
 
-kill_insta_kill_upgrade_hud_icon()
+kill_insta_kill_upgrade_hud_icon() //checked matches cerberus output
 {
 	self.zombie_vars[ "zombie_powerup_insta_kill_ug_on" ] = 0;
 	self._show_solo_hud = 0;
@@ -508,7 +496,7 @@ kill_insta_kill_upgrade_hud_icon()
 	self notify( "kill_insta_kill_upgrade_hud_icon" );
 }
 
-pers_upgrade_flopper_active()
+pers_upgrade_flopper_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -529,7 +517,7 @@ pers_upgrade_flopper_active()
 	self.pers_num_flopper_damages = 0;
 }
 
-pers_upgrade_perk_lose_active()
+pers_upgrade_perk_lose_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -549,7 +537,7 @@ pers_upgrade_perk_lose_active()
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_perk_lose_counter", 0 );
 }
 
-pers_upgrade_pistol_points_active()
+pers_upgrade_pistol_points_active() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -567,9 +555,6 @@ pers_upgrade_pistol_points_active()
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	/*
 /#
@@ -579,7 +564,7 @@ pers_upgrade_pistol_points_active()
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_pistol_points_counter", 0 );
 }
 
-pers_upgrade_double_points_active()
+pers_upgrade_double_points_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -598,7 +583,7 @@ pers_upgrade_double_points_active()
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_double_points_counter", 0 );
 }
 
-pers_upgrade_sniper_active()
+pers_upgrade_sniper_active() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -617,7 +602,7 @@ pers_upgrade_sniper_active()
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_sniper_counter", 0 );
 }
 
-pers_upgrade_box_weapon_active()
+pers_upgrade_box_weapon_active() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -639,9 +624,6 @@ pers_upgrade_box_weapon_active()
 				break;
 			}
 		}
-		else
-		{
-		}
 	}
 	/*
 /#
@@ -651,7 +633,7 @@ pers_upgrade_box_weapon_active()
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_box_weapon_counter", 0 );
 }
 
-pers_upgrade_nube_active()
+pers_upgrade_nube_active() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0.5;
@@ -671,9 +653,6 @@ pers_upgrade_nube_active()
 				break;
 			}
 		}
-		else
-		{
-		}
 	}
 	/*
 /#
@@ -682,4 +661,5 @@ pers_upgrade_nube_active()
 	*/
 	self maps/mp/zombies/_zm_stats::zero_client_stat( "pers_nube_counter", 0 );
 }
+
 
