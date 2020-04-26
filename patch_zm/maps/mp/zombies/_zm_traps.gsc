@@ -8,7 +8,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.trap_kills = 0;
 	traps = getentarray( "zombie_trap", "targetname" );
@@ -19,7 +19,7 @@ init()
 	level.elec_trap_cooldown_time = 60;
 }
 
-trap_init()
+trap_init() //checked partially changed to match cerberus output //did not change for loop to while loop to prevent infinite loop bug caused by continue in a for loop
 {
 	self ent_flag_init( "flag_active" );
 	self ent_flag_init( "flag_cooldown" );
@@ -30,10 +30,7 @@ trap_init()
 		if ( isDefined( level._zombiemode_trap_activate_funcs ) && isDefined( level._zombiemode_trap_activate_funcs[ self._trap_type ] ) )
 		{
 			self._trap_activate_func = level._zombiemode_trap_activate_funcs[ self._trap_type ];
-			break;
-	}
-	else
-	{
+		}
 		switch( self.script_noteworthy )
 		{
 			case "rotating":
@@ -49,200 +46,158 @@ trap_init()
 			default:
 				self._trap_activate_func = ::trap_activate_fire;
 		}
-	}
-	if ( isDefined( level._zombiemode_trap_use_funcs ) && isDefined( level._zombiemode_trap_use_funcs[ self._trap_type ] ) )
-	{
-		self._trap_use_func = level._zombiemode_trap_use_funcs[ self._trap_type ];
-	}
-	else
-	{
-		self._trap_use_func = ::trap_use_think;
-	}
-}
-self trap_model_type_init();
-self._trap_use_trigs = [];
-self._trap_lights = [];
-self._trap_movers = [];
-self._trap_switches = [];
-components = getentarray( self.target, "targetname" );
-i = 0;
-while ( i < components.size )
-{
-	if ( isDefined( components[ i ].script_noteworthy ) )
-	{
-		switch( components[ i ].script_noteworthy )
+		if ( isDefined( level._zombiemode_trap_use_funcs ) && isDefined( level._zombiemode_trap_use_funcs[ self._trap_type ] ) )
 		{
-			case "counter_1s":
-				self.counter_1s = components[ i ];
+			self._trap_use_func = level._zombiemode_trap_use_funcs[ self._trap_type ];
+		}
+		else
+		{
+			self._trap_use_func = ::trap_use_think;
+		}
+	}
+	self trap_model_type_init();
+	self._trap_use_trigs = [];
+	self._trap_lights = [];
+	self._trap_movers = [];
+	self._trap_switches = [];
+	components = getentarray( self.target, "targetname" );
+	for ( i = 0; i < components.size; i++ )
+	{
+		if ( isDefined( components[ i ].script_noteworthy ) )
+		{
+			switch( components[ i ].script_noteworthy )
+			{
+				case "counter_1s":
+					self.counter_1s = components[ i ];
+					break;
+				case "counter_10s":
+					self.counter_10s = components[ i ];
+					break;
+				case "counter_100s":
+					self.counter_100s = components[ i ];
+					break;
+				case "mover":
+					self._trap_movers[ self._trap_movers.size ] = components[ i ];
+					break;
+				case "switch":
+					self._trap_switches[ self._trap_switches.size ] = components[ i ];
+					break;
+				case "light":
+					self._trap_lightes[ self._trap_lightes.size ] = components[ i ];
+					break;
+			}
+		}
+		if ( isDefined( components[ i ].script_string ) )
+		{
+			switch( components[ i ].script_string )
+			{
+				case "flipper1":
+					self.flipper1 = components[ i ];
+					break;
+				case "flipper2":
+					self.flipper2 = components[ i ];
+					break;
+				case "flipper1_radius_check":
+					self.flipper1_radius_check = components[ i ];
+					break;
+				case "flipper2_radius_check":
+					self.flipper2_radius_check = components[ i ];
+					break;
+				case "target1":
+					self.target1 = components[ i ];
+					break;
+				case "target2":
+					self.target2 = components[ i ];
+					break;
+				case "target3":
+					self.target3 = components[ i ];
+					break;
+			}
+		}
+		switch( components[ i ].classname )
+		{
+			case "trigger_use":
+				self._trap_use_trigs[ self._trap_use_trigs.size ] = components[ i ];
 				break;
-			i++;
-			continue;
-			case "counter_10s":
-				self.counter_10s = components[ i ];
-				break;
-			i++;
-			continue;
-			case "counter_100s":
-				self.counter_100s = components[ i ];
-				break;
-			i++;
-			continue;
-			case "mover":
-				self._trap_movers[ self._trap_movers.size ] = components[ i ];
-				break;
-			i++;
-			continue;
-			case "switch":
-				self._trap_switches[ self._trap_switches.size ] = components[ i ];
-				break;
-			i++;
-			continue;
-			case "light":
-				self._trap_lightes[ self._trap_lightes.size ] = components[ i ];
-				break;
+			case "script_model":
+				if ( components[ i ].model == self._trap_light_model_off )
+				{
+					self._trap_lights[ self._trap_lights.size ] = components[ i ];
+				}
+				else if ( components[ i ].model == self._trap_switch_model )
+				{
+					self._trap_switches[ self._trap_switches.size ] = components[ i ];
+				}
+		}
+	}
+	self._trap_fx_structs = [];
+	components = getstructarray( self.target, "targetname" );
+	i = 0;
+	while ( i < components.size )
+	{
+		if ( isDefined( components[ i ].script_string ) && components[ i ].script_string == "use_this_angle" )
+		{
+			self.use_this_angle = components[ i ];
 			i++;
 			continue;
 		}
-	}
-	if ( isDefined( components[ i ].script_string ) )
-	{
-		switch( components[ i ].script_string )
-		{
-			case "flipper1":
-				self.flipper1 = components[ i ];
-				break;
-			i++;
-			continue;
-			case "flipper2":
-				self.flipper2 = components[ i ];
-				break;
-			i++;
-			continue;
-			case "flipper1_radius_check":
-				self.flipper1_radius_check = components[ i ];
-				break;
-			i++;
-			continue;
-			case "flipper2_radius_check":
-				self.flipper2_radius_check = components[ i ];
-				break;
-			i++;
-			continue;
-			case "target1":
-				self.target1 = components[ i ];
-				break;
-			i++;
-			continue;
-			case "target2":
-				self.target2 = components[ i ];
-				break;
-			i++;
-			continue;
-			case "target3":
-				self.target3 = components[ i ];
-				break;
-			i++;
-			continue;
-		}
-	}
-	switch( components[ i ].classname )
-	{
-		case "trigger_use":
-			self._trap_use_trigs[ self._trap_use_trigs.size ] = components[ i ];
-			break;
-		i++;
-		continue;
-		case "script_model":
-			if ( components[ i ].model == self._trap_light_model_off )
-			{
-				self._trap_lights[ self._trap_lights.size ] = components[ i ];
-			}
-			else if ( components[ i ].model == self._trap_switch_model )
-			{
-				self._trap_switches[ self._trap_switches.size ] = components[ i ];
-			}
-	}
-	i++;
-}
-self._trap_fx_structs = [];
-components = getstructarray( self.target, "targetname" );
-i = 0;
-while ( i < components.size )
-{
-	if ( isDefined( components[ i ].script_string ) && components[ i ].script_string == "use_this_angle" )
-	{
-		self.use_this_angle = components[ i ];
-		i++;
-		continue;
-	}
-	else
-	{
 		self._trap_fx_structs[ self._trap_fx_structs.size ] = components[ i ];
+		i++;
 	}
-	i++;
-}
-/#
-assert( self._trap_use_trigs.size > 0, "_zm_traps::init no use triggers found for " + self.target );
-#/
-if ( !isDefined( self.zombie_cost ) )
-{
-	self.zombie_cost = 1000;
-}
-self._trap_in_use = 0;
-self._trap_cooling_down = 0;
-self thread trap_dialog();
-flag_wait( "start_zombie_round_logic" );
-self trap_lights_red();
-i = 0;
-while ( i < self._trap_use_trigs.size )
-{
-	self._trap_use_trigs[ i ] setcursorhint( "HINT_NOICON" );
-	i++;
-}
-if ( !isDefined( self.script_flag_wait ) )
-{
-	self trap_set_string( &"ZOMBIE_NEED_POWER" );
-	flag_wait( "power_on" );
-}
-else
-{
-	if ( !isDefined( level.flag[ self.script_flag_wait ] ) )
+	/*
+	/#
+	assert( self._trap_use_trigs.size > 0, "_zm_traps::init no use triggers found for " + self.target );
+	#/
+	*/
+	if ( !isDefined( self.zombie_cost ) )
+	{
+		self.zombie_cost = 1000;
+	}
+	self._trap_in_use = 0;
+	self._trap_cooling_down = 0;
+	self thread trap_dialog();
+	flag_wait( "start_zombie_round_logic" );
+	self trap_lights_red();
+	for ( i = 0; i < self._trap_use_trigs.size; i++ )
+	{
+		self._trap_use_trigs[ i ] setcursorhint( "HINT_NOICON" );
+	}
+	if ( !isDefined( self.script_flag_wait ) )
+	{
+		self trap_set_string( &"ZOMBIE_NEED_POWER" );
+		flag_wait( "power_on" );
+	}
+	else if ( !isDefined( level.flag[ self.script_flag_wait ] ) )
 	{
 		flag_init( self.script_flag_wait );
 	}
 	flag_wait( self.script_flag_wait );
-}
-self trap_set_string( &"ZOMBIE_BUTTON_BUY_TRAP", self.zombie_cost );
-self trap_lights_green();
-i = 0;
-while ( i < self._trap_use_trigs.size )
-{
-	self._trap_use_trigs[ i ] thread [[ self._trap_use_func ]]( self );
-	i++;
-}
+	self trap_set_string( &"ZOMBIE_BUTTON_BUY_TRAP", self.zombie_cost );
+	self trap_lights_green();
+	for ( i = 0; i < self._trap_use_trigs.size; i++ )
+	{
+		self._trap_use_trigs[ i ] thread [[ self._trap_use_func ]]( self );
+	}
 }
 
-trap_use_think( trap )
+trap_use_think( trap ) //checked changed to match cerberus output
 {
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		self waittill( "trigger", who );
+		if ( who in_revive_trigger() )
 		{
-			self waittill( "trigger", who );
-			while ( who in_revive_trigger() )
+			continue;
+		}
+		if ( is_player_valid( who ) && !trap._trap_in_use )
+		{
+			if ( who.score >= trap.zombie_cost )
+			{
+				who maps/mp/zombies/_zm_score::minus_to_player_score( trap.zombie_cost );
+			}
+			else
 			{
 				continue;
-			}
-			if ( is_player_valid( who ) && !trap._trap_in_use )
-			{
-				if ( who.score >= trap.zombie_cost )
-				{
-					who maps/mp/zombies/_zm_score::minus_to_player_score( trap.zombie_cost );
-					break;
-				}
-				else
-				{
-				}
 			}
 			trap._trap_in_use = 1;
 			trap trap_set_string( &"ZOMBIE_TRAP_ACTIVE" );
@@ -258,12 +213,14 @@ trap_use_think( trap )
 			trap trigger_off();
 			trap._trap_cooling_down = 1;
 			trap trap_set_string( &"ZOMBIE_TRAP_COOLDOWN" );
-/#
+			/*
+	/#
 			if ( getDvarInt( "zombie_cheat" ) >= 1 )
 			{
 				trap._trap_cooldown_time = 5;
-#/
+	#/
 			}
+			*/
 			wait trap._trap_cooldown_time;
 			trap._trap_cooling_down = 0;
 			trap notify( "available" );
@@ -273,10 +230,9 @@ trap_use_think( trap )
 	}
 }
 
-trap_lights_red()
+trap_lights_red() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self._trap_lights.size )
+	for ( i = 0; i < self._trap_lights.size; i++ )
 	{
 		light = self._trap_lights[ i ];
 		light setmodel( self._trap_light_model_red );
@@ -288,11 +244,10 @@ trap_lights_red()
 		light.fx setmodel( "tag_origin" );
 		light.fx.angles = light.angles;
 		playfxontag( level._effect[ "zapper_light_notready" ], light.fx, "tag_origin" );
-		i++;
 	}
 }
 
-trap_lights_green()
+trap_lights_green() //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop bug
 {
 	i = 0;
 	while ( i < self._trap_lights.size )
@@ -303,23 +258,20 @@ trap_lights_green()
 			i++;
 			continue;
 		}
-		else
+		light setmodel( self._trap_light_model_green );
+		if ( isDefined( light.fx ) )
 		{
-			light setmodel( self._trap_light_model_green );
-			if ( isDefined( light.fx ) )
-			{
-				light.fx delete();
-			}
-			light.fx = maps/mp/zombies/_zm_net::network_safe_spawn( "trap_lights_green", 2, "script_model", light.origin );
-			light.fx setmodel( "tag_origin" );
-			light.fx.angles = light.angles;
-			playfxontag( level._effect[ "zapper_light_ready" ], light.fx, "tag_origin" );
+			light.fx delete();
 		}
+		light.fx = maps/mp/zombies/_zm_net::network_safe_spawn( "trap_lights_green", 2, "script_model", light.origin );
+		light.fx setmodel( "tag_origin" );
+		light.fx.angles = light.angles;
+		playfxontag( level._effect[ "zapper_light_ready" ], light.fx, "tag_origin" );
 		i++;
 	}
 }
 
-trap_set_string( string, param1, param2 )
+trap_set_string( string, param1, param2 ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop bug with continues
 {
 	i = 0;
 	while ( i < self._trap_use_trigs.size )
@@ -330,44 +282,37 @@ trap_set_string( string, param1, param2 )
 			i++;
 			continue;
 		}
-		else if ( !isDefined( param2 ) )
+		if ( !isDefined( param2 ) )
 		{
 			self._trap_use_trigs[ i ] sethintstring( string, param1 );
 			i++;
 			continue;
 		}
-		else
-		{
-			self._trap_use_trigs[ i ] sethintstring( string, param1, param2 );
-		}
+		self._trap_use_trigs[ i ] sethintstring( string, param1, param2 );
 		i++;
 	}
 }
 
-trap_move_switches()
+trap_move_switches() //checked checked changed to match cerberus output
 {
 	self trap_lights_red();
-	i = 0;
-	while ( i < self._trap_switches.size )
+	for ( i = 0; i < self._trap_switches.size; i++ )
 	{
 		self._trap_switches[ i ] rotatepitch( 180, 0,5 );
 		self._trap_switches[ i ] playsound( "amb_sparks_l_b" );
-		i++;
 	}
 	self._trap_switches[ 0 ] waittill( "rotatedone" );
 	self notify( "switch_activated" );
 	self waittill( "available" );
-	i = 0;
-	while ( i < self._trap_switches.size )
+	for ( i = 0; i < self._trap_switches.size; i++ )
 	{
 		self._trap_switches[ i ] rotatepitch( -180, 0,5 );
-		i++;
 	}
 	self._trap_switches[ 0 ] waittill( "rotatedone" );
 	self trap_lights_green();
 }
 
-trap_activate_electric()
+trap_activate_electric() //checked changed to match cerberus output
 {
 	self._trap_duration = 40;
 	self._trap_cooldown_time = 60;
@@ -385,12 +330,10 @@ trap_activate_electric()
 		}
 	}
 	fx_points = getstructarray( self.target, "targetname" );
-	i = 0;
-	while ( i < fx_points.size )
+	for ( i = 0; i < fx_points.size; i++ )
 	{
 		wait_network_frame();
 		fx_points[ i ] thread trap_audio_fx( self );
-		i++;
 	}
 	self thread trap_damage();
 	wait self._trap_duration;
@@ -401,19 +344,17 @@ trap_activate_electric()
 	}
 }
 
-trap_activate_fire()
+trap_activate_fire() //checked changed to match cerberus output
 {
 	self._trap_duration = 40;
 	self._trap_cooldown_time = 60;
 	clientnotify( self.script_string + "1" );
 	clientnotify( self.script_parameters );
 	fx_points = getstructarray( self.target, "targetname" );
-	i = 0;
-	while ( i < fx_points.size )
+	while ( i = 0; i < fx_points.size; i++ )
 	{
 		wait_network_frame();
 		fx_points[ i ] thread trap_audio_fx( self );
-		i++;
 	}
 	self thread trap_damage();
 	wait self._trap_duration;
@@ -422,7 +363,7 @@ trap_activate_fire()
 	clientnotify( self.script_parameters );
 }
 
-trap_activate_rotating()
+trap_activate_rotating() //checked partially changed to match cerberus output 
 {
 	self endon( "trap_done" );
 	self._trap_duration = 30;
@@ -430,47 +371,39 @@ trap_activate_rotating()
 	self thread trap_damage();
 	self thread trig_update( self._trap_movers[ 0 ] );
 	old_angles = self._trap_movers[ 0 ].angles;
-	i = 0;
-	while ( i < self._trap_movers.size )
+	for ( i = 0; i < self._trap_movers.size; i++ )
 	{
-		self._trap_movers[ i ] rotateyaw( 360, 5, 4,5 );
-		i++;
+		self._trap_movers[ i ] rotateyaw( 360, 5, 4.5 );
 	}
 	wait 5;
-	step = 1,5;
+	step = 1.5;
 	t = 0;
-	while ( t < self._trap_duration )
+	while ( t < self._trap_duration ) //this would not make sense as a for loop leaving as a while loop
 	{
-		i = 0;
-		while ( i < self._trap_movers.size )
+		for ( i = 0; i < self._trap_movers.size; i++ )
 		{
 			self._trap_movers[ i ] rotateyaw( 360, step );
-			i++;
 		}
 		wait step;
 		t += step;
 	}
-	i = 0;
-	while ( i < self._trap_movers.size )
+	for ( i = 0; i < self._trap_movers.size i++ )
 	{
-		self._trap_movers[ i ] rotateyaw( 360, 5, 0, 4,5 );
-		i++;
+		self._trap_movers[ i ] rotateyaw( 360, 5, 0, 4.5 );
 	}
 	wait 5;
-	i = 0;
-	while ( i < self._trap_movers.size )
+	for ( i = 0; i < self._trap_movers.size; i++ )
 	{
 		self._trap_movers[ i ].angles = old_angles;
-		i++;
 	}
 	self notify( "trap_done" );
 }
 
-trap_activate_flipper()
+trap_activate_flipper() //checked matches cerberus output
 {
 }
 
-trap_audio_fx( trap )
+trap_audio_fx( trap ) //checked matches cerberus output
 {
 	sound_origin = undefined;
 	if ( trap.script_noteworthy == "electric" )
@@ -497,22 +430,22 @@ trap_audio_fx( trap )
 			playsoundatposition( "zmb_firetrap_end", sound_origin.origin );
 		}
 		sound_origin stoploopsound();
-		wait 0,05;
+		wait 0.05;
 		sound_origin delete();
 	}
 }
 
-play_electrical_sound( trap )
+play_electrical_sound( trap ) //checked matches cerberus output
 {
 	trap endon( "trap_done" );
 	while ( 1 )
 	{
-		wait randomfloatrange( 0,1, 0,5 );
+		wait randomfloatrange( 0.1, 0.5 );
 		playsoundatposition( "zmb_elec_arc", self.origin );
 	}
 }
 
-trap_damage()
+trap_damage() //checked partially changed to match cerberus output
 {
 	self endon( "trap_done" );
 	while ( 1 )
@@ -537,44 +470,42 @@ trap_damage()
 					}
 					break;
 			}
-			break;
-		continue;
-	}
-	else if ( !isDefined( ent.marked_for_death ) )
-	{
-		switch( self._trap_type )
+			//break; //this doesn't make much sense commenting out
+		}
+		else if ( !isDefined( ent.marked_for_death ) )
 		{
-			case "rocket":
-				ent thread zombie_trap_death( self, 100 );
+			switch( self._trap_type )
+			{
+				case "rocket":
+					ent thread zombie_trap_death( self, 100 );
+					break;
 				break;
-			break;
-			case "rotating":
-				ent thread zombie_trap_death( self, 200 );
+				case "rotating":
+					ent thread zombie_trap_death( self, 200 );
+					break;
 				break;
-			break;
-			case "electric":
-			case "fire":
-			default:
-				ent thread zombie_trap_death( self, randomint( 100 ) );
-				break;
-			break;
+				case "electric":
+				case "fire":
+				default:
+					ent thread zombie_trap_death( self, randomint( 100 ) );
+					break;
+			}
 		}
 	}
 }
-}
 
-trig_update( parent )
+trig_update( parent ) //checked matches cerberus output
 {
 	self endon( "trap_done" );
 	start_angles = self.angles;
 	while ( 1 )
 	{
 		self.angles = parent.angles;
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-player_elec_damage()
+player_elec_damage() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -587,35 +518,34 @@ player_elec_damage()
 		self.is_burning = 1;
 		if ( is_true( level.trap_electric_visionset_registered ) )
 		{
-			maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_trap_electric", self, 1,25, 1,25 );
+			maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_trap_electric", self, 1.25, 1.25 );
 		}
 		else
 		{
-			self setelectrified( 1,25 );
+			self setelectrified( 1.25 );
 		}
-		shocktime = 2,5;
+		shocktime = 2.5;
 		self shellshock( "electrocution", shocktime );
 		if ( level.elec_loop == 0 )
 		{
 			elec_loop = 1;
 			self playsound( "zmb_zombie_arc" );
 		}
-		if ( !self hasperk( "specialty_armorvest" ) || ( self.health - 100 ) < 1 )
+		if ( !self hasperk( "specialty_armorvest" ) || self.health - 100 < 1 )
 		{
 			radiusdamage( self.origin, 10, self.health + 100, self.health + 100 );
 			self.is_burning = undefined;
-			return;
 		}
 		else
 		{
 			self dodamage( 50, self.origin );
-			wait 0,1;
+			wait 0.1;
 			self.is_burning = undefined;
 		}
 	}
 }
 
-player_fire_damage()
+player_fire_damage() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -624,29 +554,28 @@ player_fire_damage()
 		self.is_burning = 1;
 		if ( is_true( level.trap_fire_visionset_registered ) )
 		{
-			maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_trap_burn", self, 1,25, 1,25 );
+			maps/mp/_visionset_mgr::vsmgr_activate( "overlay", "zm_trap_burn", self, 1.25, 1.25 );
 		}
 		else
 		{
-			self setburn( 1,25 );
+			self setburn( 1.25 );
 		}
 		self notify( "burned" );
-		if ( !self hasperk( "specialty_armorvest" ) || ( self.health - 100 ) < 1 )
+		if ( !self hasperk( "specialty_armorvest" ) || self.health - 100 < 1 )
 		{
 			radiusdamage( self.origin, 10, self.health + 100, self.health + 100 );
 			self.is_burning = undefined;
-			return;
 		}
 		else
 		{
 			self dodamage( 50, self.origin );
-			wait 0,1;
+			wait 0.1;
 			self.is_burning = undefined;
 		}
 	}
 }
 
-zombie_trap_death( trap, param )
+zombie_trap_death( trap, param ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self.marked_for_death = 1;
@@ -664,7 +593,7 @@ zombie_trap_death( trap, param )
 					self playsound( "ignite" );
 					self thread maps/mp/animscripts/zm_death::flame_death_fx();
 					playfxontag( level._effect[ "character_fire_death_torso" ], self, "J_SpineLower" );
-					wait randomfloat( 1,25 );
+					wait randomfloat( 1.25 );
 				}
 				else
 				{
@@ -685,7 +614,7 @@ zombie_trap_death( trap, param )
 							self thread play_elec_vocals();
 						}
 					}
-					wait randomfloat( 1,25 );
+					wait randomfloat( 1.25 );
 					self playsound( "zmb_zombie_arc" );
 				}
 			}
@@ -717,26 +646,26 @@ zombie_trap_death( trap, param )
 	}
 }
 
-zombie_flame_watch()
+zombie_flame_watch() //checked matches cerberus output
 {
 	self waittill( "death" );
 	self stoploopsound();
 	arrayremovevalue( level.burning_zombies, self );
 }
 
-play_elec_vocals()
+play_elec_vocals() //checked matches cerberus output
 {
 	if ( isDefined( self ) )
 	{
 		org = self.origin;
-		wait 0,15;
+		wait 0.15;
 		playsoundatposition( "zmb_elec_vocals", org );
 		playsoundatposition( "zmb_zombie_arc", org );
 		playsoundatposition( "zmb_exp_jib_zombie", org );
 	}
 }
 
-electroctute_death_fx()
+electroctute_death_fx() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( self.is_electrocuted ) && self.is_electrocuted )
@@ -784,7 +713,7 @@ electroctute_death_fx()
 	}
 }
 
-electrocute_timeout()
+electrocute_timeout() //checked matches cerberus output
 {
 	self endon( "death" );
 	self playloopsound( "fire_manager_0" );
@@ -797,14 +726,14 @@ electrocute_timeout()
 	}
 }
 
-trap_dialog()
+trap_dialog() //checked partially changed to match cerberus output //did not change while loop to for loop to prevent in the infinite for loop bug caused by continues
 {
 	self endon( "warning_dialog" );
 	level endon( "switch_flipped" );
 	timer = 0;
 	while ( 1 )
 	{
-		wait 0,5;
+		wait 0.5;
 		players = get_players();
 		i = 0;
 		while ( i < players.size )
@@ -816,49 +745,44 @@ trap_dialog()
 				i++;
 				continue;
 			}
-			else
+			if ( dist < 4900 && timer < 3 )
 			{
-				if ( dist < 4900 && timer < 3 )
-				{
-					wait 0,5;
-					timer++;
-				}
-				if ( dist < 4900 && timer == 3 )
-				{
-					index = maps/mp/zombies/_zm_weapons::get_player_index( players[ i ] );
-					plr = "plr_" + index + "_";
-					wait 3;
-					self notify( "warning_dialog" );
-				}
+				wait 0.5;
+				timer++;
+			}
+			if ( dist < 4900 && timer == 3 )
+			{
+				index = maps/mp/zombies/_zm_weapons::get_player_index( players[ i ] );
+				plr = "plr_" + index + "_";
+				wait 3;
+				self notify( "warning_dialog" );
 			}
 			i++;
 		}
 	}
 }
 
-get_trap_array( trap_type )
+get_trap_array( trap_type ) //checked changed to match cerberus output
 {
 	ents = getentarray( "zombie_trap", "targetname" );
 	traps = [];
-	i = 0;
-	while ( i < ents.size )
+	for ( i = 0; i < ents.size i++ )
 	{
 		if ( ents[ i ].script_noteworthy == trap_type )
 		{
 			traps[ traps.size ] = ents[ i ];
 		}
-		i++;
 	}
 	return traps;
 }
 
-trap_disable()
+trap_disable() //checked matches cerberus output
 {
 	cooldown = self._trap_cooldown_time;
 	if ( self._trap_in_use )
 	{
 		self notify( "trap_done" );
-		self._trap_cooldown_time = 0,05;
+		self._trap_cooldown_time = 0.05;
 		self waittill( "available" );
 	}
 	array_thread( self._trap_use_trigs, ::trigger_off );
@@ -866,13 +790,13 @@ trap_disable()
 	self._trap_cooldown_time = cooldown;
 }
 
-trap_enable()
+trap_enable() //checked matches cerberus output
 {
 	array_thread( self._trap_use_trigs, ::trigger_on );
 	self trap_lights_green();
 }
 
-trap_model_type_init()
+trap_model_type_init() //checked matches cerberus output
 {
 	if ( !isDefined( self.script_parameters ) )
 	{
@@ -896,14 +820,11 @@ trap_model_type_init()
 	}
 }
 
-register_visionsets( a_traps )
+register_visionsets( a_traps ) //checked changed to match cerberus output
 {
 	a_registered_traps = [];
-	_a1177 = a_traps;
-	_k1177 = getFirstArrayKey( _a1177 );
-	while ( isDefined( _k1177 ) )
+	foreach ( trap in a_traps )
 	{
-		trap = _a1177[ _k1177 ];
 		if ( isDefined( trap.script_noteworthy ) )
 		{
 			if ( !trap is_trap_registered( a_registered_traps ) )
@@ -911,14 +832,10 @@ register_visionsets( a_traps )
 				a_registered_traps[ trap.script_noteworthy ] = 1;
 			}
 		}
-		_k1177 = getNextArrayKey( _a1177, _k1177 );
 	}
 	keys = getarraykeys( a_registered_traps );
-	_a1190 = keys;
-	_k1190 = getFirstArrayKey( _a1190 );
-	while ( isDefined( _k1190 ) )
+	foreach ( key in keys )
 	{
-		key = _a1190[ _k1190 ];
 		switch( key )
 		{
 			case "electric":
@@ -938,11 +855,11 @@ register_visionsets( a_traps )
 				level.trap_fire_visionset_registered = 1;
 				break;
 		}
-		_k1190 = getNextArrayKey( _a1190, _k1190 );
 	}
 }
 
-is_trap_registered( a_registered_traps )
+is_trap_registered( a_registered_traps ) //checked matches cerberus output
 {
 	return isDefined( a_registered_traps[ self.script_noteworthy ] );
 }
+

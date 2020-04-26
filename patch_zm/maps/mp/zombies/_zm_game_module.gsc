@@ -5,7 +5,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-register_game_module( index, module_name, pre_init_func, post_init_func, pre_init_zombie_spawn_func, post_init_zombie_spawn_func, hub_start_func )
+register_game_module( index, module_name, pre_init_func, post_init_func, pre_init_zombie_spawn_func, post_init_zombie_spawn_func, hub_start_func ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent the infinite loop bu caused by continues
 {
 	if ( !isDefined( level._game_modules ) )
 	{
@@ -20,15 +20,14 @@ register_game_module( index, module_name, pre_init_func, post_init_func, pre_ini
 			i++;
 			continue;
 		}
-		else
-		{
 			if ( isDefined( level._game_modules[ i ].index ) && level._game_modules[ i ].index == index )
 			{
+			/*
 /#
 				assert( level._game_modules[ i ].index != index, "A Game module is already registered for index (" + index + ")" );
 #/
+			*/
 			}
-		}
 		i++;
 	}
 	level._game_modules[ level._num_registered_game_modules ] = spawnstruct();
@@ -42,7 +41,7 @@ register_game_module( index, module_name, pre_init_func, post_init_func, pre_ini
 	level._num_registered_game_modules++;
 }
 
-set_current_game_module( game_module_index )
+set_current_game_module( game_module_index ) //checked matches cerberus output
 {
 	if ( !isDefined( game_module_index ) )
 	{
@@ -53,38 +52,38 @@ set_current_game_module( game_module_index )
 	game_module = get_game_module( game_module_index );
 	if ( !isDefined( game_module ) )
 	{
+	/*
 /#
 		assert( isDefined( game_module ), "unknown game module (" + game_module_index + ")" );
 #/
+	*/
 		return;
 	}
 	level.current_game_module = game_module_index;
 }
 
-get_current_game_module()
+get_current_game_module() //checked matches cerberus output
 {
 	return get_game_module( level.current_game_module );
 }
 
-get_game_module( game_module_index )
+get_game_module( game_module_index ) //checked changed to match cerberus output
 {
 	if ( !isDefined( game_module_index ) )
 	{
 		return undefined;
 	}
-	i = 0;
-	while ( i < level._game_modules.size )
+	for ( i = 0; i < level._game_modules.size; i++ )
 	{
 		if ( level._game_modules[ i ].index == game_module_index )
 		{
 			return level._game_modules[ i ];
 		}
-		i++;
 	}
 	return undefined;
 }
 
-game_module_pre_zombie_spawn_init()
+game_module_pre_zombie_spawn_init() //checked matches cerberus output
 {
 	current_module = get_current_game_module();
 	if ( !isDefined( current_module ) || !isDefined( current_module.pre_init_zombie_spawn_func ) )
@@ -94,7 +93,7 @@ game_module_pre_zombie_spawn_init()
 	self [[ current_module.pre_init_zombie_spawn_func ]]();
 }
 
-game_module_post_zombie_spawn_init()
+game_module_post_zombie_spawn_init() //checked matches cerberus output
 {
 	current_module = get_current_game_module();
 	if ( !isDefined( current_module ) || !isDefined( current_module.post_init_zombie_spawn_func ) )
@@ -104,69 +103,57 @@ game_module_post_zombie_spawn_init()
 	self [[ current_module.post_init_zombie_spawn_func ]]();
 }
 
-kill_all_zombies()
+kill_all_zombies() //checked changed to match cerberus output
 {
 	ai = get_round_enemy_array();
-	_a115 = ai;
-	_k115 = getFirstArrayKey( _a115 );
-	while ( isDefined( _k115 ) )
+	foreach ( zombie in ai )
 	{
-		zombie = _a115[ _k115 ];
 		if ( isDefined( zombie ) )
 		{
 			zombie dodamage( zombie.maxhealth * 2, zombie.origin, zombie, zombie, "none", "MOD_SUICIDE" );
-			wait 0,05;
+			wait 0.05;
 		}
-		_k115 = getNextArrayKey( _a115, _k115 );
 	}
 }
 
-freeze_players( freeze )
+freeze_players( freeze ) //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] freeze_player_controls( freeze );
-		i++;
 	}
 }
 
-turn_power_on_and_open_doors()
+turn_power_on_and_open_doors() //checked changed at own discretion
 {
 	level.local_doors_stay_open = 1;
 	level.power_local_doors_globally = 1;
 	flag_set( "power_on" );
 	level setclientfield( "zombie_power_on", 1 );
 	zombie_doors = getentarray( "zombie_door", "targetname" );
-	_a144 = zombie_doors;
-	_k144 = getFirstArrayKey( _a144 );
-	while ( isDefined( _k144 ) )
+	i = 0;
+	while ( i < zombie_doors.size )
 	{
-		door = _a144[ _k144 ];
 		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
 		{
 			door notify( "power_on" );
+			i++;
+			continue;
 		}
-		else
+		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
 		{
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
-			{
-				door notify( "local_power_on" );
-			}
+			door notify( "local_power_on" );
 		}
-		_k144 = getNextArrayKey( _a144, _k144 );
+		i++;
 	}
 }
 
-respawn_spectators_and_freeze_players()
+respawn_spectators_and_freeze_players() //checked changed to match cerberus output
 {
 	players = get_players();
-	_a161 = players;
-	_k161 = getFirstArrayKey( _a161 );
-	while ( isDefined( _k161 ) )
+	foreach ( player in players )
 	{
-		player = _a161[ _k161 ];
 		if ( player.sessionstate == "spectator" )
 		{
 			if ( isDefined( player.spectate_hud ) )
@@ -176,11 +163,10 @@ respawn_spectators_and_freeze_players()
 			player [[ level.spawnplayer ]]();
 		}
 		player freeze_player_controls( 1 );
-		_k161 = getNextArrayKey( _a161, _k161 );
 	}
 }
 
-damage_callback_no_pvp_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+damage_callback_no_pvp_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked matches cerberus output
 {
 	if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker == self )
 	{
@@ -197,21 +183,17 @@ damage_callback_no_pvp_damage( einflictor, eattacker, idamage, idflags, smeansof
 	return 0;
 }
 
-respawn_players()
+respawn_players() //checked changed to match cerberus output
 {
 	players = get_players();
-	_a196 = players;
-	_k196 = getFirstArrayKey( _a196 );
-	while ( isDefined( _k196 ) )
+	foreach ( player in players )
 	{
-		player = _a196[ _k196 ];
 		player [[ level.spawnplayer ]]();
 		player freeze_player_controls( 1 );
-		_k196 = getNextArrayKey( _a196, _k196 );
 	}
 }
 
-zombie_goto_round( target_round )
+zombie_goto_round( target_round ) //checked changed to match cerberus output
 {
 	level notify( "restart_round" );
 	if ( target_round < 1 )
@@ -221,20 +203,18 @@ zombie_goto_round( target_round )
 	level.zombie_total = 0;
 	maps/mp/zombies/_zm::ai_calculate_health( target_round );
 	zombies = get_round_enemy_array();
-	while ( isDefined( zombies ) )
+	if ( isDefined( zombies ) )
 	{
-		i = 0;
-		while ( i < zombies.size )
+		for ( i = 0; i < zombies.size; i++ )
 		{
 			zombies[ i ] dodamage( zombies[ i ].health + 666, zombies[ i ].origin );
-			i++;
 		}
 	}
 	respawn_players();
 	wait 1;
 }
 
-wait_for_team_death_and_round_end()
+wait_for_team_death_and_round_end() //checked partially changed to match cerberus output //did not use foreach with continue to prevent continue bug
 {
 	level endon( "game_module_ended" );
 	level endon( "end_game" );
@@ -245,33 +225,31 @@ wait_for_team_death_and_round_end()
 		cdc_alive = 0;
 		cia_alive = 0;
 		players = get_players();
-		_a244 = players;
-		_k244 = getFirstArrayKey( _a244 );
-		while ( isDefined( _k244 ) )
+		while ( i < players.size )
 		{
-			player = _a244[ _k244 ];
-			if ( !isDefined( player._encounters_team ) )
+			if ( !isDefined( players[ i ]._encounters_team ) )
 			{
+				i++;
+				continue;
 			}
-			else if ( player._encounters_team == "A" )
+			if ( players[ i ]._encounters_team == "A" )
 			{
-				if ( is_player_valid( player ) )
+				if ( is_player_valid( players[ i ] ) )
 				{
 					cia_alive++;
 				}
+				i++;
+				continue;
 			}
-			else
+			if ( is_player_valid( players[ i ] ) )
 			{
-				if ( is_player_valid( player ) )
-				{
-					cdc_alive++;
-				}
+				cdc_alive++;
 			}
-			_k244 = getNextArrayKey( _a244, _k244 );
+			i++;
 		}
 		if ( cia_alive == 0 && cdc_alive == 0 && !level.isresetting_grief && isDefined( level.host_ended_game ) && !level.host_ended_game )
 		{
-			wait 0,5;
+			wait 0.5;
 			if ( isDefined( level._grief_reset_message ) )
 			{
 				level thread [[ level._grief_reset_message ]]();
@@ -285,24 +263,17 @@ wait_for_team_death_and_round_end()
 			level thread reset_grief();
 			level thread maps/mp/zombies/_zm::round_think( 1 );
 		}
-		else
+		else if ( !checking_for_round_end )
 		{
-			if ( !checking_for_round_end )
+			if ( cia_alive == 0 )
 			{
-				if ( cia_alive == 0 )
-				{
-					level thread check_for_round_end( "B" );
-					checking_for_round_end = 1;
-					break;
-				}
-				else
-				{
-					if ( cdc_alive == 0 )
-					{
-						level thread check_for_round_end( "A" );
-						checking_for_round_end = 1;
-					}
-				}
+				level thread check_for_round_end( "B" );
+				checking_for_round_end = 1;
+			}
+			else if ( cdc_alive == 0 )
+			{
+				level thread check_for_round_end( "A" );
+				checking_for_round_end = 1;
 			}
 		}
 		if ( cia_alive > 0 && cdc_alive > 0 )
@@ -310,17 +281,17 @@ wait_for_team_death_and_round_end()
 			level notify( "stop_round_end_check" );
 			checking_for_round_end = 0;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-reset_grief()
+reset_grief() //checked matches cerberus output
 {
 	wait 1;
 	level.isresetting_grief = 0;
 }
 
-check_for_round_end( winner )
+check_for_round_end( winner ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent the infinite loop continue bug
 {
 	level endon( "keep_griefing" );
 	level endon( "stop_round_end_check" );
@@ -338,19 +309,16 @@ check_for_round_end( winner )
 			i++;
 			continue;
 		}
-		else
-		{
-			players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
-		}
+		players[ i ] thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "grief_lost" );
 		i++;
 	}
-	level notify( "game_module_ended" );
+	level notify( "game_module_ended", winner );
 	level._game_module_game_end_check = undefined;
 	maps/mp/gametypes_zm/_zm_gametype::track_encounters_win_stats( level.gamemodulewinningteam );
 	level notify( "end_game" );
 }
 
-wait_for_team_death()
+wait_for_team_death() //checked partially changed to match cerberus output //did not change while loop to foreach with continue to prevent infinite loop bug
 {
 	wait 15;
 	winner = undefined;
@@ -359,49 +327,42 @@ wait_for_team_death()
 		cdc_alive = 0;
 		cia_alive = 0;
 		players = get_players();
-		_a418 = players;
-		_k418 = getFirstArrayKey( _a418 );
-		while ( isDefined( _k418 ) )
+		while ( i < players.size )
 		{
-			player = _a418[ _k418 ];
-			if ( player._encounters_team == "A" )
+			if ( players[ i ]._encounters_team == "A" )
 			{
-				if ( is_player_valid( player ) || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && isDefined( player.lives ) && player.lives > 0 )
+				if ( is_player_valid( players[ i ] ) || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && isDefined( players[ i ].lives ) && players[ i ].lives > 0 )
 				{
 					cia_alive++;
+					i++;
+					continue;
 				}
 			}
-			else
+			if ( is_player_valid( players[ i ] ) || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && isDefined( players[ i ].lives ) && players[ i ].lives > 0 )
 			{
-				if ( is_player_valid( player ) || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && isDefined( player.lives ) && player.lives > 0 )
-				{
-					cdc_alive++;
-				}
+				cdc_alive++;
 			}
-			_k418 = getNextArrayKey( _a418, _k418 );
+			i++;
 		}
 		if ( cia_alive == 0 )
 		{
 			winner = "B";
 		}
-		else
+		else if ( cdc_alive == 0 )
 		{
-			if ( cdc_alive == 0 )
-			{
-				winner = "A";
-			}
+			winner = "A";
 		}
-		wait 0,05;
+		wait 0.05;
 	}
-	level notify( "game_module_ended" );
+	level notify( "game_module_ended", winner );
 }
 
-make_supersprinter()
+make_supersprinter() //checked matches cerberus output
 {
 	self set_zombie_run_cycle( "super_sprint" );
 }
 
-game_module_custom_intermission( intermission_struct )
+game_module_custom_intermission( intermission_struct ) //checked matches cerberus output
 {
 	self closemenu();
 	self closeingamemenu();
@@ -444,7 +405,7 @@ game_module_custom_intermission( intermission_struct )
 	self.game_over_bg thread maps/mp/zombies/_zm::fade_up_over_time( 1 );
 }
 
-create_fireworks( launch_spots, min_wait, max_wait, randomize )
+create_fireworks( launch_spots, min_wait, max_wait, randomize ) //checked changed to match cerberus output
 {
 	level endon( "stop_fireworks" );
 	while ( 1 )
@@ -453,26 +414,22 @@ create_fireworks( launch_spots, min_wait, max_wait, randomize )
 		{
 			launch_spots = array_randomize( launch_spots );
 		}
-		_a516 = launch_spots;
-		_k516 = getFirstArrayKey( _a516 );
-		while ( isDefined( _k516 ) )
+		foreach ( spot in launch_spots )
 		{
-			spot = _a516[ _k516 ];
 			level thread fireworks_launch( spot );
 			wait randomfloatrange( min_wait, max_wait );
-			_k516 = getNextArrayKey( _a516, _k516 );
 		}
 		wait randomfloatrange( min_wait, max_wait );
 	}
 }
 
-fireworks_launch( launch_spot )
+fireworks_launch( launch_spot ) //checked matches cerberus output
 {
 	firework = spawn( "script_model", launch_spot.origin + ( randomintrange( -60, 60 ), randomintrange( -60, 60 ), 0 ) );
 	firework setmodel( "tag_origin" );
 	wait_network_frame();
 	playfxontag( level._effect[ "fw_trail_cheap" ], firework, "tag_origin" );
-	firework playloopsound( "zmb_souls_loop", 0,75 );
+	firework playloopsound( "zmb_souls_loop", 0.75 );
 	dest = launch_spot;
 	while ( isDefined( dest ) && isDefined( dest.target ) )
 	{
@@ -489,3 +446,4 @@ fireworks_launch( launch_spot )
 	playfx( level._effect[ "fw_pre_burst" ], firework.origin );
 	firework delete();
 }
+

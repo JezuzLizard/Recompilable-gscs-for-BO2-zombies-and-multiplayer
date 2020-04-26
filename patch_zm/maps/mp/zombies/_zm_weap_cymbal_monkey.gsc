@@ -4,17 +4,19 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "zombie_cymbal_monkey" );
+//#using_animtree( "zombie_cymbal_monkey" );
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !cymbal_monkey_exists() )
 	{
 		return;
 	}
+	/*
 /#
 	level.zombiemode_devgui_cymbal_monkey_give = ::player_give_cymbal_monkey;
 #/
+	*/
 	if ( isDefined( level.legacy_cymbal_monkey ) && level.legacy_cymbal_monkey )
 	{
 		level.cymbal_monkey_model = "weapon_zombie_monkey_bomb";
@@ -29,14 +31,14 @@ init()
 	scriptmodelsuseanimtree( -1 );
 }
 
-player_give_cymbal_monkey()
+player_give_cymbal_monkey() //checked matches cerberus output
 {
 	self giveweapon( "cymbal_monkey_zm" );
 	self set_player_tactical_grenade( "cymbal_monkey_zm" );
 	self thread player_handle_cymbal_monkey();
 }
 
-player_handle_cymbal_monkey()
+player_handle_cymbal_monkey() //checked matches cerberus output
 {
 	self notify( "starting_monkey_watch" );
 	self endon( "disconnect" );
@@ -64,7 +66,7 @@ player_handle_cymbal_monkey()
 	}
 }
 
-watch_for_dud( model, actor )
+watch_for_dud( model, actor ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittill( "grenade_dud" );
@@ -90,7 +92,7 @@ watch_for_dud( model, actor )
 	}
 }
 
-watch_for_emp( model, actor )
+watch_for_emp( model, actor ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( !should_watch_for_emp() )
@@ -100,20 +102,17 @@ watch_for_emp( model, actor )
 	while ( 1 )
 	{
 		level waittill( "emp_detonate", origin, radius );
-		if ( distancesquared( origin, self.origin ) < ( radius * radius ) )
+		if ( distancesquared( origin, self.origin ) < radius * radius )
 		{
 			break;
-		}
-		else
-		{
 		}
 	}
 	self.stun_fx = 1;
 	if ( isDefined( level._equipment_emp_destroy_fx ) )
 	{
-		playfx( level._equipment_emp_destroy_fx, self.origin + vectorScale( ( 0, 0, -1 ), 5 ), ( 0, randomfloat( 360 ), 0 ) );
+		playfx( level._equipment_emp_destroy_fx, self.origin + vectorScale( ( 0, 0, 1 ), 5 ), ( 0, randomfloat( 360 ), 0 ) );
 	}
-	wait 0,15;
+	wait 0.15;
 	self.attract_to_origin = 0;
 	self deactivate_zombie_point_of_interest();
 	model clearanim( %o_monkey_bomb, 0 );
@@ -138,18 +137,18 @@ watch_for_emp( model, actor )
 	}
 }
 
-clone_player_angles( owner )
+clone_player_angles( owner ) //checked matches cerberus output
 {
 	self endon( "death" );
 	owner endon( "death" );
 	while ( isDefined( self ) )
 	{
 		self.angles = owner.angles;
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-show_briefly( showtime )
+show_briefly( showtime ) //checked matches cerberus output
 {
 	self endon( "show_owner" );
 	if ( isDefined( self.show_for_time ) )
@@ -161,14 +160,14 @@ show_briefly( showtime )
 	self setvisibletoall();
 	while ( self.show_for_time > 0 )
 	{
-		self.show_for_time -= 0,05;
-		wait 0,05;
+		self.show_for_time -= 0.05;
+		wait 0.05;
 	}
 	self setvisibletoallexceptteam( level.zombie_team );
 	self.show_for_time = undefined;
 }
 
-show_owner_on_attack( owner )
+show_owner_on_attack( owner ) //checked matches cerberus output
 {
 	owner endon( "hide_owner" );
 	owner endon( "show_owner" );
@@ -179,11 +178,11 @@ show_owner_on_attack( owner )
 	for ( ;; )
 	{
 		owner waittill( "weapon_fired" );
-		owner thread show_briefly( 0,5 );
+		owner thread show_briefly( 0.5 );
 	}
 }
 
-hide_owner( owner )
+hide_owner( owner ) //checked matches cerberus output
 {
 	owner notify( "hide_owner" );
 	owner endon( "hide_owner" );
@@ -198,9 +197,11 @@ hide_owner( owner )
 	}
 	self thread show_owner_on_attack( owner );
 	evt = self waittill_any_return( "explode", "death", "grenade_dud" );
+	/*
 /#
 	println( "ZMCLONE: Player visible again because of " + evt );
 #/
+	*/
 	owner notify( "show_owner" );
 	owner unsetperk( "specialty_immunemms" );
 	if ( isDefined( level._effect[ "human_disappears" ] ) )
@@ -213,16 +214,16 @@ hide_owner( owner )
 	owner show();
 }
 
-proximity_detonate( owner )
+proximity_detonate( owner ) //checked changed to match cerberus output
 {
-	wait 1,5;
+	wait 1.5;
 	if ( !isDefined( self ) )
 	{
 		return;
 	}
 	detonateradius = 96;
 	explosionradius = detonateradius * 2;
-	damagearea = spawn( "trigger_radius", self.origin + ( 0, 0, 0 - detonateradius ), 4, detonateradius, detonateradius * 1,5 );
+	damagearea = spawn( "trigger_radius", self.origin + ( 0, 0, 0 - detonateradius ), 4, detonateradius, detonateradius * 1.5 );
 	damagearea setexcludeteamfortrigger( owner.team );
 	damagearea enablelinkto();
 	damagearea linkto( self );
@@ -240,7 +241,7 @@ proximity_detonate( owner )
 		}
 		self playsound( "wpn_claymore_alert" );
 		dist = distance( self.origin, ent.origin );
-		radiusdamage( self.origin + vectorScale( ( 0, 0, -1 ), 12 ), explosionradius, 1, 1, owner, "MOD_GRENADE_SPLASH", "cymbal_monkey_zm" );
+		radiusdamage( self.origin + vectorScale( ( 0, 0, 1 ), 12 ), explosionradius, 1, 1, owner, "MOD_GRENADE_SPLASH", "cymbal_monkey_zm" );
 		if ( isDefined( owner ) )
 		{
 			self detonate( owner );
@@ -257,7 +258,7 @@ proximity_detonate( owner )
 	}
 }
 
-player_throw_cymbal_monkey( grenade, num_attractors, max_attract_dist, attract_dist_diff )
+player_throw_cymbal_monkey( grenade, num_attractors, max_attract_dist, attract_dist_diff ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "starting_monkey_watch" );
@@ -353,7 +354,7 @@ player_throw_cymbal_monkey( grenade, num_attractors, max_attract_dist, attract_d
 	}
 }
 
-grenade_stolen_by_sam( ent_grenade, ent_model, ent_actor )
+grenade_stolen_by_sam( ent_grenade, ent_model, ent_actor ) //checked changed to match cerberus output
 {
 	if ( !isDefined( ent_model ) )
 	{
@@ -373,18 +374,16 @@ grenade_stolen_by_sam( ent_grenade, ent_model, ent_actor )
 		}
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isalive( players[ i ] ) )
 		{
 			players[ i ] playlocalsound( level.zmb_laugh_alias );
 		}
-		i++;
 	}
 	playfxontag( level._effect[ "grenade_samantha_steal" ], ent_model, "tag_origin" );
-	ent_model movez( 60, 1, 0,25, 0,25 );
-	ent_model vibrate( direction, 1,5, 2,5, 1 );
+	ent_model movez( 60, 1, 0.25, 0.25 );
+	ent_model vibrate( direction, 1.5, 2.5, 1 );
 	ent_model waittill( "movedone" );
 	if ( isDefined( self.damagearea ) )
 	{
@@ -405,13 +404,13 @@ grenade_stolen_by_sam( ent_grenade, ent_model, ent_actor )
 	}
 }
 
-wait_for_attractor_positions_complete()
+wait_for_attractor_positions_complete() //checked matches cerberus output
 {
 	self waittill( "attractor_positions_generated" );
 	self.attract_to_origin = 0;
 }
 
-monkey_cleanup( parent )
+monkey_cleanup( parent ) //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -428,16 +427,16 @@ monkey_cleanup( parent )
 			self_delete();
 			return;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-do_monkey_sound( model, info )
+do_monkey_sound( model, info ) //checked changed to match cerberus output
 {
 	self.monk_scream_vox = 0;
 	if ( isDefined( level.grenade_safe_to_bounce ) )
 	{
-		if ( !( [[ level.grenade_safe_to_bounce ]]( self.owner, "cymbal_monkey_zm" ) ) )
+		if ( ![[ level.grenade_safe_to_bounce ]]( self.owner, "cymbal_monkey_zm" ) )
 		{
 			self playsound( "zmb_vox_monkey_scream" );
 			self.monk_scream_vox = 1;
@@ -459,19 +458,14 @@ do_monkey_sound( model, info )
 		self thread play_delayed_explode_vox();
 	}
 	self waittill( "explode", position );
-	level notify( "grenade_exploded" );
+	level notify( "grenade_exploded", position, 100, 5000, 450 );
 	monkey_index = -1;
-	i = 0;
-	while ( i < level.cymbal_monkeys.size )
+	for ( i = 0; i < level.cymbal_monkeys.size; i++ )
 	{
 		if ( !isDefined( level.cymbal_monkeys[ i ] ) )
 		{
 			monkey_index = i;
 			break;
-		}
-		else
-		{
-			i++;
 		}
 	}
 	if ( monkey_index >= 0 )
@@ -482,27 +476,25 @@ do_monkey_sound( model, info )
 	{
 		model clearanim( %o_monkey_bomb, 0,2 );
 	}
-	i = 0;
-	while ( i < info.sound_attractors.size )
+	for ( i = 0; i < info.sound_attractors.size; i++ )
 	{
 		if ( isDefined( info.sound_attractors[ i ] ) )
 		{
 			info.sound_attractors[ i ] notify( "monkey_blown_up" );
 		}
-		i++;
 	}
 }
 
-play_delayed_explode_vox()
+play_delayed_explode_vox() //checked matches cerberus output
 {
-	wait 6,5;
+	wait 6.5;
 	if ( isDefined( self ) )
 	{
 		self playsound( "zmb_vox_monkey_explode" );
 	}
 }
 
-get_thrown_monkey()
+get_thrown_monkey() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "starting_monkey_watch" );
@@ -515,11 +507,11 @@ get_thrown_monkey()
 			grenade.grenade_multiattack_bookmark_count = 1;
 			return grenade;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-monitor_zombie_groans( info )
+monitor_zombie_groans( info ) //checked changed to match cerberus output
 {
 	self endon( "explode" );
 	while ( 1 )
@@ -528,12 +520,12 @@ monitor_zombie_groans( info )
 		{
 			return;
 		}
-		while ( !isDefined( self.attractor_array ) )
+		if ( !isDefined( self.attractor_array ) )
 		{
-			wait 0,05;
+			wait 0.05;
+			continue;
 		}
-		i = 0;
-		while ( i < self.attractor_array.size )
+		for ( i = 0; i < self.attractor_array.size; i++ )
 		{
 			if ( array_check_for_dupes( info.sound_attractors, self.attractor_array[ i ] ) )
 			{
@@ -546,13 +538,12 @@ monitor_zombie_groans( info )
 					}
 				}
 			}
-			i++;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-play_zombie_groans()
+play_zombie_groans() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "monkey_blown_up" );
@@ -562,7 +553,6 @@ play_zombie_groans()
 		{
 			self playsound( "zmb_vox_zombie_groan" );
 			wait randomfloatrange( 2, 3 );
-			continue;
 		}
 		else
 		{
@@ -571,7 +561,8 @@ play_zombie_groans()
 	}
 }
 
-cymbal_monkey_exists()
+cymbal_monkey_exists() //checked matches cerberus output
 {
 	return isDefined( level.zombie_weapons[ "cymbal_monkey_zm" ] );
 }
+
