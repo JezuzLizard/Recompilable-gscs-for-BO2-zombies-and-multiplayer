@@ -49,6 +49,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+patch_zm/maps/mp/zombies/_zm_game_module.gsc
 patch_zm/maps/mp/zombies/_zm_traps.gsc
 patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 ```
@@ -57,7 +58,6 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
 patch_zm/maps/mp/zombies/_zm_buildables.gsc
 patch_zm/maps/mp/zombies/_zm_equip_turbine.gsc
-patch_zm/maps/mp/zombies/_zm_game_module.gsc
 patch_zm/maps/mp/zombies/_zm_laststand.gsc
 patch_zm/maps/mp/zombies/_zm_magicbox_lock.gsc
 patch_zm/maps/mp/zombies/_zm_playerhealth.gsc
