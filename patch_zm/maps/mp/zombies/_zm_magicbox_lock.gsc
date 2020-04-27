@@ -5,7 +5,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachemodel( "p6_anim_zm_al_magic_box_lock_red" );
 	level.locked_magic_box_cost = 2000;
@@ -13,7 +13,7 @@ init()
 	add_zombie_hint( "locked_magic_box_cost", &"ZOMBIE_LOCKED_COST_2000" );
 }
 
-watch_for_lock()
+watch_for_lock() //checked matches cerberus output
 {
 	self endon( "user_grabbed_weapon" );
 	self endon( "chest_accessed" );
@@ -21,13 +21,13 @@ watch_for_lock()
 	self notify( "kill_chest_think" );
 	self.grab_weapon_hint = 0;
 	self.chest_user = undefined;
-	wait 0,1;
+	wait 0.1;
 	self thread maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( self.unitrigger_stub, ::magicbox_unitrigger_think );
 	self.unitrigger_stub run_visibility_function_for_all_triggers();
 	self thread treasure_chest_think();
 }
 
-clean_up_locked_box()
+clean_up_locked_box() //checked matches cerberus output
 {
 	self endon( "box_spin_done" );
 	self.owner waittill( "box_locked" );
@@ -47,7 +47,7 @@ clean_up_locked_box()
 	self setzbarrierpiecestate( 4, "closed" );
 }
 
-magic_box_locks()
+magic_box_locks() //checked matches cerberus output
 {
 	self.owner.is_locked = 1;
 	self.owner notify( "box_locked" );
@@ -57,19 +57,19 @@ magic_box_locks()
 	self setzbarrierpiecestate( 5, "closing" );
 	while ( self getzbarrierpiecestate( 5 ) == "closing" )
 	{
-		wait 0,5;
+		wait 0.5;
 	}
 	self notify( "locked" );
 }
 
-magic_box_unlocks()
+magic_box_unlocks() //checked matches cerberus output
 {
 	maps/mp/zombies/_zm_unitrigger::unregister_unitrigger( self.owner.unitrigger_stub );
 	self playsound( "zmb_hellbox_unlock" );
 	self setzbarrierpiecestate( 5, "opening" );
 	while ( self getzbarrierpiecestate( 5 ) == "opening" )
 	{
-		wait 0,5;
+		wait 0.5;
 	}
 	self setzbarrierpiecestate( 2, "closed" );
 	self showzbarrierpiece( 2 );
@@ -80,7 +80,7 @@ magic_box_unlocks()
 	self setclientfield( "magicbox_amb_fx", 1 );
 }
 
-set_locked_magicbox_state( state )
+set_locked_magicbox_state( state ) //checked matches cerberus output
 {
 	switch( state )
 	{
@@ -96,3 +96,4 @@ set_locked_magicbox_state( state )
 			break;
 	}
 }
+

@@ -5,7 +5,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !isDefined( level.powered_items ) )
 	{
@@ -16,36 +16,36 @@ init()
 		level.local_power = [];
 	}
 	thread standard_powered_items();
+	/*
 /#
 	thread debug_powered_items();
 #/
+	*/
 }
 
-debug_powered_items()
+debug_powered_items() //checked changed to match cerberus output
 {
+/*
 /#
 	while ( 1 )
 	{
-		while ( getDvarInt( #"EB512CB7" ) )
+		if ( getDvarInt( #"EB512CB7" ) )
 		{
-			while ( isDefined( level.local_power ) )
+			if ( isDefined( level.local_power ) )
 			{
-				_a32 = level.local_power;
-				_k32 = getFirstArrayKey( _a32 );
-				while ( isDefined( _k32 ) )
+				foreach(localpower in level.local_power)
 				{
-					localpower = _a32[ _k32 ];
-					circle( localpower.origin, localpower.radius, ( 0, 0, 1 ), 0, 1, 1 );
-					_k32 = getNextArrayKey( _a32, _k32 );
+					circle( localpower.origin, localpower.radius, ( 1, 0, 0 ), 0, 1, 1 );
 				}
 			}
 		}
-		wait 0,05;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-watch_global_power()
+watch_global_power() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -56,63 +56,49 @@ watch_global_power()
 	}
 }
 
-standard_powered_items()
+standard_powered_items() //checked partially changed to match cerberus output //did not use foreach with continue to prevent infinite loop bug
 {
 	flag_wait( "start_zombie_round_logic" );
 	vending_triggers = getentarray( "zombie_vending", "targetname" );
-	_a67 = vending_triggers;
-	_k67 = getFirstArrayKey( _a67 );
-	while ( isDefined( _k67 ) )
+	i = 0;
+	while ( i < vending_triggers.size)
 	{
-		trigger = _a67[ _k67 ];
-		if ( trigger.script_noteworthy == "specialty_weapupgrade" )
+		if ( vending_triggers[ i ].script_noteworthy == "specialty_weapupgrade" )
 		{
+			i++;
+			continue;
 		}
-		else
-		{
-			powered_on = maps/mp/zombies/_zm_perks::get_perk_machine_start_state( trigger.script_noteworthy );
-			add_powered_item( ::perk_power_on, ::perk_power_off, ::perk_range, ::cost_low_if_local, 0, powered_on, trigger );
-		}
-		_k67 = getNextArrayKey( _a67, _k67 );
+		powered_on = maps/mp/zombies/_zm_perks::get_perk_machine_start_state( vending_triggers[ i ].script_noteworthy );
+		add_powered_item( ::perk_power_on, ::perk_power_off, ::perk_range, ::cost_low_if_local, 0, powered_on, vending_triggers[ i ] );
+		i++;
 	}
 	pack_a_punch = getentarray( "specialty_weapupgrade", "script_noteworthy" );
-	_a77 = pack_a_punch;
-	_k77 = getFirstArrayKey( _a77 );
-	while ( isDefined( _k77 ) )
+	foreach ( trigger in pack_a_punch )
 	{
-		trigger = _a77[ _k77 ];
 		powered_on = maps/mp/zombies/_zm_perks::get_perk_machine_start_state( trigger.script_noteworthy );
 		trigger.powered = add_powered_item( ::pap_power_on, ::pap_power_off, ::pap_range, ::cost_low_if_local, 0, powered_on, trigger );
-		_k77 = getNextArrayKey( _a77, _k77 );
 	}
 	zombie_doors = getentarray( "zombie_door", "targetname" );
-	_a86 = zombie_doors;
-	_k86 = getFirstArrayKey( _a86 );
-	while ( isDefined( _k86 ) )
+	foreach ( door in zombie_doors )
 	{
-		door = _a86[ _k86 ];
 		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
 		{
 			add_powered_item( ::door_power_on, ::door_power_off, ::door_range, ::cost_door, 0, 0, door );
 		}
-		else
+		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
 		{
-			if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+			power_sources = 0;
+			if ( isDefined( level.power_local_doors_globally ) && !level.power_local_doors_globally )
 			{
-				power_sources = 0;
-				if ( isDefined( level.power_local_doors_globally ) && !level.power_local_doors_globally )
-				{
-					power_sources = 1;
-				}
-				add_powered_item( ::door_local_power_on, ::door_local_power_off, ::door_range, ::cost_door, power_sources, 0, door );
+				power_sources = 1;
 			}
+			add_powered_item( ::door_local_power_on, ::door_local_power_off, ::door_range, ::cost_door, power_sources, 0, door );
 		}
-		_k86 = getNextArrayKey( _a86, _k86 );
 	}
 	thread watch_global_power();
 }
 
-add_powered_item( power_on_func, power_off_func, range_func, cost_func, power_sources, self_powered, target )
+add_powered_item( power_on_func, power_off_func, range_func, cost_func, power_sources, self_powered, target ) //checked matches cerberus output
 {
 	powered = spawnstruct();
 	powered.power_on_func = power_on_func;
@@ -133,21 +119,18 @@ add_powered_item( power_on_func, power_off_func, range_func, cost_func, power_so
 	return powered;
 }
 
-remove_powered_item( powered )
+remove_powered_item( powered ) //checked matches cerberus output
 {
 	arrayremovevalue( level.powered_items, powered, 0 );
 }
 
-add_temp_powered_item( power_on_func, power_off_func, range_func, cost_func, power_sources, self_powered, target )
+add_temp_powered_item( power_on_func, power_off_func, range_func, cost_func, power_sources, self_powered, target ) //checked changed to match cerberus output
 {
 	powered = add_powered_item( power_on_func, power_off_func, range_func, cost_func, power_sources, self_powered, target );
-	while ( isDefined( level.local_power ) )
+	if ( isDefined( level.local_power ) )
 	{
-		_a140 = level.local_power;
-		_k140 = getFirstArrayKey( _a140 );
-		while ( isDefined( _k140 ) )
+		foreach ( localpower in level.local_power )
 		{
-			localpower = _a140[ _k140 ];
 			if ( powered [[ powered.range_func ]]( 1, localpower.origin, localpower.radius ) )
 			{
 				powered change_power( 1, localpower.origin, localpower.radius );
@@ -157,24 +140,20 @@ add_temp_powered_item( power_on_func, power_off_func, range_func, cost_func, pow
 				}
 				localpower.added_list[ localpower.added_list.size ] = powered;
 			}
-			_k140 = getNextArrayKey( _a140, _k140 );
 		}
 	}
 	thread watch_temp_powered_item( powered );
 	return powered;
 }
 
-watch_temp_powered_item( powered )
+watch_temp_powered_item( powered ) //checked changed to match cerberus output
 {
 	powered.target waittill( "death" );
 	remove_powered_item( powered );
-	while ( isDefined( level.local_power ) )
+	if ( isDefined( level.local_power ) )
 	{
-		_a161 = level.local_power;
-		_k161 = getFirstArrayKey( _a161 );
-		while ( isDefined( _k161 ) )
+		foreach ( localpower in level.local_power )
 		{
-			localpower = _a161[ _k161 ];
 			if ( isDefined( localpower.added_list ) )
 			{
 				arrayremovevalue( localpower.added_list, powered, 0 );
@@ -183,16 +162,14 @@ watch_temp_powered_item( powered )
 			{
 				arrayremovevalue( localpower.enabled_list, powered, 0 );
 			}
-			_k161 = getNextArrayKey( _a161, _k161 );
 		}
 	}
 }
 
-change_power_in_radius( delta, origin, radius )
+change_power_in_radius( delta, origin, radius ) //checked changed to match cerberus output
 {
 	changed_list = [];
-	i = 0;
-	while ( i < level.powered_items.size )
+	for ( i = 0; i < level.powered_items.size; i++ )
 	{
 		powered = level.powered_items[ i ];
 		if ( powered.power_sources != 2 )
@@ -203,12 +180,11 @@ change_power_in_radius( delta, origin, radius )
 				changed_list[ changed_list.size ] = powered;
 			}
 		}
-		i++;
 	}
 	return changed_list;
 }
 
-change_power( delta, origin, radius )
+change_power( delta, origin, radius ) //checked changed to match cerberus output
 {
 	if ( delta > 0 )
 	{
@@ -219,70 +195,66 @@ change_power( delta, origin, radius )
 		}
 		self.powered_count++;
 	}
-	else
+	else if ( delta < 0 )
 	{
-		if ( delta < 0 )
+		if ( self.power )
 		{
-			if ( self.power )
-			{
-				self.power = 0;
-				self [[ self.power_off_func ]]( origin, radius );
-			}
-			self.depowered_count++;
+			self.power = 0;
+			self [[ self.power_off_func ]]( origin, radius );
 		}
+		self.depowered_count++;
 	}
 }
 
-revert_power_to_list( delta, origin, radius, powered_list )
+revert_power_to_list( delta, origin, radius, powered_list ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < powered_list.size )
+	for ( i = 0; i < powered_list.size; i++ )
 	{
 		powered = powered_list[ i ];
 		powered revert_power( delta, origin, radius );
-		i++;
 	}
 }
 
-revert_power( delta, origin, radius, powered_list )
+revert_power( delta, origin, radius, powered_list ) //checked changed to match cerberus output
 {
 	if ( delta > 0 )
 	{
 		self.depowered_count--;
-
+		/*
 /#
 		assert( self.depowered_count >= 0, "Depower underflow in power system" );
 #/
+		*/
 		if ( self.depowered_count == 0 && self.powered_count > 0 && !self.power )
 		{
 			self.power = 1;
 			self [[ self.power_on_func ]]( origin, radius );
 		}
 	}
-	else
+	if ( delta < 0 )
 	{
-		if ( delta < 0 )
-		{
-			self.powered_count--;
-
+		self.powered_count--;
+		/*
 /#
-			assert( self.powered_count >= 0, "Repower underflow in power system" );
+		assert( self.powered_count >= 0, "Repower underflow in power system" );
 #/
-			if ( self.powered_count == 0 && self.power )
-			{
-				self.power = 0;
-				self [[ self.power_off_func ]]( origin, radius );
-			}
+		*/
+		if ( self.powered_count == 0 && self.power )
+		{
+			self.power = 0;
+			self [[ self.power_off_func ]]( origin, radius );
 		}
 	}
 }
 
-add_local_power( origin, radius )
+add_local_power( origin, radius ) //checked matches cerberus output
 {
 	localpower = spawnstruct();
+	/*
 /#
 	println( "ZM POWER: local power on at " + origin + " radius " + radius + "\n" );
 #/
+	*/
 	localpower.origin = origin;
 	localpower.radius = radius;
 	localpower.enabled_list = change_power_in_radius( 1, origin, radius );
@@ -294,7 +266,7 @@ add_local_power( origin, radius )
 	return localpower;
 }
 
-move_local_power( localpower, origin )
+move_local_power( localpower, origin ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite continue loop bug
 {
 	changed_list = [];
 	i = 0;
@@ -306,7 +278,7 @@ move_local_power( localpower, origin )
 			i++;
 			continue;
 		}
-		else waspowered = isinarray( localpower.enabled_list, powered );
+		waspowered = isinarray( localpower.enabled_list, powered );
 		ispowered = powered [[ powered.range_func ]]( 1, origin, localpower.radius );
 		if ( ispowered && !waspowered )
 		{
@@ -315,13 +287,10 @@ move_local_power( localpower, origin )
 			i++;
 			continue;
 		}
-		else
+		if ( !ispowered && waspowered )
 		{
-			if ( !ispowered && waspowered )
-			{
-				powered revert_power( -1, localpower.origin, localpower.radius, localpower.enabled_list );
-				arrayremovevalue( localpower.enabled_list, powered, 0 );
-			}
+			powered revert_power( -1, localpower.origin, localpower.radius, localpower.enabled_list );
+			arrayremovevalue( localpower.enabled_list, powered, 0 );
 		}
 		i++;
 	}
@@ -329,11 +298,13 @@ move_local_power( localpower, origin )
 	return localpower;
 }
 
-end_local_power( localpower )
+end_local_power( localpower ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "ZM POWER: local power off at " + localpower.origin + " radius " + localpower.radius + "\n" );
 #/
+	*/
 	if ( isDefined( localpower.enabled_list ) )
 	{
 		revert_power_to_list( -1, localpower.origin, localpower.radius, localpower.enabled_list );
@@ -347,26 +318,22 @@ end_local_power( localpower )
 	arrayremovevalue( level.local_power, localpower, 0 );
 }
 
-has_local_power( origin )
+has_local_power( origin ) //checked changed to match cerberus output
 {
-	while ( isDefined( level.local_power ) )
+	if ( isDefined( level.local_power ) )
 	{
-		_a309 = level.local_power;
-		_k309 = getFirstArrayKey( _a309 );
-		while ( isDefined( _k309 ) )
+		foreach ( localpower in level.local_power )
 		{
-			localpower = _a309[ _k309 ];
 			if ( distancesquared( localpower.origin, origin ) < ( localpower.radius * localpower.radius ) )
 			{
 				return 1;
 			}
-			_k309 = getNextArrayKey( _a309, _k309 );
 		}
 	}
 	return 0;
 }
 
-get_powered_item_cost()
+get_powered_item_cost() //checked matches cerberus output
 {
 	if ( isDefined( self.power ) && !self.power )
 	{
@@ -385,40 +352,31 @@ get_powered_item_cost()
 	return cost / power_sources;
 }
 
-get_local_power_cost( localpower )
+get_local_power_cost( localpower ) //checked changed to match cerberus output
 {
 	cost = 0;
-	while ( isDefined( localpower ) && isDefined( localpower.enabled_list ) )
+	if ( isDefined( localpower ) && isDefined( localpower.enabled_list ) )
 	{
-		_a340 = localpower.enabled_list;
-		_k340 = getFirstArrayKey( _a340 );
-		while ( isDefined( _k340 ) )
+		foreach ( powered in localpower.enabled_list )
 		{
-			powered = _a340[ _k340 ];
 			cost += powered get_powered_item_cost();
-			_k340 = getNextArrayKey( _a340, _k340 );
 		}
 	}
-	while ( isDefined( localpower ) && isDefined( localpower.added_list ) )
+	else if ( isDefined( localpower ) && isDefined( localpower.added_list ) )
 	{
-		_a345 = localpower.added_list;
-		_k345 = getFirstArrayKey( _a345 );
-		while ( isDefined( _k345 ) )
+		foreach ( powered in localpower.added_list )
 		{
-			powered = _a345[ _k345 ];
 			cost += powered get_powered_item_cost();
-			_k345 = getNextArrayKey( _a345, _k345 );
 		}
 	}
 	return cost;
 }
 
-set_global_power( on_off )
+set_global_power( on_off ) //checked changed to match cerberus output
 {
 	maps/mp/_demo::bookmark( "zm_power", getTime(), undefined, undefined, 1 );
 	level._power_global = on_off;
-	i = 0;
-	while ( i < level.powered_items.size )
+	for ( i = 0; i < level.powered_items.size; i++ )
 	{
 		powered = level.powered_items[ i ];
 		if ( isDefined( powered.target ) && powered.power_sources != 1 )
@@ -426,17 +384,18 @@ set_global_power( on_off )
 			powered global_power( on_off );
 			wait_network_frame();
 		}
-		i++;
 	}
 }
 
-global_power( on_off )
+global_power( on_off ) //checked matches cerberus output
 {
 	if ( on_off )
 	{
+		/*
 /#
 		println( "ZM POWER: global power on\n" );
 #/
+		*/
 		if ( !self.power )
 		{
 			self.power = 1;
@@ -446,14 +405,17 @@ global_power( on_off )
 	}
 	else
 	{
+		/*
 /#
 		println( "ZM POWER: global power off\n" );
 #/
+		*/
 		self.powered_count--;
-
+		/*
 /#
 		assert( self.powered_count >= 0, "Repower underflow in power system" );
 #/
+		*/
 		if ( self.powered_count == 0 && self.power )
 		{
 			self.power = 0;
@@ -462,15 +424,15 @@ global_power( on_off )
 	}
 }
 
-never_power_on( origin, radius )
+never_power_on( origin, radius ) //checked matches cerberus output
 {
 }
 
-never_power_off( origin, radius )
+never_power_off( origin, radius ) //checked matches cerberus output
 {
 }
 
-cost_negligible()
+cost_negligible() //checked matches cerberus output
 {
 	if ( isDefined( self.one_time_cost ) )
 	{
@@ -481,7 +443,7 @@ cost_negligible()
 	return 0;
 }
 
-cost_low_if_local()
+cost_low_if_local() //checked matches cerberus output
 {
 	if ( isDefined( self.one_time_cost ) )
 	{
@@ -500,7 +462,7 @@ cost_low_if_local()
 	return 1;
 }
 
-cost_high()
+cost_high() //checked matches cerberus output
 {
 	if ( isDefined( self.one_time_cost ) )
 	{
@@ -511,56 +473,64 @@ cost_high()
 	return 10;
 }
 
-door_range( delta, origin, radius )
+door_range( delta, origin, radius ) //checked matches cerberus output
 {
 	if ( delta < 0 )
 	{
 		return 0;
 	}
-	if ( distancesquared( self.target.origin, origin ) < ( radius * radius ) )
+	if ( distancesquared( self.target.origin, origin ) < radius * radius )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-door_power_on( origin, radius )
+door_power_on( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: door on\n" );
-#/
+#/	
+	*/
 	self.target.power_on = 1;
 	self.target notify( "power_on" );
 }
 
-door_power_off( origin, radius )
+door_power_off( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: door off\n" );
 #/
+	*/
 	self.target notify( "power_off" );
 	self.target.power_on = 0;
 }
 
-door_local_power_on( origin, radius )
+door_local_power_on( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: door on (local)\n" );
 #/
+	*/
 	self.target.local_power_on = 1;
 	self.target notify( "local_power_on" );
 }
 
-door_local_power_off( origin, radius )
+door_local_power_off( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: door off (local)\n" );
 #/
+	*/
 	self.target notify( "local_power_off" );
 	self.target.local_power_on = 0;
 }
 
-cost_door()
+cost_door() //checked matches cerberus output
 {
 	if ( isDefined( self.target.power_cost ) )
 	{
@@ -580,7 +550,7 @@ cost_door()
 	return 0;
 }
 
-zombie_range( delta, origin, radius )
+zombie_range( delta, origin, radius ) //checked matches cerberus output
 {
 	if ( delta > 0 )
 	{
@@ -595,30 +565,32 @@ zombie_range( delta, origin, radius )
 	return 1;
 }
 
-zombie_power_off( origin, radius )
+zombie_power_off( origin, radius ) //checked changed to match cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: zombies off\n" );
 #/
-	i = 0;
-	while ( i < self.zombies.size )
+	*/
+	for ( i = 0; i < self.zombies.size; i++ )
 	{
 		self.zombies[ i ] thread stun_zombie();
-		wait 0,05;
-		i++;
+		wait 0.05;
 	}
 }
 
-stun_zombie()
+stun_zombie() //checked matches cerberus output
 {
 	self endon( "death" );
 	self notify( "stun_zombie" );
 	self endon( "stun_zombie" );
 	if ( self.health <= 0 )
 	{
+		/*
 /#
 		iprintln( "trying to stun a dead zombie" );
 #/
+		*/
 		return;
 	}
 	if ( isDefined( self.ignore_inert ) && self.ignore_inert )
@@ -633,7 +605,7 @@ stun_zombie()
 	self thread maps/mp/zombies/_zm_ai_basic::start_inert();
 }
 
-perk_range( delta, origin, radius )
+perk_range( delta, origin, radius ) //checked changed to match cerberus output
 {
 	if ( isDefined( self.target ) )
 	{
@@ -642,14 +614,11 @@ perk_range( delta, origin, radius )
 		{
 			perkorigin = self.target.realorigin;
 		}
-		else
+		else if ( isDefined( self.target.disabled ) && self.target.disabled )
 		{
-			if ( isDefined( self.target.disabled ) && self.target.disabled )
-			{
-				perkorigin += vectorScale( ( 0, 0, 1 ), 10000 );
-			}
+			perkorigin += vectorScale( ( 0, 0, 1 ), 10000 );
 		}
-		if ( distancesquared( perkorigin, origin ) < ( radius * radius ) )
+		if ( distancesquared( perkorigin, origin ) < radius * radius )
 		{
 			return 1;
 		}
@@ -657,16 +626,18 @@ perk_range( delta, origin, radius )
 	return 0;
 }
 
-perk_power_on( origin, radius )
+perk_power_on( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: perk " + self.target maps/mp/zombies/_zm_perks::getvendingmachinenotify() + " on\n" );
 #/
+	*/
 	level notify( self.target maps/mp/zombies/_zm_perks::getvendingmachinenotify() + "_on" );
 	maps/mp/zombies/_zm_perks::perk_unpause( self.target.script_noteworthy );
 }
 
-perk_power_off( origin, radius )
+perk_power_off( origin, radius ) //checked matches cerberus output
 {
 	notify_name = self.target maps/mp/zombies/_zm_perks::getvendingmachinenotify();
 	if ( isDefined( notify_name ) && notify_name == "revive" )
@@ -676,9 +647,11 @@ perk_power_off( origin, radius )
 			return;
 		}
 	}
+	/*
 /#
 	println( "^1ZM POWER: perk " + self.target.script_noteworthy + " off\n" );
 #/
+	*/
 	self.target notify( "death" );
 	self.target thread maps/mp/zombies/_zm_perks::vending_trigger_think();
 	if ( isDefined( self.target.perk_hum ) )
@@ -689,7 +662,7 @@ perk_power_off( origin, radius )
 	level notify( self.target maps/mp/zombies/_zm_perks::getvendingmachinenotify() + "_off" );
 }
 
-pap_range( delta, origin, radius )
+pap_range( delta, origin, radius ) //checked changed to match cerberus output
 {
 	if ( isDefined( self.target ) )
 	{
@@ -698,12 +671,9 @@ pap_range( delta, origin, radius )
 		{
 			paporigin = self.target.realorigin;
 		}
-		else
+		else if ( isDefined( self.target.disabled ) && self.target.disabled )
 		{
-			if ( isDefined( self.target.disabled ) && self.target.disabled )
-			{
-				paporigin += vectorScale( ( 0, 0, 1 ), 10000 );
-			}
+			paporigin += vectorScale( ( 0, 0, 1 ), 10000 );
 		}
 		if ( distancesquared( paporigin, origin ) < ( radius * radius ) )
 		{
@@ -713,25 +683,29 @@ pap_range( delta, origin, radius )
 	return 0;
 }
 
-pap_power_on( origin, radius )
+pap_power_on( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: PaP on\n" );
 #/
+	*/
 	level notify( "Pack_A_Punch_on" );
 }
 
-pap_power_off( origin, radius )
+pap_power_off( origin, radius ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "^1ZM POWER: PaP off\n" );
 #/
+	*/
 	level notify( "Pack_A_Punch_off" );
 	self.target notify( "death" );
 	self.target thread maps/mp/zombies/_zm_perks::vending_weapon_upgrade();
 }
 
-pap_is_on()
+pap_is_on() //checked matches cerberus output
 {
 	if ( isDefined( self.powered ) )
 	{
@@ -739,3 +713,4 @@ pap_is_on()
 	}
 	return 0;
 }
+

@@ -3,7 +3,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !isDefined( level.script ) )
 	{
@@ -20,9 +20,11 @@ init()
 	level.difficultystring[ "normal" ] = &"GAMESKILL_NORMAL";
 	level.difficultystring[ "hardened" ] = &"GAMESKILL_HARDENED";
 	level.difficultystring[ "veteran" ] = &"GAMESKILL_VETERAN";
+	/*
 /#
 	thread playerhealthdebug();
 #/
+	*/
 	level.gameskill = 1;
 	switch( level.gameskill )
 	{
@@ -42,22 +44,22 @@ init()
 	logstring( "difficulty: " + level.gameskill );
 	level.player_deathinvulnerabletime = 1700;
 	level.longregentime = 5000;
-	level.healthoverlaycutoff = 0,2;
-	level.invultime_preshield = 0,35;
-	level.invultime_onshield = 0,5;
-	level.invultime_postshield = 0,3;
+	level.healthoverlaycutoff = 0.2;
+	level.invultime_preshield = 0.35;
+	level.invultime_onshield = 0.5;
+	level.invultime_postshield = 0.3;
 	level.playerhealth_regularregendelay = 2400;
-	level.worthydamageratio = 0,1;
-	setdvar( "player_meleeDamageMultiplier", 0,4 );
+	level.worthydamageratio = 0.1;
+	setdvar( "player_meleeDamageMultiplier", 0.4 );
 	onplayerconnect_callback( ::onplayerconnect );
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	self thread onplayerspawned();
 }
 
-onplayerspawned()
+onplayerspawned() //checked changed to match cerberus output
 {
 	for ( ;; )
 	{
@@ -67,15 +69,12 @@ onplayerspawned()
 		{
 			continue;
 		}
-		else
-		{
-			self notify( "noHealthOverlay" );
-			self thread playerhealthregen();
-		}
+		self notify( "noHealthOverlay" );
+		self thread playerhealthregen();
 	}
 }
 
-playerhurtcheck()
+playerhurtcheck() //checked changed to match cerberus output
 {
 	self endon( "noHealthOverlay" );
 	self.hurtagain = 0;
@@ -86,16 +85,13 @@ playerhurtcheck()
 		{
 			continue;
 		}
-		else
-		{
-			self.hurtagain = 1;
-			self.damagepoint = point;
-			self.damageattacker = attacker;
-		}
+		self.hurtagain = 1;
+		self.damagepoint = point;
+		self.damageattacker = attacker;
 	}
 }
 
-playerhealthregen()
+playerhealthregen() //checked changed to match cerberus output
 {
 	self notify( "playerHealthRegen" );
 	self endon( "playerHealthRegen" );
@@ -116,7 +112,7 @@ playerhealthregen()
 	self thread healthoverlay();
 	oldratio = 1;
 	health_add = 0;
-	regenrate = 0,1;
+	regenrate = 0.1;
 	veryhurt = 0;
 	playerjustgotredflashing = 0;
 	invultime = 0;
@@ -136,7 +132,7 @@ playerhealthregen()
 	playerinvultimescale = getDvarFloat( "scr_playerInvulTimeScale" );
 	for ( ;; )
 	{
-		wait 0,05;
+		wait 0.05;
 		waittillframeend;
 		if ( self.health == self.maxhealth )
 		{
@@ -149,11 +145,13 @@ playerhealthregen()
 			veryhurt = 0;
 			continue;
 		}
-		else if ( self.health <= 0 )
+		if ( self.health <= 0 )
 		{
+			/*
 /#
 			showhitlog();
 #/
+			*/
 			return;
 		}
 		wasveryhurt = veryhurt;
@@ -164,7 +162,7 @@ playerhealthregen()
 			if ( !wasveryhurt )
 			{
 				hurttime = getTime();
-				self startfadingblur( 3,6, 2 );
+				self startfadingblur( 3.6, 2 );
 				self player_flag_set( "player_has_red_flashing_overlay" );
 				playerjustgotredflashing = 1;
 			}
@@ -176,11 +174,11 @@ playerhealthregen()
 		}
 		if ( health_ratio >= oldratio )
 		{
-			if ( ( getTime() - hurttime ) < level.playerhealth_regularregendelay )
+			if ( getTime() - hurttime < level.playerhealth_regularregendelay )
 			{
 				continue;
 			}
-			else if ( veryhurt )
+			if ( veryhurt )
 			{
 				self.veryhurt = 1;
 				newhealth = health_ratio;
@@ -202,21 +200,24 @@ playerhealthregen()
 			{
 				return;
 			}
+			/*
 /#
 			if ( newhealth > health_ratio )
 			{
 				logregen( newhealth );
 #/
 			}
+			*/
 			self setnormalhealth( newhealth );
 			oldratio = self.health / self.maxhealth;
 			continue;
 		}
-		else invulworthyhealthdrop = ( lastinvulratio - health_ratio ) > level.worthydamageratio;
+		invulworthyhealthdrop = lastinvulratio - health_ratio > level.worthydamageratio;
 		if ( self.health <= 1 )
 		{
 			self setnormalhealth( 2 / self.maxhealth );
 			invulworthyhealthdrop = 1;
+			/*
 /#
 			if ( !isDefined( level.player_deathinvulnerabletimeout ) )
 			{
@@ -227,68 +228,69 @@ playerhealthregen()
 				level.player_deathinvulnerabletimeout = getTime() + getDvarInt( "player_deathInvulnerableTime" );
 #/
 			}
+			*/
 		}
 		oldratio = self.health / self.maxhealth;
 		level notify( "hit_again" );
 		health_add = 0;
 		hurttime = getTime();
-		self startfadingblur( 3, 0,8 );
+		self startfadingblur( 3, 0.8 );
 		if ( !invulworthyhealthdrop || playerinvultimescale <= 0 )
 		{
+			/*
 /#
 			loghit( self.health, 0 );
 #/
+			*/
 			continue;
+		}
+		if ( self player_flag( "player_is_invulnerable" ) )
+		{
+			continue;
+		}
+		self player_flag_set( "player_is_invulnerable" );
+		level notify( "player_becoming_invulnerable" );
+		if ( playerjustgotredflashing )
+		{
+			invultime = level.invultime_onshield;
+			playerjustgotredflashing = 0;
+		}
+		else if ( veryhurt )
+		{
+			invultime = level.invultime_postshield;
 		}
 		else
 		{
-			if ( self player_flag( "player_is_invulnerable" ) )
-			{
-				break;
-			}
-			else
-			{
-				self player_flag_set( "player_is_invulnerable" );
-				level notify( "player_becoming_invulnerable" );
-				if ( playerjustgotredflashing )
-				{
-					invultime = level.invultime_onshield;
-					playerjustgotredflashing = 0;
-				}
-				else if ( veryhurt )
-				{
-					invultime = level.invultime_postshield;
-				}
-				else
-				{
-					invultime = level.invultime_preshield;
-				}
-				invultime *= playerinvultimescale;
-/#
-				loghit( self.health, invultime );
-#/
-				lastinvulratio = self.health / self.maxhealth;
-				self thread playerinvul( invultime );
-			}
+			invultime = level.invultime_preshield;
 		}
+		invultime *= playerinvultimescale;
+		/*
+/#
+		loghit( self.health, invultime );
+#/
+		*/
+		lastinvulratio = self.health / self.maxhealth;
+		self thread playerinvul( invultime );
 	}
 }
 
-playerinvul( timer )
+playerinvul( timer ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	if ( timer > 0 )
 	{
+		/*
 /#
 		level.playerinvultimeend = getTime() + ( timer * 1000 );
-#/
+#/	
+		*/
 		wait timer;
 	}
 	self player_flag_clear( "player_is_invulnerable" );
 }
 
-healthoverlay()
+healthoverlay() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "noHealthOverlay" );
@@ -307,37 +309,36 @@ healthoverlay()
 	overlay = self._health_overlay;
 	self thread healthoverlay_remove( overlay );
 	self thread watchhideredflashingoverlay( overlay );
-	pulsetime = 0,8;
-	for ( ;; )
+	pulsetime = 0.8;
+	while ( overlay.alpha > 0 )
 	{
-		if ( overlay.alpha > 0 )
-		{
-			overlay fadeovertime( 0,5 );
-		}
+		overlay fadeovertime( 0.5 );
 		overlay.alpha = 0;
 		self player_flag_wait( "player_has_red_flashing_overlay" );
 		self redflashingoverlay( overlay );
 	}
 }
 
-fadefunc( overlay, severity, mult, hud_scaleonly )
+fadefunc( overlay, severity, mult, hud_scaleonly ) //checkec matches cerberus output
 {
-	pulsetime = 0,8;
-	scalemin = 0,5;
-	fadeintime = pulsetime * 0,1;
-	stayfulltime = pulsetime * ( 0,1 + ( severity * 0,2 ) );
-	fadeouthalftime = pulsetime * ( 0,1 + ( severity * 0,1 ) );
-	fadeoutfulltime = pulsetime * 0,3;
+	pulsetime = 0.8;
+	scalemin = 0.5;
+	fadeintime = pulsetime * 0.1;
+	stayfulltime = pulsetime * ( 0.1 + severity * 0.2 );
+	fadeouthalftime = pulsetime * ( 0.1 + severity * 0.1 );
+	fadeoutfulltime = pulsetime * 0.3;
 	remainingtime = pulsetime - fadeintime - stayfulltime - fadeouthalftime - fadeoutfulltime;
+	/*
 /#
-	assert( remainingtime >= -0,001 );
+	assert( remainingtime >= -0.001 );
 #/
+	*/
 	if ( remainingtime < 0 )
 	{
 		remainingtime = 0;
 	}
-	halfalpha = 0,8 + ( severity * 0,1 );
-	leastalpha = 0,5 + ( severity * 0,3 );
+	halfalpha = 0.8 + severity * 0.1;
+	leastalpha = 0.5 + severity * 0.3;
 	overlay fadeovertime( fadeintime );
 	overlay.alpha = mult * 1;
 	wait ( fadeintime + stayfulltime );
@@ -350,21 +351,21 @@ fadefunc( overlay, severity, mult, hud_scaleonly )
 	wait remainingtime;
 }
 
-watchhideredflashingoverlay( overlay )
+watchhideredflashingoverlay( overlay ) //checked matches cerberus output
 {
 	self endon( "death_or_disconnect" );
 	while ( isDefined( overlay ) )
 	{
 		self waittill( "clear_red_flashing_overlay" );
 		self player_flag_clear( "player_has_red_flashing_overlay" );
-		overlay fadeovertime( 0,05 );
+		overlay fadeovertime( 0.05 );
 		overlay.alpha = 0;
 		setclientsysstate( "levelNotify", "rfo3", self );
 		self notify( "hit_again" );
 	}
 }
 
-redflashingoverlay( overlay )
+redflashingoverlay( overlay ) //checked matches cerberus output
 {
 	self endon( "hit_again" );
 	self endon( "damage" );
@@ -377,57 +378,64 @@ redflashingoverlay( overlay )
 		fadefunc( overlay, 1, 1, 0 );
 		while ( getTime() < self.stopflashingbadlytime && isalive( self ) && isDefined( self.is_in_process_of_zombify ) && !self.is_in_process_of_zombify && isDefined( self.is_zombie ) && !self.is_zombie )
 		{
-			fadefunc( overlay, 0,9, 1, 0 );
+			fadefunc( overlay, 0.9, 1, 0 );
 		}
 		if ( isDefined( self.is_in_process_of_zombify ) && !self.is_in_process_of_zombify && isDefined( self.is_zombie ) && !self.is_zombie )
 		{
 			if ( isalive( self ) )
 			{
-				fadefunc( overlay, 0,65, 0,8, 0 );
+				fadefunc( overlay, 0.65, 0.8, 0 );
 			}
-			fadefunc( overlay, 0, 0,6, 1 );
+			fadefunc( overlay, 0, 0.6, 1 );
 		}
 	}
-	overlay fadeovertime( 0,5 );
+	overlay fadeovertime( 0.5 );
 	overlay.alpha = 0;
 	self player_flag_clear( "player_has_red_flashing_overlay" );
 	setclientsysstate( "levelNotify", "rfo3", self );
-	wait 0,5;
+	wait 0.5;
 	self notify( "hit_again" );
 }
 
-healthoverlay_remove( overlay )
+healthoverlay_remove( overlay ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill_any( "noHealthOverlay", "death" );
-	overlay fadeovertime( 3,5 );
+	overlay fadeovertime( 3.5 );
 	overlay.alpha = 0;
 }
 
-empty_kill_func( type, loc, point, attacker, amount )
+empty_kill_func( type, loc, point, attacker, amount ) //checked matches cerberus output
 {
 }
 
-loghit( newhealth, invultime )
+loghit( newhealth, invultime ) //checked matches cerberus output
 {
+	/*
 /#
 #/
+	*/
 }
 
-logregen( newhealth )
+logregen( newhealth ) //checked matches cerberus output
 {
+	/*
 /#
 #/
+	*/
 }
 
-showhitlog()
+showhitlog() //checked matches cerberus output
 {
+	/*
 /#
 #/
+	*/
 }
 
-playerhealthdebug()
+playerhealthdebug() //checked changed to match cerberus output
 {
+	/*
 /#
 	if ( getDvar( "scr_health_debug" ) == "" )
 	{
@@ -442,10 +450,7 @@ playerhealthdebug()
 			{
 				break;
 			}
-			else
-			{
-				wait 0,5;
-			}
+			wait 0.5;
 		}
 		thread printhealthdebug();
 		while ( 1 )
@@ -454,19 +459,18 @@ playerhealthdebug()
 			{
 				break;
 			}
-			else
-			{
-				wait 0,5;
-			}
+			wait 0.5;
 		}
 		level notify( "stop_printing_grenade_timers" );
 		destroyhealthdebug();
 #/
 	}
+	*/
 }
 
-printhealthdebug()
+printhealthdebug() //checked changed to match cerberus output
 {
+	/*
 /#
 	level notify( "stop_printing_health_bars" );
 	level endon( "stop_printing_health_bars" );
@@ -484,8 +488,7 @@ printhealthdebug()
 	{
 		level.player_deathinvulnerabletimeout = 0;
 	}
-	i = 0;
-	while ( i < level.healthbarkeys.size )
+	for ( i = 0; i < level.healthbarkeys.size; i++ )
 	{
 		key = level.healthbarkeys[ i ];
 		textelem = newhudelem();
@@ -505,7 +508,7 @@ printhealthdebug()
 		bgbar.vertalign = "fullscreen";
 		bgbar.maxwidth = 3;
 		bgbar setshader( "white", bgbar.maxwidth, 10 );
-		bgbar.color = vectorScale( ( 1, 1, 1 ), 0,5 );
+		bgbar.color = vectorScale( ( 1, 1, 1 ), 0.5 );
 		bar = newhudelem();
 		bar.x = x + 80;
 		bar.y = y + 2;
@@ -519,15 +522,13 @@ printhealthdebug()
 		textelem.key = key;
 		y += 10;
 		level.healthbarhudelems[ key ] = textelem;
-		i++;
 	}
 	flag_wait( "start_zombie_round_logic" );
 	while ( 1 )
 	{
-		wait 0,05;
+		wait 0.05;
 		players = get_players();
-		i = 0;
-		while ( i < level.healthbarkeys.size && players.size > 0 )
+		for ( i = 0; i < level.healthbarkeys.size && players.size > 0; i++ )
 		{
 			key = level.healthbarkeys[ i ];
 			player = players[ 0 ];
@@ -540,12 +541,9 @@ printhealthdebug()
 			{
 				width = ( ( level.playerinvultimeend - getTime() ) / 1000 ) * 40;
 			}
-			else
+			else if ( i == 2 )
 			{
-				if ( i == 2 )
-				{
-					width = ( ( level.player_deathinvulnerabletimeout - getTime() ) / 1000 ) * 40;
-				}
+				width = ( ( level.player_deathinvulnerabletimeout - getTime() ) / 1000 ) * 40;
 			}
 			width = int( max( width, 1 ) );
 			width = int( min( width, 300 ) );
@@ -556,28 +554,29 @@ printhealthdebug()
 			{
 				bgbar.maxwidth = width + 2;
 				bgbar setshader( "white", bgbar.maxwidth, 10 );
-				bgbar.color = vectorScale( ( 1, 1, 1 ), 0,5 );
+				bgbar.color = vectorScale( ( 1, 1, 1 ), 0.5 );
 			}
-			i++;
 		}
 #/
 	}
+	*/
 }
 
-destroyhealthdebug()
+destroyhealthdebug() //checked changed to match cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level.healthbarhudelems ) )
 	{
 		return;
 	}
-	i = 0;
-	while ( i < level.healthbarkeys.size )
+	while ( i = 0; i < level.healthbarkeys.size; i++ )
 	{
 		level.healthbarhudelems[ level.healthbarkeys[ i ] ].bgbar destroy();
 		level.healthbarhudelems[ level.healthbarkeys[ i ] ].bar destroy();
 		level.healthbarhudelems[ level.healthbarkeys[ i ] ] destroy();
-		i++;
 #/
 	}
+	*/
 }
+

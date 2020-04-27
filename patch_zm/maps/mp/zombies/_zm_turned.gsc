@@ -7,7 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.turnedmeleeweapon = "zombiemelee_zm";
 	level.turnedmeleeweapon_dw = "zombiemelee_dw";
@@ -31,24 +31,24 @@ init()
 	thread setup_zombie_exerts();
 }
 
-setup_zombie_exerts()
+setup_zombie_exerts() //checked matches cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	level.exert_sounds[ 1 ][ "burp" ] = "null";
 	level.exert_sounds[ 1 ][ "hitmed" ] = "null";
 	level.exert_sounds[ 1 ][ "hitlrg" ] = "null";
 }
 
-delay_turning_on_eyes()
+delay_turning_on_eyes() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	wait_network_frame();
-	wait 0,1;
+	wait 0.1;
 	self setclientfield( "player_has_eyes", 1 );
 }
 
-turn_to_zombie()
+turn_to_zombie() //checked changed to match cerberus output
 {
 	if ( self.sessionstate == "playing" && isDefined( self.is_zombie ) && self.is_zombie && isDefined( self.laststand ) && !self.laststand )
 	{
@@ -60,7 +60,7 @@ turn_to_zombie()
 	}
 	while ( isDefined( self.is_in_process_of_humanify ) && self.is_in_process_of_humanify )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	if ( !flag( "pregame" ) )
 	{
@@ -150,17 +150,14 @@ turn_to_zombie()
 	{
 		self freezecontrols( level.player_movement_suppressed );
 	}
-	else
+	else if ( isDefined( self.hostmigrationcontrolsfrozen ) && !self.hostmigrationcontrolsfrozen )
 	{
-		if ( isDefined( self.hostmigrationcontrolsfrozen ) && !self.hostmigrationcontrolsfrozen )
-		{
-			self freezecontrols( 0 );
-		}
+		self freezecontrols( 0 );
 	}
 	self.is_in_process_of_zombify = 0;
 }
 
-turn_to_human()
+turn_to_human() //checked changed to match cerberus output
 {
 	if ( self.sessionstate == "playing" && isDefined( self.is_zombie ) && !self.is_zombie && isDefined( self.laststand ) && !self.laststand )
 	{
@@ -172,7 +169,7 @@ turn_to_human()
 	}
 	while ( isDefined( self.is_in_process_of_zombify ) && self.is_in_process_of_zombify )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	self playsoundtoplayer( "evt_spawn", self );
 	playsoundatposition( "evt_disappear_3d", self.origin );
@@ -233,27 +230,21 @@ turn_to_human()
 	{
 		self freezecontrols( level.player_movement_suppressed );
 	}
-	else
+	else if ( isDefined( self.hostmigrationcontrolsfrozen ) && !self.hostmigrationcontrolsfrozen )
 	{
-		if ( isDefined( self.hostmigrationcontrolsfrozen ) && !self.hostmigrationcontrolsfrozen )
-		{
-			self freezecontrols( 0 );
-		}
+		self freezecontrols( 0 );
 	}
 	self show();
 	playsoundatposition( "evt_appear_3d", self.origin );
 	self.is_in_process_of_humanify = 0;
 }
 
-deletezombiesinradius( origin )
+deletezombiesinradius( origin ) //checked changed to match cerberus output
 {
 	zombies = get_round_enemy_array();
 	maxradius = 128;
-	_a328 = zombies;
-	_k328 = getFirstArrayKey( _a328 );
-	while ( isDefined( _k328 ) )
+	foreach ( zombie in zombies )
 	{
-		zombie = _a328[ _k328 ];
 		if ( isDefined( zombie ) && isalive( zombie ) && isDefined( zombie.is_being_used_as_spawner ) && !zombie.is_being_used_as_spawner )
 		{
 			if ( distancesquared( zombie.origin, origin ) < ( maxradius * maxradius ) )
@@ -261,20 +252,21 @@ deletezombiesinradius( origin )
 				playfx( level._effect[ "wood_chunk_destory" ], zombie.origin );
 				zombie thread silentlyremovezombie();
 			}
-			wait 0,05;
+			wait 0.05;
 		}
-		_k328 = getNextArrayKey( _a328, _k328 );
 	}
 }
 
-turned_give_melee_weapon()
+turned_give_melee_weapon() //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( self.turnedmeleeweapon ) );
 #/
 /#
 	assert( self.turnedmeleeweapon != "none" );
 #/
+	*/
 	self.turned_had_knife = self hasweapon( "knife_zm" );
 	if ( isDefined( self.turned_had_knife ) && self.turned_had_knife )
 	{
@@ -288,45 +280,45 @@ turned_give_melee_weapon()
 	self switchtoweapon( self.turnedmeleeweapon );
 }
 
-turned_player_buttons()
+turned_player_buttons() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "humanify" );
 	level endon( "end_game" );
 	while ( isDefined( self.is_zombie ) && self.is_zombie )
 	{
-		while ( !self attackbuttonpressed() || self adsbuttonpressed() && self meleebuttonpressed() )
+		if ( self attackbuttonpressed() || self adsbuttonpressed() || self meleebuttonpressed() )
 		{
 			if ( cointoss() )
 			{
 				self thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "attack", undefined );
 			}
-			while ( !self attackbuttonpressed() || self adsbuttonpressed() && self meleebuttonpressed() )
+			while ( self attackbuttonpressed() || self adsbuttonpressed() || self meleebuttonpressed() )
 			{
-				wait 0,05;
+				wait 0.05;
 			}
 		}
-		while ( self usebuttonpressed() )
+		if ( self usebuttonpressed() )
 		{
 			self thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "taunt", undefined );
 			while ( self usebuttonpressed() )
 			{
-				wait 0,05;
+				wait 0.05;
 			}
 		}
-		while ( self issprinting() )
+		if ( self issprinting() )
 		{
 			while ( self issprinting() )
 			{
 				self thread maps/mp/zombies/_zm_audio::do_zombies_playvocals( "sprint", undefined );
-				wait 0,05;
+				wait 0.05;
 			}
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-turned_disable_player_weapons()
+turned_disable_player_weapons() //checked matches cerberus output
 {
 	if ( isDefined( self.is_zombie ) && self.is_zombie )
 	{
@@ -349,7 +341,7 @@ turned_disable_player_weapons()
 	self disableweaponcycling();
 }
 
-turned_enable_player_weapons()
+turned_enable_player_weapons() //checked changed to match cerberus output
 {
 	self takeallweapons();
 	self enableweaponcycling();
@@ -360,13 +352,10 @@ turned_enable_player_weapons()
 		self thread [[ level.humanify_custom_loadout ]]();
 		return;
 	}
-	else
+	else if ( !self hasweapon( "rottweil72_zm" ) )
 	{
-		if ( !self hasweapon( "rottweil72_zm" ) )
-		{
-			self giveweapon( "rottweil72_zm" );
-			self switchtoweapon( "rottweil72_zm" );
-		}
+		self giveweapon( "rottweil72_zm" );
+		self switchtoweapon( "rottweil72_zm" );
 	}
 	if ( isDefined( self.is_zombie ) && !self.is_zombie && !self hasweapon( level.start_weapon ) )
 	{
@@ -396,13 +385,12 @@ turned_enable_player_weapons()
 	self setweaponammoclip( self get_player_lethal_grenade(), 2 );
 }
 
-get_farthest_available_zombie( player )
+get_farthest_available_zombie( player ) //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		zombies = get_array_of_closest( player.origin, getaiarray( level.zombie_team ) );
-		x = 0;
-		while ( x < zombies.size )
+		for ( x = 0; x < zombies.size; x++ )
 		{
 			zombie = zombies[ x ];
 			if ( isDefined( zombie ) && isalive( zombie ) && isDefined( zombie.in_the_ground ) && !zombie.in_the_ground && isDefined( zombie.gibbed ) && !zombie.gibbed && isDefined( zombie.head_gibbed ) && !zombie.head_gibbed && isDefined( zombie.is_being_used_as_spawnpoint ) && !zombie.is_being_used_as_spawnpoint && zombie in_playable_area() )
@@ -410,29 +398,24 @@ get_farthest_available_zombie( player )
 				zombie.is_being_used_as_spawnpoint = 1;
 				return zombie;
 			}
-			x++;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-get_available_human()
+get_available_human() //checked changed to match cerberus output
 {
 	players = get_players();
-	_a539 = players;
-	_k539 = getFirstArrayKey( _a539 );
-	while ( isDefined( _k539 ) )
+	foreach ( player in players )
 	{
-		player = _a539[ _k539 ];
 		if ( isDefined( player.is_zombie ) && !player.is_zombie )
 		{
 			return player;
 		}
-		_k539 = getNextArrayKey( _a539, _k539 );
 	}
 }
 
-silentlyremovezombie()
+silentlyremovezombie() //checked matches cerberus output
 {
 	self.skip_death_notetracks = 1;
 	self.nodeathragdoll = 1;
@@ -440,8 +423,9 @@ silentlyremovezombie()
 	self self_delete();
 }
 
-getspawnpoint()
+getspawnpoint() //checked matches cerberus output
 {
 	spawnpoint = self maps/mp/gametypes_zm/_spawnlogic::getspawnpoint_dm( level._turned_zombie_respawnpoints );
 	return spawnpoint;
 }
+
