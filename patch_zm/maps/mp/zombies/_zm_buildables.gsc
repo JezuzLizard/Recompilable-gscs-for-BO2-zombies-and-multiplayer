@@ -9,7 +9,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachestring( &"ZOMBIE_BUILDING" );
 	precachestring( &"ZOMBIE_BUILD_PIECE_MISSING" );
@@ -33,9 +33,9 @@ init()
 	}
 }
 
-anystub_update_prompt( player )
+anystub_update_prompt( player ) //checked matches cerberus output
 {
-	if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || player in_revive_trigger() )
+	if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || player maps/mp/zombies/_zm_utility::in_revive_trigger() )
 	{
 		self.hint_string = "";
 		return 0;
@@ -58,7 +58,7 @@ anystub_update_prompt( player )
 	return 1;
 }
 
-anystub_get_unitrigger_origin()
+anystub_get_unitrigger_origin() //checked matches cerberus output
 {
 	if ( isDefined( self.origin_parent ) )
 	{
@@ -67,7 +67,7 @@ anystub_get_unitrigger_origin()
 	return self.origin;
 }
 
-anystub_on_spawn_trigger( trigger )
+anystub_on_spawn_trigger( trigger ) //checked matches cerberus output
 {
 	if ( isDefined( self.link_parent ) )
 	{
@@ -77,7 +77,7 @@ anystub_on_spawn_trigger( trigger )
 	}
 }
 
-buildables_watch_swipes()
+buildables_watch_swipes() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "buildables_watch_swipes" );
@@ -85,7 +85,7 @@ buildables_watch_swipes()
 	while ( 1 )
 	{
 		self waittill( "melee_swipe", zombie );
-		while ( distancesquared( zombie.origin, self.origin ) > ( zombie.meleeattackdist * zombie.meleeattackdist ) )
+		if ( distancesquared( zombie.origin, self.origin ) > zombie.meleeattackdist * zombie.meleeattackdist )
 		{
 			continue;
 		}
@@ -112,15 +112,17 @@ buildables_watch_swipes()
 	}
 }
 
-explosiondamage( damage, pos )
+explosiondamage( damage, pos ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "ZM BUILDABLE Explode do " + damage + " damage to " + self.name + "\n" );
 #/
+	*/
 	self dodamage( damage, pos );
 }
 
-add_zombie_buildable( buildable_name, hint, building, bought )
+add_zombie_buildable( buildable_name, hint, building, bought ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_include_buildables ) )
 	{
@@ -147,9 +149,11 @@ add_zombie_buildable( buildable_name, hint, building, bought )
 	buildable_struct.hint = hint;
 	buildable_struct.building = building;
 	buildable_struct.bought = bought;
+	/*
 /#
 	println( "ZM >> Looking for buildable - " + buildable_struct.name );
 #/
+	*/
 	level.zombie_buildables[ buildable_struct.name ] = buildable_struct;
 	if ( !level.createfx_enabled )
 	{
@@ -160,23 +164,24 @@ add_zombie_buildable( buildable_name, hint, building, bought )
 	}
 }
 
-register_clientfields()
+register_clientfields() //checked changed to match cerberus output
 {
 	if ( isDefined( level.buildable_slot_count ) )
 	{
-		i = 0;
-		while ( i < level.buildable_slot_count )
+		for ( i = 0; i < level.buildable_slot_count; i++ )
 		{
 			bits = getminbitcountfornum( level.buildable_piece_counts[ i ] );
 			registerclientfield( "toplayer", level.buildable_clientfields[ i ], 12000, bits, "int" );
-			i++;
 		}
 	}
-	else bits = getminbitcountfornum( level.buildable_piece_count );
-	registerclientfield( "toplayer", "buildable", 1, bits, "int" );
+	else
+	{
+		bits = getminbitcountfornum( level.buildable_piece_count );
+		registerclientfield( "toplayer", "buildable", 1, bits, "int" );
+	}
 }
 
-set_buildable_clientfield( slot, newvalue )
+set_buildable_clientfield( slot, newvalue ) //checked matches cerberus output
 {
 	if ( isDefined( level.buildable_slot_count ) )
 	{
@@ -188,24 +193,26 @@ set_buildable_clientfield( slot, newvalue )
 	}
 }
 
-clear_buildable_clientfield( slot )
+clear_buildable_clientfield( slot ) //checked matches cerberus output
 {
 	self set_buildable_clientfield( slot, 0 );
 }
 
-include_zombie_buildable( buiildable_struct )
+include_zombie_buildable( buiildable_struct ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_include_buildables ) )
 	{
 		level.zombie_include_buildables = [];
 	}
+	/*
 /#
 	println( "ZM >> Including buildable - " + buiildable_struct.name );
 #/
+	*/
 	level.zombie_include_buildables[ buiildable_struct.name ] = buiildable_struct;
 }
 
-generate_zombie_buildable_piece( buildablename, modelname, radius, height, drop_offset, hud_icon, onpickup, ondrop, use_spawn_num, part_name, can_reuse, client_field_state, buildable_slot )
+generate_zombie_buildable_piece( buildablename, modelname, radius, height, drop_offset, hud_icon, onpickup, ondrop, use_spawn_num, part_name, can_reuse, client_field_state, buildable_slot ) //checked changed to match cerberus output
 {
 	precachemodel( modelname );
 	if ( isDefined( hud_icon ) )
@@ -214,21 +221,19 @@ generate_zombie_buildable_piece( buildablename, modelname, radius, height, drop_
 	}
 	piece = spawnstruct();
 	buildable_pieces = [];
-	buildable_pieces_structs = getstructarray( ( buildablename + "_" ) + modelname, "targetname" );
+	buildable_pieces_structs = patch_zm\common_scripts\utility::getstructarray( buildablename + "_" + modelname, "targetname" );
+	/*
 /#
 	if ( buildable_pieces_structs.size < 1 )
 	{
 		println( "ERROR: Missing buildable piece <" + buildablename + "> <" + modelname + ">\n" );
 #/
 	}
-	_a240 = buildable_pieces_structs;
-	index = getFirstArrayKey( _a240 );
-	while ( isDefined( index ) )
+	*/
+	foreach ( struct in buildable_pieces_structs )
 	{
-		struct = _a240[ index ];
 		buildable_pieces[ index ] = struct;
 		buildable_pieces[ index ].hasspawned = 0;
-		index = getNextArrayKey( _a240, index );
 	}
 	piece.spawns = buildable_pieces;
 	piece.buildablename = buildablename;
@@ -255,7 +260,7 @@ generate_zombie_buildable_piece( buildablename, modelname, radius, height, drop_
 	return piece;
 }
 
-manage_multiple_pieces( max_instances, min_instances )
+manage_multiple_pieces( max_instances, min_instances ) //checked matches cerberus output
 {
 	self.max_instances = max_instances;
 	self.min_instances = min_instances;
@@ -263,19 +268,19 @@ manage_multiple_pieces( max_instances, min_instances )
 	self.piece_allocated = [];
 }
 
-buildable_set_force_spawn_location( str_kvp, str_name )
+buildable_set_force_spawn_location( str_kvp, str_name ) //checked matches cerberus output
 {
 	self.str_force_spawn_kvp = str_kvp;
 	self.str_force_spawn_name = str_name;
 }
 
-buildable_use_cyclic_spawns( randomize_start_location )
+buildable_use_cyclic_spawns( randomize_start_location ) //checked matches cerberus output
 {
 	self.use_cyclic_spawns = 1;
 	self.randomize_cyclic_index = randomize_start_location;
 }
 
-combine_buildable_pieces( piece1, piece2, piece3 )
+combine_buildable_pieces( piece1, piece2, piece3 ) //checked matches cerberus output
 {
 	spawns1 = piece1.spawns;
 	spawns2 = piece2.spawns;
@@ -295,7 +300,7 @@ combine_buildable_pieces( piece1, piece2, piece3 )
 	piece2.spawns = spawns;
 }
 
-add_buildable_piece( piece, part_name, can_reuse )
+add_buildable_piece( piece, part_name, can_reuse ) //checked matches cerberus output
 {
 	if ( !isDefined( self.buildablepieces ) )
 	{
@@ -316,24 +321,26 @@ add_buildable_piece( piece, part_name, can_reuse )
 	}
 	else
 	{
+		/*
 /#
 		assert( self.buildable_slot == piece.buildable_slot );
 #/
+		*/
 	}
 }
 
-create_zombie_buildable_piece( modelname, radius, height, hud_icon )
+create_zombie_buildable_piece( modelname, radius, height, hud_icon ) //checked matches cerberus output
 {
 	piece = generate_zombie_buildable_piece( self.name, modelname, radius, height, hud_icon );
 	self add_buildable_piece( piece );
 }
 
-onplayerlaststand()
+onplayerlaststand() //checked partially changed to match cerberus output
 {
 	pieces = self player_get_buildable_pieces();
 	spawn_pos = [];
 	spawn_pos[ 0 ] = self.origin;
-	while ( pieces.size >= 2 )
+	if ( pieces.size >= 2 )
 	{
 		nodes = getnodesinradiussorted( self.origin + vectorScale( ( 0, 0, 1 ), 30 ), 120, 30, 72, "path", 5 );
 		i = 0;
@@ -345,19 +352,13 @@ onplayerlaststand()
 				i++;
 				continue;
 			}
-			else
-			{
-				spawn_pos[ i ] = self.origin + vectorScale( ( 0, 0, 1 ), 5 );
-			}
+			spawn_pos[ i ] = self.origin + vectorScale( ( 0, 0, 1 ), 5 );
 			i++;
 		}
 	}
 	spawnidx = 0;
-	_a366 = pieces;
-	_k366 = getFirstArrayKey( _a366 );
-	while ( isDefined( _k366 ) )
+	foreach ( piece in pieces )
 	{
-		piece = _a366[ _k366 ];
 		slot = piece.buildable_slot;
 		if ( isDefined( piece ) )
 		{
@@ -375,7 +376,7 @@ onplayerlaststand()
 			}
 			else if ( pieces.size < 2 )
 			{
-				piece piece_spawn_at( self.origin + vectorScale( ( 0, 0, 1 ), 5 ), self.angles );
+				piece piece_spawn_at( self.origin + vectorScale( ( 1, 1, 0 ), 5 ), self.angles );
 			}
 			else
 			{
@@ -390,11 +391,10 @@ onplayerlaststand()
 		}
 		self player_set_buildable_piece( undefined, slot );
 		self notify( "piece_released" + slot );
-		_k366 = getNextArrayKey( _a366, _k366 );
 	}
 }
 
-piecestub_get_unitrigger_origin()
+piecestub_get_unitrigger_origin() //checked matches cerberus output
 {
 	if ( isDefined( self.origin_parent ) )
 	{
@@ -403,7 +403,7 @@ piecestub_get_unitrigger_origin()
 	return self.origin;
 }
 
-generate_piece_unitrigger( classname, origin, angles, flags, radius, script_height, moving )
+generate_piece_unitrigger( classname, origin, angles, flags, radius, script_height, moving ) //checked matches cerberus output
 {
 	if ( !isDefined( radius ) )
 	{
@@ -484,7 +484,7 @@ generate_piece_unitrigger( classname, origin, angles, flags, radius, script_heig
 	return unitrigger_stub;
 }
 
-piecetrigger_update_prompt( player )
+piecetrigger_update_prompt( player ) //checked matches cerberus output
 {
 	can_use = self.stub piecestub_update_prompt( player );
 	self setinvisibletoplayer( player, !can_use );
@@ -510,7 +510,7 @@ piecetrigger_update_prompt( player )
 	return can_use;
 }
 
-piecestub_update_prompt( player )
+piecestub_update_prompt( player ) //checked changed to match cerberus output
 {
 	if ( !self anystub_update_prompt( player ) )
 	{
@@ -544,44 +544,41 @@ piecestub_update_prompt( player )
 			self.cursor_hint_weapon = self.piece.cursor_hint_weapon;
 		}
 	}
+	else if ( isDefined( self.piece.hint_grab ) )
+	{
+		self.hint_string = self.piece.hint_grab;
+		self.hint_parm1 = self.piece.hint_grab_parm1;
+	}
 	else
 	{
-		if ( isDefined( self.piece.hint_grab ) )
-		{
-			self.hint_string = self.piece.hint_grab;
-			self.hint_parm1 = self.piece.hint_grab_parm1;
-		}
-		else
-		{
-			self.hint_string = &"ZOMBIE_BUILD_PIECE_GRAB";
-		}
-		if ( isDefined( self.piece.cursor_hint ) )
-		{
-			self.cursor_hint = self.piece.cursor_hint;
-		}
-		if ( isDefined( self.piece.cursor_hint_weapon ) )
-		{
-			self.cursor_hint_weapon = self.piece.cursor_hint_weapon;
-		}
+		self.hint_string = &"ZOMBIE_BUILD_PIECE_GRAB";
+	}
+	if ( isDefined( self.piece.cursor_hint ) )
+	{
+		self.cursor_hint = self.piece.cursor_hint;
+	}
+	if ( isDefined( self.piece.cursor_hint_weapon ) )
+	{
+		self.cursor_hint_weapon = self.piece.cursor_hint_weapon;
 	}
 	return 1;
 }
 
-piece_unitrigger_think()
+piece_unitrigger_think() //checked changed to match cerberus output
 {
 	self endon( "kill_trigger" );
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
-		while ( player != self.parent_player )
+		if ( player != self.parent_player )
 		{
 			continue;
 		}
-		while ( isDefined( player.screecher_weapon ) )
+		if ( isDefined( player.screecher_weapon ) )
 		{
 			continue;
 		}
-		while ( !is_player_valid( player ) )
+		if ( !is_player_valid( player ) )
 		{
 			player thread ignore_triggers( 0,5 );
 		}
@@ -590,7 +587,6 @@ piece_unitrigger_think()
 		{
 			self.stub.hint_string = "";
 			self sethintstring( self.stub.hint_string );
-			continue;
 		}
 		else
 		{
@@ -599,7 +595,7 @@ piece_unitrigger_think()
 	}
 }
 
-player_get_buildable_pieces()
+player_get_buildable_pieces() //checked matches cerberus output
 {
 	if ( !isDefined( self.current_buildable_pieces ) )
 	{
@@ -608,7 +604,7 @@ player_get_buildable_pieces()
 	return self.current_buildable_pieces;
 }
 
-player_get_buildable_piece( slot )
+player_get_buildable_piece( slot ) //checked matches cerberus output
 {
 	if ( !isDefined( slot ) )
 	{
@@ -621,18 +617,20 @@ player_get_buildable_piece( slot )
 	return self.current_buildable_pieces[ slot ];
 }
 
-player_set_buildable_piece( piece, slot )
+player_set_buildable_piece( piece, slot ) //checked matches cerberus output
 {
 	if ( !isDefined( slot ) )
 	{
 		slot = 0;
 	}
+	/*
 /#
 	if ( isDefined( slot ) && isDefined( piece ) && isDefined( piece.buildable_slot ) )
 	{
 		assert( slot == piece.buildable_slot );
 #/
 	}
+	*/
 	if ( !isDefined( self.current_buildable_pieces ) )
 	{
 		self.current_buildable_pieces = [];
@@ -640,7 +638,7 @@ player_set_buildable_piece( piece, slot )
 	self.current_buildable_pieces[ slot ] = piece;
 }
 
-player_can_take_piece( piece )
+player_can_take_piece( piece ) //checked matches cerberus output
 {
 	if ( !isDefined( piece ) )
 	{
@@ -649,29 +647,35 @@ player_can_take_piece( piece )
 	return 1;
 }
 
-dbline( from, to )
+dbline( from, to ) //checked matches cerberus output
 {
+	/*
 /#
 	time = 20;
 	while ( time > 0 )
 	{
 		line( from, to, ( 0, 0, 1 ), 0, 1 );
-		time -= 0,05;
-		wait 0,05;
+		time -= 0.05;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-player_throw_piece( piece, origin, dir, return_to_spawn, return_time, endangles )
+player_throw_piece( piece, origin, dir, return_to_spawn, return_time, endangles ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( isDefined( piece ) );
 #/
+	*/
 	if ( isDefined( piece ) )
 	{
+		/*
 /#
 		thread dbline( origin, origin + dir );
 #/
+		*/
 		pass = 0;
 		done = 0;
 		altmodel = undefined;
@@ -687,7 +691,7 @@ player_throw_piece( piece, origin, dir, return_to_spawn, return_time, endangles 
 			}
 			altmodel.origin = grenade.angles;
 			altmodel.angles = grenade.angles;
-			altmodel linkto( grenade, "", ( 0, 0, 1 ), ( 0, 0, 1 ) );
+			altmodel linkto( grenade, "", ( 0, 0, 0 ), ( 0, 0, 0 ) );
 			grenade.altmodel = altmodel;
 			grenade waittill( "stationary" );
 			grenade_origin = grenade.origin;
@@ -697,7 +701,6 @@ player_throw_piece( piece, origin, dir, return_to_spawn, return_time, endangles 
 			if ( isDefined( landed_on ) && landed_on == level )
 			{
 				done = 1;
-				continue;
 			}
 			else
 			{
@@ -726,7 +729,7 @@ player_throw_piece( piece, origin, dir, return_to_spawn, return_time, endangles 
 	}
 }
 
-watch_hit_players()
+watch_hit_players() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "stationary" );
@@ -740,10 +743,10 @@ watch_hit_players()
 	}
 }
 
-piece_wait_and_return( return_time )
+piece_wait_and_return( return_time ) //checked matches cerberus output
 {
 	self endon( "pickup" );
-	wait 0,15;
+	wait 0.15;
 	if ( isDefined( level.exploding_jetgun_fx ) )
 	{
 		playfxontag( level.exploding_jetgun_fx, self.model, "tag_origin" );
@@ -770,7 +773,7 @@ piece_wait_and_return( return_time )
 	self piece_spawn_at();
 }
 
-player_return_piece_to_original_spawn( slot )
+player_return_piece_to_original_spawn( slot ) //checked matches cerberus output
 {
 	if ( !isDefined( slot ) )
 	{
@@ -786,7 +789,7 @@ player_return_piece_to_original_spawn( slot )
 	}
 }
 
-player_drop_piece_on_death( slot )
+player_drop_piece_on_death( slot ) //checked matches cerberus output
 {
 	self notify( "piece_released" + slot );
 	self endon( "piece_released" + slot );
@@ -805,7 +808,7 @@ player_drop_piece_on_death( slot )
 	}
 }
 
-player_drop_piece( piece, slot )
+player_drop_piece( piece, slot ) //checked matches cerberus output
 {
 	if ( !isDefined( slot ) )
 	{
@@ -846,7 +849,7 @@ player_drop_piece( piece, slot )
 	self notify( "piece_released" + slot );
 }
 
-player_take_piece( piece )
+player_take_piece( piece ) //checked matches cerberus output
 {
 	piece_slot = piece.buildable_slot;
 	damage = piece.damage;
@@ -875,7 +878,7 @@ player_take_piece( piece )
 	}
 }
 
-player_destroy_piece( piece )
+player_destroy_piece( piece ) //checked matches cerberus output
 {
 	if ( !isDefined( piece ) )
 	{
@@ -894,7 +897,7 @@ player_destroy_piece( piece )
 	}
 }
 
-claim_location( location )
+claim_location( location ) //checked matches cerberus output
 {
 	if ( !isDefined( level.buildable_claimed_locations ) )
 	{
@@ -908,46 +911,39 @@ claim_location( location )
 	return 0;
 }
 
-is_point_in_build_trigger( point )
+is_point_in_build_trigger( point ) //checked changed to match cerberus output
 {
 	candidate_list = [];
-	_a911 = level.zones;
-	_k911 = getFirstArrayKey( _a911 );
-	while ( isDefined( _k911 ) )
+	foreach ( zone in level.zones )
 	{
-		zone = _a911[ _k911 ];
 		if ( isDefined( zone.unitrigger_stubs ) )
 		{
 			candidate_list = arraycombine( candidate_list, zone.unitrigger_stubs, 1, 0 );
 		}
-		_k911 = getNextArrayKey( _a911, _k911 );
 	}
 	valid_range = 128;
 	closest = maps/mp/zombies/_zm_unitrigger::get_closest_unitriggers( point, candidate_list, valid_range );
-	index = 0;
-	while ( index < closest.size )
+	for ( index = 0; index < closest.size; index++ )
 	{
 		if ( isDefined( closest[ index ].registered ) && closest[ index ].registered && isDefined( closest[ index ].piece ) )
 		{
 			return 1;
 		}
-		index++;
 	}
 	return 0;
 }
 
-piece_allocate_spawn( piecespawn )
+piece_allocate_spawn( piecespawn ) //checked changed to match cerberus output
 {
 	self.current_spawn = 0;
 	self.managed_spawn = 1;
 	self.piecespawn = piecespawn;
-	while ( isDefined( piecespawn.str_force_spawn_kvp ) )
+	if ( isDefined( piecespawn.str_force_spawn_kvp ) )
 	{
-		s_struct = getstruct( piecespawn.str_force_spawn_name, piecespawn.str_force_spawn_kvp );
-		while ( isDefined( s_struct ) )
+		s_struct = patch_zm\common_scripts\utility::getstruct( piecespawn.str_force_spawn_name, piecespawn.str_force_spawn_kvp );
+		if ( isDefined( s_struct ) )
 		{
-			i = 0;
-			while ( i < self.spawns.size )
+			for ( i = 0; i < self.spawns.size; i++ )
 			{
 				if ( s_struct == self.spawns[ i ] )
 				{
@@ -957,11 +953,10 @@ piece_allocate_spawn( piecespawn )
 					piecespawn.str_force_spawn_name = undefined;
 					return;
 				}
-				i++;
 			}
 		}
 	}
-	if ( isDefined( piecespawn.use_cyclic_spawns ) )
+	else if ( isDefined( piecespawn.use_cyclic_spawns ) )
 	{
 		piece_allocate_cyclic( piecespawn );
 		return;
@@ -972,93 +967,81 @@ piece_allocate_spawn( piecespawn )
 		any_okay = 0;
 		totalweight = 0;
 		spawnweights = [];
-		i = 0;
-		while ( i < self.spawns.size )
+		for ( i = 0; i < self.spawns.size; i++ )
 		{
 			if ( isDefined( piecespawn.piece_allocated[ i ] ) && piecespawn.piece_allocated[ i ] )
 			{
 				spawnweights[ i ] = 0;
 			}
+			else if ( isDefined( self.spawns[ i ].script_forcespawn ) && self.spawns[ i ].script_forcespawn )
+			{
+				switch( self.spawns[ i ].script_forcespawn )
+				{
+					case 4:
+						spawnweights[ i ] = 0;
+						break;
+					case 1:
+						self.spawns[ i ].script_forcespawn = 0;
+					case 2:
+						self.current_spawn = i;
+						piecespawn.piece_allocated[ self.current_spawn ] = 1;
+						return;
+					case 3:
+						self.spawns[ i ].script_forcespawn = 4;
+						self.current_spawn = i;
+						piecespawn.piece_allocated[ self.current_spawn ] = 1;
+						return;
+					default:
+						any_okay = 1;
+						spawnweights[ i ] = 0.01;
+						break;
+				}
+			}
+			else if ( is_point_in_build_trigger( self.spawns[ i ].origin ) )
+			{
+				any_okay = 1;
+				spawnweights[ i ] = 0,01;
+				break;
+			}
 			else
 			{
-				if ( isDefined( self.spawns[ i ].script_forcespawn ) && self.spawns[ i ].script_forcespawn )
-				{
-					switch( self.spawns[ i ].script_forcespawn )
-					{
-						case 4:
-							spawnweights[ i ] = 0;
-							break;
-						case 1:
-							self.spawns[ i ].script_forcespawn = 0;
-							case 2:
-								self.current_spawn = i;
-								piecespawn.piece_allocated[ self.current_spawn ] = 1;
-								return;
-								case 3:
-									self.spawns[ i ].script_forcespawn = 4;
-									self.current_spawn = i;
-									piecespawn.piece_allocated[ self.current_spawn ] = 1;
-									return;
-									default:
-										any_okay = 1;
-										spawnweights[ i ] = 0,01;
-										break;
-								}
-								break;
-							}
-							else
-							{
-								if ( is_point_in_build_trigger( self.spawns[ i ].origin ) )
-								{
-									any_okay = 1;
-									spawnweights[ i ] = 0,01;
-									break;
-								}
-								else
-								{
-									any_good = 1;
-									spawnweights[ i ] = 1;
-								}
-							}
-						}
-						totalweight += spawnweights[ i ];
-						i++;
-					}
+				any_good = 1;
+				spawnweights[ i ] = 1;
+			}
+			totalweight += spawnweights[ i ];
+		}
+		/*
 /#
-					if ( !any_good )
-					{
-						assert( any_okay, "There is nowhere to spawn this piece" );
-					}
+		if ( !any_good )
+		{
+			assert( any_okay, "There is nowhere to spawn this piece" );
+		}
 #/
-					if ( any_good )
-					{
-						totalweight = float( int( totalweight ) );
-					}
-					r = randomfloat( totalweight );
-					i = 0;
-					while ( i < self.spawns.size )
-					{
-						if ( !any_good || spawnweights[ i ] >= 1 )
-						{
-							r -= spawnweights[ i ];
-							if ( r < 0 )
-							{
-								self.current_spawn = i;
-								piecespawn.piece_allocated[ self.current_spawn ] = 1;
-								return;
-							}
-						}
-						i++;
-					}
-					self.current_spawn = randomint( self.spawns.size );
+		*/
+		if ( any_good )
+		{
+			totalweight = float( int( totalweight ) );
+		}
+		r = randomfloat( totalweight );
+		for ( i = 0; i < self.spawns.size; i++ )
+		{
+			if ( !any_good || spawnweights[ i ] >= 1 )
+			{
+				r -= spawnweights[ i ];
+				if ( r < 0 )
+				{
+					self.current_spawn = i;
 					piecespawn.piece_allocated[ self.current_spawn ] = 1;
+					return;
 				}
 			}
 		}
+		self.current_spawn = randomint( self.spawns.size );
+		piecespawn.piece_allocated[ self.current_spawn ] = 1;
 	}
 }
 
-piece_allocate_cyclic( piecespawn )
+piece_allocate_cyclic( piecespawn ) //checked matches cerberus output
 {
 	if ( self.spawns.size > 1 )
 	{
@@ -1085,7 +1068,7 @@ piece_allocate_cyclic( piecespawn )
 	piecespawn.piece_allocated[ self.current_spawn ] = 1;
 }
 
-piece_deallocate_spawn()
+piece_deallocate_spawn() //checked matches cerberus output
 {
 	if ( isDefined( self.current_spawn ) )
 	{
@@ -1095,10 +1078,10 @@ piece_deallocate_spawn()
 	self.start_origin = undefined;
 }
 
-piece_pick_random_spawn()
+piece_pick_random_spawn() //checked partially changed to match cerberus output did not change while loop to for loop
 {
 	self.current_spawn = 0;
-	while ( self.spawns.size >= 1 && self.spawns.size > 1 )
+	if ( self.spawns.size >= 1 && self.spawns.size > 1 )
 	{
 		self.current_spawn = randomint( self.spawns.size );
 		while ( isDefined( self.spawns[ self.current_spawn ].claim_location ) && !claim_location( self.spawns[ self.current_spawn ].claim_location ) )
@@ -1107,9 +1090,11 @@ piece_pick_random_spawn()
 			if ( self.spawns.size < 1 )
 			{
 				self.current_spawn = 0;
+				/*
 /#
 				println( "ERROR: All buildable spawn locations claimed" );
 #/
+				*/
 				return;
 			}
 			self.current_spawn = randomint( self.spawns.size );
@@ -1117,7 +1102,7 @@ piece_pick_random_spawn()
 	}
 }
 
-piece_set_spawn( num )
+piece_set_spawn( num ) //checked matches cerberus output
 {
 	self.current_spawn = 0;
 	if ( self.spawns.size >= 1 && self.spawns.size > 1 )
@@ -1126,7 +1111,7 @@ piece_set_spawn( num )
 	}
 }
 
-piece_spawn_in( piecespawn )
+piece_spawn_in( piecespawn ) //checked matches cerberus output
 {
 	if ( self.spawns.size < 1 )
 	{
@@ -1181,7 +1166,7 @@ piece_spawn_in( piecespawn )
 	}
 }
 
-piece_spawn_at_with_notify_delay( origin, angles, str_notify, unbuild_respawn_fn )
+piece_spawn_at_with_notify_delay( origin, angles, str_notify, unbuild_respawn_fn ) //checked matches cerberus output
 {
 	level waittill( str_notify );
 	piece_spawn_at( origin, angles );
@@ -1191,7 +1176,7 @@ piece_spawn_at_with_notify_delay( origin, angles, str_notify, unbuild_respawn_fn
 	}
 }
 
-piece_spawn_at( origin, angles )
+piece_spawn_at( origin, angles ) //checked changed to match cerberus output
 {
 	if ( self.spawns.size < 1 )
 	{
@@ -1207,12 +1192,9 @@ piece_spawn_at( origin, angles )
 			self.start_angles = spawndef.angles;
 		}
 	}
-	else
+	else if ( !isDefined( self.current_spawn ) )
 	{
-		if ( !isDefined( self.current_spawn ) )
-		{
-			self.current_spawn = 0;
-		}
+		self.current_spawn = 0;
 	}
 	unitrigger_offset = vectorScale( ( 0, 0, 1 ), 12 );
 	if ( !isDefined( origin ) )
@@ -1228,6 +1210,7 @@ piece_spawn_at( origin, angles )
 	{
 		angles = self.start_angles;
 	}
+	/*
 /#
 	if ( !isDefined( level.drop_offset ) )
 	{
@@ -1236,6 +1219,7 @@ piece_spawn_at( origin, angles )
 	origin += ( 0, 0, level.drop_offset );
 	unitrigger_offset -= ( 0, 0, level.drop_offset );
 #/
+	*/
 	self.model = spawn( "script_model", origin );
 	if ( isDefined( angles ) )
 	{
@@ -1244,7 +1228,7 @@ piece_spawn_at( origin, angles )
 	self.model setmodel( self.modelname );
 	if ( isDefined( level.equipment_safe_to_drop ) )
 	{
-		if ( !( [[ level.equipment_safe_to_drop ]]( self.model ) ) )
+		if ( ![[ level.equipment_safe_to_drop ]]( self.model ) )
 		{
 			origin = self.start_origin;
 			angles = self.start_angles;
@@ -1266,7 +1250,7 @@ piece_spawn_at( origin, angles )
 	}
 }
 
-piece_unspawn()
+piece_unspawn() //checked matches cerberus output
 {
 	if ( isDefined( self.onunspawn ) )
 	{
@@ -1288,7 +1272,7 @@ piece_unspawn()
 	self.unitrigger = undefined;
 }
 
-piece_hide()
+piece_hide() //checked matches cerberus output
 {
 	if ( isDefined( self.model ) )
 	{
@@ -1296,7 +1280,7 @@ piece_hide()
 	}
 }
 
-piece_show()
+piece_show() //checked matches cerberus output
 {
 	if ( isDefined( self.model ) )
 	{
@@ -1304,7 +1288,7 @@ piece_show()
 	}
 }
 
-piece_destroy()
+piece_destroy() //checked matches cerberus output
 {
 	if ( isDefined( self.ondestroy ) )
 	{
@@ -1312,7 +1296,7 @@ piece_destroy()
 	}
 }
 
-generate_piece( buildable_piece_spawns )
+generate_piece( buildable_piece_spawns ) //checked changed to match cerberus output
 {
 	piece = spawnstruct();
 	piece.spawns = buildable_piece_spawns.spawns;
@@ -1320,16 +1304,13 @@ generate_piece( buildable_piece_spawns )
 	{
 		piece piece_allocate_spawn( buildable_piece_spawns );
 	}
+	else if ( isDefined( buildable_piece_spawns.use_spawn_num ) )
+	{
+		piece piece_set_spawn( buildable_piece_spawns.use_spawn_num );
+	}
 	else
 	{
-		if ( isDefined( buildable_piece_spawns.use_spawn_num ) )
-		{
-			piece piece_set_spawn( buildable_piece_spawns.use_spawn_num );
-		}
-		else
-		{
-			piece piece_pick_random_spawn();
-		}
+		piece piece_pick_random_spawn();
 	}
 	piece piece_spawn_in( buildable_piece_spawns );
 	if ( piece.spawns.size >= 1 )
@@ -1355,14 +1336,16 @@ generate_piece( buildable_piece_spawns )
 	return piece;
 }
 
-buildable_piece_unitriggers( buildable_name, origin )
+buildable_piece_unitriggers( buildable_name, origin ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( isDefined( buildable_name ) );
 #/
 /#
 	assert( isDefined( level.zombie_buildables[ buildable_name ] ), "Called buildable_think() without including the buildable - " + buildable_name );
 #/
+	*/
 	buildable = level.zombie_buildables[ buildable_name ];
 	if ( !isDefined( buildable.buildablepieces ) )
 	{
@@ -1377,11 +1360,8 @@ buildable_piece_unitriggers( buildable_name, origin )
 		buildablezone.pieces = [];
 	}
 	buildablepickups = [];
-	_a1362 = buildable.buildablepieces;
-	_k1362 = getFirstArrayKey( _a1362 );
-	while ( isDefined( _k1362 ) )
+	foreach ( buildablepiece in buildable.buildablepieces )
 	{
-		buildablepiece = _a1362[ _k1362 ];
 		if ( !isDefined( buildablepiece.generated_instances ) )
 		{
 			buildablepiece.generated_instances = 0;
@@ -1389,38 +1369,32 @@ buildable_piece_unitriggers( buildable_name, origin )
 		if ( isDefined( buildablepiece.generated_piece ) && isDefined( buildablepiece.can_reuse ) && buildablepiece.can_reuse )
 		{
 			piece = buildablepiece.generated_piece;
+			break;
 		}
-		else
+		if ( buildablepiece.generated_instances >= buildablepiece.max_instances )
 		{
-			if ( buildablepiece.generated_instances >= buildablepiece.max_instances )
-			{
-				piece = buildablepiece.generated_piece;
-				break;
-			}
-			else
+			piece = buildablepiece.generated_piece;
+			break;
+		}
+		piece = generate_piece( buildablepiece );
+		buildablepiece.generated_piece = piece;
+		buildablepiece.generated_instances++;
+		if ( isDefined( buildablepiece.min_instances ) )
+		{
+			while ( buildablepiece.generated_instances < buildablepiece.min_instances )
 			{
 				piece = generate_piece( buildablepiece );
 				buildablepiece.generated_piece = piece;
 				buildablepiece.generated_instances++;
-				while ( isDefined( buildablepiece.min_instances ) )
-				{
-					while ( buildablepiece.generated_instances < buildablepiece.min_instances )
-					{
-						piece = generate_piece( buildablepiece );
-						buildablepiece.generated_piece = piece;
-						buildablepiece.generated_instances++;
-					}
-				}
 			}
 		}
 		buildablezone.pieces[ buildablezone.pieces.size ] = piece;
-		_k1362 = getNextArrayKey( _a1362, _k1362 );
 	}
 	buildablezone.stub = self;
 	return buildablezone;
 }
 
-hide_buildable_table_model( trigger_targetname )
+hide_buildable_table_model( trigger_targetname ) //checked matches cerberus output
 {
 	trig = getent( trigger_targetname, "targetname" );
 	if ( !isDefined( trig ) )
@@ -1438,7 +1412,7 @@ hide_buildable_table_model( trigger_targetname )
 	}
 }
 
-setup_unitrigger_buildable( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+setup_unitrigger_buildable( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked matches cerberus output
 {
 	trig = getent( trigger_targetname, "targetname" );
 	if ( !isDefined( trig ) )
@@ -1448,22 +1422,18 @@ setup_unitrigger_buildable( trigger_targetname, equipname, weaponname, trigger_h
 	return setup_unitrigger_buildable_internal( trig, equipname, weaponname, trigger_hintstring, delete_trigger, persistent );
 }
 
-setup_unitrigger_buildable_array( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+setup_unitrigger_buildable_array( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked changed to match cerberus output
 {
 	triggers = getentarray( trigger_targetname, "targetname" );
 	stubs = [];
-	_a1431 = triggers;
-	_k1431 = getFirstArrayKey( _a1431 );
-	while ( isDefined( _k1431 ) )
+	foreach ( trig in triggers )
 	{
-		trig = _a1431[ _k1431 ];
 		stubs[ stubs.size ] = setup_unitrigger_buildable_internal( trig, equipname, weaponname, trigger_hintstring, delete_trigger, persistent );
-		_k1431 = getNextArrayKey( _a1431, _k1431 );
 	}
 	return stubs;
 }
 
-setup_unitrigger_buildable_internal( trig, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+setup_unitrigger_buildable_internal( trig, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked changed to match cerberus output
 {
 	if ( !isDefined( trig ) )
 	{
@@ -1474,7 +1444,7 @@ setup_unitrigger_buildable_internal( trig, equipname, weaponname, trigger_hintst
 	angles = trig.script_angles;
 	if ( !isDefined( angles ) )
 	{
-		angles = ( 0, 0, 1 );
+		angles = ( 0, 0, 0 );
 	}
 	unitrigger_stub.origin = trig.origin + ( anglesToRight( angles ) * -6 );
 	unitrigger_stub.angles = trig.angles;
@@ -1556,48 +1526,42 @@ setup_unitrigger_buildable_internal( trig, equipname, weaponname, trigger_hintst
 	return unitrigger_stub;
 }
 
-buildable_has_piece( piece )
+buildable_has_piece( piece ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-buildable_set_piece_built( piece )
+buildable_set_piece_built( piece ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
 			self.pieces[ i ].built = 1;
 		}
-		i++;
 	}
 }
 
-buildable_set_piece_building( piece )
+buildable_set_piece_building( piece ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
 			self.pieces[ i ] = piece;
 			self.pieces[ i ].building = 1;
 		}
-		i++;
 	}
 }
 
-buildable_clear_piece_building( piece )
+buildable_clear_piece_building( piece ) //checked matches cerberus output
 {
 	if ( isDefined( piece ) )
 	{
@@ -1605,52 +1569,47 @@ buildable_clear_piece_building( piece )
 	}
 }
 
-buildable_is_piece_built( piece )
+buildable_is_piece_built( piece ) //checked partially changed to match cerberus output //changed at own discretion
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
-			if ( isDefined( self.pieces[ i ].built ) )
+			if ( isDefined( self.pieces[ i ].built ) && self.pieces[ i ].built )
 			{
-				return self.pieces[ i ].built;
+				return 1;
 			}
 		}
-		i++;
 	}
 	return 0;
 }
 
 buildable_is_piece_building( piece )
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
-			if ( isDefined( self.pieces[ i ].building ) && self.pieces[ i ].building )
+			if ( isDefined( self.pieces[ i ].building ) && self.pieces[ i ].building && self.pieces[ i ] == piece )
 			{
-				return self.pieces[ i ] == piece;
+				return 1;
 			}
 		}
-		i++;
 	}
 	return 0;
 }
 
-buildable_is_piece_built_or_building( piece )
+buildable_is_piece_built_or_building( piece ) //checked partially changed to match cerberus output //changed at own discretion
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
 			if ( isDefined( self.pieces[ i ].built ) && !self.pieces[ i ].built )
 			{
-				if ( isDefined( self.pieces[ i ].building ) )
+				if ( isDefined( self.pieces[ i ].building ) && self.pieces[ i ].building )
 				{
-					return self.pieces[ i ].building;
+					return 1;
 				}
 			}
 		}
@@ -1659,21 +1618,19 @@ buildable_is_piece_built_or_building( piece )
 	return 0;
 }
 
-buildable_all_built()
+buildable_all_built() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.pieces.size )
+	for ( i = 0; i < self.pieces.size; i++ )
 	{
 		if ( isDefined( self.pieces[ i ].built ) && !self.pieces[ i ].built )
 		{
 			return 0;
 		}
-		i++;
 	}
 	return 1;
 }
 
-player_can_build( buildable, continuing )
+player_can_build( buildable, continuing ) //checked changed to match cerberus output
 {
 	if ( !isDefined( buildable ) )
 	{
@@ -1694,12 +1651,9 @@ player_can_build( buildable, continuing )
 			return 0;
 		}
 	}
-	else
+	else if ( buildable buildable_is_piece_built_or_building( self player_get_buildable_piece( buildable.buildable_slot ) ) )
 	{
-		if ( buildable buildable_is_piece_built_or_building( self player_get_buildable_piece( buildable.buildable_slot ) ) )
-		{
-			return 0;
-		}
+		return 0;
 	}
 	if ( isDefined( buildable.stub ) && isDefined( buildable.stub.custom_buildablestub_update_prompt ) && isDefined( buildable.stub.playertrigger[ 0 ] ) && isDefined( buildable.stub.playertrigger[ 0 ].stub ) && !( buildable.stub.playertrigger[ 0 ].stub [[ buildable.stub.custom_buildablestub_update_prompt ]]( self, 1, buildable.stub.playertrigger[ 0 ] ) ) )
 	{
@@ -1708,21 +1662,22 @@ player_can_build( buildable, continuing )
 	return 1;
 }
 
-player_build( buildable, pieces )
+player_build( buildable, pieces ) //checked partially changed to match cerberus output 
 {
 	if ( isDefined( pieces ) )
 	{
-		i = 0;
-		while ( i < pieces.size )
+		for ( i = 0; i < pieces.size; i++ )
 		{
 			buildable buildable_set_piece_built( pieces[ i ] );
 			player_destroy_piece( pieces[ i ] );
-			i++;
 		}
 	}
-	else buildable buildable_set_piece_built( self player_get_buildable_piece( buildable.buildable_slot ) );
-	player_destroy_piece( self player_get_buildable_piece( buildable.buildable_slot ) );
-	while ( isDefined( buildable.stub.model ) )
+	else
+	{
+		buildable buildable_set_piece_built( self player_get_buildable_piece( buildable.buildable_slot ) );
+		player_destroy_piece( self player_get_buildable_piece( buildable.buildable_slot ) );
+	}
+	if ( isDefined( buildable.stub.model ) )
 	{
 		i = 0;
 		while ( i < buildable.pieces.size )
@@ -1736,16 +1691,13 @@ player_build( buildable, pieces )
 					i++;
 					continue;
 				}
-				else
-				{
-					buildable.stub.model show();
-					buildable.stub.model showpart( buildable.pieces[ i ].part_name );
-				}
+				buildable.stub.model show();
+				buildable.stub.model showpart( buildable.pieces[ i ].part_name );
 			}
 			i++;
 		}
 	}
-	if ( isplayer( self ) )
+	else if ( isplayer( self ) )
 	{
 		self track_buildable_pieces_built( buildable );
 	}
@@ -1767,9 +1719,11 @@ player_build( buildable, pieces )
 	else
 	{
 		self playsound( "zmb_buildable_piece_add" );
+		/*
 /#
 		assert( isDefined( level.zombie_buildables[ buildable.buildable_name ].building ), "Missing builing hint" );
 #/
+		*/
 		if ( isDefined( level.zombie_buildables[ buildable.buildable_name ].building ) )
 		{
 			return level.zombie_buildables[ buildable.buildable_name ].building;
@@ -1778,7 +1732,7 @@ player_build( buildable, pieces )
 	return "";
 }
 
-sndbuildablecompletealias( name )
+sndbuildablecompletealias( name ) //checked matches cerberus output
 {
 	alias = undefined;
 	switch( name )
@@ -1793,7 +1747,7 @@ sndbuildablecompletealias( name )
 	return alias;
 }
 
-player_finish_buildable( buildable )
+player_finish_buildable( buildable ) //checked matches cerberus output
 {
 	buildable.built = 1;
 	buildable.stub.built = 1;
@@ -1802,17 +1756,17 @@ player_finish_buildable( buildable )
 	level notify( buildable.buildable_name + "_built" );
 }
 
-buildablestub_finish_build( player )
+buildablestub_finish_build( player ) //checked matches cerberus output
 {
 	player player_finish_buildable( self.buildablezone );
 }
 
-buildablestub_remove()
+buildablestub_remove() //checked matches cerberus output
 {
 	arrayremovevalue( level.buildable_stubs, self );
 }
 
-buildabletrigger_update_prompt( player )
+buildabletrigger_update_prompt( player ) //checked matches cerberus output
 {
 	can_use = self.stub buildablestub_update_prompt( player );
 	self sethintstring( self.stub.hint_string );
@@ -1830,7 +1784,7 @@ buildabletrigger_update_prompt( player )
 	return can_use;
 }
 
-buildablestub_update_prompt( player )
+buildablestub_update_prompt( player ) //checked changed to match cerberus output
 {
 	if ( !self anystub_update_prompt( player ) )
 	{
@@ -1845,7 +1799,7 @@ buildablestub_update_prompt( player )
 			return 0;
 		}
 	}
-	if ( isDefined( self.custom_buildablestub_update_prompt ) && !( self [[ self.custom_buildablestub_update_prompt ]]( player ) ) )
+	if ( isDefined( self.custom_buildablestub_update_prompt ) && !self [[ self.custom_buildablestub_update_prompt ]]( player ) )
 	{
 		return 0;
 	}
@@ -1866,90 +1820,85 @@ buildablestub_update_prompt( player )
 			}
 			return 0;
 		}
-		else
+		else if ( !self.buildablezone buildable_has_piece( player player_get_buildable_piece( slot ) ) )
 		{
-			if ( !self.buildablezone buildable_has_piece( player player_get_buildable_piece( slot ) ) )
+			if ( isDefined( level.zombie_buildables[ self.equipname ].hint_wrong ) )
 			{
-				if ( isDefined( level.zombie_buildables[ self.equipname ].hint_wrong ) )
-				{
-					self.hint_string = level.zombie_buildables[ self.equipname ].hint_wrong;
-				}
-				else
-				{
-					self.hint_string = &"ZOMBIE_BUILD_PIECE_WRONG";
-				}
-				return 0;
+				self.hint_string = level.zombie_buildables[ self.equipname ].hint_wrong;
 			}
 			else
 			{
-/#
-				assert( isDefined( level.zombie_buildables[ self.equipname ].hint ), "Missing buildable hint" );
-#/
-				if ( isDefined( level.zombie_buildables[ self.equipname ].hint ) )
-				{
-					self.hint_string = level.zombie_buildables[ self.equipname ].hint;
-				}
-				else
-				{
-					self.hint_string = "Missing buildable hint";
-				}
+				self.hint_string = &"ZOMBIE_BUILD_PIECE_WRONG";
+			}
+			return 0;
+		}
+		else
+		{
+			/*
+		/#
+			assert( isDefined( level.zombie_buildables[ self.equipname ].hint ), "Missing buildable hint" );
+		#/
+			*/
+			if ( isDefined( level.zombie_buildables[ self.equipname ].hint ) )
+			{
+				self.hint_string = level.zombie_buildables[ self.equipname ].hint;
+			}
+			else
+			{
+				self.hint_string = "Missing buildable hint";
 			}
 		}
 	}
-	else
+	else if ( self.persistent == 1 )
 	{
-		if ( self.persistent == 1 )
+		if ( maps/mp/zombies/_zm_equipment::is_limited_equipment( self.weaponname ) && maps/mp/zombies/_zm_equipment::limited_equipment_in_use( self.weaponname ) )
 		{
-			if ( maps/mp/zombies/_zm_equipment::is_limited_equipment( self.weaponname ) && maps/mp/zombies/_zm_equipment::limited_equipment_in_use( self.weaponname ) )
-			{
-				self.hint_string = &"ZOMBIE_BUILD_PIECE_ONLY_ONE";
-				return 0;
-			}
-			if ( player has_player_equipment( self.weaponname ) )
-			{
-				self.hint_string = &"ZOMBIE_BUILD_PIECE_HAVE_ONE";
-				return 0;
-			}
-			if ( getDvarInt( #"1F0A2129" ) )
-			{
-				self.cursor_hint = "HINT_WEAPON";
-				self.cursor_hint_weapon = self.weaponname;
-			}
-			self.hint_string = self.trigger_hintstring;
-		}
-		else if ( self.persistent == 2 )
-		{
-			if ( !maps/mp/zombies/_zm_weapons::limited_weapon_below_quota( self.weaponname, undefined ) )
-			{
-				self.hint_string = &"ZOMBIE_GO_TO_THE_BOX_LIMITED";
-				return 0;
-			}
-			else
-			{
-				if ( isDefined( self.bought ) && self.bought )
-				{
-					self.hint_string = &"ZOMBIE_GO_TO_THE_BOX";
-					return 0;
-				}
-			}
-			self.hint_string = self.trigger_hintstring;
-		}
-		else
-		{
-			self.hint_string = "";
+			self.hint_string = &"ZOMBIE_BUILD_PIECE_ONLY_ONE";
 			return 0;
 		}
+		if ( player has_player_equipment( self.weaponname ) )
+		{
+			self.hint_string = &"ZOMBIE_BUILD_PIECE_HAVE_ONE";
+			return 0;
+		}
+		/*
+		if ( getDvarInt( #"1F0A2129" ) )
+		{
+			self.cursor_hint = "HINT_WEAPON";
+			self.cursor_hint_weapon = self.weaponname;
+		}
+		*/
+		self.hint_string = self.trigger_hintstring;
+	}
+	else if ( self.persistent == 2 )
+	{
+		if ( !maps/mp/zombies/_zm_weapons::limited_weapon_below_quota( self.weaponname, undefined ) )
+		{
+			self.hint_string = &"ZOMBIE_GO_TO_THE_BOX_LIMITED";
+			return 0;
+		}
+		else if ( isDefined( self.bought ) && self.bought )
+		{
+			self.hint_string = &"ZOMBIE_GO_TO_THE_BOX";
+			return 0;
+		}
+		self.hint_string = self.trigger_hintstring;
+	}
+	else
+	{
+		self.hint_string = "";
+		return 0;
 	}
 	return 1;
 }
 
-player_continue_building( buildablezone, build_stub )
+player_continue_building( buildablezone, build_stub ) //checked matches cerberus output
 {
 	if ( !isDefined( build_stub ) )
 	{
 		build_stub = buildablezone.stub;
 	}
-	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || self in_revive_trigger() )
+	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || self maps/mp/zombies/_zm_utility::in_revive_trigger() )
 	{
 		return 0;
 	}
@@ -1979,7 +1928,7 @@ player_continue_building( buildablezone, build_stub )
 	{
 		torigin = build_stub unitrigger_origin();
 		porigin = self geteye();
-		radius_sq = 2,25 * build_stub.test_radius_sq;
+		radius_sq = 2.25 * build_stub.test_radius_sq;
 		if ( distance2dsquared( torigin, porigin ) > radius_sq )
 		{
 			return 0;
@@ -1992,14 +1941,14 @@ player_continue_building( buildablezone, build_stub )
 			return 0;
 		}
 	}
-	if ( isDefined( build_stub.require_look_at ) && build_stub.require_look_at && !self is_player_looking_at( trigger.origin, 0,4 ) )
+	if ( isDefined( build_stub.require_look_at ) && build_stub.require_look_at && !self is_player_looking_at( trigger.origin, 0.4 ) )
 	{
 		return 0;
 	}
 	return 1;
 }
 
-player_progress_bar_update( start_time, build_time )
+player_progress_bar_update( start_time, build_time ) //checked partially matches cerberus output but order of operations may need to be adjusted
 {
 	self endon( "entering_last_stand" );
 	self endon( "death" );
@@ -2017,11 +1966,11 @@ player_progress_bar_update( start_time, build_time )
 			progress = 1;
 		}
 		self.usebar updatebar( progress );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-player_progress_bar( start_time, build_time, building_prompt )
+player_progress_bar( start_time, build_time, building_prompt ) //checked matches cerberus output
 {
 	self.usebar = self createprimaryprogressbar();
 	self.usebartext = self createprimaryprogressbartext();
@@ -2041,13 +1990,13 @@ player_progress_bar( start_time, build_time, building_prompt )
 	self.usebar destroyelem();
 }
 
-buildable_use_hold_think_internal( player, bind_stub )
+buildable_use_hold_think_internal( player, bind_stub ) //checked changed to match cerberus output order of operations may need to be checked
 {
 	if ( !isDefined( bind_stub ) )
 	{
 		bind_stub = self.stub;
 	}
-	wait 0,01;
+	wait 0.01;
 	if ( !isDefined( self ) )
 	{
 		self notify( "build_failed" );
@@ -2085,7 +2034,7 @@ buildable_use_hold_think_internal( player, bind_stub )
 	}
 	while ( isDefined( self ) && player player_continue_building( bind_stub.buildablezone, self.stub ) && ( getTime() - self.build_start_time ) < self.build_time )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	player notify( "buildable_progress_end" );
 	player maps/mp/zombies/_zm_weapons::switch_back_primary_weapon( orgweapon );
@@ -2100,19 +2049,16 @@ buildable_use_hold_think_internal( player, bind_stub )
 		buildable_clear_piece_building( player player_get_buildable_piece( slot ) );
 		self notify( "build_succeed" );
 	}
-	else
+	else if ( isDefined( player.buildableaudio ) )
 	{
-		if ( isDefined( player.buildableaudio ) )
-		{
-			player.buildableaudio delete();
-			player.buildableaudio = undefined;
-		}
-		buildable_clear_piece_building( player player_get_buildable_piece( slot ) );
-		self notify( "build_failed" );
+		player.buildableaudio delete();
+		player.buildableaudio = undefined;
 	}
+	buildable_clear_piece_building( player player_get_buildable_piece( slot ) );
+	self notify( "build_failed" );
 }
 
-buildable_play_build_fx( player )
+buildable_play_build_fx( player ) //checked matches cerberus output
 {
 	self endon( "kill_trigger" );
 	self endon( "build_succeed" );
@@ -2120,11 +2066,11 @@ buildable_play_build_fx( player )
 	while ( 1 )
 	{
 		playfx( level._effect[ "building_dust" ], player getplayercamerapos(), player.angles );
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-buildable_use_hold_think( player, bind_stub )
+buildable_use_hold_think( player, bind_stub ) //checked matches cerberus output
 {
 	if ( !isDefined( bind_stub ) )
 	{
@@ -2140,24 +2086,24 @@ buildable_use_hold_think( player, bind_stub )
 	return 0;
 }
 
-buildable_place_think()
+buildable_place_think() //checked partially changed to match cerberus output //changed at own discretion
 {
 	self endon( "kill_trigger" );
 	player_built = undefined;
 	while ( isDefined( self.stub.built ) && !self.stub.built )
 	{
 		self waittill( "trigger", player );
-		while ( player != self.parent_player )
+		if ( player != self.parent_player )
 		{
 			continue;
 		}
-		while ( isDefined( player.screecher_weapon ) )
+		if ( isDefined( player.screecher_weapon ) )
 		{
 			continue;
 		}
-		while ( !is_player_valid( player ) )
+		if ( !is_player_valid( player ) )
 		{
-			player thread ignore_triggers( 0,5 );
+			player thread ignore_triggers( 0.5 );
 		}
 		status = player player_can_build( self.stub.buildablezone );
 		if ( !status )
@@ -2168,73 +2114,70 @@ buildable_place_think()
 			{
 				self.stub [[ self.stub.oncantuse ]]( player );
 			}
+			//continue;
+		}
+		else if ( isDefined( self.stub.onbeginuse ) )
+		{
+			self.stub [[ self.stub.onbeginuse ]]( player );
+		}
+		result = self buildable_use_hold_think( player );
+		team = player.pers[ "team" ];
+		if ( isDefined( self.stub.onenduse ) )
+		{
+			self.stub [[ self.stub.onenduse ]]( team, player, result );
+		}
+		if ( !result )
+		{
 			continue;
 		}
-		else
+		if ( isDefined( self.stub.onuse ) )
 		{
-			if ( isDefined( self.stub.onbeginuse ) )
-			{
-				self.stub [[ self.stub.onbeginuse ]]( player );
-			}
-			result = self buildable_use_hold_think( player );
-			team = player.pers[ "team" ];
-			if ( isDefined( self.stub.onenduse ) )
-			{
-				self.stub [[ self.stub.onenduse ]]( team, player, result );
-			}
-			while ( !result )
-			{
-				continue;
-			}
-			if ( isDefined( self.stub.onuse ) )
-			{
-				self.stub [[ self.stub.onuse ]]( player );
-			}
-			slot = self.stub.buildablestruct.buildable_slot;
-			if ( isDefined( player player_get_buildable_piece( slot ) ) )
-			{
-				prompt = player player_build( self.stub.buildablezone );
-				player_built = player;
-				self.stub.hint_string = prompt;
-			}
-			self sethintstring( self.stub.hint_string );
+			self.stub [[ self.stub.onuse ]]( player );
 		}
+		slot = self.stub.buildablestruct.buildable_slot;
+		if ( isDefined( player player_get_buildable_piece( slot ) ) )
+		{
+			prompt = player player_build( self.stub.buildablezone );
+			player_built = player;
+			self.stub.hint_string = prompt;
+		}
+		self sethintstring( self.stub.hint_string );
 	}
 	if ( isDefined( player_built ) )
 	{
-	}
-	switch( self.stub.persistent )
-	{
-		case 1:
-			self bptrigger_think_persistent( player_built );
-			break;
-		case 0:
-			self bptrigger_think_one_time( player_built );
-			break;
-		case 3:
-			self bptrigger_think_unbuild( player_built );
-			break;
-		case 2:
-			self bptrigger_think_one_use_and_fly( player_built );
-			break;
-		case 4:
-			self [[ self.stub.custom_completion_callback ]]( player_built );
-			break;
+		switch( self.stub.persistent )
+		{
+			case 1:
+				self bptrigger_think_persistent( player_built );
+				break;
+			case 0:
+				self bptrigger_think_one_time( player_built );
+				break;
+			case 3:
+				self bptrigger_think_unbuild( player_built );
+				break;
+			case 2:
+				self bptrigger_think_one_use_and_fly( player_built );
+				break;
+			case 4:
+				self [[ self.stub.custom_completion_callback ]]( player_built );
+				break;
+		}
 	}
 }
 
-bptrigger_think_one_time( player_built )
+bptrigger_think_one_time( player_built ) //checked matches cerberus output
 {
 	self.stub buildablestub_remove();
 	thread maps/mp/zombies/_zm_unitrigger::unregister_unitrigger( self.stub );
 }
 
-bptrigger_think_unbuild( player_built )
+bptrigger_think_unbuild( player_built ) //checked matches cerberus output
 {
 	stub_unbuild_buildable( self.stub, 1 );
 }
 
-bptrigger_think_one_use_and_fly( player_built )
+bptrigger_think_one_use_and_fly( player_built ) //checked changed to match cerberus output
 {
 	if ( isDefined( player_built ) )
 	{
@@ -2276,11 +2219,11 @@ bptrigger_think_one_use_and_fly( player_built )
 			self sethintstring( self.stub.hint_string );
 			return;
 		}
-		while ( player != self.parent_player )
+		if ( player != self.parent_player )
 		{
 			continue;
 		}
-		while ( !is_player_valid( player ) )
+		if ( !is_player_valid( player ) )
 		{
 			player thread ignore_triggers( 0,5 );
 		}
@@ -2307,9 +2250,9 @@ bptrigger_think_one_use_and_fly( player_built )
 	}
 }
 
-bptrigger_think_persistent( player_built )
+bptrigger_think_persistent( player_built ) //checked changed to match cerberus output
 {
-	while ( !isDefined( player_built ) || self [[ self.stub.prompt_and_visibility_func ]]( player_built ) )
+	if ( !isDefined( player_built ) || self [[ self.stub.prompt_and_visibility_func ]]( player_built ) )
 	{
 		if ( isDefined( self.stub.model ) )
 		{
@@ -2319,7 +2262,7 @@ bptrigger_think_persistent( player_built )
 		while ( self.stub.persistent == 1 )
 		{
 			self waittill( "trigger", player );
-			while ( isDefined( player.screecher_weapon ) )
+			if ( isDefined( player.screecher_weapon ) )
 			{
 				continue;
 			}
@@ -2330,15 +2273,15 @@ bptrigger_think_persistent( player_built )
 				self setcursorhint( "HINT_NOICON" );
 				return;
 			}
-			while ( player != self.parent_player )
+			if ( player != self.parent_player )
 			{
 				continue;
 			}
-			while ( !is_player_valid( player ) )
+			if ( !is_player_valid( player ) )
 			{
-				player thread ignore_triggers( 0,5 );
+				player thread ignore_triggers( 0.5 );
 			}
-			while ( player has_player_equipment( self.stub.weaponname ) )
+			if ( player has_player_equipment( self.stub.weaponname ) )
 			{
 				continue;
 			}
@@ -2373,7 +2316,6 @@ bptrigger_think_persistent( player_built )
 				}
 				self sethintstring( self.stub.hint_string );
 				player track_buildables_pickedup( self.stub.weaponname );
-				continue;
 			}
 			else
 			{
@@ -2387,18 +2329,18 @@ bptrigger_think_persistent( player_built )
 	}
 }
 
-bptrigger_think_unbuild_no_return( player )
+bptrigger_think_unbuild_no_return( player ) //checked matches cerberus output
 {
 	stub_unbuild_buildable( self.stub, 0 );
 }
 
-bpstub_set_custom_think_callback( callback )
+bpstub_set_custom_think_callback( callback ) //checked matches cerberus output
 {
 	self.persistent = 4;
 	self.custom_completion_callback = callback;
 }
 
-model_fly_away()
+model_fly_away() //checked changed to match cerberus output
 {
 	self moveto( self.origin + vectorScale( ( 0, 0, 1 ), 40 ), 3 );
 	direction = self.origin;
@@ -2407,42 +2349,35 @@ model_fly_away()
 	{
 		direction = ( direction[ 0 ], direction[ 1 ] * -1, 0 );
 	}
-	else
+	else if ( direction[ 0 ] < 0 )
 	{
-		if ( direction[ 0 ] < 0 )
-		{
-			direction = ( direction[ 0 ] * -1, direction[ 1 ], 0 );
-		}
+		direction = ( direction[ 0 ] * -1, direction[ 1 ], 0 );
 	}
-	self vibrate( direction, 10, 0,5, 4 );
+	self vibrate( direction, 10, 0.5, 4 );
 	self waittill( "movedone" );
 	self hide();
 	playfx( level._effect[ "poltergeist" ], self.origin );
 }
 
-find_buildable_stub( equipname )
+find_buildable_stub( equipname ) //checked changed to match cerberus output
 {
-	_a2343 = level.buildable_stubs;
-	_k2343 = getFirstArrayKey( _a2343 );
-	while ( isDefined( _k2343 ) )
+	foreach ( stub in level.buildable_stubs )
 	{
-		stub = _a2343[ _k2343 ];
 		if ( stub.equipname == equipname )
 		{
 			return stub;
 		}
-		_k2343 = getNextArrayKey( _a2343, _k2343 );
 	}
 	return undefined;
 }
 
-unbuild_buildable( equipname, return_pieces, origin, angles )
+unbuild_buildable( equipname, return_pieces, origin, angles ) //checked matches cerberus output
 {
 	stub = find_buildable_stub( equipname );
 	stub_unbuild_buildable( stub, return_pieces, origin, angles );
 }
 
-stub_unbuild_buildable( stub, return_pieces, origin, angles )
+stub_unbuild_buildable( stub, return_pieces, origin, angles ) //checked partially changed to match cerberus output //did not change while loop to for loop
 {
 	if ( isDefined( stub ) )
 	{
@@ -2462,7 +2397,6 @@ stub_unbuild_buildable( stub, return_pieces, origin, angles )
 				if ( isDefined( buildable.pieces[ i ].built ) && !buildable.pieces[ i ].built )
 				{
 					buildable.stub.model hidepart( buildable.pieces[ i ].part_name );
-					break;
 				}
 				else
 				{
@@ -2478,10 +2412,7 @@ stub_unbuild_buildable( stub, return_pieces, origin, angles )
 					i++;
 					continue;
 				}
-				else
-				{
-					buildable.pieces[ i ] piece_spawn_at( origin, angles );
-				}
+				buildable.pieces[ i ] piece_spawn_at( origin, angles );
 			}
 			i++;
 		}
@@ -2492,7 +2423,7 @@ stub_unbuild_buildable( stub, return_pieces, origin, angles )
 	}
 }
 
-player_explode_buildable( equipname, origin, speed, return_to_spawn, return_time )
+player_explode_buildable( equipname, origin, speed, return_to_spawn, return_time ) //checked changed to match cerberus output
 {
 	self explosiondamage( 50, origin );
 	stub = find_buildable_stub( equipname );
@@ -2504,8 +2435,7 @@ player_explode_buildable( equipname, origin, speed, return_to_spawn, return_time
 		buildable notify( "unbuilt" );
 		level.buildables_built[ buildable.buildable_name ] = 0;
 		level notify( buildable.buildable_name + "_unbuilt" );
-		i = 0;
-		while ( i < buildable.pieces.size )
+		for ( i = 0; i < buildable.pieces.size; i++ )
 		{
 			buildable.pieces[ i ].built = 0;
 			if ( isDefined( buildable.pieces[ i ].part_name ) )
@@ -2514,7 +2444,6 @@ player_explode_buildable( equipname, origin, speed, return_to_spawn, return_time
 				if ( isDefined( buildable.pieces[ i ].built ) && !buildable.pieces[ i ].built )
 				{
 					buildable.stub.model hidepart( buildable.pieces[ i ].part_name );
-					break;
 				}
 				else
 				{
@@ -2523,50 +2452,45 @@ player_explode_buildable( equipname, origin, speed, return_to_spawn, return_time
 				}
 			}
 			ang = randomfloat( 360 );
-			h = 0,25 + randomfloat( 0,5 );
+			h = 0.25 + randomfloat( 0.5 );
 			dir = ( sin( ang ), cos( ang ), h );
 			self thread player_throw_piece( buildable.pieces[ i ], origin, speed * dir, return_to_spawn, return_time );
-			i++;
 		}
 		buildable.stub.model hide();
 	}
 }
 
-think_buildables()
+think_buildables() //checked changed to match cerberus output
 {
-	_a2447 = level.zombie_include_buildables;
-	_k2447 = getFirstArrayKey( _a2447 );
-	while ( isDefined( _k2447 ) )
+	foreach ( buildable in level.zombie_include_buildables )
 	{
-		buildable = _a2447[ _k2447 ];
 		if ( isDefined( buildable.triggerthink ) )
 		{
 			level [[ buildable.triggerthink ]]();
 			wait_network_frame();
 		}
-		_k2447 = getNextArrayKey( _a2447, _k2447 );
 	}
 	level notify( "buildables_setup" );
 }
 
-buildable_trigger_think( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+buildable_trigger_think( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked matches cerberus output
 {
 	return setup_unitrigger_buildable( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent );
 }
 
-buildable_trigger_think_array( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+buildable_trigger_think_array( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked matches cerberus output
 {
 	return setup_unitrigger_buildable_array( trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent );
 }
 
-buildable_set_unbuild_notify_delay( str_equipname, str_unbuild_notify, unbuild_respawn_fn )
+buildable_set_unbuild_notify_delay( str_equipname, str_unbuild_notify, unbuild_respawn_fn ) //checked matches cerberus output
 {
 	stub = find_buildable_stub( str_equipname );
 	stub.str_unbuild_notify = str_unbuild_notify;
 	stub.unbuild_respawn_fn = unbuild_respawn_fn;
 }
 
-setup_vehicle_unitrigger_buildable( parent, trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+setup_vehicle_unitrigger_buildable( parent, trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked matches cerberus output
 {
 	trig = getent( trigger_targetname, "targetname" );
 	if ( !isDefined( trig ) )
@@ -2650,12 +2574,12 @@ setup_vehicle_unitrigger_buildable( parent, trigger_targetname, equipname, weapo
 	return unitrigger_stub;
 }
 
-vehicle_buildable_trigger_think( vehicle, trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent )
+vehicle_buildable_trigger_think( vehicle, trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent ) //checked matches cerberus output
 {
 	return setup_vehicle_unitrigger_buildable( vehicle, trigger_targetname, equipname, weaponname, trigger_hintstring, delete_trigger, persistent );
 }
 
-ai_buildable_trigger_think( parent, equipname, weaponname, trigger_hintstring, persistent )
+ai_buildable_trigger_think( parent, equipname, weaponname, trigger_hintstring, persistent ) //checked matches cerberus output
 {
 	unitrigger_stub = spawnstruct();
 	unitrigger_stub.buildablestruct = level.zombie_include_buildables[ equipname ];
@@ -2695,35 +2619,41 @@ ai_buildable_trigger_think( parent, equipname, weaponname, trigger_hintstring, p
 	return unitrigger_stub;
 }
 
-onpickuputs( player )
+onpickuputs( player ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( isDefined( player ) && isDefined( player.name ) )
 	{
 		println( "ZM >> Buildable piece recovered by - " + player.name );
 #/
 	}
+	*/
 }
 
-ondroputs( player )
+ondroputs( player ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( isDefined( player ) && isDefined( player.name ) )
 	{
 		println( "ZM >> Buildable piece dropped by - " + player.name );
 #/
 	}
+	*/
 	player notify( "event_ended" );
 }
 
-onbeginuseuts( player )
+onbeginuseuts( player ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( isDefined( player ) && isDefined( player.name ) )
 	{
 		println( "ZM >> Buildable piece begin use by - " + player.name );
 #/
 	}
+	*/
 	if ( isDefined( self.buildablestruct.onbeginuse ) )
 	{
 		self [[ self.buildablestruct.onbeginuse ]]( player );
@@ -2736,7 +2666,7 @@ onbeginuseuts( player )
 	}
 }
 
-sndbuildableusealias( name )
+sndbuildableusealias( name ) //checked matches cerberus output
 {
 	alias = undefined;
 	switch( name )
@@ -2757,14 +2687,16 @@ sndbuildableusealias( name )
 	return alias;
 }
 
-onenduseuts( team, player, result )
+onenduseuts( team, player, result ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( isDefined( player ) && isDefined( player.name ) )
 	{
 		println( "ZM >> Buildable piece end use by - " + player.name );
 #/
 	}
+	*/
 	if ( !isDefined( player ) )
 	{
 		return;
@@ -2780,29 +2712,33 @@ onenduseuts( team, player, result )
 	}
 	player notify( "event_ended" );
 }
-
-oncantuseuts( player )
+ 
+oncantuseuts( player ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( isDefined( player ) && isDefined( player.name ) )
 	{
 		println( "ZM >> Buildable piece can't use by - " + player.name );
 #/
 	}
+	*/
 	if ( isDefined( self.buildablestruct.oncantuse ) )
 	{
 		self [[ self.buildablestruct.oncantuse ]]( player );
 	}
 }
 
-onuseplantobjectuts( player )
+onuseplantobjectuts( player ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( isDefined( player ) && isDefined( player.name ) )
 	{
 		println( "ZM >> Buildable piece crafted by - " + player.name );
 #/
 	}
+	*/
 	if ( isDefined( self.buildablestruct.onuseplantobject ) )
 	{
 		self [[ self.buildablestruct.onuseplantobject ]]( player );
@@ -2810,20 +2746,20 @@ onuseplantobjectuts( player )
 	player notify( "bomb_planted" );
 }
 
-add_zombie_buildable_vox_category( buildable_name, vox_id )
+add_zombie_buildable_vox_category( buildable_name, vox_id ) //checked matches cerberus output
 {
 	buildable_struct = level.zombie_include_buildables[ buildable_name ];
 	buildable_struct.vox_id = vox_id;
 }
 
-add_zombie_buildable_piece_vox_category( buildable_name, vox_id, timer )
+add_zombie_buildable_piece_vox_category( buildable_name, vox_id, timer ) //checked matches cerberus output
 {
 	buildable_struct = level.zombie_include_buildables[ buildable_name ];
 	buildable_struct.piece_vox_id = vox_id;
 	buildable_struct.piece_vox_timer = timer;
 }
 
-is_buildable()
+is_buildable() //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_buildables ) )
 	{
@@ -2844,13 +2780,13 @@ is_buildable()
 	return 0;
 }
 
-buildable_crafted()
+buildable_crafted() //checked matches cerberus output
 {
 	self.pieces--;
 
 }
 
-buildable_complete()
+buildable_complete() //checked matches cerberus output
 {
 	if ( self.pieces <= 0 )
 	{
@@ -2859,15 +2795,17 @@ buildable_complete()
 	return 0;
 }
 
-get_buildable_hint( buildable_name )
+get_buildable_hint( buildable_name ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.zombie_buildables[ buildable_name ] ), buildable_name + " was not included or is not part of the zombie weapon list." );
 #/
+	*/
 	return level.zombie_buildables[ buildable_name ].hint;
 }
 
-delete_on_disconnect( buildable, self_notify, skip_delete )
+delete_on_disconnect( buildable, self_notify, skip_delete ) //checked matches cerberus output
 {
 	buildable endon( "death" );
 	self waittill( "disconnect" );
@@ -2889,29 +2827,27 @@ delete_on_disconnect( buildable, self_notify, skip_delete )
 	}
 }
 
-get_buildable_pickup( buildablename, modelname )
+get_buildable_pickup( buildablename, modelname ) //checked changed to match cerberus output
 {
-	_a2858 = level.buildablepickups;
-	_k2858 = getFirstArrayKey( _a2858 );
-	while ( isDefined( _k2858 ) )
+	foreach ( buildablepickup in level.buildablepickups )
 	{
-		buildablepickup = _a2858[ _k2858 ];
 		if ( buildablepickup[ 0 ].buildablestruct.name == buildablename && buildablepickup[ 0 ].visuals[ 0 ].model == modelname )
 		{
 			return buildablepickup[ 0 ];
 		}
-		_k2858 = getNextArrayKey( _a2858, _k2858 );
 	}
 	return undefined;
 }
 
-track_buildable_piece_pickedup( piece )
+track_buildable_piece_pickedup( piece ) //checked matches cerberus output
 {
 	if ( !isDefined( piece ) || !isDefined( piece.buildablename ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NOT DEFINED IN track_buildable_piece_pickedup() \n" );
 #/
+		*/
 		return;
 	}
 	self add_map_buildable_stat( piece.buildablename, "pieces_pickedup", 1 );
@@ -2934,7 +2870,7 @@ track_buildable_piece_pickedup( piece )
 	}
 }
 
-buildable_piece_pickedup_vox_cooldown( piece_vox_id, timer )
+buildable_piece_pickedup_vox_cooldown( piece_vox_id, timer ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( !isDefined( self.a_buildable_piece_pickedup_vox_cooldown ) )
@@ -2946,13 +2882,15 @@ buildable_piece_pickedup_vox_cooldown( piece_vox_id, timer )
 	arrayremovevalue( self.a_buildable_piece_pickedup_vox_cooldown, piece_vox_id );
 }
 
-track_buildable_pieces_built( buildable )
+track_buildable_pieces_built( buildable ) //checked matches cerberus output
 {
 	if ( !isDefined( buildable ) || !isDefined( buildable.buildable_name ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NOT DEFINED IN track_buildable_pieces_built() \n" );
 #/
+		*/
 		return;
 	}
 	bname = buildable.buildable_name;
@@ -2975,13 +2913,15 @@ track_buildable_pieces_built( buildable )
 	}
 }
 
-track_buildables_built( buildable )
+track_buildables_built( buildable ) //checked matches cerberus output
 {
 	if ( !isDefined( buildable ) || !isDefined( buildable.buildable_name ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NOT DEFINED IN track_buildables_built() \n" );
 #/
+		*/
 		return;
 	}
 	bname = buildable.buildable_name;
@@ -2998,34 +2938,40 @@ track_buildables_built( buildable )
 	}
 }
 
-track_buildables_pickedup( buildable )
+track_buildables_pickedup( buildable ) //checked matches cerberus output
 {
 	if ( !isDefined( buildable ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NOT DEFINED IN track_buildables_pickedup() \n" );
 #/
+		*/
 		return;
 	}
 	stat_name = get_buildable_stat_name( buildable );
 	if ( !isDefined( stat_name ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NO STAT NAME FOR " + buildable + "\n" );
 #/
+		*/
 		return;
 	}
 	self add_map_buildable_stat( stat_name, "buildable_pickedup", 1 );
 	self say_pickup_buildable_vo( buildable, 0 );
 }
 
-track_buildables_planted( equipment )
+track_buildables_planted( equipment ) //checked matches cerberus output
 {
 	if ( !isDefined( equipment ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NOT DEFINED for track_buildables_planted() \n" );
 #/
+		*/
 		return;
 	}
 	buildable_name = undefined;
@@ -3035,9 +2981,11 @@ track_buildables_planted( equipment )
 	}
 	if ( !isDefined( buildable_name ) )
 	{
+		/*
 /#
 		println( "STAT TRACKING FAILURE: NO BUILDABLE NAME FOR track_buildables_planted() " + equipment.name + "\n" );
 #/
+		*/
 		return;
 	}
 	maps/mp/_demo::bookmark( "zm_player_buildable_placed", getTime(), self );
@@ -3054,7 +3002,7 @@ track_buildables_planted( equipment )
 	}
 }
 
-placed_buildable_vo_timer()
+placed_buildable_vo_timer() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.buildable_timer = 1;
@@ -3062,7 +3010,7 @@ placed_buildable_vo_timer()
 	self.buildable_timer = 0;
 }
 
-buildable_pickedup_timer()
+buildable_pickedup_timer() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.buildable_pickedup_timer = 1;
@@ -3070,13 +3018,13 @@ buildable_pickedup_timer()
 	self.buildable_pickedup_timer = 0;
 }
 
-track_planted_buildables_pickedup( equipment )
+track_planted_buildables_pickedup( equipment ) //checked changed to match cerberus output
 {
 	if ( !isDefined( equipment ) )
 	{
 		return;
 	}
-	if ( equipment != "equip_turbine_zm" && equipment != "equip_turret_zm" || equipment == "equip_electrictrap_zm" && equipment == "riotshield_zm" )
+	if ( equipment == "equip_turbine_zm" || equipment == "equip_turret_zm" || equipment == "equip_electrictrap_zm" || equipment == "riotshield_zm" )
 	{
 		self maps/mp/zombies/_zm_stats::increment_client_stat( "planted_buildables_pickedup", 0 );
 		self maps/mp/zombies/_zm_stats::increment_player_stat( "planted_buildables_pickedup" );
@@ -3088,7 +3036,7 @@ track_planted_buildables_pickedup( equipment )
 	}
 }
 
-track_placed_buildables( buildable_name )
+track_placed_buildables( buildable_name ) //checked matches cerberus output
 {
 	if ( !isDefined( buildable_name ) )
 	{
@@ -3107,20 +3055,20 @@ track_placed_buildables( buildable_name )
 	self thread do_player_general_vox( "general", vo_name );
 }
 
-add_map_buildable_stat( piece_name, stat_name, value )
+add_map_buildable_stat( piece_name, stat_name, value ) //checked changed to match cerberus output
 {
-	if ( isDefined( piece_name ) && piece_name != "sq_common" || piece_name == "keys_zm" && piece_name == "oillamp_zm" )
+	if ( isDefined( piece_name ) || piece_name == "sq_common" || piece_name == "keys_zm" || piece_name == "oillamp_zm" )
 	{
 		return;
 	}
-	if ( isDefined( level.zm_disable_recording_stats ) || level.zm_disable_recording_stats && isDefined( level.zm_disable_recording_buildable_stats ) && level.zm_disable_recording_buildable_stats )
+	if ( isDefined( level.zm_disable_recording_stats ) && level.zm_disable_recording_stats || isDefined( level.zm_disable_recording_buildable_stats ) && level.zm_disable_recording_buildable_stats )
 	{
 		return;
 	}
 	self adddstat( "buildables", piece_name, stat_name, value );
 }
 
-say_pickup_buildable_vo( buildable_name, world )
+say_pickup_buildable_vo( buildable_name, world ) //checked matches cerberus output
 {
 	if ( isDefined( self.buildable_pickedup_timer ) && self.buildable_pickedup_timer )
 	{
@@ -3143,7 +3091,7 @@ say_pickup_buildable_vo( buildable_name, world )
 	}
 }
 
-get_buildable_vo_name( buildable_name )
+get_buildable_vo_name( buildable_name ) //checked matches cerberus output
 {
 	switch( buildable_name )
 	{
@@ -3169,7 +3117,7 @@ get_buildable_vo_name( buildable_name )
 	return undefined;
 }
 
-get_buildable_stat_name( buildable )
+get_buildable_stat_name( buildable ) //checked matches cerberus output
 {
 	if ( isDefined( buildable ) )
 	{
@@ -3193,3 +3141,5 @@ get_buildable_stat_name( buildable )
 		return undefined;
 	}
 }
+
+

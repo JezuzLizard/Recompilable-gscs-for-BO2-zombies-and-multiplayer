@@ -3,7 +3,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked changed to match cerberus output
 {
 	level._unitriggers = spawnstruct();
 	level._unitriggers._deferredinitlist = [];
@@ -14,26 +14,22 @@ init()
 	level._unitriggers.largest_radius = 64;
 	stubs_keys = array( "unitrigger_radius", "unitrigger_radius_use", "unitrigger_box", "unitrigger_box_use" );
 	stubs = [];
-	i = 0;
-	while ( i < stubs_keys.size )
+	for ( i = 0; i < stubs_keys.size; i++ )
 	{
 		stubs = arraycombine( stubs, getstructarray( stubs_keys[ i ], "script_unitrigger_type" ), 1, 0 );
-		i++;
 	}
-	i = 0;
-	while ( i < stubs.size )
+	for ( i = 0; i < stubs.size; i++ )
 	{
 		register_unitrigger( stubs[ i ] );
-		i++;
 	}
 }
 
-register_unitrigger_system_func( system, trigger_func )
+register_unitrigger_system_func( system, trigger_func ) //checked matches cerberus output
 {
 	level._unitriggers.system_trigger_funcs[ system ] = trigger_func;
 }
 
-unitrigger_force_per_player_triggers( unitrigger_stub, opt_on_off )
+unitrigger_force_per_player_triggers( unitrigger_stub, opt_on_off ) //checked matches cerberus output
 {
 	if ( !isDefined( opt_on_off ) )
 	{
@@ -42,7 +38,7 @@ unitrigger_force_per_player_triggers( unitrigger_stub, opt_on_off )
 	unitrigger_stub.trigger_per_player = opt_on_off;
 }
 
-unitrigger_trigger( player )
+unitrigger_trigger( player ) //checked matches cerberus output
 {
 	if ( self.trigger_per_player )
 	{
@@ -54,7 +50,7 @@ unitrigger_trigger( player )
 	}
 }
 
-unitrigger_origin()
+unitrigger_origin() //checked matches cerberus output
 {
 	if ( isDefined( self.originfunc ) )
 	{
@@ -67,25 +63,24 @@ unitrigger_origin()
 	return origin;
 }
 
-register_unitrigger_internal( unitrigger_stub, trigger_func )
+register_unitrigger_internal( unitrigger_stub, trigger_func ) //checked changed to match cerberus output
 {
 	if ( !isDefined( unitrigger_stub.script_unitrigger_type ) )
 	{
+		/*
 /#
 		println( "Cannot register a unitrigger with no script_unitrigger_type.  Ignoring." );
 #/
+		*/
 		return;
 	}
 	if ( isDefined( trigger_func ) )
 	{
 		unitrigger_stub.trigger_func = trigger_func;
 	}
-	else
+	else if ( isDefined( unitrigger_stub.unitrigger_system ) && isDefined( level._unitriggers.system_trigger_funcs[ unitrigger_stub.unitrigger_system ] ) )
 	{
-		if ( isDefined( unitrigger_stub.unitrigger_system ) && isDefined( level._unitriggers.system_trigger_funcs[ unitrigger_stub.unitrigger_system ] ) )
-		{
-			unitrigger_stub.trigger_func = level._unitriggers.system_trigger_funcs[ unitrigger_stub.unitrigger_system ];
-		}
+		unitrigger_stub.trigger_func = level._unitriggers.system_trigger_funcs[ unitrigger_stub.unitrigger_system ];
 	}
 	switch( unitrigger_stub.script_unitrigger_type )
 	{
@@ -123,9 +118,11 @@ register_unitrigger_internal( unitrigger_stub, trigger_func )
 			unitrigger_stub.test_radius_sq = ( box_radius + 15 ) * ( box_radius + 15 );
 			break;
 		default:
+			/*
 /#
 			println( "Unknown unitrigger type registered : " + unitrigger_stub.targetname + " - ignoring." );
 #/
+			*/
 			return;
 	}
 	if ( unitrigger_stub.radius > level._unitriggers.largest_radius )
@@ -138,30 +135,27 @@ register_unitrigger_internal( unitrigger_stub, trigger_func )
 				setdvar( "player_useRadius_zm", level.fixed_max_player_use_radius );
 			}
 		}
-		else
+		else if ( level._unitriggers.largest_radius > getDvarFloat( "player_useRadius_zm" ) )
 		{
-			if ( level._unitriggers.largest_radius > getDvarFloat( "player_useRadius_zm" ) )
-			{
-				setdvar( "player_useRadius_zm", level._unitriggers.largest_radius );
-			}
+			setdvar( "player_useRadius_zm", level._unitriggers.largest_radius );
 		}
 	}
 	level._unitriggers.trigger_stubs[ level._unitriggers.trigger_stubs.size ] = unitrigger_stub;
 	unitrigger_stub.registered = 1;
 }
 
-register_unitrigger( unitrigger_stub, trigger_func )
+register_unitrigger( unitrigger_stub, trigger_func ) //checked matches cerberus output
 {
 	register_unitrigger_internal( unitrigger_stub, trigger_func );
 	level._unitriggers.dynamic_stubs[ level._unitriggers.dynamic_stubs.size ] = unitrigger_stub;
 }
 
-unregister_unitrigger( unitrigger_stub )
+unregister_unitrigger( unitrigger_stub ) //checked matches cerberus output
 {
 	thread unregister_unitrigger_internal( unitrigger_stub );
 }
 
-unregister_unitrigger_internal( unitrigger_stub )
+unregister_unitrigger_internal( unitrigger_stub ) //checked changed to match cerberus output
 {
 	if ( !isDefined( unitrigger_stub ) )
 	{
@@ -173,31 +167,24 @@ unregister_unitrigger_internal( unitrigger_stub )
 		if ( isDefined( unitrigger_stub.playertrigger ) && unitrigger_stub.playertrigger.size > 0 )
 		{
 			keys = getarraykeys( unitrigger_stub.playertrigger );
-			_a181 = keys;
-			_k181 = getFirstArrayKey( _a181 );
-			while ( isDefined( _k181 ) )
+			foreach ( key in keys )
 			{
-				key = _a181[ _k181 ];
 				trigger = unitrigger_stub.playertrigger[ key ];
 				trigger notify( "kill_trigger" );
 				if ( isDefined( trigger ) )
 				{
 					trigger delete();
 				}
-				_k181 = getNextArrayKey( _a181, _k181 );
 			}
 			unitrigger_stub.playertrigger = [];
 		}
 	}
-	else
+	else if ( isDefined( unitrigger_stub.trigger ) )
 	{
-		if ( isDefined( unitrigger_stub.trigger ) )
-		{
-			trigger = unitrigger_stub.trigger;
-			trigger notify( "kill_trigger" );
-			trigger.stub.trigger = undefined;
-			trigger delete();
-		}
+		trigger = unitrigger_stub.trigger;
+		trigger notify( "kill_trigger" );
+		trigger.stub.trigger = undefined;
+		trigger delete();
 	}
 	if ( isDefined( unitrigger_stub.in_zone ) )
 	{
@@ -208,13 +195,13 @@ unregister_unitrigger_internal( unitrigger_stub )
 	arrayremovevalue( level._unitriggers.dynamic_stubs, unitrigger_stub );
 }
 
-delay_delete_contact_ent()
+delay_delete_contact_ent() //checked matches cerberus output
 {
 	self.last_used_time = 0;
 	while ( 1 )
 	{
 		wait 1;
-		if ( ( getTime() - self.last_used_time ) > 1000 )
+		if ( getTime() - self.last_used_time > 1000 )
 		{
 			self delete();
 			level._unitriggers.contact_ent = undefined;
@@ -223,7 +210,7 @@ delay_delete_contact_ent()
 	}
 }
 
-register_static_unitrigger( unitrigger_stub, trigger_func, recalculate_zone )
+register_static_unitrigger( unitrigger_stub, trigger_func, recalculate_zone ) //checked changed to match cerberus output
 {
 	if ( level.zones.size == 0 )
 	{
@@ -233,11 +220,11 @@ register_static_unitrigger( unitrigger_stub, trigger_func, recalculate_zone )
 	}
 	if ( !isDefined( level._unitriggers.contact_ent ) )
 	{
-		level._unitriggers.contact_ent = spawn( "script_origin", ( 0, 0, 1 ) );
+		level._unitriggers.contact_ent = spawn( "script_origin", ( 0, 0, 0 ) );
 		level._unitriggers.contact_ent thread delay_delete_contact_ent();
 	}
 	register_unitrigger_internal( unitrigger_stub, trigger_func );
-	while ( !isDefined( level._no_static_unitriggers ) )
+	if ( !isDefined( level._no_static_unitriggers ) )
 	{
 		level._unitriggers.contact_ent.last_used_time = getTime();
 		level._unitriggers.contact_ent.origin = unitrigger_stub.origin;
@@ -247,8 +234,7 @@ register_static_unitrigger( unitrigger_stub, trigger_func, recalculate_zone )
 			return;
 		}
 		keys = getarraykeys( level.zones );
-		i = 0;
-		while ( i < keys.size )
+		for ( i = 0; i < keys.size; i++ )
 		{
 			if ( level._unitriggers.contact_ent maps/mp/zombies/_zm_zonemgr::entity_in_zone( keys[ i ], 1 ) )
 			{
@@ -260,45 +246,45 @@ register_static_unitrigger( unitrigger_stub, trigger_func, recalculate_zone )
 				unitrigger_stub.in_zone = keys[ i ];
 				return;
 			}
-			i++;
 		}
 	}
 	level._unitriggers.dynamic_stubs[ level._unitriggers.dynamic_stubs.size ] = unitrigger_stub;
 	unitrigger_stub.registered = 1;
 }
 
-reregister_unitrigger_as_dynamic( unitrigger_stub )
+reregister_unitrigger_as_dynamic( unitrigger_stub ) //checked matches cerberus output
 {
 	unregister_unitrigger_internal( unitrigger_stub );
 	register_unitrigger( unitrigger_stub, unitrigger_stub.trigger_func );
 }
 
-debug_unitriggers()
+debug_unitriggers() //checked changed to match cerberus output
 {
+	/*
 /#
 	while ( 1 )
 	{
+		//dvar name is unknown in both dumps
 		while ( getDvarInt( #"D256F24B" ) > 0 )
 		{
-			i = 0;
-			while ( i < level._unitriggers.trigger_stubs.size )
+			for ( i = 0; i < level._unitriggers.trigger_stubs.size; i++ )
 			{
 				triggerstub = level._unitriggers.trigger_stubs[ i ];
-				color = vectorScale( ( 0, 0, 1 ), 0,75 );
+				color = vectorScale( ( 1, 0, 0 ), 0.75 );
 				if ( !isDefined( triggerstub.in_zone ) )
 				{
-					color = vectorScale( ( 0, 0, 1 ), 0,65 );
+					color = vectorScale( ( 1, 1, 0 ), 0.65 );
 				}
 				else
 				{
 					if ( level.zones[ triggerstub.in_zone ].is_active )
 					{
-						color = ( 0, 0, 1 );
+						color = ( 1, 1, 0 );
 					}
 				}
 				if ( isDefined( triggerstub.trigger ) || isDefined( triggerstub.playertrigger ) && triggerstub.playertrigger.size > 0 )
 				{
-					color = ( 0, 0, 1 );
+					color = ( 0, 1, 0 );
 					if ( isDefined( triggerstub.playertrigger ) && triggerstub.playertrigger.size > 0 )
 					{
 						print3d( triggerstub.origin, triggerstub.playertrigger.size, color, 1, 1, 1 );
@@ -318,38 +304,36 @@ debug_unitriggers()
 							line( origin, origin + ( 0, 0, triggerstub.script_height ), color, 0, 1 );
 						}
 						break;
-					i++;
-					continue;
 					case "unitrigger_box":
 					case "unitrigger_box_use":
 						vec = ( triggerstub.script_width / 2, triggerstub.script_length / 2, triggerstub.script_height / 2 );
 						box( origin, vec * -1, vec, triggerstub.angles[ 1 ], color, 1, 0, 1 );
 						break;
-					i++;
-					continue;
 				}
-				i++;
 			}
 		}
-		wait 0,05;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-cleanup_trigger( trigger, player )
+cleanup_trigger( trigger, player ) //checked changed to match cerberus output
 {
 	trigger notify( "kill_trigger" );
 	if ( isDefined( trigger.stub.trigger_per_player ) && trigger.stub.trigger_per_player )
 	{
+		trigger.stub.playertrigger[player getentitynumber()] = undefined;
 	}
 	else
 	{
 		trigger.stub.trigger = undefined;
 	}
 	trigger delete();
+	level._unitriggers.trigger_pool[player getentitynumber()] = undefined;
 }
 
-assess_and_apply_visibility( trigger, stub, player, default_keep )
+assess_and_apply_visibility( trigger, stub, player, default_keep ) //checked changed to match cerberus output
 {
 	if ( !isDefined( trigger ) || !isDefined( stub ) )
 	{
@@ -369,40 +353,34 @@ assess_and_apply_visibility( trigger, stub, player, default_keep )
 			trigger.reassess_time = undefined;
 		}
 	}
+	else if ( isDefined( trigger.thread_running ) && trigger.thread_running )
+	{
+		keep_thread = 0;
+	}
+	trigger.thread_running = 0;
+	if ( isDefined( stub.inactive_reasses_time ) )
+	{
+		trigger.reassess_time = stub.inactive_reasses_time;
+	}
 	else
 	{
-		if ( isDefined( trigger.thread_running ) && trigger.thread_running )
-		{
-			keep_thread = 0;
-		}
-		trigger.thread_running = 0;
-		if ( isDefined( stub.inactive_reasses_time ) )
-		{
-			trigger.reassess_time = stub.inactive_reasses_time;
-		}
-		else
-		{
-			trigger.reassess_time = 1;
-		}
+		trigger.reassess_time = 1;
 	}
 	return keep_thread;
 }
 
-main()
+main() //checked against bo3 _zm_unitrigger.gsc and cerberus output changed at own discretion
 {
 	level thread debug_unitriggers();
 	if ( level._unitriggers._deferredinitlist.size )
 	{
-		i = 0;
-		while ( i < level._unitriggers._deferredinitlist.size )
+		for ( i = 0; i < level._unitriggers._deferredinitlist.size; i++ )
 		{
 			register_static_unitrigger( level._unitriggers._deferredinitlist[ i ], level._unitriggers._deferredinitlist[ i ].trigger_func );
-			i++;
 		}
-		i = 0;
-		while ( i < level._unitriggers._deferredinitlist.size )
+		for ( i = 0; i < level._unitriggers._deferredinitlist.size; i++ )
 		{
-			i++;
+			level._unitriggers._deferredinitlist[i] = undefined;
 		}
 		level._unitriggers._deferredinitlist = undefined;
 	}
@@ -410,21 +388,19 @@ main()
 	valid_range_sq = valid_range * valid_range;
 	while ( !isDefined( level.active_zone_names ) )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	while ( 1 )
 	{
 		waited = 0;
 		active_zone_names = level.active_zone_names;
 		candidate_list = [];
-		j = 0;
-		while ( j < active_zone_names.size )
+		for ( j = 0; j < active_zone_names.size; j++ )
 		{
 			if ( isDefined( level.zones[ active_zone_names[ j ] ].unitrigger_stubs ) )
 			{
 				candidate_list = arraycombine( candidate_list, level.zones[ active_zone_names[ j ] ].unitrigger_stubs, 1, 0 );
 			}
-			j++;
 		}
 		candidate_list = arraycombine( candidate_list, level._unitriggers.dynamic_stubs, 1, 0 );
 		players = getplayers();
@@ -437,7 +413,7 @@ main()
 				i++;
 				continue;
 			}
-			else player_origin = player.origin + vectorScale( ( 0, 0, 1 ), 35 );
+			player_origin = player.origin + vectorScale( ( 0, 0, 1 ), 35 );
 			trigger = level._unitriggers.trigger_pool[ player getentitynumber() ];
 			closest = [];
 			if ( isDefined( trigger ) )
@@ -450,21 +426,17 @@ main()
 				{
 					if ( isDefined( trigger.reassess_time ) )
 					{
-						trigger.reassess_time -= 0,05;
+						trigger.reassess_time -= 0.05;
 						if ( trigger.reassess_time > 0 )
 						{
 							i++;
 							continue;
 						}
-						else time_to_ressess = 1;
-						break;
-					}
-					else
-					{
+						time_to_ressess = 1;
 					}
 				}
-				else closest = get_closest_unitriggers( player_origin, candidate_list, valid_range );
-				if ( isDefined( trigger ) && time_to_ressess || closest.size < 2 && isDefined( trigger.thread_running ) && trigger.thread_running )
+				closest = get_closest_unitriggers( player_origin, candidate_list, valid_range );
+				if ( isDefined( trigger ) && time_to_ressess && closest.size < 2 || isDefined( trigger.thread_running ) && trigger.thread_running )
 				{
 					if ( assess_and_apply_visibility( trigger, trigger.stub, player, 1 ) )
 					{
@@ -485,13 +457,15 @@ main()
 			last_trigger = undefined;
 			while ( index < closest.size )
 			{
-				while ( !is_player_valid( player ) && isDefined( closest[ index ].ignore_player_valid ) && !closest[ index ].ignore_player_valid )
+				if ( !maps/mp/zombies/_zm_utility::is_player_valid( player ) && isDefined( closest[ index ].ignore_player_valid ) && !closest[ index ].ignore_player_valid )
 				{
 					index++;
+					continue;
 				}
-				while ( isDefined( closest[ index ].registered ) && !closest[ index ].registered )
+				if ( isDefined( closest[ index ].registered ) && !closest[ index ].registered )
 				{
 					index++;
+					continue;
 				}
 				if ( isDefined( last_trigger ) )
 				{
@@ -511,41 +485,34 @@ main()
 						level._unitriggers.trigger_pool[ player getentitynumber() ] = trigger;
 					}
 				}
-				else
+				else if ( !isDefined( closest[ index ].trigger ) )
 				{
-					if ( !isDefined( closest[ index ].trigger ) )
-					{
-						trigger = build_trigger_from_unitrigger_stub( closest[ index ], player );
-						level._unitriggers.trigger_pool[ player getentitynumber() ] = trigger;
-					}
+					trigger = build_trigger_from_unitrigger_stub( closest[ index ], player );
+					level._unitriggers.trigger_pool[ player getentitynumber() ] = trigger;
 				}
 				if ( isDefined( trigger ) )
 				{
 					trigger.parent_player = player;
 					if ( assess_and_apply_visibility( trigger, closest[ index ], player, 0 ) )
 					{
-						i++;
-						continue;
+						break;
 					}
-					else
-					{
-						last_trigger = trigger;
-					}
-					index++;
-					waited = 1;
-					wait 0,05;
+					last_trigger = trigger;
 				}
+				index++;
+				waited = 1;
+				wait 0.05;
 			}
 			i++;
 		}
 		if ( !waited )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 }
 
-run_visibility_function_for_all_triggers()
+run_visibility_function_for_all_triggers() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.prompt_and_visibility_func ) )
 	{
@@ -558,14 +525,12 @@ run_visibility_function_for_all_triggers()
 			return;
 		}
 		players = getplayers();
-		i = 0;
-		while ( i < players.size )
+        for ( i = 0; i < players.size; i++ )
 		{
 			if ( isDefined( self.playertrigger[ players[ i ] getentitynumber() ] ) )
 			{
 				self.playertrigger[ players[ i ] getentitynumber() ] [[ self.prompt_and_visibility_func ]]( players[ i ] );
 			}
-			i++;
 		}
 	}
 	else if ( isDefined( self.trigger ) )
@@ -574,7 +539,7 @@ run_visibility_function_for_all_triggers()
 	}
 }
 
-build_trigger_from_unitrigger_stub( stub, player )
+build_trigger_from_unitrigger_stub( stub, player ) //checked matches cerberus output
 {
 	if ( isDefined( level._zm_build_trigger_from_unitrigger_stub_override ) )
 	{
@@ -689,7 +654,7 @@ build_trigger_from_unitrigger_stub( stub, player )
 	return trigger;
 }
 
-copy_zombie_keys_onto_trigger( trig, stub )
+copy_zombie_keys_onto_trigger( trig, stub ) //checked matches cerberus output
 {
 	trig.script_noteworthy = stub.script_noteworthy;
 	trig.targetname = stub.targetname;
@@ -699,7 +664,7 @@ copy_zombie_keys_onto_trigger( trig, stub )
 	trig.usetime = stub.usetime;
 }
 
-trigger_thread( trigger_func )
+trigger_thread( trigger_func ) //checked matches cerberus output
 {
 	self endon( "kill_trigger" );
 	if ( isDefined( trigger_func ) )
@@ -708,7 +673,7 @@ trigger_thread( trigger_func )
 	}
 }
 
-get_closest_unitrigger_index( org, array, dist )
+get_closest_unitrigger_index( org, array, dist ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop due to continue
 {
 	if ( !isDefined( dist ) )
 	{
@@ -736,17 +701,14 @@ get_closest_unitrigger_index( org, array, dist )
 			i++;
 			continue;
 		}
-		else
-		{
-			distsq = newdistsq;
-			index = i;
-		}
+		distsq = newdistsq;
+		index = i;
 		i++;
 	}
 	return index;
 }
 
-get_closest_unitriggers( org, array, dist )
+get_closest_unitriggers( org, array, dist ) //checked partially changed to match cerberus output did not change while loop to for loop to prevent infinite loop due to continue
 {
 	triggers = [];
 	if ( !isDefined( dist ) )
@@ -767,7 +729,7 @@ get_closest_unitriggers( org, array, dist )
 			i++;
 			continue;
 		}
-		else origin = array[ i ] unitrigger_origin();
+		origin = array[ i ] unitrigger_origin();
 		radius_sq = array[ i ].test_radius_sq;
 		newdistsq = distance2dsquared( origin, org );
 		if ( newdistsq >= radius_sq )
@@ -775,26 +737,23 @@ get_closest_unitriggers( org, array, dist )
 			i++;
 			continue;
 		}
-		else if ( abs( origin[ 2 ] - org[ 2 ] ) > 42 )
+		if ( abs( origin[ 2 ] - org[ 2 ] ) > 42 )
 		{
 			i++;
 			continue;
 		}
-		else
+		array[ i ].dsquared = newdistsq;
+		for ( j = 0; j < triggers.size && newdistsq > triggers[j].dsquared; j++ )
 		{
-			array[ i ].dsquared = newdistsq;
-			j = 0;
-			while ( j < triggers.size && newdistsq > triggers[ j ].dsquared )
-			{
-				j++;
-			}
-			arrayinsert( triggers, array[ i ], j );
-			if ( ( i % 10 ) == 9 )
-			{
-				wait 0,05;
-			}
+		}
+		arrayinsert( triggers, array[ i ], j );
+		if ( ( i % 10 ) == 9 )
+		{
+			wait 0.05;
 		}
 		i++;
 	}
 	return triggers;
 }
+
+

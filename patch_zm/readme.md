@@ -33,14 +33,13 @@ patch_zm/maps/mp/zombies/_zm_timer.gsc
 ### The following scripts compile and run successfully with major errors:
 ```
 patch_zm/maps/mp/gametypes_zm/_zm_gametype.gsc
-patch_zm/maps/mp/zombies/_zm_chugabud.gsc
 patch_zm/maps/mp/zombies/_zm_spawner.gsc
+patch_zm/maps/mp/zombies/_zm_utility.gsc
 patch_zm/maps/mp/zombies/_zm_weapons.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
 ```
 patch_zm/maps/mp/zombies/_zm.gsc
-patch_zm/maps/mp/zombies/_zm_equipment.gsc
 ```
 ### The following scripts compile but cause a minidump or other severe error:
 ```
@@ -49,6 +48,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+patch_zm/maps/mp/zombies/_zm_buildables.gsc
 patch_zm/maps/mp/zombies/_zm_game_module.gsc
 patch_zm/maps/mp/zombies/_zm_magicbox_lock.gsc
 patch_zm/maps/mp/zombies/_zm_playerhealth.gsc
@@ -60,19 +60,19 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
-patch_zm/maps/mp/zombies/_zm_buildables.gsc
 patch_zm/maps/mp/zombies/_zm_equip_turbine.gsc
 patch_zm/maps/mp/zombies/_zm_laststand.gsc
 patch_zm/maps/mp/zombies/_zm_sidequests.gsc
 patch_zm/maps/mp/zombies/_zm_stats.gsc
 patch_zm/maps/mp/zombies/_zm_unitrigger.gsc
-patch_zm/maps/mp/zombies/_zm_utility.gsc
 ```
 ### The following scripts have not been checked using the proper debugging methods:
 ```
 //I will put these off to towards much later since the hacker and gas mask are parts of the game that do not exist inside the game in any capacity whatsoever.
 //Therefore, whether or not they work is irrelevant.
 patch_zm/maps/mp/zombies/_zm_devgui.gsc
+patch_zm/maps/mp/zombies/_zm_chugabud.gsc
+patch_zm/maps/mp/zombies/_zm_equipment.gsc
 patch_zm/maps/mp/zombies/_zm_equip_hacker.gsc
 patch_zm/maps/mp/zombies/_zm_equip_gasmask.gsc
 patch_zm/maps/mp/zombies/_zm_hackables_boards.gsc
