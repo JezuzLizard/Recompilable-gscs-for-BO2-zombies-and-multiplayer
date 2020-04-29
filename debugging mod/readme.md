@@ -44,6 +44,9 @@ If you would like to debug a script that isn't already supported use this templa
 ```
 //begin debug code
 level.custom_GSC_FILE_NAME_loaded = 1;
+//if mp 
+maps/mp/gametypes/_clientids::init();
+//if zm
 maps/mp/zombies/_zm_bot::init();
 if ( !isDefined( level.debugLogging_GSC_FILE_NAME ) )
 {
