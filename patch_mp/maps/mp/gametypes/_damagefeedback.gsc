@@ -1,5 +1,5 @@
 
-init()
+init() //checked matches cerberus output
 {
 	precacheshader( "damage_feedback" );
 	precacheshader( "damage_feedback_flak" );
@@ -7,7 +7,7 @@ init()
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -24,7 +24,7 @@ onplayerconnect()
 	}
 }
 
-updatedamagefeedback( mod, inflictor, perkfeedback )
+updatedamagefeedback( mod, inflictor, perkfeedback ) //checked matches cerberus output
 {
 	if ( !isplayer( self ) || sessionmodeiszombiesgame() )
 	{
@@ -58,7 +58,10 @@ updatedamagefeedback( mod, inflictor, perkfeedback )
 						break;
 				}
 			}
-			else self playlocalsound( "mpl_hit_alert_low" );
+			else 
+			{	
+				self playlocalsound( "mpl_hit_alert_low" );
+			}
 		}
 		if ( isDefined( perkfeedback ) )
 		{
@@ -79,19 +82,19 @@ updatedamagefeedback( mod, inflictor, perkfeedback )
 	}
 }
 
-playhitsound( mod, alert )
+playhitsound( mod, alert ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( self.hitsoundtracker )
 	{
 		self.hitsoundtracker = 0;
 		self playlocalsound( alert );
-		wait 0,05;
+		wait 0.05;
 		self.hitsoundtracker = 1;
 	}
 }
 
-updatespecialdamagefeedback( hitent )
+updatespecialdamagefeedback( hitent ) //checked matches cerberus output
 {
 	if ( !isplayer( self ) )
 	{
@@ -105,7 +108,7 @@ updatespecialdamagefeedback( hitent )
 	{
 		return;
 	}
-	wait 0,05;
+	wait 0.05;
 	if ( !isDefined( self.directionalhitarray ) )
 	{
 		self.directionalhitarray = [];
@@ -120,15 +123,14 @@ updatespecialdamagefeedback( hitent )
 	}
 }
 
-sendhitspecialeventatframeend( hitent )
+sendhitspecialeventatframeend( hitent ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
 	enemyshit = 0;
 	value = 1;
 	entbitarray0 = 0;
-	i = 0;
-	while ( i < 32 )
+	for ( i = 0; i < 32; i++ )
 	{
 		if ( isDefined( self.directionalhitarray[ i ] ) && self.directionalhitarray[ i ] != 0 )
 		{
@@ -136,11 +138,9 @@ sendhitspecialeventatframeend( hitent )
 			enemyshit++;
 		}
 		value *= 2;
-		i++;
 	}
 	entbitarray1 = 0;
-	i = 33;
-	while ( i < 64 )
+	for ( i = 33; i < 64; i++ )
 	{
 		if ( isDefined( self.directionalhitarray[ i ] ) && self.directionalhitarray[ i ] != 0 )
 		{
@@ -148,7 +148,6 @@ sendhitspecialeventatframeend( hitent )
 			enemyshit++;
 		}
 		value *= 2;
-		i++;
 	}
 	if ( enemyshit )
 	{
@@ -158,3 +157,4 @@ sendhitspecialeventatframeend( hitent )
 	entbitarray0 = 0;
 	entbitarray1 = 0;
 }
+

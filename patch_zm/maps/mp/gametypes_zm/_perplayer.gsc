@@ -1,6 +1,6 @@
 #include maps/mp/_utility;
 
-init( id, playerbegincallback, playerendcallback )
+init( id, playerbegincallback, playerendcallback ) //checked matches cerberus output
 {
 	precacheshader( "objpoint_default" );
 	handler = spawnstruct();
@@ -14,7 +14,7 @@ init( id, playerbegincallback, playerendcallback )
 	return handler;
 }
 
-enable( handler )
+enable( handler ) //checked partially changed to match cerberus output didn't change while loop to for loop to prevent infinite loop continue bug
 {
 	if ( handler.enabled )
 	{
@@ -23,11 +23,9 @@ enable( handler )
 	handler.enabled = 1;
 	level.handlerglobalflagval++;
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ].handlerflagval = level.handlerglobalflagval;
-		i++;
 	}
 	players = handler.players;
 	i = 0;
@@ -38,18 +36,15 @@ enable( handler )
 			i++;
 			continue;
 		}
-		else
+		if ( players[ i ].handlers[ handler.id ].ready )
 		{
-			if ( players[ i ].handlers[ handler.id ].ready )
-			{
-				players[ i ] handleplayer( handler );
-			}
+			players[ i ] handleplayer( handler );
 		}
 		i++;
 	}
 }
-
-disable( handler )
+ 
+disable( handler ) //checked partially changed to match cerberus output didn't change while loop to for loop to prevent infinite loop continue bug
 {
 	if ( !handler.enabled )
 	{
@@ -58,11 +53,9 @@ disable( handler )
 	handler.enabled = 0;
 	level.handlerglobalflagval++;
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ].handlerflagval = level.handlerglobalflagval;
-		i++;
 	}
 	players = handler.players;
 	i = 0;
@@ -73,18 +66,15 @@ disable( handler )
 			i++;
 			continue;
 		}
-		else
+		if ( players[ i ].handlers[ handler.id ].ready )
 		{
-			if ( players[ i ].handlers[ handler.id ].ready )
-			{
-				players[ i ] unhandleplayer( handler, 0, 0 );
-			}
+			players[ i ] unhandleplayer( handler, 0, 0 );
 		}
 		i++;
 	}
 }
 
-onplayerconnect( handler )
+onplayerconnect( handler ) //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -106,24 +96,22 @@ onplayerconnect( handler )
 	}
 }
 
-onplayerdisconnect( handler )
+onplayerdisconnect( handler ) //checked changed to match cerberus output
 {
 	self waittill( "disconnect" );
 	newplayers = [];
-	i = 0;
-	while ( i < handler.players.size )
+	for ( i = 0; i < handler.players.size; i++ )
 	{
 		if ( handler.players[ i ] != self )
 		{
 			newplayers[ newplayers.size ] = handler.players[ i ];
 		}
-		i++;
 	}
 	handler.players = newplayers;
 	self thread unhandleplayer( handler, 1, 1 );
 }
 
-onjoinedteam( handler )
+onjoinedteam( handler ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -133,7 +121,7 @@ onjoinedteam( handler )
 	}
 }
 
-onjoinedspectators( handler )
+onjoinedspectators( handler ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -143,7 +131,7 @@ onjoinedspectators( handler )
 	}
 }
 
-onplayerspawned( handler )
+onplayerspawned( handler ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -153,7 +141,7 @@ onplayerspawned( handler )
 	}
 }
 
-onplayerkilled( handler )
+onplayerkilled( handler ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -163,7 +151,7 @@ onplayerkilled( handler )
 	}
 }
 
-handleplayer( handler )
+handleplayer( handler ) //checked matches cerberus output
 {
 	self.handlers[ handler.id ].ready = 1;
 	if ( !handler.enabled )
@@ -178,7 +166,7 @@ handleplayer( handler )
 	self thread [[ handler.playerbegincallback ]]();
 }
 
-unhandleplayer( handler, unsetready, disconnected )
+unhandleplayer( handler, unsetready, disconnected ) //checked matches cerberus output
 {
 	if ( !disconnected && unsetready )
 	{
@@ -194,3 +182,4 @@ unhandleplayer( handler, unsetready, disconnected )
 	}
 	self thread [[ handler.playerendcallback ]]( disconnected );
 }
+

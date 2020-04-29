@@ -1,5 +1,5 @@
 
-init()
+init() //checked changed to match cerberus output
 {
 	precacheshader( "progress_bar_bg" );
 	precacheshader( "progress_bar_fg" );
@@ -16,13 +16,9 @@ init()
 	level.uiparent.height = 0;
 	level.uiparent.children = [];
 	level.fontheight = 12;
-	_a103 = level.teams;
-	_k103 = getFirstArrayKey( _a103 );
-	while ( isDefined( _k103 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a103[ _k103 ];
 		level.hud[ team ] = spawnstruct();
-		_k103 = getNextArrayKey( _a103, _k103 );
 	}
 	level.primaryprogressbary = -61;
 	level.primaryprogressbarx = 0;
@@ -30,7 +26,7 @@ init()
 	level.primaryprogressbarwidth = 120;
 	level.primaryprogressbartexty = -75;
 	level.primaryprogressbartextx = 0;
-	level.primaryprogressbarfontsize = 1,4;
+	level.primaryprogressbarfontsize = 1.4;
 	level.primaryprogressbarx_ss = 20;
 	level.primaryprogressbartextx_ss = 20;
 	level.primaryprogressbary_ss = 30;
@@ -42,7 +38,7 @@ init()
 	level.secondaryprogressbarwidth = 120;
 	level.secondaryprogressbartexty = -100;
 	level.secondaryprogressbartextx = 0;
-	level.secondaryprogressbarfontsize = 1,4;
+	level.secondaryprogressbarfontsize = 1.4;
 	level.secondaryprogressbarx_ss = 20;
 	level.secondaryprogressbartextx_ss = 20;
 	level.secondaryprogressbary_ss = 15;
@@ -52,25 +48,25 @@ init()
 	level.teamprogressbarheight = 14;
 	level.teamprogressbarwidth = 192;
 	level.teamprogressbartexty = 8;
-	level.teamprogressbarfontsize = 1,65;
-	setdvar( "ui_generic_status_bar", 0 );
+	level.teamprogressbarfontsize = 1.65;
+	setdvar("ui_generic_status_bar", 0);
 	level.lowertextyalign = "BOTTOM";
 	level.lowertexty = -42;
-	level.lowertextfontsize = 1,4;
+	level.lowertextfontsize = 1.4;
 	level.lowertextyalign_ss = "CENTER";
 	level.lowertexty_ss = 40;
-	level.lowertextfontsize_ss = 1,4;
+	level.lowertextfontsize_ss = 1.4;
 }
 
-fontpulseinit()
+fontpulseinit() //checked matches cerberus output
 {
 	self.basefontscale = self.fontscale;
 	self.maxfontscale = self.fontscale * 2;
-	self.inframes = 1,5;
+	self.inframes = 1.5;
 	self.outframes = 3;
 }
 
-fontpulse( player )
+fontpulse( player ) //checked matches cerberus output
 {
 	self notify( "fontPulse" );
 	self endon( "fontPulse" );
@@ -80,7 +76,7 @@ fontpulse( player )
 	player endon( "joined_spectators" );
 	if ( self.outframes == 0 )
 	{
-		self.fontscale = 0,01;
+		self.fontscale = 0.01;
 	}
 	else
 	{
@@ -88,30 +84,26 @@ fontpulse( player )
 	}
 	if ( self.inframes > 0 )
 	{
-		self changefontscaleovertime( self.inframes * 0,05 );
+		self changefontscaleovertime( self.inframes * 0.05 );
 		self.fontscale = self.maxfontscale;
-		wait ( self.inframes * 0,05 );
+		wait ( self.inframes * 0.05 );
 	}
 	else
 	{
 		self.fontscale = self.maxfontscale;
 		self.alpha = 0;
-		self fadeovertime( self.outframes * 0,05 );
+		self fadeovertime( self.outframes * 0.05 );
 		self.alpha = 1;
 	}
 	if ( self.outframes > 0 )
 	{
-		self changefontscaleovertime( self.outframes * 0,05 );
+		self changefontscaleovertime( self.outframes * 0.05 );
 		self.fontscale = self.basefontscale;
 	}
 }
 
-fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadername, n_sort )
+fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadername ) //checked matches cerberus output
 {
-	if ( !isDefined( n_sort ) )
-	{
-		n_sort = 50;
-	}
 	wait startwait;
 	if ( !isDefined( self ) )
 	{
@@ -128,7 +120,8 @@ fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadern
 	self.blackscreen.foreground = 0;
 	self.blackscreen.hidewhendead = 0;
 	self.blackscreen.hidewheninmenu = 1;
-	self.blackscreen.sort = n_sort;
+	self.blackscreen.immunetodemogamehudsettings = 1;
+	self.blackscreen.sort = 50;
 	if ( isDefined( shadername ) )
 	{
 		self.blackscreen setshader( shadername, 640, 480 );
@@ -165,3 +158,4 @@ fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadern
 		self.blackscreen = undefined;
 	}
 }
+

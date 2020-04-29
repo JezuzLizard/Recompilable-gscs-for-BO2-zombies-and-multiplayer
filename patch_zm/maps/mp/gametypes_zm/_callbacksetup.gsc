@@ -5,7 +5,7 @@
 #include maps/mp/_audio;
 #include maps/mp/_utility;
 
-codecallback_startgametype()
+codecallback_startgametype() //checked matches cerberus output
 {
 	if ( !isDefined( level.gametypestarted ) || !level.gametypestarted )
 	{
@@ -14,101 +14,100 @@ codecallback_startgametype()
 	}
 }
 
-codecallback_finalizeinitialization()
+codecallback_finalizeinitialization() //checked matches cerberus output
 {
 	maps/mp/_utility::callback( "on_finalize_initialization" );
 }
 
-codecallback_playerconnect()
+codecallback_playerconnect() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self thread maps/mp/_audio::monitor_player_sprint();
 	[[ level.callbackplayerconnect ]]();
 }
 
-codecallback_playerdisconnect()
+codecallback_playerdisconnect() //checked matches cerberus output
 {
 	self notify( "disconnect" );
+	level notify( "disconnect" );
 	client_num = self getentitynumber();
 	[[ level.callbackplayerdisconnect ]]();
 }
 
-codecallback_hostmigration()
+codecallback_hostmigration() //checked matches cerberus output
 {
+	/*
 /#
 	println( "****CodeCallback_HostMigration****" );
 #/
+	*/
 	[[ level.callbackhostmigration ]]();
 }
 
-codecallback_hostmigrationsave()
+codecallback_hostmigrationsave() //checked matches cerberus output
 {
+	/*
 /#
 	println( "****CodeCallback_HostMigrationSave****" );
 #/
+	*/
 	[[ level.callbackhostmigrationsave ]]();
 }
 
-codecallback_prehostmigrationsave()
+codecallback_playermigrated() //checked matches cerberus output
 {
-/#
-	println( "****CodeCallback_PreHostMigrationSave****" );
-#/
-	[[ level.callbackprehostmigrationsave ]]();
-}
-
-codecallback_playermigrated()
-{
+	/*
 /#
 	println( "****CodeCallback_PlayerMigrated****" );
 #/
+	*/
 	[[ level.callbackplayermigrated ]]();
 }
 
-codecallback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, boneindex )
+codecallback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, boneindex ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	[[ level.callbackplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, boneindex );
 }
 
-codecallback_playerkilled( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset, deathanimduration )
+codecallback_playerkilled( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset, deathanimduration ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	[[ level.callbackplayerkilled ]]( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset, deathanimduration );
 }
 
-codecallback_playerlaststand( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset, deathanimduration )
+codecallback_playerlaststand( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset, deathanimduration ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	[[ level.callbackplayerlaststand ]]( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset, deathanimduration );
 }
 
-codecallback_playermelee( eattacker, idamage, sweapon, vorigin, vdir, boneindex, shieldhit )
+codecallback_playermelee( eattacker, idamage, sweapon, vorigin, vdir, boneindex, shieldhit ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	[[ level.callbackplayermelee ]]( eattacker, idamage, sweapon, vorigin, vdir, boneindex, shieldhit );
 }
 
-codecallback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, boneindex )
+codecallback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, boneindex ) //checked matches cerberus output
 {
 	[[ level.callbackactordamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, boneindex );
 }
 
-codecallback_actorkilled( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset )
+codecallback_actorkilled( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset ) //checked matches cerberus output
 {
 	[[ level.callbackactorkilled ]]( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, timeoffset );
 }
 
-codecallback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, damagefromunderneath, modelindex, partname )
+codecallback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, damagefromunderneath, modelindex, partname ) //checked matches cerberus output
 {
 	[[ level.callbackvehicledamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, timeoffset, damagefromunderneath, modelindex, partname );
 }
 
-codecallback_vehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, timeoffset )
+codecallback_vehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, timeoffset ) //checked matches cerberus output
 {
 }
 
-codecallback_faceeventnotify( notify_msg, ent )
+codecallback_faceeventnotify( notify_msg, ent ) //checked matches cerberus output 
 {
 	if ( isDefined( ent ) && isDefined( ent.do_face_anims ) && ent.do_face_anims )
 	{
@@ -119,7 +118,7 @@ codecallback_faceeventnotify( notify_msg, ent )
 	}
 }
 
-codecallback_menuresponse( action, arg )
+codecallback_menuresponse( action, arg ) //checked matches cerberus output
 {
 	if ( !isDefined( level.menuresponsequeue ) )
 	{
@@ -134,18 +133,18 @@ codecallback_menuresponse( action, arg )
 	level notify( "menuresponse_queue" );
 }
 
-menuresponsequeuepump()
+menuresponsequeuepump() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		level waittill( "menuresponse_queue" );
-		level.menuresponsequeue[ 0 ].ent notify( "menuresponse" );
+		level.menuresponsequeue[ 0 ].ent notify( "menuresponse", level.menuresponsequeue[0].action, level.menuresponsequeue[0].arg );
 		arrayremoveindex( level.menuresponsequeue, 0, 0 );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-setupcallbacks()
+setupcallbacks() //checked matches cerberus output
 {
 	setdefaultcallbacks();
 	level.idflags_radius = 1;
@@ -161,35 +160,36 @@ setupcallbacks()
 	level.idflags_passthru = 1024;
 }
 
-setdefaultcallbacks()
+setdefaultcallbacks() //checked matches cerberus output 
 {
-	level.callbackstartgametype = ::maps/mp/gametypes_zm/_globallogic::callback_startgametype;
-	level.callbackplayerconnect = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerconnect;
-	level.callbackplayerdisconnect = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerdisconnect;
-	level.callbackplayerdamage = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerdamage;
-	level.callbackplayerkilled = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerkilled;
-	level.callbackplayermelee = ::maps/mp/gametypes_zm/_globallogic_player::callback_playermelee;
-	level.callbackplayerlaststand = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerlaststand;
-	level.callbackactordamage = ::maps/mp/gametypes_zm/_globallogic_actor::callback_actordamage;
-	level.callbackactorkilled = ::maps/mp/gametypes_zm/_globallogic_actor::callback_actorkilled;
-	level.callbackplayermigrated = ::maps/mp/gametypes_zm/_globallogic_player::callback_playermigrated;
-	level.callbackhostmigration = ::maps/mp/gametypes_zm/_hostmigration::callback_hostmigration;
-	level.callbackhostmigrationsave = ::maps/mp/gametypes_zm/_hostmigration::callback_hostmigrationsave;
-	level.callbackprehostmigrationsave = ::maps/mp/gametypes_zm/_hostmigration::callback_prehostmigrationsave;
+	level.callbackstartgametype = maps/mp/gametypes_zm/_globallogic::callback_startgametype;
+	level.callbackplayerconnect = maps/mp/gametypes_zm/_globallogic_player::callback_playerconnect;
+	level.callbackplayerdisconnect = maps/mp/gametypes_zm/_globallogic_player::callback_playerdisconnect;
+	level.callbackplayerdamage = maps/mp/gametypes_zm/_globallogic_player::callback_playerdamage;
+	level.callbackplayerkilled = maps/mp/gametypes_zm/_globallogic_player::callback_playerkilled;
+	level.callbackplayermelee = maps/mp/gametypes_zm/_globallogic_player::callback_playermelee;
+	level.callbackplayerlaststand = maps/mp/gametypes_zm/_globallogic_player::callback_playerlaststand;
+	level.callbackactordamage = maps/mp/gametypes_zm/_globallogic_actor::callback_actordamage;
+	level.callbackactorkilled = maps/mp/gametypes_zm/_globallogic_actor::callback_actorkilled;
+	level.callbackplayermigrated = maps/mp/gametypes_zm/_globallogic_player::callback_playermigrated;
+	level.callbackhostmigration = maps/mp/gametypes_zm/_hostmigration::callback_hostmigration;
+	level.callbackhostmigrationsave = maps/mp/gametypes_zm/_hostmigration::callback_hostmigrationsave;
 }
 
-abortlevel()
+abortlevel() //checked matches cerberus output
 {
+	/*
 /#
 	println( "ERROR: Aborting level - gametype is not supported" );
 #/
+	*/
 	level.callbackstartgametype = ::callbackvoid;
 	level.callbackplayerconnect = ::callbackvoid;
 	level.callbackplayerdisconnect = ::callbackvoid;
 	level.callbackplayerdamage = ::callbackvoid;
 	level.callbackplayerkilled = ::callbackvoid;
-	level.callbackplayermelee = ::callbackvoid;
 	level.callbackplayerlaststand = ::callbackvoid;
+	level.callbackplayermelee = ::callbackvoid;
 	level.callbackactordamage = ::callbackvoid;
 	level.callbackactorkilled = ::callbackvoid;
 	level.callbackvehicledamage = ::callbackvoid;
@@ -197,11 +197,13 @@ abortlevel()
 	exitlevel( 0 );
 }
 
-codecallback_glasssmash( pos, dir )
+codecallback_glasssmash( pos, dir ) //checked matches cerberus output
 {
 	level notify( "glass_smash" );
 }
 
-callbackvoid()
+callbackvoid() //checked matches cerberus output
 {
 }
+
+

@@ -48,6 +48,11 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+patch_zm/maps/mp/gametypes_zm/_callbacksetup.gsc
+patch_zm/maps/mp/gametypes_zm/_damagefeedback.gsc
+patch_zm/maps/mp/gametypes_zm/_hud.gsc
+patch_zm/maps/mp/gametypes_zm/_perplayer.gsc
+patch_zm/maps/mp/gametypes_zm/_serversettings.gsc
 patch_zm/maps/mp/gametypes_zm/_weapon_utils.gsc
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
 patch_zm/maps/mp/zombies/_zm_buildables.gsc
@@ -66,8 +71,6 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
-patch_zm/maps/mp/gametypes_zm/_callbacksetup.gsc
-patch_zm/maps/mp/gametypes_zm/_damagefeedback.gsc
 patch_zm/maps/mp/gametypes_zm/_dev.gsc
 patch_zm/maps/mp/gametypes_zm/_gameobjects.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic.gsc
@@ -83,12 +86,9 @@ patch_zm/maps/mp/gametypes_zm/_globallogic_vehicle.gsc
 patch_zm/maps/mp/gametypes_zm/_gv_actions.gsc
 patch_zm/maps/mp/gametypes_zm/_healthoverlay.gsc
 patch_zm/maps/mp/gametypes_zm/_hostmigration.gsc
-patch_zm/maps/mp/gametypes_zm/_hud.gsc
 patch_zm/maps/mp/gametypes_zm/_hud_message.gsc
 patch_zm/maps/mp/gametypes_zm/_hud_util.gsc
 patch_zm/maps/mp/gametypes_zm/_menus.gsc
-patch_zm/maps/mp/gametypes_zm/_perplayer.gsc
-patch_zm/maps/mp/gametypes_zm/_serversettings.gsc
 patch_zm/maps/mp/gametypes_zm/_spawning.gsc
 patch_zm/maps/mp/gametypes_zm/_spawnlogic.gsc
 patch_zm/maps/mp/gametypes_zm/_spectating.gsc

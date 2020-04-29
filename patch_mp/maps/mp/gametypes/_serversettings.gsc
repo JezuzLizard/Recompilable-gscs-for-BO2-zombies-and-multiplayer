@@ -1,5 +1,5 @@
 
-init()
+init() //checked matches cerberus output
 {
 	level.hostname = getDvar( "sv_hostname" );
 	if ( level.hostname == "" )
@@ -64,7 +64,7 @@ init()
 	}
 }
 
-updateserversettings()
+updateserversettings() //checked matches cerberus output
 {
 	sv_hostname = getDvar( "sv_hostname" );
 	if ( level.hostname != sv_hostname )
@@ -92,7 +92,7 @@ updateserversettings()
 	}
 }
 
-constraingametype( gametype )
+constraingametype( gametype ) //checked partially changed to match cerberus output did not change while loop to for for loop because of infinite loop caused by continues
 {
 	entities = getentarray();
 	i = 0;
@@ -108,7 +108,7 @@ constraingametype( gametype )
 			i++;
 			continue;
 		}
-		else if ( gametype == "tdm" )
+		if ( gametype == "tdm" )
 		{
 			if ( isDefined( entity.script_gametype_tdm ) && entity.script_gametype_tdm != "1" )
 			{
@@ -117,7 +117,7 @@ constraingametype( gametype )
 			i++;
 			continue;
 		}
-		else if ( gametype == "ctf" )
+		if ( gametype == "ctf" )
 		{
 			if ( isDefined( entity.script_gametype_ctf ) && entity.script_gametype_ctf != "1" )
 			{
@@ -126,7 +126,7 @@ constraingametype( gametype )
 			i++;
 			continue;
 		}
-		else if ( gametype == "hq" )
+		if ( gametype == "hq" )
 		{
 			if ( isDefined( entity.script_gametype_hq ) && entity.script_gametype_hq != "1" )
 			{
@@ -135,7 +135,7 @@ constraingametype( gametype )
 			i++;
 			continue;
 		}
-		else if ( gametype == "sd" )
+		if ( gametype == "sd" )
 		{
 			if ( isDefined( entity.script_gametype_sd ) && entity.script_gametype_sd != "1" )
 			{
@@ -144,21 +144,18 @@ constraingametype( gametype )
 			i++;
 			continue;
 		}
-		else
+		if ( gametype == "koth" )
 		{
-			if ( gametype == "koth" )
+			if ( isDefined( entity.script_gametype_koth ) && entity.script_gametype_koth != "1" )
 			{
-				if ( isDefined( entity.script_gametype_koth ) && entity.script_gametype_koth != "1" )
-				{
-					entity delete();
-				}
+				entity delete();
 			}
 		}
 		i++;
 	}
 }
 
-constrainmapsize( mapsize )
+constrainmapsize( mapsize ) //checked partially changed to match cerberus output did not change while loop to for for loop because of infinite loop caused by continues
 {
 	entities = getentarray();
 	i = 0;
@@ -174,7 +171,7 @@ constrainmapsize( mapsize )
 			i++;
 			continue;
 		}
-		else if ( int( mapsize ) == 16 )
+		if ( int( mapsize ) == 16 )
 		{
 			if ( isDefined( entity.script_mapsize_16 ) && entity.script_mapsize_16 != "1" )
 			{
@@ -183,7 +180,7 @@ constrainmapsize( mapsize )
 			i++;
 			continue;
 		}
-		else if ( int( mapsize ) == 32 )
+		if ( int( mapsize ) == 32 )
 		{
 			if ( isDefined( entity.script_mapsize_32 ) && entity.script_mapsize_32 != "1" )
 			{
@@ -192,16 +189,14 @@ constrainmapsize( mapsize )
 			i++;
 			continue;
 		}
-		else
+		if ( int( mapsize ) == 64 )
 		{
-			if ( int( mapsize ) == 64 )
+			if ( isDefined( entity.script_mapsize_64 ) && entity.script_mapsize_64 != "1" )
 			{
-				if ( isDefined( entity.script_mapsize_64 ) && entity.script_mapsize_64 != "1" )
-				{
-					entity delete();
-				}
+				entity delete();
 			}
 		}
 		i++;
 	}
 }
+
