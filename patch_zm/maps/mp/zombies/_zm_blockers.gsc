@@ -133,6 +133,7 @@ door_classify( parent_trig ) //checked changed to match cerberus output
 		{
 			self.script_string = "move";
 		}
+	}
 	if ( !isDefined( self.script_string ) )
 	{
 		self.script_string = "";
@@ -325,7 +326,7 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing ) //checked match
 		if ( !open )
 		{
 			self delay_thread( time, ::self_disconnectpaths );
-			wait 0,1;
+			wait 0.1;
 			self solid();
 		}
 		return;

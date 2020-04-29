@@ -351,7 +351,7 @@ trap_activate_fire() //checked changed to match cerberus output
 	clientnotify( self.script_string + "1" );
 	clientnotify( self.script_parameters );
 	fx_points = getstructarray( self.target, "targetname" );
-	while ( i = 0; i < fx_points.size; i++ )
+	for ( i = 0; i < fx_points.size; i++ )
 	{
 		wait_network_frame();
 		fx_points[ i ] thread trap_audio_fx( self );
@@ -387,7 +387,7 @@ trap_activate_rotating() //checked partially changed to match cerberus output
 		wait step;
 		t += step;
 	}
-	for ( i = 0; i < self._trap_movers.size i++ )
+	for ( i = 0; i < self._trap_movers.size; i++ )
 	{
 		self._trap_movers[ i ] rotateyaw( 360, 5, 0, 4.5 );
 	}
@@ -766,7 +766,7 @@ get_trap_array( trap_type ) //checked changed to match cerberus output
 {
 	ents = getentarray( "zombie_trap", "targetname" );
 	traps = [];
-	for ( i = 0; i < ents.size i++ )
+	for ( i = 0; i < ents.size; i++ )
 	{
 		if ( ents[ i ].script_noteworthy == trap_type )
 		{
@@ -862,4 +862,5 @@ is_trap_registered( a_registered_traps ) //checked matches cerberus output
 {
 	return isDefined( a_registered_traps[ self.script_noteworthy ] );
 }
+
 

@@ -431,7 +431,7 @@ generate_piece_unitrigger( classname, origin, angles, flags, radius, script_heig
 	}
 	else
 	{
-		unitrigger_stub.script_length = 13,5;
+		unitrigger_stub.script_length = 13.5;
 	}
 	if ( isDefined( script_width ) )
 	{
@@ -439,7 +439,7 @@ generate_piece_unitrigger( classname, origin, angles, flags, radius, script_heig
 	}
 	else
 	{
-		unitrigger_stub.script_width = 27,5;
+		unitrigger_stub.script_width = 27.5;
 	}
 	if ( isDefined( script_height ) )
 	{
@@ -1000,7 +1000,7 @@ piece_allocate_spawn( piecespawn ) //checked changed to match cerberus output
 			else if ( is_point_in_build_trigger( self.spawns[ i ].origin ) )
 			{
 				any_okay = 1;
-				spawnweights[ i ] = 0,01;
+				spawnweights[ i ] = 0.01;
 				break;
 			}
 			else
@@ -3141,5 +3141,6 @@ get_buildable_stat_name( buildable ) //checked matches cerberus output
 		return undefined;
 	}
 }
+
 
 

@@ -567,7 +567,7 @@ suicide_trigger_think() //checked changed to match cerberus output
 	}
 	while ( 1 )
 	{
-		wait 0,1;
+		wait 0.1;
 		if ( !isDefined( self.suicideprompt ) )
 		{
 			continue;
@@ -1169,7 +1169,7 @@ revive_hud_think() //checked partially changed to match cerberus output //did no
 	self endon( "disconnect" );
 	while ( 1 )
 	{
-		wait 0,1;
+		wait 0.1;
 		if ( !player_any_player_in_laststand() )
 		{
 			continue;
@@ -1448,4 +1448,5 @@ cleanup_laststand_on_disconnect() //checked matches cerberus output
 		trig delete();
 	}
 }
+
 

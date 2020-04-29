@@ -62,7 +62,7 @@ player_handle_cymbal_monkey() //checked matches cerberus output
 	{
 		grenade = get_thrown_monkey();
 		self player_throw_cymbal_monkey( grenade, num_attractors, max_attract_dist, attract_dist_diff );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
