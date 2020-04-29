@@ -25,21 +25,34 @@ Compile _zm_bot.gsc as _zm_bot.gsc and place it in maps/mp/zombies. It automatic
 It works by writing to the log useful events that may need monitoring in order to determine broken aspects of the script.
 To disable it simply remove the mod or modify the vars in the mod.
 
+If using mp compile _clientids.gsc as _clientids.gsc and place it in maps/mp/gametypes.
+
 ## How to Make Use of The Mod
 
 If you want to debug scripts on your own copy and paste this template into the code you would like to monitor:
 ```
-if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 1 ) && level.debugLogging_zm_audio )
+if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 1 ) && debugModDebugLogging_GSC_FILE_NAME )
 {
 	logline1 = "ERROR_TYPE: GSC_FILE_NAME.gsc FUNCTION_THIS_IS_CALLED_IN yourtext" + "\n";
 	logprint( logline1 );
 }
 ```
-By using this exact template to debug your code you can run multiple loglines that will print to your server log in data/logs.
+If you would like ingame print messages use this code:
+```
+if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 1 ) && debugModDebugLogging_GSC_FILE_NAME )
+{
+	players = get_players();
+	players[ 0 ] iprintln( "ERROR_TYPE: GSC_FILE_NAME.gsc FUNCTION_THIS_IS_CALLED_IN yourtext" );
+}
+
+```
+By using this template to debug your code you can run multiple loglines that will print to your server log in data/logs.
 Key:
-ERROR_TYPE = INFO or ERROR or WARNING use these to indicate whether a log message is just information or is an unexpected error or something isn't right.
-GSC_FILE_NAME = this is the actual .gsc you are currently debugging this can be useful if you are debugging mutliple scripts at once so it easier to sift thru the log.
-FUNCTION_THIS_IS_CALLED_IN = use this to indicate what function this log message is inside of to again make it easier to tell what messages are coming from what.
+```
+ERROR_TYPE = INFO or ERROR or WARNING
+GSC_FILE_NAME = This is very useful when debugging multiple scripts at once
+FUNCTION_THIS_IS_CALLED_IN = This will allow you to easily keep track of multiple functions in your script
+```
 If you would like to debug a script that isn't already supported use this template and place it in the very top of the init() in whatever script you would like to debug:
 ```
 //begin debug code
@@ -62,5 +75,7 @@ if ( isDefined( level.custom_GSC_FILE_NAME_loaded ) && level.custom_GSC_FILE_NAM
 	numberOfScriptsBeingLogged++;
 }
 ```
+If using mp use the _clientids.gsc instead.
 In both of these replace GSC_FILE_NAME with the name of the .gsc you are debugging.
+
 
