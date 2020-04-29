@@ -19,6 +19,8 @@ patch_mp/maps/mp/gametypes/_shellshock.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+patch_mp/maps/mp/bots/_bot.gsc
+
 patch_mp/maps/mp/gametypes/_callbacksetup.gsc
 patch_mp/maps/mp/gametypes/_damagefeedback.gsc
 patch_mp/maps/mp/gametypes/_hud.gsc
@@ -28,6 +30,17 @@ patch_mp/maps/mp/gametypes/_weapon_utils.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
+patch_mp/maps/mp/bots/_bot_combat.gsc
+patch_mp/maps/mp/bots/_bot_conf.gsc
+patch_mp/maps/mp/bots/_bot_ctf.gsc
+patch_mp/maps/mp/bots/_bot_dem.gsc
+patch_mp/maps/mp/bots/_bot_dom.gsc
+patch_mp/maps/mp/bots/_bot_hack.gsc
+patch_mp/maps/mp/bots/_bot_hq.gsc
+patch_mp/maps/mp/bots/_bot_koth.gsc
+patch_mp/maps/mp/bots/_bot_loadout.gsc
+patch_mp/maps/mp/bots/_bot_sd.gsc
+
 patch_mp/maps/mp/gametypes/_battlechatter.gsc
 patch_mp/maps/mp/gametypes/_class.gsc
 patch_mp/maps/mp/gametypes/_copter.gsc

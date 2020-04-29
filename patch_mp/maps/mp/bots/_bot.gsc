@@ -16,11 +16,13 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
+	/*
 /#
 	level thread bot_system_devgui_think();
 #/
+	*/
 	level thread maps/mp/bots/_bot_loadout::init();
 	if ( !bot_gametype_allowed() )
 	{
@@ -53,7 +55,7 @@ init()
 	}
 }
 
-spawn_bot( team )
+spawn_bot( team ) //checked matches cerberus output
 {
 	bot = addtestclient();
 	if ( isDefined( bot ) )
@@ -69,123 +71,113 @@ spawn_bot( team )
 	return 0;
 }
 
-getenemyteamwithlowestplayercount( player_team )
+getenemyteamwithlowestplayercount( player_team ) //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	counts = [];
-	_a83 = level.teams;
-	_k83 = getFirstArrayKey( _a83 );
-	while ( isDefined( _k83 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a83[ _k83 ];
 		counts[ team ] = 0;
-		_k83 = getNextArrayKey( _a83, _k83 );
 	}
-	_a88 = level.players;
-	_k88 = getFirstArrayKey( _a88 );
-	while ( isDefined( _k88 ) )
+	i = 0;
+	while ( i < level.players.size )
 	{
-		player = _a88[ _k88 ];
-		if ( !isDefined( player.team ) )
+		if ( !isDefined( level.players[ i ].team ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( !isDefined( counts[ player.team ] ) )
+		if ( !isDefined( counts[ level.players[ i ].team ] ) )
 		{
+			i++;
+			continue;
 		}
-		else
-		{
-			counts[ player.team ]++;
-		}
-		_k88 = getNextArrayKey( _a88, _k88 );
+		counts[ level.players[ i ].team ]++;
+		i++;
 	}
 	count = 999999;
 	enemy_team = player_team;
-	_a102 = level.teams;
-	_k102 = getFirstArrayKey( _a102 );
-	while ( isDefined( _k102 ) )
+	i = 0;
+	while ( i < level.teams.size )
 	{
-		team = _a102[ _k102 ];
-		if ( team == player_team )
+		if ( level.teams[ i ] == player_team )
 		{
+			i++;
+			continue;
 		}
-		else if ( team == "spectator" )
+		if ( level.teams[ i ] == "spectator" )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( counts[ level.teams[ i ] ] < count )
 		{
-			if ( counts[ team ] < count )
-			{
-				enemy_team = team;
-				count = counts[ team ];
-			}
+			enemy_team = level.teams[ i ];
+			count = counts[ level.teams[ i ] ];
 		}
-		_k102 = getNextArrayKey( _a102, _k102 );
+		i++;
 	}
 	return enemy_team;
 }
 
-getenemyteamwithgreatestbotcount( player_team )
+getenemyteamwithgreatestbotcount( player_team ) //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	counts = [];
-	_a124 = level.teams;
-	_k124 = getFirstArrayKey( _a124 );
-	while ( isDefined( _k124 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a124[ _k124 ];
 		counts[ team ] = 0;
-		_k124 = getNextArrayKey( _a124, _k124 );
 	}
-	_a129 = level.players;
-	_k129 = getFirstArrayKey( _a129 );
-	while ( isDefined( _k129 ) )
+	i = 0;
+	while ( i < level.players.size )
 	{
-		player = _a129[ _k129 ];
-		if ( !isDefined( player.team ) )
+		if ( !isDefined( level.players[ i ].team ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( !isDefined( counts[ player.team ] ) )
+		if ( !isDefined( counts[ level.players[ i ].team ] ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( !player is_bot() )
+		if ( !level.players[ i ] is_bot() )
 		{
+			i++;
+			continue;
 		}
-		else
-		{
-			counts[ player.team ]++;
-		}
-		_k129 = getNextArrayKey( _a129, _k129 );
+		counts[ level.players[ i ].team ]++;
+		i++;
 	}
 	count = -1;
 	enemy_team = undefined;
-	_a146 = level.teams;
-	_k146 = getFirstArrayKey( _a146 );
-	while ( isDefined( _k146 ) )
+	i = 0;
+	while ( i < level.teams.size )
 	{
-		team = _a146[ _k146 ];
-		if ( team == player_team )
+		if ( level.teams[ i ] == player_team )
 		{
+			i++;
+			continue;
 		}
-		else if ( team == "spectator" )
+		if ( level.teams[ i ] == "spectator" )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( counts[ level.teams[ i ] ] > count )
 		{
-			if ( counts[ team ] > count )
-			{
-				enemy_team = team;
-				count = counts[ team ];
-			}
+			enemy_team = level.teams[ i ];
+			count = counts[ level.teams[ i ] ];
 		}
-		_k146 = getNextArrayKey( _a146, _k146 );
+		i++;
 	}
 	return enemy_team;
 }
 
-bot_wait_for_host()
+bot_wait_for_host() //checked does not match cerberus output did not change
 {
 	host = gethostplayerforbots();
 	while ( !isDefined( host ) )
 	{
-		wait 0,25;
+		wait 0.25;
 		host = gethostplayerforbots();
 	}
 	if ( level.prematchperiod > 0 && level.inprematchperiod == 1 )
@@ -194,107 +186,108 @@ bot_wait_for_host()
 	}
 }
 
-bot_count_humans( team )
+bot_count_humans( team ) //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	players = get_players();
 	count = 0;
-	_a185 = players;
-	_k185 = getFirstArrayKey( _a185 );
-	while ( isDefined( _k185 ) )
+	i = 0;
+	while ( i < players.size )
 	{
-		player = _a185[ _k185 ];
-		if ( player is_bot() )
+		if ( players[ i ] is_bot() )
 		{
+			i++;
+			continue;
 		}
-		else if ( isDefined( team ) )
+		if ( isDefined( team ) )
 		{
-			if ( getassignedteam( player ) == team )
+			if ( getassignedteam( players[ i ] ) == team )
 			{
 				count++;
 			}
+			i++;
+			continue;
 		}
-		else
-		{
-			count++;
-		}
-		_k185 = getNextArrayKey( _a185, _k185 );
+		count++;
+		i++;
 	}
 	return count;
 }
 
-bot_count_bots( team )
+bot_count_bots( team ) //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	players = get_players();
 	count = 0;
-	_a213 = players;
-	_k213 = getFirstArrayKey( _a213 );
-	while ( isDefined( _k213 ) )
+	i = 0;
+	while ( i < players.size )
 	{
-		player = _a213[ _k213 ];
-		if ( !player is_bot() )
+		if ( !players[ i ] is_bot() )
 		{
+			i++;
+			continue;
 		}
-		else if ( isDefined( team ) )
+		if ( isDefined( team ) )
 		{
-			if ( isDefined( player.team ) && player.team == team )
+			if ( isDefined( players[ i ].team ) && players[ i ].team == team )
 			{
 				count++;
 			}
+			i++;
+			continue;
 		}
-		else
-		{
-			count++;
-		}
-		_k213 = getNextArrayKey( _a213, _k213 );
+		count++;
+		i++;
 	}
 	return count;
 }
 
-bot_count_enemy_bots( friend_team )
+bot_count_enemy_bots( friend_team ) //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	if ( !level.teambased )
 	{
 		return bot_count_bots();
 	}
 	enemies = 0;
-	_a245 = level.teams;
-	_k245 = getFirstArrayKey( _a245 );
-	while ( isDefined( _k245 ) )
+	i = 0;
+	while ( i < level.teams.size )
 	{
-		team = _a245[ _k245 ];
 		if ( team == friend_team )
 		{
+			i++;
+			continue;
 		}
-		else
-		{
-			enemies += bot_count_bots( team );
-		}
-		_k245 = getNextArrayKey( _a245, _k245 );
+		enemies += bot_count_bots( team );
+		i++;
 	}
 	return enemies;
 }
 
-bot_choose_comp_stomp_team()
+bot_choose_comp_stomp_team() //checked matches cerberus output
 {
 	host = gethostplayerforbots();
+	/*
 /#
 	assert( isDefined( host ) );
 #/
+	*/
 	teamkeys = getarraykeys( level.teams );
+	/*
 /#
 	assert( teamkeys.size == 2 );
 #/
+	*/
 	enemy_team = host.pers[ "team" ];
+	/*
 /#
 	if ( isDefined( enemy_team ) )
 	{
 		assert( enemy_team != "spectator" );
 	}
 #/
+	*/
 	return getotherteam( enemy_team );
 }
 
-bot_comp_stomp_think( team )
+bot_comp_stomp_think( team ) //checked partially changed to match cerberus output
 {
 	for ( ;; )
 	{
@@ -302,72 +295,58 @@ bot_comp_stomp_think( team )
 		bots = bot_count_bots();
 		if ( humans == bots )
 		{
-			break;
 		}
-		else
+		else if ( bots < humans )
 		{
-			if ( bots < humans )
-			{
-				spawn_bot( team );
-			}
-			if ( bots > humans )
-			{
-				bot_comp_stomp_remove( team );
-			}
-			wait 1;
+			spawn_bot( team );
 		}
+		if ( bots > humans )
+		{
+			bot_comp_stomp_remove( team );
+		}
+		wait 1;
 	}
 	wait 3;
 }
-}
 
-bot_comp_stomp_remove( team )
+bot_comp_stomp_remove( team ) //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	players = get_players();
 	bots = [];
 	remove = undefined;
-	_a310 = players;
-	_k310 = getFirstArrayKey( _a310 );
-	while ( isDefined( _k310 ) )
+	i = 0;
+	while ( i < players.size )
 	{
-		player = _a310[ _k310 ];
-		if ( !isDefined( player.team ) )
+		if ( !isDefined( players[ i ].team ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( player is_bot() )
+		if ( players[ i ] is_bot() )
 		{
 			if ( level.teambased )
 			{
-				if ( player.team == team )
+				if ( players[ i ].team == team )
 				{
-					bots[ bots.size ] = player;
+					bots[ bots.size ] = players[ i ];
 				}
-				break;
+				i++;
+				continue;
 			}
-			else
-			{
-				bots[ bots.size ] = player;
-			}
+			bots[ bots.size ] = players[ i ];
+			i++;
 		}
-		_k310 = getNextArrayKey( _a310, _k310 );
 	}
 	if ( !bots.size )
 	{
 		return;
 	}
-	_a339 = bots;
-	_k339 = getFirstArrayKey( _a339 );
-	while ( isDefined( _k339 ) )
+	foreach ( bot in bots )
 	{
-		bot = _a339[ _k339 ];
 		if ( !bot maps/mp/bots/_bot_combat::bot_has_enemy() )
 		{
 			remove = bot;
 			break;
-		}
-		else
-		{
-			_k339 = getNextArrayKey( _a339, _k339 );
 		}
 	}
 	if ( !isDefined( remove ) )
@@ -377,7 +356,7 @@ bot_comp_stomp_remove( team )
 	remove botleavegame();
 }
 
-bot_ranked_remove()
+bot_ranked_remove() //checked changed to match cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -386,23 +365,19 @@ bot_ranked_remove()
 	}
 	high = -1;
 	highest_team = undefined;
-	_a367 = level.teams;
-	_k367 = getFirstArrayKey( _a367 );
-	while ( isDefined( _k367 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a367[ _k367 ];
 		count = countplayers( team );
 		if ( count > high )
 		{
 			high = count;
 			highest_team = team;
 		}
-		_k367 = getNextArrayKey( _a367, _k367 );
 	}
 	bot_comp_stomp_remove( highest_team );
 }
 
-bot_ranked_count( team )
+bot_ranked_count( team ) //checked changed to match cerberus output
 {
 	count = countplayers( team );
 	if ( count < 6 )
@@ -410,18 +385,15 @@ bot_ranked_count( team )
 		spawn_bot( team );
 		return 1;
 	}
-	else
+	else if ( count > 6 )
 	{
-		if ( count > 6 )
-		{
-			bot_comp_stomp_remove( team );
-			return 1;
-		}
+		bot_comp_stomp_remove( team );
+		return 1;
 	}
 	return 0;
 }
 
-bot_ranked_think()
+bot_ranked_think() //checked partially changed to match cerberus output //changed at own discretion
 {
 	level endon( "game_ended" );
 	wait 5;
@@ -438,22 +410,21 @@ bot_ranked_think()
 		}
 		if ( !bot_ranked_count( teams[ 0 ] ) && !bot_ranked_count( teams[ 1 ] ) )
 		{
-			break;
-		}
-		else
-		{
+			break; //not in cerberus output but leaving here anyway=
 		}
 	}
-	level waittill_any( "connected", "disconnect" );
-	wait 5;
-	while ( isDefined( level.hostmigrationtimer ) )
+	for ( ;; )
 	{
-		wait 1;
+		level waittill_any( "connected", "disconnect" );
+		wait 5;
+		while ( isDefined( level.hostmigrationtimer ) )
+		{
+			wait 1;
+		}
 	}
-}
 }
 
-bot_local_friends( expected_friends, max, host_team )
+bot_local_friends( expected_friends, max, host_team ) //checked matches cerberus output
 {
 	if ( level.teambased )
 	{
@@ -473,7 +444,7 @@ bot_local_friends( expected_friends, max, host_team )
 	return 0;
 }
 
-bot_local_enemies( expected_enemies, max, host_team )
+bot_local_enemies( expected_enemies, max, host_team ) //checked matches cerberus output
 {
 	enemies = bot_count_enemy_bots( host_team );
 	players = get_players();
@@ -495,13 +466,15 @@ bot_local_enemies( expected_enemies, max, host_team )
 	return 0;
 }
 
-bot_local_think()
+bot_local_think() //checked changed at own discretion
 {
 	wait 5;
 	host = gethostplayerforbots();
+	/*
 /#
 	assert( isDefined( host ) );
 #/
+	*/
 	host_team = host.team;
 	if ( !isDefined( host_team ) || host_team == "spectator" )
 	{
@@ -520,62 +493,60 @@ bot_local_think()
 	{
 		if ( bot_local_friends( bot_expected_friends, max_players, host_team ) )
 		{
-			wait 0,5;
+			wait 0.5;
 			continue;
 		}
 		else if ( bot_local_enemies( bot_expected_enemies, max_players, host_team ) )
 		{
-			wait 0,5;
+			wait 0.5;
 			continue;
 		}
-		else
-		{
-		}
+		wait 3;
 	}
-	wait 3;
-}
 }
 
-is_bot_ranked_match()
+is_bot_ranked_match() //checked changed at own discretion
 {
 	bot_enemies = getDvarInt( "bot_enemies" );
-	isdedicatedbotsoak = getDvarInt( #"E76315E0" );
-	if ( level.rankedmatch && bot_enemies )
+	isdedicatedbotsoak = getDvarInt( "sv_botsoak" ); //dvar taken from bo3 no guarantees it works
+	if ( level.rankedmatch && bot_enemies && isdedicatedbotsoak == 0 )
 	{
-		return isdedicatedbotsoak == 0;
+		return 1;
 	}
+	return 0;
 }
 
-is_bot_comp_stomp()
+is_bot_comp_stomp() //checked changed at own discretion
 {
-	if ( is_bot_ranked_match() )
+	if ( is_bot_ranked_match() && !getDvarInt( "party_autoteams" ) )
 	{
-		return !getDvarInt( "party_autoteams" );
+		return 1;
 	}
+	return 0;
 }
 
-bot_spawn_think( team )
+bot_spawn_think( team ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	while ( !isDefined( self.pers[ "bot_loadout" ] ) )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	while ( !isDefined( self.team ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	if ( level.teambased )
 	{
-		self notify( "menuresponse" );
-		wait 0,5;
+		self notify( "menuresponse", game["menu_team"], team );
+		wait 0.5;
 	}
 	self notify( "joined_team" );
 	bot_classes = bot_build_classes();
-	self notify( "menuresponse" );
+	self notify( "menuresponse", "changeclass", random(bot_classes) );
 }
 
-bot_build_classes()
+bot_build_classes() //checked matches cerberus output
 {
 	bot_classes = [];
 	if ( !self isitemlocked( maps/mp/gametypes/_rank::getitemindex( "feature_cac" ) ) )
@@ -605,10 +576,10 @@ bot_build_classes()
 	return bot_classes;
 }
 
-bot_choose_class()
+bot_choose_class() //checked partially changed to match cerberus output did not use foreach with continue to prevent infinite loop due to continue
 {
 	bot_classes = bot_build_classes();
-	while ( !self maps/mp/bots/_bot_combat::threat_requires_rocket( self.bot.attacker ) && self maps/mp/bots/_bot_combat::threat_is_qrdrone( self.bot.attacker ) && !maps/mp/bots/_bot_combat::threat_is_warthog( self.bot.attacker ) )
+	if ( !self maps/mp/bots/_bot_combat::threat_requires_rocket( self.bot.attacker ) || self maps/mp/bots/_bot_combat::threat_is_qrdrone( self.bot.attacker ) && !maps/mp/bots/_bot_combat::threat_is_warthog( self.bot.attacker ) )
 	{
 		if ( randomint( 100 ) < 75 )
 		{
@@ -624,51 +595,42 @@ bot_choose_class()
 			sidearm = self getloadoutweapon( i, "secondary" );
 			if ( sidearm == "fhj18_mp" )
 			{
-				self notify( "menuresponse" );
-				return;
+				self notify( "menuresponse", "changeclass", bot_classes[i] );
 				i++;
 				continue;
 			}
-			else
+			if ( sidearm == "smaw_mp" )
 			{
-				if ( sidearm == "smaw_mp" )
-				{
-					bot_classes[ bot_classes.size ] = bot_classes[ i ];
-					bot_classes[ bot_classes.size ] = bot_classes[ i ];
-					bot_classes[ bot_classes.size ] = bot_classes[ i ];
-				}
+				bot_classes[ bot_classes.size ] = bot_classes[ i ];
+				bot_classes[ bot_classes.size ] = bot_classes[ i ];
+				bot_classes[ bot_classes.size ] = bot_classes[ i ];
 			}
 			i++;
 		}
 	}
-	while ( maps/mp/bots/_bot_combat::threat_requires_rocket( self.bot.attacker ) || maps/mp/bots/_bot_combat::threat_is_warthog( self.bot.attacker ) )
+	else if ( maps/mp/bots/_bot_combat::threat_requires_rocket( self.bot.attacker ) || maps/mp/bots/_bot_combat::threat_is_warthog( self.bot.attacker ) )
 	{
-		i = 0;
-		while ( i < bot_classes.size )
+		for ( i = 0; i < bot_classes.size; i++ )
 		{
 			perks = self getloadoutperks( i );
-			_a642 = perks;
-			_k642 = getFirstArrayKey( _a642 );
-			while ( isDefined( _k642 ) )
+			foreach ( perk in perks )
 			{
-				perk = _a642[ _k642 ];
 				if ( perk == "specialty_nottargetedbyairsupport" )
 				{
 					bot_classes[ bot_classes.size ] = bot_classes[ i ];
 					bot_classes[ bot_classes.size ] = bot_classes[ i ];
 					bot_classes[ bot_classes.size ] = bot_classes[ i ];
 				}
-				_k642 = getNextArrayKey( _a642, _k642 );
 			}
-			i++;
 		}
 	}
-	self notify( "menuresponse" );
+	self notify( "menuresponse", "changeclass", random(bot_classes) );
 }
 
-bot_spawn()
+bot_spawn() //checked matches cerberus output
 {
 	self endon( "disconnect" );
+	/*
 /#
 	weapon = undefined;
 	if ( getDvarInt( "scr_botsHasPlayerWeapon" ) != 0 )
@@ -690,6 +652,7 @@ bot_spawn()
 		self maps/mp/teams/_teams::set_player_model( self.team, weapon );
 #/
 	}
+	*/
 	self bot_spawn_init();
 	if ( isDefined( self.bot_first_spawn ) )
 	{
@@ -697,12 +660,14 @@ bot_spawn()
 	}
 	self.bot_first_spawn = 1;
 	self thread bot_main();
+	/*
 /#
 	self thread bot_devgui_think();
 #/
+	*/
 }
 
-bot_spawn_init()
+bot_spawn_init() //checked matches cerberus output
 {
 	time = getTime();
 	if ( !isDefined( self.bot ) )
@@ -731,24 +696,24 @@ bot_spawn_init()
 	switch( difficulty )
 	{
 		case "easy":
-			self.bot.think_interval = 0,5;
-			self.bot.fov = 0,4226;
+			self.bot.think_interval = 0.5;
+			self.bot.fov = 0.4226;
 			break;
 		case "normal":
-			self.bot.think_interval = 0,25;
-			self.bot.fov = 0,0872;
+			self.bot.think_interval = 0.25;
+			self.bot.fov = 0.0872;
 			break;
 		case "hard":
-			self.bot.think_interval = 0,2;
-			self.bot.fov = -0,1736;
+			self.bot.think_interval = 0.2;
+			self.bot.fov = -0.1736;
 			break;
 		case "fu":
-			self.bot.think_interval = 0,1;
-			self.bot.fov = -0,9396;
+			self.bot.think_interval = 0.1;
+			self.bot.fov = -0.9396;
 			break;
 		default:
-			self.bot.think_interval = 0,25;
-			self.bot.fov = 0,0872;
+			self.bot.think_interval = 0.25;
+			self.bot.fov = 0.0872;
 			break;
 	}
 	self.bot.threat.entity = undefined;
@@ -772,7 +737,7 @@ bot_wakeup_think()
 	}
 }
 
-bot_damage_think()
+bot_damage_think() //checked changed to match cerberus output
 {
 	self notify( "bot_damage_think" );
 	self endon( "bot_damage_think" );
@@ -791,56 +756,52 @@ bot_damage_think()
 			{
 				continue;
 			}
-			else if ( weapon == "claymore_mp" )
+			if ( weapon == "claymore_mp" )
 			{
 				continue;
 			}
-			else if ( weapon == "satchel_charge_mp" )
+			if ( weapon == "satchel_charge_mp" )
 			{
 				continue;
 			}
-			else if ( weapon == "bouncingbetty_mp" )
+			if ( weapon == "bouncingbetty_mp" )
 			{
 				continue;
 			}
 		}
-		else
+		if ( isDefined( inflictor ) )
 		{
-			if ( isDefined( inflictor ) )
+			switch( inflictor.classname )
 			{
-				switch( inflictor.classname )
-				{
-					case "auto_turret":
-					case "script_vehicle":
-						attacker = inflictor;
-						break;
+				case "auto_turret":
+				case "script_vehicle":
+					attacker = inflictor;
 					break;
-				}
 			}
-			if ( isDefined( attacker.viewlockedentity ) )
-			{
-				attacker = attacker.viewlockedentity;
-			}
-			if ( maps/mp/bots/_bot_combat::threat_requires_rocket( attacker ) || maps/mp/bots/_bot_combat::threat_is_warthog( attacker ) )
-			{
-				level thread bot_killstreak_dangerous_think( self.origin, self.team, attacker );
-			}
-			self.bot.attacker = attacker;
-			self notify( "wakeup" );
 		}
+		if ( isDefined( attacker.viewlockedentity ) )
+		{
+			attacker = attacker.viewlockedentity;
+		}
+		if ( maps/mp/bots/_bot_combat::threat_requires_rocket( attacker ) || maps/mp/bots/_bot_combat::threat_is_warthog( attacker ) )
+		{
+			level thread bot_killstreak_dangerous_think( self.origin, self.team, attacker );
+		}
+		self.bot.attacker = attacker;
+		self notify( "wakeup", damage, attacker, direction );
 	}
 }
 
-bot_killcam_think()
+bot_killcam_think() //checked matches cerberus output
 {
 	self notify( "bot_killcam_think" );
 	self endon( "bot_killcam_think" );
 	self endon( "disconnect" );
 	level endon( "game_ended" );
-	wait_time = 0,5;
+	wait_time = 0.5;
 	if ( level.playerrespawndelay )
 	{
-		wait_time = level.playerrespawndelay + 1,5;
+		wait_time = level.playerrespawndelay + 1.5;
 	}
 	if ( !level.killcam )
 	{
@@ -853,12 +814,12 @@ bot_killcam_think()
 	wait wait_time;
 	for ( ;; )
 	{
-		self pressusebutton( 0,1 );
-		wait 0,5;
+		self pressusebutton( 0.1 );
+		wait 0.5;
 	}
 }
 
-bot_glass_think()
+bot_glass_think() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -871,7 +832,7 @@ bot_glass_think()
 	}
 }
 
-bot_main()
+bot_main() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -918,7 +879,7 @@ bot_main()
 	}
 }
 
-bot_failsafe_node_valid( nearest, node )
+bot_failsafe_node_valid( nearest, node ) //checked changed to match cerberus output
 {
 	if ( isDefined( node.script_noteworthy ) )
 	{
@@ -944,24 +905,18 @@ bot_failsafe_node_valid( nearest, node )
 	{
 		spawns = arraysort( level.spawn_all, node.origin );
 	}
+	else if ( isDefined( level.spawnpoints ) && level.spawnpoints.size > 0 )
+	{
+		spawns = arraysort( level.spawnpoints, node.origin );
+	}
+	else if ( isDefined( level.spawn_start ) && level.spawn_start.size > 0 )
+	{
+		spawns = arraycombine( level.spawn_start[ "allies" ], level.spawn_start[ "axis" ], 1, 0 );
+		spawns = arraysort( spawns, node.origin );
+	}
 	else
 	{
-		if ( isDefined( level.spawnpoints ) && level.spawnpoints.size > 0 )
-		{
-			spawns = arraysort( level.spawnpoints, node.origin );
-		}
-		else
-		{
-			if ( isDefined( level.spawn_start ) && level.spawn_start.size > 0 )
-			{
-				spawns = arraycombine( level.spawn_start[ "allies" ], level.spawn_start[ "axis" ], 1, 0 );
-				spawns = arraysort( spawns, node.origin );
-			}
-			else
-			{
-				return 0;
-			}
-		}
+		return 0;
 	}
 	goal = bot_nearest_node( spawns[ 0 ].origin );
 	if ( isDefined( goal ) && findpath( node.origin, goal.origin, undefined, 0, 1 ) )
@@ -971,7 +926,7 @@ bot_failsafe_node_valid( nearest, node )
 	return 0;
 }
 
-bot_get_mantle_start()
+bot_get_mantle_start() //checked changed at own discretion
 {
 	dist = self getlookaheaddist();
 	dir = self getlookaheaddir();
@@ -983,7 +938,8 @@ bot_get_mantle_start()
 			dir = vectorScale( dir, dist );
 			origin = self.origin + dir;
 			nodes = getnodesinradius( origin, 16, 0, 16, "Begin" );
-			if ( nodes.size && nodes[ 0 ].spawnflags & 8388608 )
+			//if ( nodes.size && nodes[ 0 ].spawnflags & 8388608 )
+			if ( nodes.size && nodes[ 0 ].spawnflags )
 			{
 				return nodes[ 0 ];
 			}
@@ -992,19 +948,16 @@ bot_get_mantle_start()
 	return undefined;
 }
 
-bot_is_traversing()
+bot_is_traversing() //checked changed at own discretion
 {
-	if ( !self isonground() )
+	if ( !self isonground() && !self ismantling() && !self isonladder() )
 	{
-		if ( !self ismantling() )
-		{
-			return !self isonladder();
-		}
+		return 1;
 	}
 	return 0;
 }
 
-bot_update_failsafe()
+bot_update_failsafe() //checked partially changed to match cerberus output //did not change while loop to foreach to prevent infinite continue loop bug
 {
 	time = getTime();
 	if ( ( time - self.spawntime ) < 7500 )
@@ -1013,7 +966,7 @@ bot_update_failsafe()
 	}
 	if ( bot_is_traversing() )
 	{
-		wait 0,25;
+		wait 0.25;
 		node = bot_get_mantle_start();
 		if ( isDefined( node ) )
 		{
@@ -1031,7 +984,7 @@ bot_update_failsafe()
 	}
 	if ( !self ismantling() || self isonladder() && !self isonground() )
 	{
-		wait randomfloatrange( 0,1, 0,25 );
+		wait randomfloatrange( 0.1, 0.25 );
 		return;
 	}
 	if ( !self atgoal() && distance2dsquared( self.bot.previous_origin, self.origin ) < 256 )
@@ -1040,20 +993,19 @@ bot_update_failsafe()
 		nodes = array_randomize( nodes );
 		nearest = bot_nearest_node( self.origin );
 		failsafe = 0;
-		while ( isDefined( nearest ) )
+		if ( isDefined( nearest ) )
 		{
-			_a1092 = nodes;
-			_k1092 = getFirstArrayKey( _a1092 );
-			while ( isDefined( _k1092 ) )
+			while ( i < nodes.size )
 			{
-				node = _a1092[ _k1092 ];
 				if ( !bot_failsafe_node_valid( nearest, node ) )
 				{
+					i++;
+					continue;
 				}
 				else
 				{
 					self botsetfailsafenode( node );
-					wait 0,5;
+					wait 0.5;
 					self.bot.update_idle_lookat = 0;
 					self bot_update_lookat();
 					self cancelgoal( "enemy_patrol" );
@@ -1063,14 +1015,13 @@ bot_update_failsafe()
 					failsafe = 1;
 					break;
 				}
-				_k1092 = getNextArrayKey( _a1092, _k1092 );
 			}
 		}
-		if ( !failsafe && nodes.size )
+		else if ( !failsafe && nodes.size )
 		{
 			node = random( nodes );
 			self botsetfailsafenode( node );
-			wait 0,5;
+			wait 0.5;
 			self.bot.update_idle_lookat = 0;
 			self bot_update_lookat();
 			self cancelgoal( "enemy_patrol" );
@@ -1083,7 +1034,7 @@ bot_update_failsafe()
 	self.bot.previous_origin = self.origin;
 }
 
-bot_update_crouch()
+bot_update_crouch() //checked changed to match cerberus output
 {
 	time = getTime();
 	if ( time < self.bot.update_crouch )
@@ -1094,7 +1045,7 @@ bot_update_crouch()
 	{
 		return;
 	}
-	if ( !self ismantling() || self isonladder() && !self isonground() )
+	if ( self ismantling() || self isonladder() && !self isonground() )
 	{
 		return;
 	}
@@ -1102,11 +1053,13 @@ bot_update_crouch()
 	if ( dist > 0 )
 	{
 		dir = self getlookaheaddir();
+		/*
 /#
 		assert( isDefined( dir ) );
 #/
+		*/
 		dir = vectorScale( dir, dist );
-		start = self.origin + vectorScale( ( 0, 0, 0 ), 70 );
+		start = self.origin + vectorScale( ( 0, 0, 1 ), 70 );
 		end = start + dir;
 		if ( dist >= 256 )
 		{
@@ -1120,23 +1073,19 @@ bot_update_crouch()
 				self setstance( "crouch" );
 				self.bot.update_crouch = time + 2500;
 			}
-			return;
 		}
-		else
+		else if ( self getstance() == "crouch" )
 		{
-			if ( self getstance() == "crouch" )
+			trace = worldtrace( start, end );
+			if ( trace[ "fraction" ] >= 1 )
 			{
-				trace = worldtrace( start, end );
-				if ( trace[ "fraction" ] >= 1 )
-				{
-					self setstance( "stand" );
-				}
+				self setstance( "stand" );
 			}
 		}
 	}
 }
 
-bot_update_glass()
+bot_update_glass() //checked matches cerberus output
 {
 	if ( isDefined( self.bot.glass_origin ) )
 	{
@@ -1146,45 +1095,40 @@ bot_update_glass()
 		if ( dot > 0 )
 		{
 			self lookat( self.bot.glass_origin );
-			wait_time = 0,5 * ( 1 - dot );
-			wait_time = clamp( wait_time, 0,05, 0,5 );
+			wait_time = 0.5 * ( 1 - dot );
+			wait_time = clamp( wait_time, 0.05, 0.5 );
 			wait wait_time;
 			self pressmelee();
-			wait 0,25;
+			wait 0.25;
 			self clearlookat();
 			self.bot.glass_origin = undefined;
 		}
 	}
 }
 
-bot_has_radar()
+bot_has_radar() //checked changed at own discretion
 {
-	if ( level.teambased )
+	if ( ( maps/mp/killstreaks/_radar::teamhasspyplane( self.team ) || maps/mp/killstreaks/_radar::teamhassatellite( self.team ) ) && level.teambased )
 	{
-		if ( !maps/mp/killstreaks/_radar::teamhasspyplane( self.team ) )
-		{
-			return maps/mp/killstreaks/_radar::teamhassatellite( self.team );
-		}
+		return 1;
 	}
-	if ( isDefined( self.hasspyplane ) && !self.hasspyplane )
+	if ( isDefined( self.hasspyplane ) && self.hasspyplane || isDefined( self.hassatellite ) && self.hassatellite)
 	{
-		if ( isDefined( self.hassatellite ) )
-		{
-			return self.hassatellite;
-		}
+		return 1;
 	}
+	return 0;
 }
 
-bot_get_enemies( on_radar )
+bot_get_enemies( on_radar ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite continue bug
 {
 	if ( !isDefined( on_radar ) )
 	{
 		on_radar = 0;
 	}
 	enemies = self getenemies( 1 );
+	/*
 /#
-	i = 0;
-	while ( i < enemies.size )
+	for ( i = 0; i < enemies.size; i++ )
 	{
 		if ( enemies[ i ] isinmovemode( "ufo", "noclip" ) )
 		{
@@ -1192,10 +1136,10 @@ bot_get_enemies( on_radar )
 			i--;
 
 		}
-		i++;
 #/
 	}
-	while ( on_radar && !self bot_has_radar() )
+	*/
+	if ( on_radar && !self bot_has_radar() )
 	{
 		i = 0;
 		while ( i < enemies.size )
@@ -1204,18 +1148,15 @@ bot_get_enemies( on_radar )
 			{
 				arrayremoveindex( enemies, i );
 				i--;
-
 				i++;
 				continue;
 			}
-			else
+			if ( ( getTime() - enemies[ i ].lastfiretime ) > 2000 )
 			{
-				if ( ( getTime() - enemies[ i ].lastfiretime ) > 2000 )
-				{
-					arrayremoveindex( enemies, i );
-					i--;
-
-				}
+				arrayremoveindex( enemies, i );
+				i--;
+				i++;
+				continue;
 			}
 			i++;
 		}
@@ -1223,65 +1164,56 @@ bot_get_enemies( on_radar )
 	return enemies;
 }
 
-bot_get_friends()
+bot_get_friends() //checked changed to match cerberus output
 {
 	friends = self getfriendlies( 1 );
+	/*
 /#
-	i = 0;
-	while ( i < friends.size )
+	for ( i = 0; i < friends.size; i++ )
 	{
 		if ( friends[ i ] isinmovemode( "ufo", "noclip" ) )
 		{
 			arrayremoveindex( friends, i );
 			i--;
-
 		}
-		i++;
 #/
 	}
+	*/
 	return friends;
 }
 
-bot_friend_goal_in_radius( goal_name, origin, radius )
+bot_friend_goal_in_radius( goal_name, origin, radius ) //checked changed to match cerberus output
 {
 	count = 0;
 	friends = bot_get_friends();
-	_a1290 = friends;
-	_k1290 = getFirstArrayKey( _a1290 );
-	while ( isDefined( _k1290 ) )
+	foreach ( friend in friends )
 	{
-		friend = _a1290[ _k1290 ];
 		if ( friend is_bot() )
 		{
 			goal = friend getgoal( goal_name );
-			if ( isDefined( goal ) && distancesquared( origin, goal ) < ( radius * radius ) )
+			if ( isDefined( goal ) && distancesquared( origin, goal ) < radius * radius )
 			{
 				count++;
 			}
 		}
-		_k1290 = getNextArrayKey( _a1290, _k1290 );
 	}
 	return count;
 }
 
-bot_friend_in_radius( origin, radius )
+bot_friend_in_radius( origin, radius ) //checked changed to match cerberus output
 {
 	friends = bot_get_friends();
-	_a1310 = friends;
-	_k1310 = getFirstArrayKey( _a1310 );
-	while ( isDefined( _k1310 ) )
+	foreach ( friend in friends )
 	{
-		friend = _a1310[ _k1310 ];
 		if ( distancesquared( friend.origin, origin ) < ( radius * radius ) )
 		{
 			return 1;
 		}
-		_k1310 = getNextArrayKey( _a1310, _k1310 );
 	}
 	return 0;
 }
 
-bot_get_closest_enemy( origin, on_radar )
+bot_get_closest_enemy( origin, on_radar ) //checked matches cerberus output
 {
 	enemies = self bot_get_enemies( on_radar );
 	enemies = arraysort( enemies, origin );
@@ -1292,7 +1224,7 @@ bot_get_closest_enemy( origin, on_radar )
 	return undefined;
 }
 
-bot_update_wander()
+bot_update_wander() //checked changed to match cerberus output
 {
 	goal = self getgoal( "wander" );
 	if ( isDefined( goal ) )
@@ -1306,24 +1238,18 @@ bot_update_wander()
 	{
 		spawns = arraysort( level.spawn_all, self.origin );
 	}
+	if ( isDefined( level.spawnpoints ) && level.spawnpoints.size > 0 )
+	{
+		spawns = arraysort( level.spawnpoints, self.origin );
+	}
+	if ( isDefined( level.spawn_start ) && level.spawn_start.size > 0 )
+	{
+		spawns = arraycombine( level.spawn_start[ "allies" ], level.spawn_start[ "axis" ], 1, 0 );
+		spawns = arraysort( spawns, self.origin );
+	}
 	else
 	{
-		if ( isDefined( level.spawnpoints ) && level.spawnpoints.size > 0 )
-		{
-			spawns = arraysort( level.spawnpoints, self.origin );
-		}
-		else
-		{
-			if ( isDefined( level.spawn_start ) && level.spawn_start.size > 0 )
-			{
-				spawns = arraycombine( level.spawn_start[ "allies" ], level.spawn_start[ "axis" ], 1, 0 );
-				spawns = arraysort( spawns, self.origin );
-			}
-			else
-			{
-				return;
-			}
-		}
+		return;
 	}
 	far = int( spawns.size / 2 );
 	far = randomintrange( far, spawns.size );
@@ -1335,7 +1261,7 @@ bot_update_wander()
 	self addgoal( goal, 24, 1, "wander" );
 }
 
-bot_get_look_at()
+bot_get_look_at() //checked matches cerberus output
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( self.origin, 1 );
 	if ( isDefined( enemy ) )
@@ -1371,7 +1297,7 @@ bot_get_look_at()
 	return undefined;
 }
 
-bot_update_lookat()
+bot_update_lookat() //checked changed to match cerberus output
 {
 	path = isDefined( self getlookaheaddir() );
 	if ( !path && getTime() > self.bot.update_idle_lookat )
@@ -1381,20 +1307,17 @@ bot_update_lookat()
 		{
 			return;
 		}
-		self lookat( origin + vectorScale( ( 0, 0, 0 ), 16 ) );
+		self lookat( origin + vectorScale( ( 0, 0, 1 ), 16 ) );
 		self.bot.update_idle_lookat = getTime() + randomintrange( 1500, 3000 );
 	}
-	else
+	else if ( path && self.bot.update_idle_lookat > 0 )
 	{
-		if ( path && self.bot.update_idle_lookat > 0 )
-		{
-			self clearlookat();
-			self.bot.update_idle_lookat = 0;
-		}
+		self clearlookat();
+		self.bot.update_idle_lookat = 0;
 	}
 }
 
-bot_update_patrol()
+bot_update_patrol() //checked matches cerberus output
 {
 	closest = bot_get_closest_enemy( self.origin, 1 );
 	if ( isDefined( closest ) && distancesquared( self.origin, closest.origin ) < 262144 )
@@ -1414,7 +1337,7 @@ bot_update_patrol()
 	self.bot.update_patrol = getTime() + randomintrange( 5000, 10000 );
 }
 
-bot_update_toss_flash()
+bot_update_toss_flash() //checked matches cerberus output
 {
 	if ( bot_get_difficulty() == "easy" )
 	{
@@ -1443,14 +1366,14 @@ bot_update_toss_flash()
 	if ( isDefined( node ) && distancesquared( self.origin, node.origin ) < 65536 )
 	{
 		self lookat( node.origin );
-		wait 0,75;
+		wait 0.75;
 		self pressattackbutton( 2 );
 		self.bot.update_toss = time + 20000;
 		self clearlookat();
 	}
 }
 
-bot_update_toss_frag()
+bot_update_toss_frag() //checked matches cerberus output
 {
 	if ( bot_get_difficulty() == "easy" )
 	{
@@ -1479,14 +1402,14 @@ bot_update_toss_frag()
 	if ( isDefined( node ) && distancesquared( self.origin, node.origin ) < 65536 )
 	{
 		self lookat( node.origin );
-		wait 0,75;
+		wait 0.75;
 		self pressattackbutton( 1 );
 		self.bot.update_toss = time + 20000;
 		self clearlookat();
 	}
 }
 
-bot_set_rank()
+bot_set_rank() //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop due to continue
 {
 	players = get_players();
 	ranks = [];
@@ -1500,7 +1423,7 @@ bot_set_rank()
 			i++;
 			continue;
 		}
-		else if ( isDefined( players[ i ].pers[ "rank" ] ) )
+		if ( isDefined( players[ i ].pers[ "rank" ] ) )
 		{
 			if ( players[ i ] is_bot() )
 			{
@@ -1508,10 +1431,7 @@ bot_set_rank()
 				i++;
 				continue;
 			}
-			else
-			{
-				human_ranks[ human_ranks.size ] = players[ i ].pers[ "rank" ];
-			}
+			human_ranks[ human_ranks.size ] = players[ i ].pers[ "rank" ];
 		}
 		i++;
 	}
@@ -1536,7 +1456,7 @@ bot_set_rank()
 	self maps/mp/gametypes/_rank::syncxpstat();
 }
 
-bot_gametype_allowed()
+bot_gametype_allowed() //checked matches cerberus output
 {
 	level.bot_gametype = ::gametype_void;
 	switch( level.gametype )
@@ -1545,28 +1465,28 @@ bot_gametype_allowed()
 		case "tdm":
 			return 1;
 		case "ctf":
-			level.bot_gametype = ::maps/mp/bots/_bot_ctf::bot_ctf_think;
+			level.bot_gametype = maps/mp/bots/_bot_ctf::bot_ctf_think;
 			return 1;
 		case "dem":
-			level.bot_gametype = ::maps/mp/bots/_bot_dem::bot_dem_think;
+			level.bot_gametype = maps/mp/bots/_bot_dem::bot_dem_think;
 			return 1;
 		case "dom":
-			level.bot_gametype = ::maps/mp/bots/_bot_dom::bot_dom_think;
+			level.bot_gametype = maps/mp/bots/_bot_dom::bot_dom_think;
 			return 1;
 		case "koth":
-			level.bot_gametype = ::maps/mp/bots/_bot_koth::bot_koth_think;
+			level.bot_gametype = maps/mp/bots/_bot_koth::bot_koth_think;
 			return 1;
 		case "hq":
-			level.bot_gametype = ::maps/mp/bots/_bot_hq::bot_hq_think;
+			level.bot_gametype = maps/mp/bots/_bot_hq::bot_hq_think;
 			return 1;
 		case "conf":
-			level.bot_gametype = ::maps/mp/bots/_bot_conf::bot_conf_think;
+			level.bot_gametype = maps/mp/bots/_bot_conf::bot_conf_think;
 			return 1;
 	}
 	return 0;
 }
 
-bot_get_difficulty()
+bot_get_difficulty() //checked matches cerberus output
 {
 	if ( !isDefined( level.bot_difficulty ) )
 	{
@@ -1595,7 +1515,7 @@ bot_get_difficulty()
 	return level.bot_difficulty;
 }
 
-bot_set_difficulty()
+bot_set_difficulty() //checked changed to match cerberus output
 {
 	difficulty = bot_get_difficulty();
 	if ( difficulty == "fu" )
@@ -1706,7 +1626,7 @@ bot_set_difficulty()
 		setdvar( "bot_MinAdsTime", "1000" );
 		setdvar( "bot_MaxAdsTime", "2000" );
 	}
-	if ( level.gametype == "oic" || difficulty == "hard" && difficulty == "fu" )
+	if ( ( difficulty == "hard" || difficulty == "fu" ) && level.gametype == "oic" )
 	{
 		setdvar( "bot_SprintDistance", "256" );
 	}
@@ -1725,49 +1645,39 @@ bot_update_c4()
 	}
 	self.bot.update_c4 = time + randomintrange( 1000, 2000 );
 	radius = getweaponexplosionradius( "satchel_charge_mp" );
-	_a1817 = self.weaponobjectwatcherarray;
-	_k1817 = getFirstArrayKey( _a1817 );
-	while ( isDefined( _k1817 ) )
+	foreach ( watcher in self.weaponobjectwatcherarray )
 	{
-		watcher = _a1817[ _k1817 ];
 		if ( watcher.name == "satchel_charge" )
 		{
 			break;
 		}
-		else
-		{
-			_k1817 = getNextArrayKey( _a1817, _k1817 );
-		}
 	}
-	while ( watcher.objectarray.size )
+	if ( watcher.objectarray.size )
 	{
-		_a1827 = watcher.objectarray;
-		_k1827 = getFirstArrayKey( _a1827 );
-		while ( isDefined( _k1827 ) )
+		i = 0;
+		while ( i < watcher.objectarray.size ) 
 		{
-			weapon = _a1827[ _k1827 ];
-			if ( !isDefined( weapon ) )
+			if ( !isDefined( watcher.objectarray[ i ] ) )
 			{
+				i++;
+				continue;
 			}
-			else
+			enemy = bot_get_closest_enemy( watcher.objectarray[ i ].origin, 0 );
+			if ( !isDefined( enemy ) )
 			{
-				enemy = bot_get_closest_enemy( weapon.origin, 0 );
-				if ( !isDefined( enemy ) )
-				{
-					return;
-				}
-				if ( distancesquared( enemy.origin, weapon.origin ) < ( radius * radius ) )
-				{
-					self pressattackbutton( 1 );
-					return;
-				}
+				return;
 			}
-			_k1827 = getNextArrayKey( _a1827, _k1827 );
+			if ( distancesquared( enemy.origin, watcher.objectarray[ i ].origin ) < radius * radius )
+			{
+				self pressattackbutton( 1 );
+				return;
+			}
+			i++;
 		}
 	}
 }
 
-bot_update_launcher()
+bot_update_launcher() //checked partially changed to match cerberus output //continues in foreach bad see github for more info
 {
 	time = getTime();
 	if ( time < self.bot.update_launcher )
@@ -1780,34 +1690,37 @@ bot_update_launcher()
 		return;
 	}
 	enemies = self getthreats( -1 );
-	_a1868 = enemies;
-	_k1868 = getFirstArrayKey( _a1868 );
-	while ( isDefined( _k1868 ) )
+	i = 0;
+	while ( i < enemies.size )
 	{
-		enemy = _a1868[ _k1868 ];
-		if ( !target_istarget( enemy ) )
+		if ( !target_istarget( enemies[ i ] ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( maps/mp/bots/_bot_combat::threat_is_warthog( enemy ) )
+		if ( maps/mp/bots/_bot_combat::threat_is_warthog( enemies[ i ] ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( !maps/mp/bots/_bot_combat::threat_requires_rocket( enemy ) )
+		if ( !maps/mp/bots/_bot_combat::threat_requires_rocket( enemies[ i ] ) )
 		{
+			i++;
+			continue;
 		}
-		else origin = self getplayercamerapos();
-		angles = vectorToAngle( enemy.origin - origin );
+		origin = self getplayercamerapos();
+		angles = vectorToAngle( enemies[ i ].origin - origin );
 		if ( angles[ 0 ] < 290 )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( self botsighttracepassed( enemies[ i ] ) )
 		{
-			if ( self botsighttracepassed( enemy ) )
-			{
-				self maps/mp/bots/_bot_combat::bot_lookat_entity( enemy );
-				return;
-			}
+			self maps/mp/bots/_bot_combat::bot_lookat_entity( enemies[ i ] );
+			return;
 		}
-		_k1868 = getNextArrayKey( _a1868, _k1868 );
+		i++;
 	}
 }
 
@@ -1827,15 +1740,15 @@ bot_update_weapon()
 	}
 	if ( self maps/mp/bots/_bot_combat::bot_can_reload() )
 	{
-		frac = 0,5;
+		frac = 0.5;
 		if ( maps/mp/bots/_bot_combat::bot_has_lmg() )
 		{
-			frac = 0,25;
+			frac = 0.25;
 		}
-		frac += randomfloatrange( -0,1, 0,1 );
+		frac += randomfloatrange( -0.1, 0.1 );
 		if ( maps/mp/bots/_bot_combat::bot_weapon_ammo_frac() < frac )
 		{
-			self pressusebutton( 0,1 );
+			self pressusebutton( 0.1 );
 			return;
 		}
 	}
@@ -1844,27 +1757,23 @@ bot_update_weapon()
 		return;
 	}
 	primaries = self getweaponslistprimaries();
-	_a1946 = primaries;
-	_k1946 = getFirstArrayKey( _a1946 );
-	while ( isDefined( _k1946 ) )
+	i = 0;
+	while ( i < primaries.size )
 	{
-		primary = _a1946[ _k1946 ];
-		if ( primary == "knife_held_mp" )
+		if ( primaries[ i ] == "knife_held_mp" )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( ( self getweaponammoclip( primaries[ i ] ) || self getweaponammostock( primaries[ i ] ) ) && primaries[ i ] != weapon )
 		{
-			if ( primary != weapon || self getweaponammoclip( primary ) && self getweaponammostock( primary ) )
-			{
-				self switchtoweapon( primary );
-				return;
-			}
+			self switchtoweapon( primary );
+			return;
 		}
-		_k1946 = getNextArrayKey( _a1946, _k1946 );
 	}
 }
 
-bot_update_crate()
+bot_update_crate() //checked partially changed to match cerberus output continue in foreach bad see github for more info
 {
 	time = getTime();
 	if ( time < self.bot.update_crate )
@@ -1875,102 +1784,99 @@ bot_update_crate()
 	self cancelgoal( "care package" );
 	radius = getDvarFloat( "player_useRadius" );
 	crates = getentarray( "care_package", "script_noteworthy" );
-	_a1977 = crates;
-	_k1977 = getFirstArrayKey( _a1977 );
-	while ( isDefined( _k1977 ) )
+	i = 0;
+	while ( i < crates.size )
 	{
-		crate = _a1977[ _k1977 ];
-		if ( distancesquared( self.origin, crate.origin ) < ( radius * radius ) )
+		if ( distancesquared( self.origin, crates[ i ].origin ) < radius * radius )
 		{
-			if ( isDefined( crate.hacker ) )
+			if ( isDefined( crates[ i ].hacker ) )
 			{
-				if ( crate.hacker == self )
+				if ( crates[ i ].hacker == self )
 				{
-					break;
+					i++;
+					continue;
 				}
-				else if ( crate.hacker.team == self.team )
+				if ( crate.hacker.team == self.team )
 				{
-					break;
+					i++;
+					continue;
 				}
+			}
+			if ( crates[ i ].owner == self )
+			{
+				time = ( level.crateownerusetime / 1000 ) + 0.5;
 			}
 			else
 			{
-				if ( crate.owner == self )
-				{
-					time = ( level.crateownerusetime / 1000 ) + 0,5;
-				}
-				else
-				{
-					time = ( level.cratenonownerusetime / 1000 ) + 0,5;
-				}
-				self setstance( "crouch" );
-				self addgoal( self.origin, 24, 4, "care package" );
-				self pressusebutton( time );
-				wait time;
-				self setstance( "stand" );
-				self cancelgoal( "care package" );
-				self.bot.update_crate = getTime() + randomintrange( 1000, 3000 );
-				return;
+				time = ( level.cratenonownerusetime / 1000 ) + 0.5;
 			}
+			self setstance( "crouch" );
+			self addgoal( self.origin, 24, 4, "care package" );
+			self pressusebutton( time );
+			wait time;
+			self setstance( "stand" );
+			self cancelgoal( "care package" );
+			self.bot.update_crate = getTime() + randomintrange( 1000, 3000 );
+			return;
 		}
-		_k1977 = getNextArrayKey( _a1977, _k1977 );
+		i++;
 	}
-	while ( self getweaponammostock( "pda_hack_mp" ) )
+	if ( self getweaponammostock( "pda_hack_mp" ) )
 	{
-		_a2020 = crates;
-		_k2020 = getFirstArrayKey( _a2020 );
-		while ( isDefined( _k2020 ) )
+		i = 0;
+		while ( i < crates.size )
 		{
-			crate = _a2020[ _k2020 ];
-			if ( !isDefined( crate.friendlyobjid ) )
+			if ( !isDefined( crates[ i ].friendlyobjid ) )
 			{
+				i++;
+				continue;
 			}
-			else if ( isDefined( crate.hacker ) )
+			if ( isDefined( crates[ i ].hacker ) )
 			{
-				if ( crate.hacker == self )
+				if ( crates[ i ].hacker == self )
 				{
+					i++;
+					continue;
 				}
-				else if ( crate.hacker.team == self.team )
+				else if ( crates[ i ].hacker.team == self.team )
 				{
+					i++;
+					continue;
 				}
 			}
-			else
+			if ( self botsighttracepassed( crates[ i ] ) )
 			{
-				if ( self botsighttracepassed( crate ) )
+				self lookat( crates[ i ].origin );
+				self addgoal( self.origin, 24, 4, "care package" );
+				wait 0.75;
+				start = getTime();
+				if ( !isDefined( crates[ i ].owner ) )
 				{
-					self lookat( crate.origin );
-					self addgoal( self.origin, 24, 4, "care package" );
-					wait 0,75;
-					start = getTime();
-					if ( !isDefined( crate.owner ) )
-					{
-						self cancelgoal( "care package" );
-						return;
-					}
-					if ( crate.owner == self )
-					{
-						end = level.crateownerusetime + 1000;
-					}
-					else
-					{
-						end = level.cratenonownerusetime + 1000;
-					}
-					while ( getTime() < ( start + end ) )
-					{
-						self pressattackbutton( 2 );
-						wait 0,05;
-					}
-					self.bot.update_crate = getTime() + randomintrange( 1000, 3000 );
 					self cancelgoal( "care package" );
 					return;
 				}
+				if ( crates[ i ].owner == self )
+				{
+					end = level.crateownerusetime + 1000;
+					i++;
+					continue;
+				}
+				end = level.cratenonownerusetime + 1000;
+				while ( getTime() < start + end )
+				{
+					self pressattackbutton( 2 );
+					wait 0.05;
+				}
+				self.bot.update_crate = getTime() + randomintrange( 1000, 3000 );
+				self cancelgoal( "care package" );
+				return;
 			}
-			_k2020 = getNextArrayKey( _a2020, _k2020 );
+			i++;
 		}
 	}
 }
 
-bot_update_killstreak()
+bot_update_killstreak() //checked partially changed to match cerberus output see info about continues on the github
 {
 	if ( !level.loadoutkillstreaksenabled )
 	{
@@ -1985,40 +1891,36 @@ bot_update_killstreak()
 	{
 		return;
 	}
+	/*
 /#
 	if ( !getDvarInt( "scr_botsAllowKillstreaks" ) )
 	{
 		return;
 #/
 	}
+	*/
 	self.bot.update_killstreak = time + randomintrange( 1000, 3000 );
 	weapons = self getweaponslist();
 	ks_weapon = undefined;
 	inventoryweapon = self getinventoryweapon();
-	_a2109 = weapons;
-	_k2109 = getFirstArrayKey( _a2109 );
-	while ( isDefined( _k2109 ) )
+	i = 0;
+	while ( i < weapons.size )
 	{
-		weapon = _a2109[ _k2109 ];
-		if ( self getweaponammoclip( weapon ) <= 0 || !isDefined( inventoryweapon ) && weapon != inventoryweapon )
+		if ( self getweaponammoclip( weapons[ i ] ) <= 0 && !isDefined( inventoryweapon ) || weapons[ i ] != inventoryweapon )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( iskillstreakweapon( weapons[ i ] ) )
 		{
-			if ( iskillstreakweapon( weapon ) )
+			killstreak = maps/mp/killstreaks/_killstreaks::getkillstreakforweapon( weapons[ i ] );
+			if ( self maps/mp/killstreaks/_killstreakrules::iskillstreakallowed( killstreak, self.team ) )
 			{
-				killstreak = maps/mp/killstreaks/_killstreaks::getkillstreakforweapon( weapon );
-				if ( self maps/mp/killstreaks/_killstreakrules::iskillstreakallowed( killstreak, self.team ) )
-				{
-					ks_weapon = weapon;
-					break;
-				}
+				ks_weapon = weapons[ i ];
+				break;
 			}
 		}
-		else
-		{
-			_k2109 = getNextArrayKey( _a2109, _k2109 );
-		}
+		i++;
 	}
 	if ( !isDefined( ks_weapon ) )
 	{
@@ -2056,21 +1958,19 @@ bot_update_killstreak()
 			case "killstreak_remote_missile":
 				if ( ( time - self.spawntime ) < 6000 )
 				{
-					self switchtoweapon( weapon );
+					self switchtoweapon( weapons[ i ] );
 					self waittill( "weapon_change_complete" );
-					wait 1,5;
+					wait 1.5;
 					self pressattackbutton();
 				}
 				return;
 				default:
-					self switchtoweapon( weapon );
+					self switchtoweapon( weapons[ i ] );
 					break;
-			}
-		}
 	}
 }
 
-bot_get_vehicle_entity()
+bot_get_vehicle_entity() //checked changed to match cerberus output
 {
 	if ( self isremotecontrolling() )
 	{
@@ -2078,18 +1978,15 @@ bot_get_vehicle_entity()
 		{
 			return self.rcbomb;
 		}
-		else
+		else if ( isDefined( self.qrdrone ) )
 		{
-			if ( isDefined( self.qrdrone ) )
-			{
-				return self.qrdrone;
-			}
+			return self.qrdrone;
 		}
 	}
 	return undefined;
 }
 
-bot_rccar_think()
+bot_rccar_think() //checked partially changed to match cerberus output check the github for info on continues
 {
 	self endon( "disconnect" );
 	self endon( "rcbomb_done" );
@@ -2099,7 +1996,7 @@ bot_rccar_think()
 	self thread bot_rccar_kill();
 	for ( ;; )
 	{
-		wait 0,5;
+		wait 0.5;
 		ent = self bot_get_vehicle_entity();
 		if ( !isDefined( ent ) )
 		{
@@ -2115,48 +2012,44 @@ bot_rccar_think()
 				i++;
 				continue;
 			}
-			else if ( !isalive( player ) )
+			if ( !isalive( player ) )
 			{
 				i++;
 				continue;
 			}
-			else if ( level.teambased && player.team == self.team )
+			if ( level.teambased && player.team == self.team )
 			{
 				i++;
 				continue;
 			}
-			else
-			{
+			/*
 /#
-				if ( player isinmovemode( "ufo", "noclip" ) )
-				{
-					i++;
-					continue;
+			if ( player isinmovemode( "ufo", "noclip" ) )
+			{
+				i++;
+				continue;
 #/
-				}
-				else if ( bot_get_difficulty() == "easy" )
+			}
+			*/
+			if ( bot_get_difficulty() == "easy" )
+			{
+				if ( distancesquared( ent.origin, player.origin ) < 262144 )
 				{
-					if ( distancesquared( ent.origin, player.origin ) < 262144 )
-					{
-						self pressattackbutton();
-					}
-					i++;
-					continue;
+					self pressattackbutton();
 				}
-				else
-				{
-					if ( distancesquared( ent.origin, player.origin ) < 40000 )
-					{
-						self pressattackbutton();
-					}
-				}
+				i++;
+				continue;
+			}
+			if ( distancesquared( ent.origin, player.origin ) < 40000 )
+			{
+				self pressattackbutton();
 			}
 			i++;
 		}
 	}
 }
 
-bot_rccar_kill()
+bot_rccar_kill() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "rcbomb_done" );
@@ -2187,7 +2080,7 @@ bot_rccar_kill()
 	}
 }
 
-bot_turret_location( weapon )
+bot_turret_location( weapon ) //checked matches cerberus output
 {
 	enemy = bot_get_closest_enemy( self.origin );
 	if ( !isDefined( enemy ) )
@@ -2199,7 +2092,7 @@ bot_turret_location( weapon )
 	delta = enemy.origin - self.origin;
 	delta = vectornormalize( delta );
 	dot = vectordot( forward, delta );
-	if ( dot < 0,707 )
+	if ( dot < 0.707 )
 	{
 		return;
 	}
@@ -2215,7 +2108,7 @@ bot_turret_location( weapon )
 	delta = node.origin - self.origin;
 	delta = vectornormalize( delta );
 	dot = vectordot( forward, delta );
-	if ( dot < 0,707 )
+	if ( dot < 0.707 )
 	{
 		return;
 	}
@@ -2229,7 +2122,7 @@ bot_turret_location( weapon )
 	self switchtoweapon( self.lastnonkillstreakweapon );
 }
 
-bot_use_supply_drop( weapon )
+bot_use_supply_drop( weapon ) //checked changed to match cerberus output
 {
 	if ( weapon == "inventory_supplydrop_mp" || weapon == "supplydrop_mp" )
 	{
@@ -2251,7 +2144,7 @@ bot_use_supply_drop( weapon )
 	{
 		return;
 	}
-	end = drop_point - vectorScale( ( 0, 0, 0 ), 32 );
+	end = drop_point - vectorScale( ( 0, 0, 1 ), 32 );
 	if ( bullettracepassed( drop_point, end, 0, undefined ) )
 	{
 		return;
@@ -2259,13 +2152,13 @@ bot_use_supply_drop( weapon )
 	self addgoal( self.origin, 24, 4, "killstreak" );
 	if ( weapon == "missile_drone_mp" || weapon == "inventory_missile_drone_mp" )
 	{
-		self lookat( drop_point + vectorScale( ( 0, 0, 0 ), 384 ) );
+		self lookat( drop_point + vectorScale( ( 0, 0, 1 ), 384 ) );
 	}
 	else
 	{
 		self lookat( drop_point );
 	}
-	wait 0,5;
+	wait 0.5;
 	if ( self getcurrentweapon() != weapon )
 	{
 		self thread weapon_switch_failsafe();
@@ -2281,9 +2174,8 @@ bot_use_supply_drop( weapon )
 bot_use_item( weapon )
 {
 	self pressattackbutton();
-	wait 0,5;
-	i = 0;
-	while ( i < 10 )
+	wait 0.5;
+	for ( i = 0; i < 10; i++ )
 	{
 		if ( self getcurrentweapon() == weapon || self getcurrentweapon() == "none" )
 		{
@@ -2293,12 +2185,11 @@ bot_use_item( weapon )
 		{
 			return;
 		}
-		wait 0,5;
-		i++;
+		wait 0.5;
 	}
 }
 
-bot_killstreak_location( num, weapon )
+bot_killstreak_location( num, weapon ) //checked changed to match cerberus output
 {
 	enemies = bot_get_enemies();
 	if ( !enemies.size )
@@ -2314,8 +2205,8 @@ bot_killstreak_location( num, weapon )
 	wait_time = 1;
 	while ( !isDefined( self.selectinglocation ) || self.selectinglocation == 0 )
 	{
-		wait 0,05;
-		wait_time -= 0,05;
+		wait 0.05;
+		wait_time -= 0.05;
 		if ( wait_time <= 0 )
 		{
 			self freeze_player_controls( 0 );
@@ -2324,8 +2215,7 @@ bot_killstreak_location( num, weapon )
 		}
 	}
 	wait 2;
-	i = 0;
-	while ( i < num )
+	for ( i = 0; i < num; i++ )
 	{
 		enemies = bot_get_enemies();
 		if ( enemies.size )
@@ -2333,50 +2223,37 @@ bot_killstreak_location( num, weapon )
 			enemy = random( enemies );
 			self notify( "confirm_location" );
 		}
-		wait 0,25;
-		i++;
+		wait 0.25;
 	}
 	self freeze_player_controls( 0 );
 }
 
-bot_killstreak_dangerous_think( origin, team, attacker )
+bot_killstreak_dangerous_think( origin, team, attacker ) //checked changed to match cerberus output
 {
 	if ( !level.teambased )
 	{
 		return;
 	}
-	nodes = getnodesinradius( origin + vectorScale( ( 0, 0, 0 ), 384 ), 384, 0 );
-	_a2505 = nodes;
-	_k2505 = getFirstArrayKey( _a2505 );
-	while ( isDefined( _k2505 ) )
+	nodes = getnodesinradius( origin + vectorScale( ( 0, 0, 1 ), 384 ), 384, 0 );
+	foreach ( node in nodes )
 	{
-		node = _a2505[ _k2505 ];
 		if ( node isdangerous( team ) )
 		{
 			return;
 		}
-		_k2505 = getNextArrayKey( _a2505, _k2505 );
 	}
-	_a2513 = nodes;
-	_k2513 = getFirstArrayKey( _a2513 );
-	while ( isDefined( _k2513 ) )
+	foreach ( node in nodes )
 	{
-		node = _a2513[ _k2513 ];
 		node setdangerous( team, 1 );
-		_k2513 = getNextArrayKey( _a2513, _k2513 );
 	}
 	attacker wait_endon( 25, "death" );
-	_a2520 = nodes;
-	_k2520 = getFirstArrayKey( _a2520 );
-	while ( isDefined( _k2520 ) )
+	foreach ( node in nodes )
 	{
-		node = _a2520[ _k2520 ];
 		node setdangerous( team, 0 );
-		_k2520 = getNextArrayKey( _a2520, _k2520 );
 	}
 }
 
-weapon_switch_failsafe()
+weapon_switch_failsafe() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -2385,25 +2262,26 @@ weapon_switch_failsafe()
 	self notify( "weapon_change_complete" );
 }
 
-bot_dive_to_prone( exit_stance )
+bot_dive_to_prone( exit_stance ) //checked changed to match cerberus output
 {
 	self pressdtpbutton();
-	event = self waittill_any_timeout( 0,25, "dtp_start" );
+	event = self waittill_any_timeout( 0.25, "dtp_start" );
 	if ( event == "dtp_start" )
 	{
 		self waittill( "dtp_end" );
 		self setstance( "prone" );
-		wait 0,35;
+		wait 0.35;
 		self setstance( exit_stance );
 	}
 }
 
-gametype_void()
+gametype_void() //checked changed to match cerberus output
 {
 }
 
-bot_debug_star( origin, seconds, color )
+bot_debug_star( origin, seconds, color ) //didn't check dev call
 {
+	/*
 /#
 	if ( !isDefined( seconds ) )
 	{
@@ -2416,10 +2294,12 @@ bot_debug_star( origin, seconds, color )
 	frames = int( 20 * seconds );
 	debugstar( origin, frames, color );
 #/
+	*/
 }
 
-bot_debug_circle( origin, radius, seconds, color )
+bot_debug_circle( origin, radius, seconds, color ) //didn't check dev call
 {
+	/*
 /#
 	if ( !isDefined( seconds ) )
 	{
@@ -2432,10 +2312,12 @@ bot_debug_circle( origin, radius, seconds, color )
 	frames = int( 20 * seconds );
 	circle( origin, radius, color, 0, 1, frames );
 #/
+	*/
 }
 
-bot_debug_box( origin, mins, maxs, yaw, seconds, color )
+bot_debug_box( origin, mins, maxs, yaw, seconds, color ) //didn't check dev call
 {
+	/*
 /#
 	if ( !isDefined( yaw ) )
 	{
@@ -2452,10 +2334,12 @@ bot_debug_box( origin, mins, maxs, yaw, seconds, color )
 	frames = int( 20 * seconds );
 	box( origin, mins, maxs, yaw, color, 1, 0, frames );
 #/
+	*/
 }
 
-bot_devgui_think()
-{
+bot_devgui_think()//didn't check dev call
+{ 
+	/*
 /#
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -2497,10 +2381,12 @@ bot_devgui_think()
 		}
 #/
 	}
+	*/
 }
 
-bot_system_devgui_think()
+bot_system_devgui_think() //didn't check dev call
 {
+	/*
 /#
 	setdvar( "devgui_bot", "" );
 	setdvar( "devgui_bot_weapon", "" );
@@ -2559,10 +2445,12 @@ bot_system_devgui_think()
 #/
 		}
 	}
+	*/
 }
 
-bot_crosshair_follow()
+bot_crosshair_follow() //didn't check dev call
 {
+	/*
 /#
 	self notify( "crosshair_follow_off" );
 	self endon( "death" );
@@ -2587,10 +2475,12 @@ bot_crosshair_follow()
 		}
 #/
 	}
+	*/
 }
 
-bot_debug_patrol( node1, node2 )
+bot_debug_patrol( node1, node2 ) //didn't check dev call
 {
+	/*
 /#
 	self endon( "death" );
 	self endon( "debug_patrol" );
@@ -2612,10 +2502,12 @@ bot_debug_patrol( node1, node2 )
 		}
 #/
 	}
+	*/
 }
 
-devgui_debug_route()
+devgui_debug_route() //didn't check dev call
 {
+	/*
 /#
 	iprintln( "Choose nodes with 'A' or press 'B' to cancel" );
 	nodes = maps/mp/gametypes/_dev::dev_get_node_pair();
@@ -2642,10 +2534,12 @@ devgui_debug_route()
 		_k2804 = getNextArrayKey( _a2804, _k2804 );
 #/
 	}
+	*/
 }
 
-devgui_bot_spawn( team )
+devgui_bot_spawn( team ) //didn't check dev call
 {
+	/*
 /#
 	player = gethostplayer();
 	direction = player getplayerangles();
@@ -2667,10 +2561,12 @@ devgui_bot_spawn( team )
 	yaw = direction[ 1 ];
 	bot thread devgui_bot_spawn_think( trace[ "position" ], yaw );
 #/
+	*/
 }
 
-devgui_bot_spawn_think( origin, yaw )
+devgui_bot_spawn_think( origin, yaw ) //didn't check dev call
 {
+	/*
 /#
 	self endon( "disconnect" );
 	for ( ;; )
@@ -2681,4 +2577,6 @@ devgui_bot_spawn_think( origin, yaw )
 		self setplayerangles( angles );
 #/
 	}
+	*/
 }
+
