@@ -1,10 +1,16 @@
-#include maps/mp/gametypes_zm/_damagefeedback;
-#include maps/mp/gametypes_zm/_globallogic_player;
-#include maps/mp/gametypes_zm/_weapons;
+#include maps/mp/gametypes/_damagefeedback;
+#include maps/mp/gametypes/_globallogic_player;
+#include maps/mp/gametypes/_weapons;
+#include maps/mp/_vehicles;
+#include maps/mp/gametypes/_class;
 #include maps/mp/_utility;
 
 callback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, damagefromunderneath, modelindex, partname )
 {
+	if ( level.idflags_radius & idflags )
+	{
+		idamage = maps/mp/gametypes/_class::cac_modified_vehicle_damage( self, eattacker, idamage, smeansofdeath, sweapon, einflictor );
+	}
 	self.idflags = idflags;
 	self.idflagstime = getTime();
 	if ( game[ "state" ] == "postgame" )
@@ -84,6 +90,10 @@ callback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 		{
 			team = self.owner.pers[ "team" ];
 		}
+		else
+		{
+			team = self maps/mp/_vehicles::vehicle_get_occupant_team();
+		}
 		if ( level.teambased && isplayer( eattacker ) && team == eattacker.pers[ "team" ] )
 		{
 			if ( level.friendlyfire == 0 )
@@ -138,54 +148,61 @@ callback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 		}
 		else
 		{
-			if ( !level.teambased && isDefined( self.targetname ) && self.targetname == "rcbomb" )
+			if ( !level.hardcoremode && isDefined( self.owner ) && isDefined( eattacker.owner ) && self.owner == eattacker.owner )
 			{
+				return;
 			}
 			else
 			{
-				if ( isDefined( self.owner ) && isDefined( eattacker ) && self.owner == eattacker )
+				if ( !level.teambased && isDefined( self.targetname ) && self.targetname == "rcbomb" )
 				{
-					return;
 				}
-			}
-			if ( idamage < 1 )
-			{
-				idamage = 1;
-			}
-			if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( sweapon ) )
-			{
-				eattacker thread maps/mp/gametypes_zm/_weapons::checkhit( sweapon );
-			}
-			if ( issubstr( smeansofdeath, "MOD_GRENADE" ) && isDefined( einflictor.iscooked ) )
-			{
-				self.wascooked = getTime();
-			}
-			else
-			{
-				self.wascooked = undefined;
-			}
-			attacker_seat = undefined;
-			if ( isDefined( eattacker ) )
-			{
-				attacker_seat = self getoccupantseat( eattacker );
-			}
-			if ( isDefined( eattacker ) )
-			{
-				self.lastdamagewasfromenemy = !isDefined( attacker_seat );
-			}
-			self finishvehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, damagefromunderneath, modelindex, partname, 0 );
-			if ( level.gametype == "hack" && sweapon != "emp_grenade_mp" )
-			{
-				idamage = 0;
+				else
+				{
+					if ( isDefined( self.owner ) && isDefined( eattacker ) && self.owner == eattacker )
+					{
+						return;
+					}
+				}
+				if ( idamage < 1 )
+				{
+					idamage = 1;
+				}
+				if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( sweapon ) )
+				{
+					eattacker thread maps/mp/gametypes/_weapons::checkhit( sweapon );
+				}
+				if ( issubstr( smeansofdeath, "MOD_GRENADE" ) && isDefined( einflictor.iscooked ) )
+				{
+					self.wascooked = getTime();
+				}
+				else
+				{
+					self.wascooked = undefined;
+				}
+				attacker_seat = undefined;
+				if ( isDefined( eattacker ) )
+				{
+					attacker_seat = self getoccupantseat( eattacker );
+				}
+				if ( isDefined( eattacker ) )
+				{
+					self.lastdamagewasfromenemy = !isDefined( attacker_seat );
+				}
+				self finishvehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, damagefromunderneath, modelindex, partname, 0 );
+				if ( level.gametype == "hack" && sweapon != "emp_grenade_mp" )
+				{
+					idamage = 0;
+				}
 			}
 		}
 		if ( isDefined( eattacker ) && eattacker != self )
 		{
-			if ( maps/mp/gametypes_zm/_globallogic_player::dodamagefeedback( sweapon, einflictor ) )
+			if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( sweapon, einflictor ) )
 			{
 				if ( idamage > 0 )
 				{
-					eattacker thread maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback( smeansofdeath, einflictor );
+					eattacker thread maps/mp/gametypes/_damagefeedback::updatedamagefeedback( smeansofdeath, einflictor );
 				}
 			}
 		}
@@ -221,9 +238,9 @@ callback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 
 callback_vehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, psoffsettime )
 {
-	idamage = 0;
-	finnerdamage = 0;
-	fouterdamage = 0;
+	idamage = maps/mp/gametypes/_class::cac_modified_vehicle_damage( self, eattacker, idamage, smeansofdeath, sweapon, einflictor );
+	finnerdamage = maps/mp/gametypes/_class::cac_modified_vehicle_damage( self, eattacker, finnerdamage, smeansofdeath, sweapon, einflictor );
+	fouterdamage = maps/mp/gametypes/_class::cac_modified_vehicle_damage( self, eattacker, fouterdamage, smeansofdeath, sweapon, einflictor );
 	self.idflags = idflags;
 	self.idflagstime = getTime();
 	if ( game[ "state" ] == "postgame" )
@@ -256,7 +273,7 @@ callback_vehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fout
 				idamage = 1;
 			}
 		}
-		occupant_team = undefined;
+		occupant_team = self maps/mp/_vehicles::vehicle_get_occupant_team();
 		if ( level.teambased && isplayer( eattacker ) && occupant_team == eattacker.pers[ "team" ] )
 		{
 			if ( level.friendlyfire == 0 )
@@ -312,11 +329,19 @@ callback_vehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fout
 		}
 		else
 		{
-			if ( idamage < 1 )
+			if ( !level.hardcoremode && isDefined( self.owner ) && isDefined( eattacker.owner ) && self.owner == eattacker.owner )
 			{
-				idamage = 1;
+				return;
+				return;
 			}
-			self finishvehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, psoffsettime );
+			else
+			{
+				if ( idamage < 1 )
+				{
+					idamage = 1;
+				}
+				self finishvehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, psoffsettime );
+			}
 		}
 	}
 }
@@ -333,19 +358,7 @@ vehiclecrush()
 
 getvehicleprojectilescalar( sweapon )
 {
-	if ( sweapon == "satchel_charge_mp" )
-	{
-		scale = 1;
-	}
-	else if ( sweapon == "sticky_grenade_mp" )
-	{
-		scale = 1;
-	}
-	else if ( sweapon == "claymore_mp" )
-	{
-		scale = 1;
-	}
-	else if ( sweapon == "remote_missile_missile_mp" )
+	if ( sweapon == "remote_missile_missile_mp" )
 	{
 		scale = 10;
 	}
@@ -361,18 +374,6 @@ getvehicleprojectilescalar( sweapon )
 	{
 		scale = 0,2;
 	}
-	else if ( issubstr( sweapon, "gl_" ) )
-	{
-		scale = 1;
-	}
-	else if ( issubstr( sweapon, "turret_mp" ) )
-	{
-		scale = 1;
-	}
-	else if ( issubstr( sweapon, "grenade" ) )
-	{
-		scale = 1;
-	}
 	else
 	{
 		scale = 1;
@@ -382,19 +383,7 @@ getvehicleprojectilescalar( sweapon )
 
 getvehicleprojectilesplashscalar( sweapon )
 {
-	if ( sweapon == "satchel_charge_mp" )
-	{
-		scale = 1;
-	}
-	else if ( sweapon == "sticky_grenade_mp" )
-	{
-		scale = 1;
-	}
-	else if ( sweapon == "claymore_mp" )
-	{
-		scale = 1;
-	}
-	else if ( sweapon == "remote_missile_missile_mp" )
+	if ( sweapon == "remote_missile_missile_mp" )
 	{
 		scale = 10;
 	}
@@ -405,18 +394,6 @@ getvehicleprojectilesplashscalar( sweapon )
 	else if ( sweapon == "chopper_minigun_mp" )
 	{
 		scale = 0,5;
-	}
-	else if ( issubstr( sweapon, "gl_" ) )
-	{
-		scale = 0,5;
-	}
-	else if ( issubstr( sweapon, "turrent_mp" ) )
-	{
-		scale = 0,1;
-	}
-	else if ( issubstr( sweapon, "grenade" ) )
-	{
-		scale = 1;
 	}
 	else
 	{

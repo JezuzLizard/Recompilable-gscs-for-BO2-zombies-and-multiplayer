@@ -1,7 +1,8 @@
+#include maps/mp/killstreaks/_killstreaks;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-isgrenadelauncherweapon( weapon )
+isgrenadelauncherweapon( weapon ) //checked matches cerberus output
 {
 	if ( getsubstr( weapon, 0, 3 ) == "gl_" )
 	{
@@ -17,7 +18,7 @@ isgrenadelauncherweapon( weapon )
 	}
 }
 
-isdumbrocketlauncherweapon( weapon )
+isdumbrocketlauncherweapon( weapon ) //checked matches cerberus output
 {
 	switch( weapon )
 	{
@@ -29,7 +30,7 @@ isdumbrocketlauncherweapon( weapon )
 	}
 }
 
-isguidedrocketlauncherweapon( weapon )
+isguidedrocketlauncherweapon( weapon ) //checked matches cerberus output
 {
 	switch( weapon )
 	{
@@ -44,7 +45,7 @@ isguidedrocketlauncherweapon( weapon )
 	}
 }
 
-isrocketlauncherweapon( weapon )
+isrocketlauncherweapon( weapon ) //checked matches cerberus output
 {
 	if ( isdumbrocketlauncherweapon( weapon ) )
 	{
@@ -57,7 +58,7 @@ isrocketlauncherweapon( weapon )
 	return 0;
 }
 
-islauncherweapon( weapon )
+islauncherweapon( weapon ) //checked matches cerberus output
 {
 	if ( isrocketlauncherweapon( weapon ) )
 	{
@@ -70,28 +71,29 @@ islauncherweapon( weapon )
 	return 0;
 }
 
-isreducedteamkillweapon( weapon )
+ishackweapon( weapon ) //checked matches cerberus output
 {
-	switch( weapon )
+	if ( maps/mp/killstreaks/_killstreaks::iskillstreakweapon( weapon ) )
 	{
-		case "planemortar_mp":
-			return 1;
-		default:
-			return 0;
+		return 1;
 	}
-}
-
-ishackweapon( weapon )
-{
+	if ( weapon == "briefcase_bomb_mp" )
+	{
+		return 1;
+	}
 	return 0;
 }
 
-ispistol( weapon )
+ispistol( weapon ) //checked changed at own discretion
 {
-	return isDefined( level.side_arm_array[ weapon ] );
+	if ( isDefined( level.side_arm_array[ weapon ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-isflashorstunweapon( weapon )
+isflashorstunweapon( weapon ) //checked matches cerberus output
 {
 	if ( isDefined( weapon ) )
 	{
@@ -107,13 +109,12 @@ isflashorstunweapon( weapon )
 	return 0;
 }
 
-isflashorstundamage( weapon, meansofdeath )
+isflashorstundamage( weapon, meansofdeath ) //checked changed at own discretion
 {
-	if ( isflashorstunweapon( weapon ) )
+	if ( ( meansofdeath == "MOD_GAS" || meansofdeath == "MOD_GRENADE_SPLASH" ) && isflashorstunweapon( weapon ) )
 	{
-		if ( meansofdeath != "MOD_GRENADE_SPLASH" )
-		{
-			return meansofdeath == "MOD_GAS";
-		}
+		return 1;
 	}
+	return 0;
 }
+

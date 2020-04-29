@@ -1,5 +1,5 @@
-#include maps/mp/gametypes_zm/_rank;
-#include maps/mp/gametypes_zm/_globallogic;
+#include maps/mp/gametypes/_rank;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/_utility;
 
 init()
@@ -97,26 +97,27 @@ onmenuresponse()
 		}
 		if ( response == "endgame" )
 		{
-			if ( self issplitscreen() )
+			if ( level.splitscreen )
 			{
 				level.skipvote = 1;
 				if ( !level.gameended )
 				{
-					level thread maps/mp/gametypes_zm/_globallogic::forceend();
+					level thread maps/mp/gametypes/_globallogic::forceend();
 				}
 			}
 			continue;
 		}
 		else if ( response == "killserverpc" )
 		{
-			level thread maps/mp/gametypes_zm/_globallogic::killserverpc();
+			level thread maps/mp/gametypes/_globallogic::killserverpc();
 			continue;
 		}
 		else if ( response == "endround" )
 		{
 			if ( !level.gameended )
 			{
-				level thread maps/mp/gametypes_zm/_globallogic::forceend();
+				self gamehistoryplayerquit();
+				level thread maps/mp/gametypes/_globallogic::forceend();
 			}
 			else
 			{
@@ -150,7 +151,7 @@ onmenuresponse()
 				self closeingamemenu();
 				if ( level.rankedmatch && issubstr( response, "custom" ) )
 				{
-					if ( self isitemlocked( maps/mp/gametypes_zm/_rank::getitemindex( "feature_cac" ) ) )
+					if ( self isitemlocked( maps/mp/gametypes/_rank::getitemindex( "feature_cac" ) ) )
 					{
 						kick( self getentitynumber() );
 					}

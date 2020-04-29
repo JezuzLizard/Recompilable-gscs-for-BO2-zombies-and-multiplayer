@@ -571,7 +571,7 @@ createbar( color, width, height, flashfrac )
 	barelemframe.hidden = 0;
 	barelembg = newclienthudelem( self );
 	barelembg.elemtype = "bar";
-	if ( !self issplitscreen() )
+	if ( !level.splitscreen )
 	{
 		barelembg.x = -2;
 		barelembg.y = -2;
@@ -587,7 +587,7 @@ createbar( color, width, height, flashfrac )
 	barelembg.color = ( 1, 0, 0 );
 	barelembg.alpha = 0,5;
 	barelembg setparent( level.uiparent );
-	if ( !self issplitscreen() )
+	if ( !level.splitscreen )
 	{
 		barelembg setshader( "progress_bar_bg", width + 4, height + 4 );
 	}
@@ -619,15 +619,13 @@ getcurrentfraction()
 
 createprimaryprogressbar()
 {
-	bar = undefined;
-	if ( self issplitscreen() )
+	bar = createbar( ( 1, 0, 0 ), level.primaryprogressbarwidth, level.primaryprogressbarheight );
+	if ( level.splitscreen )
 	{
-		bar = self createbar( ( 1, 0, 0 ), level.primaryprogressbarwidth, level.primaryprogressbarheight_ss );
-		bar setpoint( "TOP", undefined, level.primaryprogressbarx_ss, level.primaryprogressbary_ss );
+		bar setpoint( "TOP", undefined, level.primaryprogressbarx, level.primaryprogressbary );
 	}
 	else
 	{
-		bar = self createbar( ( 1, 0, 0 ), level.primaryprogressbarwidth, level.primaryprogressbarheight );
 		bar setpoint( "CENTER", undefined, level.primaryprogressbarx, level.primaryprogressbary );
 	}
 	return bar;
@@ -636,9 +634,9 @@ createprimaryprogressbar()
 createprimaryprogressbartext()
 {
 	text = createfontstring( "objective", level.primaryprogressbarfontsize );
-	if ( self issplitscreen() )
+	if ( level.splitscreen )
 	{
-		text setpoint( "TOP", undefined, level.primaryprogressbartextx_ss, level.primaryprogressbartexty_ss );
+		text setpoint( "TOP", undefined, level.primaryprogressbartextx, level.primaryprogressbartexty );
 	}
 	else
 	{
@@ -653,18 +651,13 @@ createsecondaryprogressbar()
 	secondaryprogressbarheight = getdvarintdefault( "scr_secondaryProgressBarHeight", level.secondaryprogressbarheight );
 	secondaryprogressbarx = getdvarintdefault( "scr_secondaryProgressBarX", level.secondaryprogressbarx );
 	secondaryprogressbary = getdvarintdefault( "scr_secondaryProgressBarY", level.secondaryprogressbary );
-	secondaryprogressbarheight_ss = getdvarintdefault( "scr_secondaryProgressBarHeight", level.secondaryprogressbarheight_ss );
-	secondaryprogressbarx_ss = getdvarintdefault( "scr_secondaryProgressBarX", level.secondaryprogressbarx_ss );
-	secondaryprogressbary_ss = getdvarintdefault( "scr_secondaryProgressBarY", level.secondaryprogressbary_ss );
-	bar = undefined;
-	if ( self issplitscreen() )
+	bar = createbar( ( 1, 0, 0 ), level.secondaryprogressbarwidth, secondaryprogressbarheight );
+	if ( level.splitscreen )
 	{
-		bar = self createbar( ( 1, 0, 0 ), level.secondaryprogressbarwidth, secondaryprogressbarheight_ss );
-		bar setpoint( "TOP", undefined, secondaryprogressbarx_ss, secondaryprogressbary_ss );
+		bar setpoint( "TOP", undefined, secondaryprogressbarx, secondaryprogressbary );
 	}
 	else
 	{
-		bar = self createbar( ( 1, 0, 0 ), level.secondaryprogressbarwidth, secondaryprogressbarheight );
 		bar setpoint( "CENTER", undefined, secondaryprogressbarx, secondaryprogressbary );
 	}
 	return bar;
@@ -674,12 +667,10 @@ createsecondaryprogressbartext()
 {
 	secondaryprogressbartextx = getdvarintdefault( "scr_btx", level.secondaryprogressbartextx );
 	secondaryprogressbartexty = getdvarintdefault( "scr_bty", level.secondaryprogressbartexty );
-	secondaryprogressbartextx_ss = getdvarintdefault( "scr_btx", level.secondaryprogressbartextx_ss );
-	secondaryprogressbartexty_ss = getdvarintdefault( "scr_bty", level.secondaryprogressbartexty_ss );
 	text = createfontstring( "objective", level.primaryprogressbarfontsize );
-	if ( self issplitscreen() )
+	if ( level.splitscreen )
 	{
-		text setpoint( "TOP", undefined, secondaryprogressbartextx_ss, secondaryprogressbartexty_ss );
+		text setpoint( "TOP", undefined, secondaryprogressbartextx, secondaryprogressbartexty );
 	}
 	else
 	{
@@ -858,25 +849,15 @@ updatechildren()
 	}
 }
 
-createloadouticon( verindex, horindex, xpos, ypos )
+createloadouticon( player, verindex, horindex, xpos, ypos )
 {
 	iconsize = 32;
-	if ( level.splitscreen )
+	if ( player issplitscreen() )
 	{
-		ypos -= 80 + ( iconsize * ( 3 - verindex ) );
+		iconsize = 22;
 	}
-	else
-	{
-		ypos -= 90 + ( iconsize * ( 3 - verindex ) );
-	}
-	if ( level.splitscreen )
-	{
-		xpos -= 5 + ( iconsize * horindex );
-	}
-	else
-	{
-		xpos -= 10 + ( iconsize * horindex );
-	}
+	ypos -= 90 + ( iconsize * ( 3 - verindex ) );
+	xpos -= 10 + ( iconsize * horindex );
 	icon = createicon( "white", iconsize, iconsize );
 	icon setpoint( "BOTTOM RIGHT", "BOTTOM RIGHT", xpos, ypos );
 	icon.horzalign = "user_right";
@@ -886,25 +867,15 @@ createloadouticon( verindex, horindex, xpos, ypos )
 	return icon;
 }
 
-setloadouticoncoords( verindex, horindex, xpos, ypos )
+setloadouticoncoords( player, verindex, horindex, xpos, ypos )
 {
 	iconsize = 32;
-	if ( level.splitscreen )
+	if ( player issplitscreen() )
 	{
-		ypos -= 80 + ( iconsize * ( 3 - verindex ) );
+		iconsize = 22;
 	}
-	else
-	{
-		ypos -= 90 + ( iconsize * ( 3 - verindex ) );
-	}
-	if ( level.splitscreen )
-	{
-		xpos -= 5 + ( iconsize * horindex );
-	}
-	else
-	{
-		xpos -= 10 + ( iconsize * horindex );
-	}
+	ypos -= 90 + ( iconsize * ( 3 - verindex ) );
+	xpos -= 10 + ( iconsize * horindex );
 	self setpoint( "BOTTOM RIGHT", "BOTTOM RIGHT", xpos, ypos );
 	self.horzalign = "user_right";
 	self.vertalign = "user_bottom";
@@ -974,16 +945,20 @@ hideloadoutattribute( iconelem, fadetime, textelem, hidetextonly )
 showperks()
 {
 	ypos = 40;
+	if ( self issplitscreen() )
+	{
+		ypos = 5;
+	}
 	if ( !isDefined( self.perkhudelem ) )
 	{
-		self.perkhudelem = createloadouticon( 0, 0, 200, ypos );
+		self.perkhudelem = createloadouticon( self, 0, 0, 200, ypos );
 	}
 	else
 	{
-		self.perkhudelem setloadouticoncoords( 0, 0, 200, ypos );
+		self.perkhudelem setloadouticoncoords( self, 0, 0, 200, ypos );
 	}
 	self.perkhudelem setperks( self );
-	self.perkhudelem.x = -10;
+	self.perkhudelem.x = -20;
 	self.perkhudelem.alpha = 0;
 	self.perkhudelem fadeovertime( 0,4 );
 	self.perkhudelem.alpha = 1;
@@ -1005,12 +980,12 @@ showperk( index, perk, ypos )
 /#
 		assert( !isDefined( self.perkname[ index ] ) );
 #/
-		self.perkicon[ index ] = createloadouticon( index, 0, 200, ypos );
+		self.perkicon[ index ] = createloadouticon( self, index, 0, 200, ypos );
 		self.perkname[ index ] = createloadouttext( self.perkicon[ index ], 160 );
 	}
 	else
 	{
-		self.perkicon[ index ] setloadouticoncoords( index, 0, 200, ypos );
+		self.perkicon[ index ] setloadouticoncoords( self, index, 0, 200, ypos );
 		self.perkname[ index ] setloadouttextcoords( 160 );
 	}
 	if ( perk != "perk_null" || perk == "weapon_null" && perk == "specialty_null" )
@@ -1107,7 +1082,7 @@ showkillstreak( index, killstreak, xpos, ypos )
 	}
 	if ( !isDefined( self.killstreakicon[ index ] ) )
 	{
-		self.killstreakicon[ index ] = createloadouticon( 3, ( self.killstreak.size - 1 ) - index, xpos, ypos );
+		self.killstreakicon[ index ] = createloadouticon( self, 3, ( self.killstreak.size - 1 ) - index, xpos, ypos );
 	}
 	if ( killstreak == "killstreak_null" || killstreak == "weapon_null" )
 	{
@@ -1143,7 +1118,7 @@ hidekillstreak( index, fadetime )
 
 setgamemodeinfopoint()
 {
-	self.x = 5;
+	self.x = 11;
 	self.y = 120;
 	self.horzalign = "user_left";
 	self.vertalign = "user_top";

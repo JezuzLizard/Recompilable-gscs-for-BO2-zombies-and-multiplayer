@@ -1,6 +1,7 @@
-#include maps/mp/gametypes_zm/_globallogic_score;
-#include maps/mp/gametypes_zm/_hostmigration;
-#include maps/mp/gametypes_zm/_hud_message;
+#include maps/mp/gametypes/_globallogic_score;
+#include maps/mp/gametypes/_hostmigration;
+#include maps/mp/killstreaks/_killstreaks;
+#include maps/mp/gametypes/_hud_message;
 #include maps/mp/_utility;
 
 waittillslowprocessallowed()
@@ -23,7 +24,7 @@ testmenu()
 		notifydata.titletext = &"MP_CHALLENGE_COMPLETED";
 		notifydata.notifytext = "wheee";
 		notifydata.sound = "mp_challenge_complete";
-		self thread maps/mp/gametypes_zm/_hud_message::notifymessage( notifydata );
+		self thread maps/mp/gametypes/_hud_message::notifymessage( notifydata );
 	}
 }
 
@@ -57,6 +58,10 @@ testhps()
 	for ( ;; )
 	{
 		hp = "radar_mp";
+		if ( self thread maps/mp/killstreaks/_killstreaks::givekillstreak( hp ) )
+		{
+			self playlocalsound( level.killstreaks[ hp ].informdialog );
+		}
 		wait 20;
 	}
 }
@@ -141,10 +146,10 @@ assertproperplacement()
 {
 /#
 	numplayers = level.placement[ "all" ].size;
-	i = 0;
-	while ( i < ( numplayers - 1 ) )
+	if ( level.teambased )
 	{
-		if ( isDefined( level.placement[ "all" ][ i ] ) && isDefined( level.placement[ "all" ][ i + 1 ] ) )
+		i = 0;
+		while ( i < ( numplayers - 1 ) )
 		{
 			if ( level.placement[ "all" ][ i ].score < level.placement[ "all" ][ i + 1 ].score )
 			{
@@ -157,8 +162,29 @@ assertproperplacement()
 					i++;
 				}
 				assertmsg( "Placement array was not properly sorted" );
-				return;
+				break;
 			}
+			else
+			{
+				i++;
+			}
+		}
+	}
+	else i = 0;
+	while ( i < ( numplayers - 1 ) )
+	{
+		if ( level.placement[ "all" ][ i ].pointstowin < level.placement[ "all" ][ i + 1 ].pointstowin )
+		{
+			println( "^1Placement array:" );
+			i = 0;
+			while ( i < numplayers )
+			{
+				player = level.placement[ "all" ][ i ];
+				println( "^1" + i + ". " + player.name + ": " + player.pointstowin );
+				i++;
+			}
+			assertmsg( "Placement array was not properly sorted" );
+			return;
 		}
 		else
 		{
@@ -212,7 +238,7 @@ playtickingsound( gametype_tick_sound )
 			time -= 0,3;
 			wait 0,3;
 		}
-		maps/mp/gametypes_zm/_hostmigration::waittillhostmigrationdone();
+		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 }
 
@@ -290,12 +316,21 @@ getscoreremaining( team )
 	scorelimit = level.scorelimit;
 	if ( isplayer( self ) )
 	{
-		return scorelimit - maps/mp/gametypes_zm/_globallogic_score::_getplayerscore( self );
+		return scorelimit - maps/mp/gametypes/_globallogic_score::_getplayerscore( self );
 	}
 	else
 	{
 		return scorelimit - getteamscore( team );
 	}
+}
+
+getteamscoreforround( team )
+{
+	if ( level.roundscorecarry && isDefined( game[ "lastroundscore" ][ team ] ) )
+	{
+		return getteamscore( team ) - game[ "lastroundscore" ][ team ];
+	}
+	return getteamscore( team );
 }
 
 getscoreperminute( team )
@@ -311,11 +346,11 @@ getscoreperminute( team )
 	minutespassed = ( gettimepassed() / 60000 ) + 0,0001;
 	if ( isplayer( self ) )
 	{
-		return maps/mp/gametypes_zm/_globallogic_score::_getplayerscore( self ) / minutespassed;
+		return maps/mp/gametypes/_globallogic_score::_getplayerscore( self ) / minutespassed;
 	}
 	else
 	{
-		return getteamscore( team ) / minutespassed;
+		return getteamscoreforround( team ) / minutespassed;
 	}
 }
 
@@ -381,6 +416,13 @@ isheadshot( sweapon, shitloc, smeansofdeath, einflictor )
 			{
 				return 0;
 			}
+	}
+	if ( maps/mp/killstreaks/_killstreaks::iskillstreakweapon( sweapon ) )
+	{
+		if ( isDefined( einflictor ) || !isDefined( einflictor.controlled ) && einflictor.controlled == 0 )
+		{
+			return 0;
+		}
 	}
 	return 1;
 }
@@ -466,13 +508,13 @@ logteamwinstring( wintype, winner )
 	{
 		log_string = ( log_string + ", win: " ) + winner;
 	}
-	_a469 = level.teams;
-	_k469 = getFirstArrayKey( _a469 );
-	while ( isDefined( _k469 ) )
+	_a495 = level.teams;
+	_k495 = getFirstArrayKey( _a495 );
+	while ( isDefined( _k495 ) )
 	{
-		team = _a469[ _k469 ];
+		team = _a495[ _k495 ];
 		log_string = ( log_string + ", " ) + team + ": " + game[ "teamScores" ][ team ];
-		_k469 = getNextArrayKey( _a469, _k469 );
+		_k495 = getNextArrayKey( _a495, _k495 );
 	}
 	logstring( log_string );
 }

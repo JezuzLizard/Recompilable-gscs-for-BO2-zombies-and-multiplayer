@@ -1,8 +1,10 @@
 #include maps/mp/_challenges;
-#include maps/mp/gametypes_zm/_damagefeedback;
-#include maps/mp/gametypes_zm/_weapons;
-#include maps/mp/gametypes_zm/_globallogic_utils;
-#include maps/mp/gametypes_zm/_globallogic_player;
+#include maps/mp/_scoreevents;
+#include maps/mp/gametypes/_damagefeedback;
+#include maps/mp/gametypes/_weapons;
+#include maps/mp/_burnplayer;
+#include maps/mp/gametypes/_globallogic_utils;
+#include maps/mp/gametypes/_globallogic_player;
 #include maps/mp/_utility;
 
 callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
@@ -21,7 +23,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 	}
 	self.idflags = idflags;
 	self.idflagstime = getTime();
-	eattacker = maps/mp/gametypes_zm/_globallogic_player::figureoutattacker( eattacker );
+	eattacker = maps/mp/gametypes/_globallogic_player::figureoutattacker( eattacker );
 	if ( !isDefined( vdir ) )
 	{
 		idflags |= level.idflags_no_knockback;
@@ -33,7 +35,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 		self.attackerdata = [];
 		self.attackerdamage = [];
 	}
-	if ( maps/mp/gametypes_zm/_globallogic_utils::isheadshot( sweapon, shitloc, smeansofdeath, einflictor ) )
+	if ( maps/mp/gametypes/_globallogic_utils::isheadshot( sweapon, shitloc, smeansofdeath, einflictor ) )
 	{
 		smeansofdeath = "MOD_HEAD_SHOT";
 	}
@@ -49,6 +51,17 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 			{
 				idamage = 150;
 			}
+		}
+	}
+	if ( smeansofdeath == "MOD_BURNED" )
+	{
+		if ( sweapon == "none" )
+		{
+			self maps/mp/_burnplayer::walkedthroughflames();
+		}
+		if ( sweapon == "m2_flamethrower_mp" )
+		{
+			self maps/mp/_burnplayer::burnedwithflamethrower();
 		}
 	}
 	if ( sweapon == "none" && isDefined( einflictor ) )
@@ -122,7 +135,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 			}
 			if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( sweapon ) && !issubstr( smeansofdeath, "MOD_MELEE" ) )
 			{
-				eattacker thread maps/mp/gametypes_zm/_weapons::checkhit( sweapon );
+				eattacker thread maps/mp/gametypes/_weapons::checkhit( sweapon );
 			}
 			if ( issubstr( smeansofdeath, "MOD_GRENADE" ) && isDefined( einflictor ) && isDefined( einflictor.iscooked ) )
 			{
@@ -144,7 +157,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 			{
 				if ( idamage > 0 )
 				{
-					eattacker thread maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback( smeansofdeath, einflictor );
+					eattacker thread maps/mp/gametypes/_damagefeedback::updatedamagefeedback( smeansofdeath, einflictor );
 				}
 			}
 		}
@@ -152,7 +165,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 /#
 	if ( getDvarInt( "g_debugDamage" ) )
 	{
-		println( "actor:" + self getentitynumber() + " health:" + self.health + " attacker:" + eattacker.clientid + " inflictor is player:" + isplayer( einflictor ) + " damage:" + idamage + shitloc + ";" + boneindex + "\n" );
+		println( "actor:" + self getentitynumber() + " health:" + self.health + " attacker:" + eattacker.clientid + " inflictor is player:" + isplayer( einflictor ) + " damage:" + idamage + " hitLoc:" + shitloc );
 #/
 	}
 	if ( 1 )
@@ -174,7 +187,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 			lpattackname = "";
 			lpattackerteam = "world";
 		}
-		logprint( "AD;" + lpselfnum + ";" + lpselfteam + ";" + lpattackguid + ";" + lpattacknum + ";" + lpattackerteam + ";" + lpattackname + ";" + sweapon + ";" + idamage + ";" + smeansofdeath + ";" + shitloc + "\n" );
+		logprint( "AD;" + lpselfnum + ";" + lpselfteam + ";" + lpattackguid + ";" + lpattacknum + ";" + lpattackerteam + ";" + lpattackname + ";" + sweapon + ";" + idamage + ";" + smeansofdeath + ";" + shitloc + ";" + boneindex + "\n" );
 	}
 }
 
@@ -201,6 +214,7 @@ callback_actorkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdi
 		{
 			level.globalkillstreaksdestroyed++;
 			attacker addweaponstat( "dogs_mp", "destroyed", 1 );
+			maps/mp/_scoreevents::processscoreevent( "killed_dog", attacker, self, sweapon );
 			attacker maps/mp/_challenges::killeddog();
 		}
 	}

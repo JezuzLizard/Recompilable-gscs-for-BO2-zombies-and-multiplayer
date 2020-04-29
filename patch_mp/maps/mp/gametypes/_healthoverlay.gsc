@@ -1,4 +1,4 @@
-#include maps/mp/gametypes_zm/_globallogic_player;
+#include maps/mp/gametypes/_globallogic_player;
 
 init()
 {
@@ -170,7 +170,7 @@ playerhealthregen()
 				}
 				if ( newhealth >= 1 )
 				{
-					self maps/mp/gametypes_zm/_globallogic_player::resetattackerlist();
+					self maps/mp/gametypes/_globallogic_player::resetattackerlist();
 					newhealth = 1;
 				}
 				if ( newhealth <= 0 )

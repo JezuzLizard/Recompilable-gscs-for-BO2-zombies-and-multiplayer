@@ -1,6 +1,6 @@
 #include maps/mp/_music;
-#include maps/mp/gametypes_zm/_globallogic_audio;
-#include maps/mp/gametypes_zm/_globallogic_utils;
+#include maps/mp/gametypes/_globallogic_audio;
+#include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/_utility;
 
 init()
@@ -76,7 +76,7 @@ init()
 	game[ "dialog" ][ "defend" ] = "defend";
 	game[ "dialog" ][ "offense" ] = "offense";
 	game[ "dialog" ][ "defense" ] = "defense";
-	game[ "dialog" ][ "halftime" ] = "halftime";
+	game[ "dialog" ][ "halftime" ] = "sd_halftime";
 	game[ "dialog" ][ "overtime" ] = "overtime";
 	game[ "dialog" ][ "side_switch" ] = "switchingsides";
 	game[ "dialog" ][ "flag_taken" ] = "ourflag";
@@ -111,6 +111,12 @@ init()
 	game[ "dialog" ][ "lost_d" ] = "dom_lost_d";
 	game[ "dialog" ][ "lost_e" ] = "dom_lost_e";
 	game[ "dialog" ][ "lost_f" ] = "dom_lost_f";
+	game[ "dialog" ][ "enemy_a" ] = "dom_enemy_a";
+	game[ "dialog" ][ "enemy_b" ] = "dom_enemy_b";
+	game[ "dialog" ][ "enemy_c" ] = "dom_enemy_c";
+	game[ "dialog" ][ "enemy_d" ] = "dom_enemy_d";
+	game[ "dialog" ][ "enemy_e" ] = "dom_enemy_e";
+	game[ "dialog" ][ "enemy_f" ] = "dom_enemy_f";
 	game[ "dialog" ][ "secure_flag" ] = "secure_flag";
 	game[ "dialog" ][ "securing_flag" ] = "securing_flag";
 	game[ "dialog" ][ "losing_flag" ] = "losing_flag";
@@ -138,6 +144,8 @@ init()
 	game[ "dialog" ][ "hacked_equip" ] = "hacked_equip";
 	game[ "dialog" ][ "uav_destroyed" ] = "kls_u2_destroyed";
 	game[ "dialog" ][ "cuav_destroyed" ] = "kls_cu2_destroyed";
+	game[ "dialog" ][ "wm_in_the_money" ] = "mpl_wager_top3_gain";
+	game[ "dialog" ][ "wm_oot_money" ] = "mpl_wager_top3_loss";
 	level.dialoggroups = [];
 	level thread post_match_snapshot_watcher();
 }
@@ -152,7 +160,9 @@ registerdialoggroup( group, skipifcurrentlyplayinggroup )
 	{
 		if ( isDefined( level.dialoggroup[ group ] ) )
 		{
+/#
 			error( "registerDialogGroup:  Dialog group " + group + " already registered." );
+#/
 			return;
 		}
 	}
@@ -177,7 +187,7 @@ sndstartmusicsystem()
 			println( "Music System - music state is undefined Waiting 15 seconds to set music state" );
 #/
 		}
-		wait 30;
+		wait 45;
 		if ( !isDefined( level.nextmusicstate ) )
 		{
 			self.pers[ "music" ].currentstate = "UNDERSCORE";
@@ -262,16 +272,16 @@ suspensemusic( random )
 
 leaderdialogforotherteams( dialog, skip_team, squad_dialog )
 {
-	_a339 = level.teams;
-	_k339 = getFirstArrayKey( _a339 );
-	while ( isDefined( _k339 ) )
+	_a350 = level.teams;
+	_k350 = getFirstArrayKey( _a350 );
+	while ( isDefined( _k350 ) )
 	{
-		team = _a339[ _k339 ];
+		team = _a350[ _k350 ];
 		if ( team != skip_team )
 		{
 			leaderdialog( dialog, team, undefined, undefined, squad_dialog );
 		}
-		_k339 = getNextArrayKey( _a339, _k339 );
+		_k350 = getNextArrayKey( _a350, _k350 );
 	}
 }
 
@@ -292,13 +302,13 @@ announceroundwinner( winner, delay )
 	}
 	else
 	{
-		_a365 = level.teams;
-		_k365 = getFirstArrayKey( _a365 );
-		while ( isDefined( _k365 ) )
+		_a376 = level.teams;
+		_k376 = getFirstArrayKey( _a376 );
+		while ( isDefined( _k376 ) )
 		{
-			team = _a365[ _k365 ];
+			team = _a376[ _k376 ];
 			thread playsoundonplayers( "mus_round_draw" + "_" + level.teampostfix[ team ] );
-			_k365 = getNextArrayKey( _a365, _k365 );
+			_k376 = getNextArrayKey( _a376, _k376 );
 		}
 		leaderdialog( "round_draw" );
 	}
@@ -346,10 +356,6 @@ leaderdialog( dialog, team, group, excludelist, squaddialog )
 /#
 	assert( isDefined( level.players ) );
 #/
-	if ( level.splitscreen )
-	{
-		return;
-	}
 	if ( level.wagermatch )
 	{
 		return;
@@ -357,23 +363,15 @@ leaderdialog( dialog, team, group, excludelist, squaddialog )
 	if ( !isDefined( team ) )
 	{
 		dialogs = [];
-		_a425 = level.teams;
-		_k425 = getFirstArrayKey( _a425 );
-		while ( isDefined( _k425 ) )
+		_a433 = level.teams;
+		_k433 = getFirstArrayKey( _a433 );
+		while ( isDefined( _k433 ) )
 		{
-			team = _a425[ _k425 ];
+			team = _a433[ _k433 ];
 			dialogs[ team ] = dialog;
-			_k425 = getNextArrayKey( _a425, _k425 );
+			_k433 = getNextArrayKey( _a433, _k433 );
 		}
 		leaderdialogallteams( dialogs, group, excludelist );
-		return;
-	}
-	if ( level.splitscreen )
-	{
-		if ( level.players.size )
-		{
-			level.players[ 0 ] leaderdialogonplayer( dialog, group );
-		}
 		return;
 	}
 	if ( isDefined( excludelist ) )
@@ -382,7 +380,7 @@ leaderdialog( dialog, team, group, excludelist, squaddialog )
 		while ( i < level.players.size )
 		{
 			player = level.players[ i ];
-			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team && !maps/mp/gametypes_zm/_globallogic_utils::isexcluded( player, excludelist ) )
+			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team && !maps/mp/gametypes/_globallogic_utils::isexcluded( player, excludelist ) )
 			{
 				player leaderdialogonplayer( dialog, group );
 			}
@@ -406,18 +404,6 @@ leaderdialogallteams( dialogs, group, excludelist )
 /#
 	assert( isDefined( level.players ) );
 #/
-	if ( level.splitscreen )
-	{
-		return;
-	}
-	if ( level.splitscreen )
-	{
-		if ( level.players.size )
-		{
-			level.players[ 0 ] leaderdialogonplayer( dialogs[ level.players[ 0 ].team ], group );
-		}
-		return;
-	}
 	i = 0;
 	while ( i < level.players.size )
 	{
@@ -433,7 +419,7 @@ leaderdialogallteams( dialogs, group, excludelist )
 			i++;
 			continue;
 		}
-		else if ( isDefined( excludelist ) && maps/mp/gametypes_zm/_globallogic_utils::isexcluded( player, excludelist ) )
+		else if ( isDefined( excludelist ) && maps/mp/gametypes/_globallogic_utils::isexcluded( player, excludelist ) )
 		{
 			i++;
 			continue;
@@ -448,13 +434,13 @@ leaderdialogallteams( dialogs, group, excludelist )
 
 flushdialog()
 {
-	_a495 = level.players;
-	_k495 = getFirstArrayKey( _a495 );
-	while ( isDefined( _k495 ) )
+	_a485 = level.players;
+	_k485 = getFirstArrayKey( _a485 );
+	while ( isDefined( _k485 ) )
 	{
-		player = _a495[ _k495 ];
+		player = _a485[ _k485 ];
 		player flushdialogonplayer();
-		_k495 = getNextArrayKey( _a495, _k495 );
+		_k485 = getNextArrayKey( _a485, _k485 );
 	}
 }
 
@@ -464,31 +450,27 @@ flushdialogonplayer()
 	self.leaderdialogqueue = [];
 	self.leaderdialogactive = 0;
 	self.currentleaderdialoggroup = "";
+	self notify( "flush_dialog" );
 }
 
 flushgroupdialog( group )
 {
-	_a512 = level.players;
-	_k512 = getFirstArrayKey( _a512 );
-	while ( isDefined( _k512 ) )
+	_a503 = level.players;
+	_k503 = getFirstArrayKey( _a503 );
+	while ( isDefined( _k503 ) )
 	{
-		player = _a512[ _k512 ];
+		player = _a503[ _k503 ];
 		player flushgroupdialogonplayer( group );
-		_k512 = getNextArrayKey( _a512, _k512 );
+		_k503 = getNextArrayKey( _a503, _k503 );
 	}
 }
 
 flushgroupdialogonplayer( group )
 {
-	_a522 = self.leaderdialogqueue;
-	key = getFirstArrayKey( _a522 );
-	while ( isDefined( key ) )
+	arrayremovevalue( self.leaderdialogqueue, group );
+	if ( self.leaderdialogqueue.size == 0 )
 	{
-		dialog = _a522[ key ];
-		if ( dialog == group )
-		{
-		}
-		key = getNextArrayKey( _a522, key );
+		self flushdialogonplayer();
 	}
 }
 
@@ -496,7 +478,9 @@ addgroupdialogtoplayer( dialog, group )
 {
 	if ( !isDefined( level.dialoggroup[ group ] ) )
 	{
+/#
 		error( "leaderDialogOnPlayer:  Dialog group " + group + " is not registered" );
+#/
 		return 0;
 	}
 	addtoqueue = 0;
@@ -508,25 +492,10 @@ addgroupdialogtoplayer( dialog, group )
 	{
 		if ( self.currentleaderdialog == dialog && ( self.currentleaderdialogtime + 2000 ) > getTime() )
 		{
-			_a552 = self.leaderdialogqueue;
-			key = getFirstArrayKey( _a552 );
-			while ( isDefined( key ) )
+			arrayremovevalue( self.leaderdialogqueue, group );
+			if ( self.leaderdialogqueue.size == 0 )
 			{
-				leader_dialog = _a552[ key ];
-				if ( leader_dialog == group )
-				{
-					i = key + 1;
-					while ( i < self.leaderdialogqueue.size )
-					{
-						self.leaderdialogqueue[ i - 1 ] = self.leaderdialogqueue[ i ];
-						i++;
-					}
-					break;
-				}
-				else
-				{
-					key = getNextArrayKey( _a552, key );
-				}
+				self flushdialogonplayer();
 			}
 			return 0;
 		}
@@ -542,35 +511,12 @@ addgroupdialogtoplayer( dialog, group )
 	return addtoqueue;
 }
 
-testdialogqueue( group )
-{
-/#
-	count = 0;
-	_a585 = self.leaderdialogqueue;
-	_k585 = getFirstArrayKey( _a585 );
-	while ( isDefined( _k585 ) )
-	{
-		temp = _a585[ _k585 ];
-		if ( temp == group )
-		{
-			count++;
-		}
-		_k585 = getNextArrayKey( _a585, _k585 );
-	}
-	if ( count > 1 )
-	{
-		shit = 0;
-#/
-	}
-}
-
 leaderdialogonplayer( dialog, group )
 {
+/#
+	assert( isDefined( dialog ) );
+#/
 	team = self.pers[ "team" ];
-	if ( level.splitscreen )
-	{
-		return;
-	}
 	if ( !isDefined( team ) )
 	{
 		return;
@@ -583,18 +529,17 @@ leaderdialogonplayer( dialog, group )
 	{
 		if ( !addgroupdialogtoplayer( dialog, group ) )
 		{
-			self testdialogqueue( group );
 			return;
 		}
 		dialog = group;
 	}
-	if ( !self.leaderdialogactive )
-	{
-		self thread playleaderdialogonplayer( dialog );
-	}
-	else
+	if ( self.leaderdialogqueue.size < 10 )
 	{
 		self.leaderdialogqueue[ self.leaderdialogqueue.size ] = dialog;
+	}
+	if ( !self.leaderdialogactive )
+	{
+		self thread playnextleaderdialog();
 	}
 }
 
@@ -615,29 +560,42 @@ waitforsound( sound, extratime )
 	}
 }
 
-playleaderdialogonplayer( dialog )
+playnextleaderdialog()
 {
+	self endon( "disconnect" );
+	self endon( "flush_dialog" );
 	if ( isDefined( level.allowannouncer ) && !level.allowannouncer )
 	{
 		return;
 	}
-	team = self.pers[ "team" ];
-	self endon( "disconnect" );
 	self.leaderdialogactive = 1;
+	waittillframeend;
+/#
+	assert( self.leaderdialogqueue.size > 0 );
+#/
+	dialog = self.leaderdialogqueue[ 0 ];
+/#
+	assert( isDefined( dialog ) );
+#/
+	arrayremoveindex( self.leaderdialogqueue, 0 );
+	team = self.pers[ "team" ];
 	if ( isDefined( self.leaderdialoggroups[ dialog ] ) )
 	{
 		group = dialog;
 		dialog = self.leaderdialoggroups[ group ];
 		self.currentleaderdialoggroup = group;
-		self testdialogqueue( group );
 	}
-	if ( level.wagermatch || !isDefined( game[ "voice" ] ) )
+	if ( level.wagermatch )
 	{
 		faction = "vox_wm_";
 	}
 	else
 	{
 		faction = game[ "voice" ][ team ];
+	}
+	if ( !isDefined( faction ) )
+	{
+		return;
 	}
 	sound_name = faction + game[ "dialog" ][ dialog ];
 	if ( level.allowannouncer )
@@ -652,29 +610,18 @@ playleaderdialogonplayer( dialog )
 	self.currentleaderdialog = "";
 	if ( self.leaderdialogqueue.size > 0 )
 	{
-		nextdialog = self.leaderdialogqueue[ 0 ];
-		i = 1;
-		while ( i < self.leaderdialogqueue.size )
-		{
-			self.leaderdialogqueue[ i - 1 ] = self.leaderdialogqueue[ i ];
-			i++;
-		}
-		if ( isDefined( self.leaderdialoggroups[ dialog ] ) )
-		{
-			self testdialogqueue( dialog );
-		}
-		self thread playleaderdialogonplayer( nextdialog );
+		self thread playnextleaderdialog();
 	}
 }
 
 isteamwinning( checkteam )
 {
 	score = game[ "teamScores" ][ checkteam ];
-	_a702 = level.teams;
-	_k702 = getFirstArrayKey( _a702 );
-	while ( isDefined( _k702 ) )
+	_a678 = level.teams;
+	_k678 = getFirstArrayKey( _a678 );
+	while ( isDefined( _k678 ) )
 	{
-		team = _a702[ _k702 ];
+		team = _a678[ _k678 ];
 		if ( team != checkteam )
 		{
 			if ( game[ "teamScores" ][ team ] >= score )
@@ -682,25 +629,25 @@ isteamwinning( checkteam )
 				return 0;
 			}
 		}
-		_k702 = getNextArrayKey( _a702, _k702 );
+		_k678 = getNextArrayKey( _a678, _k678 );
 	}
 	return 1;
 }
 
 announceteamiswinning()
 {
-	_a716 = level.teams;
-	_k716 = getFirstArrayKey( _a716 );
-	while ( isDefined( _k716 ) )
+	_a692 = level.teams;
+	_k692 = getFirstArrayKey( _a692 );
+	while ( isDefined( _k692 ) )
 	{
-		team = _a716[ _k716 ];
+		team = _a692[ _k692 ];
 		if ( isteamwinning( team ) )
 		{
 			leaderdialog( "winning", team, undefined, undefined, "squad_winning" );
 			leaderdialogforotherteams( "losing", team, "squad_losing" );
 			return 1;
 		}
-		_k716 = getNextArrayKey( _a716, _k716 );
+		_k692 = getNextArrayKey( _a692, _k692 );
 	}
 	return 0;
 }
@@ -712,24 +659,21 @@ musiccontroller()
 	level waittill( "match_ending_soon" );
 	if ( islastround() || isoneround() )
 	{
-		while ( !level.splitscreen )
+		if ( level.teambased )
 		{
-			if ( level.teambased )
+			if ( !announceteamiswinning() )
 			{
-				if ( !announceteamiswinning() )
-				{
-					leaderdialog( "min_draw" );
-				}
+				leaderdialog( "min_draw" );
 			}
-			level waittill( "match_ending_very_soon" );
-			_a751 = level.teams;
-			_k751 = getFirstArrayKey( _a751 );
-			while ( isDefined( _k751 ) )
-			{
-				team = _a751[ _k751 ];
-				leaderdialog( "timesup", team, undefined, undefined, "squad_30sec" );
-				_k751 = getNextArrayKey( _a751, _k751 );
-			}
+		}
+		level waittill( "match_ending_very_soon" );
+		_a725 = level.teams;
+		_k725 = getFirstArrayKey( _a725 );
+		while ( isDefined( _k725 ) )
+		{
+			team = _a725[ _k725 ];
+			leaderdialog( "timesup", team, undefined, undefined, "squad_30sec" );
+			_k725 = getNextArrayKey( _a725, _k725 );
 		}
 	}
 	else level waittill( "match_ending_vox" );
@@ -740,7 +684,7 @@ musictimesout()
 {
 	level endon( "game_ended" );
 	level waittill( "match_ending_very_soon" );
-	thread maps/mp/gametypes_zm/_globallogic_audio::set_music_on_team( "TIME_OUT", "both", 1, 0 );
+	thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "TIME_OUT", "both", 1, 0 );
 }
 
 actionmusicset()

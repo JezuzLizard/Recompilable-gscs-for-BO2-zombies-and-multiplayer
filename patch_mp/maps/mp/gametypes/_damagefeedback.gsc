@@ -37,7 +37,7 @@ updatedamagefeedback( mod, inflictor, perkfeedback )
 			switch( inflictor.soundmod )
 			{
 				case "player":
-					self thread playhitsound( mod, "mpl_hit_alert" );
+					self playlocalsound( "mpl_hit_alert" );
 					break;
 				case "heli":
 					self thread playhitsound( mod, "mpl_hit_alert_air" );
@@ -58,7 +58,7 @@ updatedamagefeedback( mod, inflictor, perkfeedback )
 						break;
 				}
 			}
-			else self thread playhitsound( mod, "mpl_hit_alert_low" );
+			else self playlocalsound( "mpl_hit_alert_low" );
 		}
 		if ( isDefined( perkfeedback ) )
 		{

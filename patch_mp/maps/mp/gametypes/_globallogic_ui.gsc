@@ -1,7 +1,13 @@
-#include maps/mp/gametypes_zm/_globallogic_player;
-#include maps/mp/gametypes_zm/_spectating;
-#include maps/mp/gametypes_zm/_globallogic;
-#include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/gametypes/_class;
+#include maps/mp/gametypes/_globallogic_player;
+#include maps/mp/gametypes/_spectating;
+#include maps/mp/gametypes/_globallogic;
+#include maps/mp/gametypes/_pregame;
+#include maps/mp/teams/_teams;
+#include maps/mp/bots/_bot;
+#include maps/mp/killstreaks/_killstreaks;
+#include maps/mp/gametypes/_hud_util;
+#include common_scripts/utility;
 #include maps/mp/_utility;
 
 init()
@@ -21,10 +27,6 @@ init()
 	precachestring( &"rank_up" );
 	precachestring( &"gun_level_complete" );
 	precachestring( &"challenge_complete" );
-	if ( sessionmodeiszombiesgame() )
-	{
-		precachestring( &"hud_update_survival_team" );
-	}
 	if ( level.splitscreen )
 	{
 		precachestring( &"MP_ENDED_GAME" );
@@ -134,16 +136,17 @@ freegameplayhudelems()
 	{
 		self.carryicon destroyelem();
 	}
+	maps/mp/killstreaks/_killstreaks::destroykillstreaktimers();
 }
 
 teamplayercountsequal( playercounts )
 {
 	count = undefined;
-	_a150 = level.teams;
-	_k150 = getFirstArrayKey( _a150 );
-	while ( isDefined( _k150 ) )
+	_a146 = level.teams;
+	_k146 = getFirstArrayKey( _a146 );
+	while ( isDefined( _k146 ) )
 	{
-		team = _a150[ _k150 ];
+		team = _a146[ _k146 ];
 		if ( !isDefined( count ) )
 		{
 			count = playercounts[ team ];
@@ -155,7 +158,7 @@ teamplayercountsequal( playercounts )
 				return 0;
 			}
 		}
-		_k150 = getNextArrayKey( _a150, _k150 );
+		_k146 = getNextArrayKey( _a146, _k146 );
 	}
 	return 1;
 }
@@ -164,17 +167,17 @@ teamwithlowestplayercount( playercounts, ignore_team )
 {
 	count = 9999;
 	lowest_team = undefined;
-	_a169 = level.teams;
-	_k169 = getFirstArrayKey( _a169 );
-	while ( isDefined( _k169 ) )
+	_a165 = level.teams;
+	_k165 = getFirstArrayKey( _a165 );
+	while ( isDefined( _k165 ) )
 	{
-		team = _a169[ _k169 ];
+		team = _a165[ _k165 ];
 		if ( count > playercounts[ team ] )
 		{
 			count = playercounts[ team ];
 			lowest_team = team;
 		}
-		_k169 = getNextArrayKey( _a169, _k169 );
+		_k165 = getNextArrayKey( _a165, _k165 );
 	}
 	return lowest_team;
 }
@@ -242,6 +245,45 @@ menuautoassign( comingfrommenu )
 				{
 					assignment = "allies";
 				}
+				else if ( maps/mp/bots/_bot::is_bot_comp_stomp() )
+				{
+					host = gethostplayerforbots();
+/#
+					assert( isDefined( host ) );
+#/
+					if ( !isDefined( host.team ) || host.team == "spectator" )
+					{
+						host.team = random( teamkeys );
+					}
+					if ( !self is_bot() )
+					{
+						assignment = host.team;
+					}
+					else
+					{
+						assignment = getotherteam( host.team );
+					}
+				}
+				else playercounts = self maps/mp/teams/_teams::countplayers();
+				if ( teamplayercountsequal( playercounts ) )
+				{
+					if ( !level.splitscreen && self issplitscreen() )
+					{
+						assignment = self getsplitscreenteam();
+						if ( assignment == "" )
+						{
+							assignment = pickteamfromscores( teamkeys );
+						}
+					}
+					else
+					{
+						assignment = pickteamfromscores( teamkeys );
+					}
+				}
+				else
+				{
+					assignment = teamwithlowestplayercount( playercounts, "none" );
+				}
 			}
 			if ( assignment == self.pers[ "team" ] || self.sessionstate == "playing" && self.sessionstate == "dead" )
 			{
@@ -296,6 +338,31 @@ menuautoassign( comingfrommenu )
 	self notify( "joined_team" );
 	level notify( "joined_team" );
 	self notify( "end_respawn" );
+	if ( ispregame() )
+	{
+		if ( !self is_bot() )
+		{
+			pclass = self maps/mp/gametypes/_pregame::get_pregame_class();
+			self closemenu();
+			self closeingamemenu();
+			self.selectedclass = 1;
+			self [[ level.class ]]( pclass );
+			self setclientscriptmainmenu( game[ "menu_class" ] );
+			return;
+		}
+	}
+	if ( ispregamegamestarted() )
+	{
+		if ( self is_bot() && isDefined( self.pers[ "class" ] ) )
+		{
+			pclass = self.pers[ "class" ];
+			self closemenu();
+			self closeingamemenu();
+			self.selectedclass = 1;
+			self [[ level.class ]]( pclass );
+			return;
+		}
+	}
 	self beginclasschoice();
 	self setclientscriptmainmenu( game[ "menu_class" ] );
 }
@@ -303,11 +370,11 @@ menuautoassign( comingfrommenu )
 teamscoresequal()
 {
 	score = undefined;
-	_a413 = level.teams;
-	_k413 = getFirstArrayKey( _a413 );
-	while ( isDefined( _k413 ) )
+	_a397 = level.teams;
+	_k397 = getFirstArrayKey( _a397 );
+	while ( isDefined( _k397 ) )
 	{
-		team = _a413[ _k413 ];
+		team = _a397[ _k397 ];
 		if ( !isDefined( score ) )
 		{
 			score = getteamscore( team );
@@ -319,7 +386,7 @@ teamscoresequal()
 				return 0;
 			}
 		}
-		_k413 = getNextArrayKey( _a413, _k413 );
+		_k397 = getNextArrayKey( _a397, _k397 );
 	}
 	return 1;
 }
@@ -328,16 +395,16 @@ teamwithlowestscore()
 {
 	score = 99999999;
 	lowest_team = undefined;
-	_a432 = level.teams;
-	_k432 = getFirstArrayKey( _a432 );
-	while ( isDefined( _k432 ) )
+	_a416 = level.teams;
+	_k416 = getFirstArrayKey( _a416 );
+	while ( isDefined( _k416 ) )
 	{
-		team = _a432[ _k432 ];
+		team = _a416[ _k416 ];
 		if ( score > getteamscore( team ) )
 		{
 			lowest_team = team;
 		}
-		_k432 = getNextArrayKey( _a432, _k432 );
+		_k416 = getNextArrayKey( _a416, _k416 );
 	}
 	return lowest_team;
 }
@@ -418,7 +485,7 @@ beginclasschoice( forcenewchoice )
 	assert( isDefined( level.teams[ self.pers[ "team" ] ] ) );
 #/
 	team = self.pers[ "team" ];
-	if ( level.disablecac == 1 )
+	if ( level.disableclassselection == 1 || getDvarInt( "migration_soak" ) == 1 )
 	{
 		self.pers[ "class" ] = level.defaultclass;
 		self.class = level.defaultclass;
@@ -426,8 +493,8 @@ beginclasschoice( forcenewchoice )
 		{
 			self thread [[ level.spawnclient ]]();
 		}
-		level thread maps/mp/gametypes_zm/_globallogic::updateteamstatus();
-		self thread maps/mp/gametypes_zm/_spectating::setspectatepermissionsformachine();
+		level thread maps/mp/gametypes/_globallogic::updateteamstatus();
+		self thread maps/mp/gametypes/_spectating::setspectatepermissionsformachine();
 		return;
 	}
 	if ( level.wagermatch )
@@ -484,6 +551,10 @@ menuteam( team )
 		self.team = team;
 		self.class = undefined;
 		self updateobjectivetext();
+		if ( !level.rankedmatch && !level.leaguematch )
+		{
+			self.sessionstate = "spectator";
+		}
 		if ( level.teambased )
 		{
 			self.sessionteam = team;
@@ -523,7 +594,7 @@ menuspectator()
 			self.ffateam = "spectator";
 		}
 		[[ level.spawnspectator ]]();
-		self thread maps/mp/gametypes_zm/_globallogic_player::spectate_player_watcher();
+		self thread maps/mp/gametypes/_globallogic_player::spectate_player_watcher();
 		self setclientscriptmainmenu( game[ "menu_class" ] );
 		self notify( "joined_spectators" );
 	}
@@ -532,6 +603,90 @@ menuspectator()
 menuclass( response )
 {
 	self closemenus();
+	if ( !isDefined( self.pers[ "team" ] ) || !isDefined( level.teams[ self.pers[ "team" ] ] ) )
+	{
+		return;
+	}
+	class = self maps/mp/gametypes/_class::getclasschoice( response );
+	if ( isDefined( self.pers[ "class" ] ) && self.pers[ "class" ] == class )
+	{
+		return;
+	}
+	self.pers[ "changed_class" ] = 1;
+	self notify( "changed_class" );
+	if ( isDefined( self.curclass ) && self.curclass == class )
+	{
+		self.pers[ "changed_class" ] = 0;
+	}
+	if ( ispregame() )
+	{
+		self maps/mp/gametypes/_pregame::onplayerclasschange( response );
+	}
+	if ( self.sessionstate == "playing" )
+	{
+		self.pers[ "class" ] = class;
+		self.class = class;
+		if ( game[ "state" ] == "postgame" )
+		{
+			return;
+		}
+		if ( isDefined( self.usingsupplystation ) )
+		{
+			supplystationclasschange = self.usingsupplystation;
+		}
+		self.usingsupplystation = 0;
+		if ( level.ingraceperiod || !self.hasdonecombat && supplystationclasschange )
+		{
+			self maps/mp/gametypes/_class::setclass( self.pers[ "class" ] );
+			self.tag_stowed_back = undefined;
+			self.tag_stowed_hip = undefined;
+			self maps/mp/gametypes/_class::giveloadout( self.pers[ "team" ], self.pers[ "class" ] );
+			self maps/mp/killstreaks/_killstreaks::giveownedkillstreak();
+		}
+		else
+		{
+			if ( !self issplitscreen() )
+			{
+				self iprintlnbold( game[ "strings" ][ "change_class" ] );
+			}
+		}
+	}
+	else
+	{
+		self.pers[ "class" ] = class;
+		self.class = class;
+		if ( game[ "state" ] == "postgame" )
+		{
+			return;
+		}
+		if ( self.sessionstate != "spectator" )
+		{
+			if ( self isinvehicle() )
+			{
+				return;
+			}
+			if ( self isremotecontrolling() )
+			{
+				return;
+			}
+			if ( self isweaponviewonlylinked() )
+			{
+				return 0;
+			}
+		}
+		if ( game[ "state" ] == "playing" )
+		{
+			timepassed = undefined;
+			if ( isDefined( self.respawntimerstarttime ) )
+			{
+				timepassed = ( getTime() - self.respawntimerstarttime ) / 1000;
+			}
+			self thread [[ level.spawnclient ]]( timepassed );
+			self.respawntimerstarttime = undefined;
+		}
+	}
+	level thread maps/mp/gametypes/_globallogic::updateteamstatus();
+	self thread maps/mp/gametypes/_spectating::setspectatepermissionsformachine();
 }
 
 removespawnmessageshortly( delay )

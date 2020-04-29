@@ -1,7 +1,10 @@
-#include maps/mp/gametypes_zm/_tweakables;
-#include maps/mp/gametypes_zm/_hostmigration;
-#include maps/mp/gametypes_zm/_weapons;
-#include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/gametypes/_tweakables;
+#include maps/mp/killstreaks/_radar;
+#include maps/mp/killstreaks/_killstreaks;
+#include maps/mp/gametypes/_hostmigration;
+#include maps/mp/gametypes/_weapons;
+#include maps/mp/gametypes/_objpoints;
+#include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
@@ -58,44 +61,6 @@ entity_is_allowed( entity, allowed_game_modes )
 				j++;
 			}
 			i++;
-		}
-	}
-	return allowed;
-}
-
-location_is_allowed( entity, location )
-{
-	allowed = 1;
-	location_list = undefined;
-	if ( isDefined( entity.script_noteworthy ) )
-	{
-		location_list = entity.script_noteworthy;
-	}
-	if ( isDefined( entity.script_location ) )
-	{
-		location_list = entity.script_location;
-	}
-	while ( isDefined( location_list ) )
-	{
-		if ( location_list == "[all_modes]" )
-		{
-			allowed = 1;
-			break;
-		}
-		else allowed = 0;
-		gameobjectlocations = strtok( location_list, " " );
-		j = 0;
-		while ( j < gameobjectlocations.size )
-		{
-			if ( gameobjectlocations[ j ] == location )
-			{
-				allowed = 1;
-				break;
-			}
-			else
-			{
-				j++;
-			}
 		}
 	}
 	return allowed;
@@ -185,7 +150,6 @@ onplayerspawned()
 ondeath()
 {
 	level endon( "game_ended" );
-	self endon( "spawned_player" );
 	self waittill( "death" );
 	if ( isDefined( self.carryobject ) )
 	{
@@ -247,18 +211,38 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 	carryobject.objid = [];
 	while ( !carryobject.newstyle )
 	{
-		_a319 = level.teams;
-		_k319 = getFirstArrayKey( _a319 );
-		while ( isDefined( _k319 ) )
+		_a269 = level.teams;
+		_k269 = getFirstArrayKey( _a269 );
+		while ( isDefined( _k269 ) )
 		{
-			team = _a319[ _k319 ];
+			team = _a269[ _k269 ];
 			carryobject.objid[ team ] = getnextobjid();
-			_k319 = getNextArrayKey( _a319, _k319 );
+			_k269 = getNextArrayKey( _a269, _k269 );
 		}
 	}
 	carryobject.objidpingfriendly = 0;
 	carryobject.objidpingenemy = 0;
 	level.objidstart += 2;
+	if ( !carryobject.newstyle )
+	{
+		if ( level.teambased )
+		{
+			_a283 = level.teams;
+			_k283 = getFirstArrayKey( _a283 );
+			while ( isDefined( _k283 ) )
+			{
+				team = _a283[ _k283 ];
+				objective_add( carryobject.objid[ team ], "invisible", carryobject.curorigin );
+				objective_team( carryobject.objid[ team ], team );
+				carryobject.objpoints[ team ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + team + "_" + carryobject.entnum, carryobject.curorigin + offset, team, undefined );
+				carryobject.objpoints[ team ].alpha = 0;
+				_k283 = getNextArrayKey( _a283, _k283 );
+			}
+		}
+		else objective_add( carryobject.objid[ level.nonteambasedteam ], "invisible", carryobject.curorigin );
+		carryobject.objpoints[ level.nonteambasedteam ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + level.nonteambasedteam + "_" + carryobject.entnum, carryobject.curorigin + offset, "all", undefined );
+		carryobject.objpoints[ level.nonteambasedteam ].alpha = 0;
+	}
 	carryobject.objectiveid = getnextobjid();
 	objective_add( carryobject.objectiveid, "invisible", carryobject.curorigin, objectivename );
 	carryobject.carrier = undefined;
@@ -280,7 +264,34 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 	}
 	else
 	{
-		carryobject thread carryobjectproxthink();
+		carryobject.numtouching[ "neutral" ] = 0;
+		carryobject.numtouching[ "none" ] = 0;
+		carryobject.touchlist[ "neutral" ] = [];
+		carryobject.touchlist[ "none" ] = [];
+		_a339 = level.teams;
+		_k339 = getFirstArrayKey( _a339 );
+		while ( isDefined( _k339 ) )
+		{
+			team = _a339[ _k339 ];
+			carryobject.numtouching[ team ] = 0;
+			carryobject.touchlist[ team ] = [];
+			_k339 = getNextArrayKey( _a339, _k339 );
+		}
+		carryobject.curprogress = 0;
+		carryobject.usetime = 0;
+		carryobject.userate = 0;
+		carryobject.claimteam = "none";
+		carryobject.claimplayer = undefined;
+		carryobject.lastclaimteam = "none";
+		carryobject.lastclaimtime = 0;
+		carryobject.claimgraceperiod = 0;
+		carryobject.mustmaintainclaim = 0;
+		carryobject.cancontestclaim = 0;
+		carryobject.decayprogress = 0;
+		carryobject.teamusetimes = [];
+		carryobject.teamusetexts = [];
+		carryobject.onuse = ::setpickedup;
+		carryobject thread useobjectproxthink();
 	}
 	carryobject thread updatecarryobjectorigin();
 	carryobject thread updatecarryobjectobjectiveorigin();
@@ -411,9 +422,13 @@ pickupobjectdelay( origin )
 
 setpickedup( player )
 {
+	if ( !isalive( player ) )
+	{
+		return;
+	}
 	if ( isDefined( player.carryobject ) )
 	{
-		if ( isDefined( player.carryobject.swappable ) && player.carryobject.swappable )
+		if ( is_true( player.carryobject.swappable ) )
 		{
 			player.carryobject thread setdropped();
 		}
@@ -492,13 +507,21 @@ updatecarryobjectorigin()
 		if ( isDefined( self.carrier ) && level.teambased )
 		{
 			self.curorigin = self.carrier.origin + vectorScale( ( 0, 0, 1 ), 75 );
+			_a606 = level.teams;
+			_k606 = getFirstArrayKey( _a606 );
+			while ( isDefined( _k606 ) )
+			{
+				team = _a606[ _k606 ];
+				self.objpoints[ team ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin );
+				_k606 = getNextArrayKey( _a606, _k606 );
+			}
 			while ( self.visibleteam != "friendly" && self.visibleteam == "any" && self.objidpingfriendly )
 			{
-				_a626 = level.teams;
-				_k626 = getFirstArrayKey( _a626 );
-				while ( isDefined( _k626 ) )
+				_a613 = level.teams;
+				_k613 = getFirstArrayKey( _a613 );
+				while ( isDefined( _k613 ) )
 				{
-					team = _a626[ _k626 ];
+					team = _a613[ _k613 ];
 					if ( self isfriendlyteam( team ) )
 					{
 						if ( self.objpoints[ team ].isshown )
@@ -509,7 +532,7 @@ updatecarryobjectorigin()
 						}
 						objective_position( self.objid[ team ], self.curorigin );
 					}
-					_k626 = getNextArrayKey( _a626, _k626 );
+					_k613 = getNextArrayKey( _a613, _k613 );
 				}
 			}
 			if ( self.visibleteam != "enemy" && self.visibleteam == "any" && self.objidpingenemy )
@@ -533,11 +556,25 @@ updatecarryobjectorigin()
 			if ( isDefined( self.carrier ) )
 			{
 				self.curorigin = self.carrier.origin + vectorScale( ( 0, 0, 1 ), 75 );
+				self.objpoints[ level.nonteambasedteam ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin );
+				objective_position( self.objid[ level.nonteambasedteam ], self.curorigin );
 				wait 0,05;
 				break;
 			}
 			else
 			{
+				if ( level.teambased )
+				{
+					_a656 = level.teams;
+					_k656 = getFirstArrayKey( _a656 );
+					while ( isDefined( _k656 ) )
+					{
+						team = _a656[ _k656 ];
+						self.objpoints[ team ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
+						_k656 = getNextArrayKey( _a656, _k656 );
+					}
+				}
+				else self.objpoints[ level.nonteambasedteam ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
 				wait 0,05;
 			}
 		}
@@ -585,7 +622,7 @@ giveobject( object )
 	self.disallowvehicleusage = 1;
 	if ( isDefined( object.visiblecarriermodel ) )
 	{
-		self maps/mp/gametypes_zm/_weapons::forcestowedweaponupdate();
+		self maps/mp/gametypes/_weapons::forcestowedweaponupdate();
 	}
 	if ( !object.newstyle )
 	{
@@ -842,7 +879,7 @@ takeobject( object )
 	}
 	if ( isDefined( object.visiblecarriermodel ) )
 	{
-		self maps/mp/gametypes_zm/_weapons::detach_all_weapons();
+		self maps/mp/gametypes/_weapons::detach_all_weapons();
 	}
 	self.carryobject = undefined;
 	if ( !isalive( self ) )
@@ -857,7 +894,7 @@ takeobject( object )
 	}
 	if ( isDefined( object.visiblecarriermodel ) )
 	{
-		self maps/mp/gametypes_zm/_weapons::forcestowedweaponupdate();
+		self maps/mp/gametypes/_weapons::forcestowedweaponupdate();
 	}
 	if ( !object.allowweapons )
 	{
@@ -951,30 +988,47 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 	useobject.objid = [];
 	if ( !useobject.newstyle )
 	{
-		_a1185 = level.teams;
-		_k1185 = getFirstArrayKey( _a1185 );
-		while ( isDefined( _k1185 ) )
+		_a1172 = level.teams;
+		_k1172 = getFirstArrayKey( _a1172 );
+		while ( isDefined( _k1172 ) )
 		{
-			team = _a1185[ _k1185 ];
+			team = _a1172[ _k1172 ];
 			useobject.objid[ team ] = getnextobjid();
-			_k1185 = getNextArrayKey( _a1185, _k1185 );
+			_k1172 = getNextArrayKey( _a1172, _k1172 );
 		}
 		if ( level.teambased )
 		{
-			_a1192 = level.teams;
-			_k1192 = getFirstArrayKey( _a1192 );
-			while ( isDefined( _k1192 ) )
+			_a1179 = level.teams;
+			_k1179 = getFirstArrayKey( _a1179 );
+			while ( isDefined( _k1179 ) )
 			{
-				team = _a1192[ _k1192 ];
+				team = _a1179[ _k1179 ];
 				objective_add( useobject.objid[ team ], "invisible", useobject.curorigin );
 				objective_team( useobject.objid[ team ], team );
-				_k1192 = getNextArrayKey( _a1192, _k1192 );
+				_k1179 = getNextArrayKey( _a1179, _k1179 );
 			}
 		}
 		else objective_add( useobject.objid[ level.nonteambasedteam ], "invisible", useobject.curorigin );
 	}
 	useobject.objectiveid = getnextobjid();
-	objective_add( useobject.objectiveid, "invisible", useobject.curorigin, objectivename );
+	objective_add( useobject.objectiveid, "invisible", useobject.curorigin + offset, objectivename );
+	if ( !useobject.newstyle )
+	{
+		if ( level.teambased )
+		{
+			_a1203 = level.teams;
+			_k1203 = getFirstArrayKey( _a1203 );
+			while ( isDefined( _k1203 ) )
+			{
+				team = _a1203[ _k1203 ];
+				useobject.objpoints[ team ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + team + "_" + useobject.entnum, useobject.curorigin + offset, team, undefined );
+				useobject.objpoints[ team ].alpha = 0;
+				_k1203 = getNextArrayKey( _a1203, _k1203 );
+			}
+		}
+		else useobject.objpoints[ level.nonteambasedteam ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_allies_" + useobject.entnum, useobject.curorigin + offset, "all", undefined );
+		useobject.objpoints[ level.nonteambasedteam ].alpha = 0;
+	}
 	useobject.interactteam = "none";
 	useobject.worldicons = [];
 	useobject.visibleteam = "none";
@@ -991,15 +1045,17 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 		useobject.numtouching[ "none" ] = 0;
 		useobject.touchlist[ "neutral" ] = [];
 		useobject.touchlist[ "none" ] = [];
-		_a1255 = level.teams;
-		_k1255 = getFirstArrayKey( _a1255 );
-		while ( isDefined( _k1255 ) )
+		_a1242 = level.teams;
+		_k1242 = getFirstArrayKey( _a1242 );
+		while ( isDefined( _k1242 ) )
 		{
-			team = _a1255[ _k1255 ];
+			team = _a1242[ _k1242 ];
 			useobject.numtouching[ team ] = 0;
 			useobject.touchlist[ team ] = [];
-			_k1255 = getNextArrayKey( _a1255, _k1255 );
+			_k1242 = getNextArrayKey( _a1242, _k1242 );
 		}
+		useobject.teamusetimes = [];
+		useobject.teamusetexts = [];
 		useobject.userate = 0;
 		useobject.claimteam = "none";
 		useobject.claimplayer = undefined;
@@ -1146,8 +1202,11 @@ useobjectproxthink()
 			{
 				self [[ self.onuse ]]( creditplayer );
 			}
-			self setclaimteam( "none" );
-			self.claimplayer = undefined;
+			if ( !self.mustmaintainclaim )
+			{
+				self setclaimteam( "none" );
+				self.claimplayer = undefined;
+			}
 		}
 		if ( self.claimteam != "none" )
 		{
@@ -1161,7 +1220,7 @@ useobjectproxthink()
 				self.claimplayer = undefined;
 				self clearprogress();
 			}
-			else if ( self.usetime )
+			else if ( self.usetime || !self.mustmaintainclaim && self getownerteam() != self getclaimteam() )
 			{
 				if ( self.decayprogress && !self.numtouching[ self.claimteam ] )
 				{
@@ -1216,53 +1275,80 @@ useobjectproxthink()
 					}
 				}
 			}
-			else if ( !self.mustmaintainclaim )
+			else
 			{
-				if ( isDefined( self.onuse ) )
-				{
-					self [[ self.onuse ]]( self.claimplayer );
-				}
 				if ( !self.mustmaintainclaim )
 				{
+					if ( isDefined( self.onuse ) )
+					{
+						self [[ self.onuse ]]( self.claimplayer );
+					}
+					if ( !self.mustmaintainclaim )
+					{
+						self setclaimteam( "none" );
+						self.claimplayer = undefined;
+					}
+					break;
+				}
+				else if ( !self.numtouching[ self.claimteam ] )
+				{
+					if ( isDefined( self.onunoccupied ) )
+					{
+						self [[ self.onunoccupied ]]();
+					}
 					self setclaimteam( "none" );
 					self.claimplayer = undefined;
+					break;
+				}
+				else
+				{
+					if ( self.cancontestclaim )
+					{
+						numother = getnumtouchingexceptteam( self.claimteam );
+						if ( numother > 0 )
+						{
+							if ( isDefined( self.oncontested ) )
+							{
+								self [[ self.oncontested ]]();
+							}
+							self setclaimteam( "none" );
+							self.claimplayer = undefined;
+						}
+					}
 				}
 			}
-			else if ( !self.numtouching[ self.claimteam ] )
+		}
+		else if ( self.curprogress > 0 && ( getTime() - self.lastclaimtime ) > ( self.claimgraceperiod * 1000 ) )
+		{
+			self clearprogress();
+		}
+		if ( self.mustmaintainclaim && self getownerteam() != "none" )
+		{
+			if ( !self.numtouching[ self getownerteam() ] )
 			{
 				if ( isDefined( self.onunoccupied ) )
 				{
 					self [[ self.onunoccupied ]]();
 				}
-				self setclaimteam( "none" );
-				self.claimplayer = undefined;
+				break;
 			}
 			else
 			{
-				if ( self.cancontestclaim )
+				if ( self.cancontestclaim && self.lastclaimteam != "none" && self.numtouching[ self.lastclaimteam ] )
 				{
-					numother = getnumtouchingexceptteam( self.claimteam );
-					if ( numother > 0 )
+					numother = getnumtouchingexceptteam( self.lastclaimteam );
+					if ( numother == 0 )
 					{
-						if ( isDefined( self.oncontested ) )
+						if ( isDefined( self.onuncontested ) )
 						{
-							self [[ self.oncontested ]]();
+							self [[ self.onuncontested ]]( self.lastclaimteam );
 						}
-						self setclaimteam( "none" );
-						self.claimplayer = undefined;
 					}
 				}
 			}
 		}
-		else
-		{
-			if ( self.curprogress > 0 && ( getTime() - self.lastclaimtime ) > ( self.claimgraceperiod * 1000 ) )
-			{
-				self clearprogress();
-			}
-		}
 		wait 0,05;
-		maps/mp/gametypes_zm/_hostmigration::waittillhostmigrationdone();
+		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 }
 
@@ -1277,6 +1363,10 @@ useobjectlockedforteam( team )
 
 canclaim( player )
 {
+	if ( isDefined( self.carrier ) )
+	{
+		return 0;
+	}
 	if ( self.cancontestclaim )
 	{
 		numother = getnumtouchingexceptteam( player.pers[ "team" ] );
@@ -1304,11 +1394,15 @@ proxtriggerthink()
 		{
 			continue;
 		}
-		while ( player isinvehicle() )
+		while ( player.spawntime == getTime() )
 		{
 			continue;
 		}
 		while ( player isweaponviewonlylinked() )
+		{
+			continue;
+		}
+		while ( self isexcluded( player ) )
 		{
 			continue;
 		}
@@ -1318,6 +1412,11 @@ proxtriggerthink()
 			{
 				setclaimteam( player.pers[ "team" ] );
 				self.claimplayer = player;
+				relativeteam = self getrelativeteam( player.pers[ "team" ] );
+				if ( isDefined( self.teamusetimes[ relativeteam ] ) )
+				{
+					self.usetime = self.teamusetimes[ relativeteam ];
+				}
 				if ( self.usetime && isDefined( self.onbeginuse ) )
 				{
 					self [[ self.onbeginuse ]]( self.claimplayer );
@@ -1337,6 +1436,26 @@ proxtriggerthink()
 			player thread triggertouchthink( self );
 		}
 	}
+}
+
+isexcluded( player )
+{
+	if ( !isDefined( self.exclusions ) )
+	{
+		return 0;
+	}
+	_a1676 = self.exclusions;
+	_k1676 = getFirstArrayKey( _a1676 );
+	while ( isDefined( _k1676 ) )
+	{
+		exclusion = _a1676[ _k1676 ];
+		if ( exclusion istouching( player ) )
+		{
+			return 1;
+		}
+		_k1676 = getNextArrayKey( _a1676, _k1676 );
+	}
+	return 0;
 }
 
 clearprogress()
@@ -1383,10 +1502,6 @@ continuetriggertouchthink( team, object )
 		return 0;
 	}
 	if ( self useobjectlockedforteam( team ) )
-	{
-		return 0;
-	}
-	if ( self isinvehicle() )
 	{
 		return 0;
 	}
@@ -1516,7 +1631,7 @@ updateproxbar( object, forceremove )
 	}
 	if ( !isDefined( self.proxbar ) )
 	{
-		self.proxbar = self createprimaryprogressbar();
+		self.proxbar = createprimaryprogressbar();
 		self.proxbar.lastuserate = -1;
 		self.proxbar.lasthostmigrationstate = 0;
 	}
@@ -1528,7 +1643,7 @@ updateproxbar( object, forceremove )
 	}
 	if ( !isDefined( self.proxbartext ) )
 	{
-		self.proxbartext = self createprimaryprogressbartext();
+		self.proxbartext = createprimaryprogressbartext();
 		self.proxbartext settext( object.usetext );
 	}
 	if ( self.proxbartext.hidden )
@@ -1573,11 +1688,11 @@ updateproxbar( object, forceremove )
 getnumtouchingexceptteam( ignoreteam )
 {
 	numtouching = 0;
-	_a1902 = level.teams;
-	_k1902 = getFirstArrayKey( _a1902 );
-	while ( isDefined( _k1902 ) )
+	_a1944 = level.teams;
+	_k1944 = getFirstArrayKey( _a1944 );
+	while ( isDefined( _k1944 ) )
 	{
-		team = _a1902[ _k1902 ];
+		team = _a1944[ _k1944 ];
 		if ( ignoreteam == team )
 		{
 		}
@@ -1585,7 +1700,7 @@ getnumtouchingexceptteam( ignoreteam )
 		{
 			numtouching += self.numtouching[ team ];
 		}
-		_k1902 = getNextArrayKey( _a1902, _k1902 );
+		_k1944 = getNextArrayKey( _a1944, _k1944 );
 	}
 	return numtouching;
 }
@@ -1633,7 +1748,7 @@ updateuserate()
 useholdthink( player )
 {
 	player notify( "use_hold" );
-	if ( isDefined( self.dontlinkplayertotrigger ) && !self.dontlinkplayertotrigger )
+	if ( !is_true( self.dontlinkplayertotrigger ) )
 	{
 		player playerlinkto( self.trigger );
 		player playerlinkedoffsetenable();
@@ -1698,13 +1813,14 @@ useholdthink( player )
 		if ( isDefined( useweapon ) )
 		{
 			ammo = player getweaponammoclip( lastweapon );
-			if ( lastweapon != "none" && isweaponequipment( lastweapon ) && player getweaponammoclip( lastweapon ) != 0 )
+			if ( lastweapon != "none" && !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( lastweapon ) && isweaponequipment( lastweapon ) && player getweaponammoclip( lastweapon ) != 0 )
 			{
 				player switchtoweapon( lastweapon );
 			}
 			else
 			{
 				player takeweapon( useweapon );
+				player switchtolastnonkillstreakweapon();
 			}
 		}
 		else
@@ -1714,7 +1830,7 @@ useholdthink( player )
 				player _enableweapon();
 			}
 		}
-		if ( isDefined( self.dontlinkplayertotrigger ) && !self.dontlinkplayertotrigger )
+		if ( !is_true( self.dontlinkplayertotrigger ) )
 		{
 			player unlink();
 		}
@@ -1806,7 +1922,14 @@ updatecurrentprogress()
 {
 	if ( self.usetime )
 	{
-		progress = float( self.curprogress ) / self.usetime;
+		if ( isDefined( self.curprogress ) )
+		{
+			progress = float( self.curprogress ) / self.usetime;
+		}
+		else
+		{
+			progress = 0;
+		}
 		objective_setprogress( self.objectiveid, clamp( progress, 0, 1 ) );
 	}
 }
@@ -1840,22 +1963,21 @@ useholdthinkloop( player, lastweapon )
 			player.claimtrigger = undefined;
 			if ( isDefined( useweapon ) )
 			{
-				player setweaponammostock( useweapon, 1 );
-				player setweaponammoclip( useweapon, 1 );
-				if ( lastweapon != "none" && isweaponequipment( lastweapon ) && player getweaponammoclip( lastweapon ) != 0 )
+				if ( lastweapon != "none" && !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( lastweapon ) && isweaponequipment( lastweapon ) && player getweaponammoclip( lastweapon ) != 0 )
 				{
 					player switchtoweapon( lastweapon );
 				}
 				else
 				{
 					player takeweapon( useweapon );
+					player switchtolastnonkillstreakweapon();
 				}
 			}
 			else
 			{
 				player _enableweapon();
 			}
-			if ( isDefined( self.dontlinkplayertotrigger ) && !self.dontlinkplayertotrigger )
+			if ( !is_true( self.dontlinkplayertotrigger ) )
 			{
 				player unlink();
 			}
@@ -1863,7 +1985,7 @@ useholdthinkloop( player, lastweapon )
 			return isalive( player );
 		}
 		wait 0,05;
-		maps/mp/gametypes_zm/_hostmigration::waittillhostmigrationdone();
+		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 	return 0;
 }
@@ -1879,8 +2001,8 @@ personalusebar( object )
 	{
 		return;
 	}
-	self.usebar = self createprimaryprogressbar();
-	self.usebartext = self createprimaryprogressbartext();
+	self.usebar = createprimaryprogressbar();
+	self.usebartext = createprimaryprogressbartext();
 	self.usebartext settext( object.usetext );
 	usetime = object.usetime;
 	lastrate = -1;
@@ -2043,6 +2165,73 @@ updateworldicons()
 
 updateworldicon( relativeteam, showicon )
 {
+	if ( self.newstyle )
+	{
+		return;
+	}
+	if ( !isDefined( self.worldicons[ relativeteam ] ) )
+	{
+		showicon = 0;
+	}
+	updateteams = getupdateteams( relativeteam );
+	index = 0;
+	while ( index < updateteams.size )
+	{
+		if ( !level.teambased && updateteams[ index ] != level.nonteambasedteam )
+		{
+			index++;
+			continue;
+		}
+		else
+		{
+			opname = "objpoint_" + updateteams[ index ] + "_" + self.entnum;
+			objpoint = maps/mp/gametypes/_objpoints::getobjpointbyname( opname );
+			objpoint notify( "stop_flashing_thread" );
+			objpoint thread maps/mp/gametypes/_objpoints::stopflashing();
+			if ( showicon )
+			{
+				objpoint setshader( self.worldicons[ relativeteam ], level.objpointsize, level.objpointsize );
+				objpoint fadeovertime( 0,05 );
+				objpoint.alpha = objpoint.basealpha;
+				objpoint.isshown = 1;
+				iswaypoint = 1;
+				if ( isDefined( self.worldiswaypoint[ relativeteam ] ) )
+				{
+					iswaypoint = self.worldiswaypoint[ relativeteam ];
+				}
+				if ( isDefined( self.compassicons[ relativeteam ] ) )
+				{
+					objpoint setwaypoint( iswaypoint, self.worldicons[ relativeteam ] );
+				}
+				else
+				{
+					objpoint setwaypoint( iswaypoint );
+				}
+				if ( self.type == "carryObject" )
+				{
+					if ( isDefined( self.carrier ) && !shouldpingobject( relativeteam ) )
+					{
+						objpoint settargetent( self.carrier );
+						break;
+					}
+					else
+					{
+						objpoint cleartargetent();
+					}
+				}
+				index++;
+				continue;
+			}
+			else
+			{
+				objpoint fadeovertime( 0,05 );
+				objpoint.alpha = 0;
+				objpoint.isshown = 0;
+				objpoint cleartargetent();
+			}
+		}
+		index++;
+	}
 }
 
 updatecompassicons()
@@ -2143,30 +2332,30 @@ getupdateteams( relativeteam )
 	{
 		if ( relativeteam == "friendly" )
 		{
-			_a2526 = level.teams;
-			_k2526 = getFirstArrayKey( _a2526 );
-			while ( isDefined( _k2526 ) )
+			_a2569 = level.teams;
+			_k2569 = getFirstArrayKey( _a2569 );
+			while ( isDefined( _k2569 ) )
 			{
-				team = _a2526[ _k2526 ];
+				team = _a2569[ _k2569 ];
 				if ( self isfriendlyteam( team ) )
 				{
 					updateteams[ updateteams.size ] = team;
 				}
-				_k2526 = getNextArrayKey( _a2526, _k2526 );
+				_k2569 = getNextArrayKey( _a2569, _k2569 );
 			}
 		}
 		else while ( relativeteam == "enemy" )
 		{
-			_a2534 = level.teams;
-			_k2534 = getFirstArrayKey( _a2534 );
-			while ( isDefined( _k2534 ) )
+			_a2577 = level.teams;
+			_k2577 = getFirstArrayKey( _a2577 );
+			while ( isDefined( _k2577 ) )
 			{
-				team = _a2534[ _k2534 ];
+				team = _a2577[ _k2577 ];
 				if ( !self isfriendlyteam( team ) )
 				{
 					updateteams[ updateteams.size ] = team;
 				}
-				_k2534 = getNextArrayKey( _a2534, _k2534 );
+				_k2577 = getNextArrayKey( _a2577, _k2577 );
 			}
 		}
 	}
@@ -2184,6 +2373,21 @@ getupdateteams( relativeteam )
 shouldshowcompassduetoradar( team )
 {
 	showcompass = 0;
+	if ( !isDefined( self.carrier ) )
+	{
+		return 0;
+	}
+	if ( self.carrier hasperk( "specialty_gpsjammer" ) == 0 )
+	{
+		if ( maps/mp/killstreaks/_radar::teamhasspyplane( team ) )
+		{
+			showcompass = 1;
+		}
+	}
+	if ( maps/mp/killstreaks/_radar::teamhassatellite( team ) )
+	{
+		showcompass = 1;
+	}
 	return showcompass;
 }
 
@@ -2227,6 +2431,16 @@ setusetext( text )
 	self.usetext = text;
 }
 
+setteamusetime( relativeteam, time )
+{
+	self.teamusetimes[ relativeteam ] = int( time * 1000 );
+}
+
+setteamusetext( relativeteam, text )
+{
+	self.teamusetexts[ relativeteam ] = text;
+}
+
 setusehinttext( text )
 {
 	self.trigger sethintstring( text );
@@ -2234,7 +2448,7 @@ setusehinttext( text )
 
 allowcarry( relativeteam )
 {
-	self.interactteam = relativeteam;
+	allowuse( relativeteam );
 }
 
 allowuse( relativeteam )
@@ -2246,7 +2460,7 @@ allowuse( relativeteam )
 setvisibleteam( relativeteam )
 {
 	self.visibleteam = relativeteam;
-	if ( !maps/mp/gametypes_zm/_tweakables::gettweakablevalue( "hud", "showobjicons" ) )
+	if ( !maps/mp/gametypes/_tweakables::gettweakablevalue( "hud", "showobjicons" ) )
 	{
 		self.visibleteam = "none";
 	}
@@ -2368,17 +2582,17 @@ destroyobject( deletetrigger, forcehide )
 		forcehide = 1;
 	}
 	self disableobject( forcehide );
-	_a2742 = self.visuals;
-	_k2742 = getFirstArrayKey( _a2742 );
-	while ( isDefined( _k2742 ) )
+	_a2795 = self.visuals;
+	_k2795 = getFirstArrayKey( _a2795 );
+	while ( isDefined( _k2795 ) )
 	{
-		visual = _a2742[ _k2742 ];
+		visual = _a2795[ _k2795 ];
 		visual hide();
 		visual delete();
-		_k2742 = getNextArrayKey( _a2742, _k2742 );
+		_k2795 = getNextArrayKey( _a2795, _k2795 );
 	}
 	self.trigger notify( "destroyed" );
-	if ( isDefined( deletetrigger ) && deletetrigger )
+	if ( is_true( deletetrigger ) )
 	{
 		self.trigger delete();
 	}
@@ -2607,8 +2821,15 @@ getnextobjid()
 		level.numgametypereservedobjectives++;
 	}
 /#
-	assert( nextid < 32, "Ran out of objective IDs" );
+	if ( nextid >= 32 )
+	{
+		println( "^3SCRIPT WARNING: Ran out of objective IDs" );
 #/
+	}
+	if ( nextid > 31 )
+	{
+		nextid = 31;
+	}
 	return nextid;
 }
 

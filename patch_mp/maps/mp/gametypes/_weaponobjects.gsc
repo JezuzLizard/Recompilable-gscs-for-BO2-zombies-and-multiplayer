@@ -1,10 +1,23 @@
-#include maps/mp/gametypes_zm/_globallogic_audio;
-#include maps/mp/gametypes_zm/_damagefeedback;
-#include maps/mp/gametypes_zm/_globallogic_player;
-#include maps/mp/gametypes_zm/_weaponobjects;
+#include maps/mp/gametypes/_dev;
+#include maps/mp/_vehicles;
+#include maps/mp/gametypes/_globallogic_audio;
+#include maps/mp/_entityheadicons;
+#include maps/mp/gametypes/_damagefeedback;
+#include maps/mp/gametypes/_globallogic_player;
+#include maps/mp/_scrambler;
+#include maps/mp/gametypes/_weaponobjects;
+#include maps/mp/_scoreevents;
 #include maps/mp/_challenges;
+#include maps/mp/killstreaks/_emp;
+#include maps/mp/killstreaks/_qrdrone;
+#include maps/mp/killstreaks/_rcbomb;
 #include maps/mp/_ballistic_knife;
-#include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/_sensor_grenade;
+#include maps/mp/_trophy_system;
+#include maps/mp/_bouncingbetty;
+#include maps/mp/_proximity_grenade;
+#include maps/mp/_satchel_charge;
+#include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
@@ -53,7 +66,7 @@ init()
 	level.weaponobjects_headicon_offset[ "bouncingbetty_mp" ] = vectorScale( ( 0, 0, 1 ), 20 );
 	level.weaponobjects_headicon_offset[ "satchel_charge_mp" ] = vectorScale( ( 0, 0, 1 ), 10 );
 	level.weaponobjects_headicon_offset[ "scrambler_mp" ] = vectorScale( ( 0, 0, 1 ), 20 );
-	level.weaponobjects_headicon_offset[ "trophy_system_mp" ] = vectorScale( ( 0, 0, 1 ), 20 );
+	level.weaponobjects_headicon_offset[ "trophy_system_mp" ] = vectorScale( ( 0, 0, 1 ), 35 );
 	level.weaponobjects_hacker_trigger_width = 32;
 	level.weaponobjects_hacker_trigger_height = 32;
 }
@@ -61,13 +74,13 @@ init()
 getwatchernames( weapons )
 {
 	names = [];
-	_a73 = weapons;
-	index = getFirstArrayKey( _a73 );
+	_a75 = weapons;
+	index = getFirstArrayKey( _a75 );
 	while ( isDefined( index ) )
 	{
-		weapon = _a73[ index ];
+		weapon = _a75[ index ];
 		names[ index ] = getsubstr( weapon, 0, weapon.size - 3 );
-		index = getNextArrayKey( _a73, index );
+		index = getNextArrayKey( _a75, index );
 	}
 	return names;
 }
@@ -100,6 +113,7 @@ setupretrievablehintstrings()
 	createretrievablehint( "camera_spike", &"MP_CAMERA_SPIKE_PICKUP" );
 	createretrievablehint( "satchel_charge", &"MP_SATCHEL_CHARGE_PICKUP" );
 	createretrievablehint( "scrambler", &"MP_SCRAMBLER_PICKUP" );
+	createretrievablehint( "proximity_grenade", &"MP_SHOCK_CHARGE_PICKUP" );
 	createdestroyhint( "trophy_system", &"MP_TROPHY_SYSTEM_DESTROY" );
 	createdestroyhint( "sensor_grenade", &"MP_SENSOR_GRENADE_DESTROY" );
 	createhackerhint( "claymore_mp", &"MP_CLAYMORE_HACKING" );
@@ -137,6 +151,18 @@ onplayerspawned()
 		if ( !isDefined( self.watchersinitialized ) )
 		{
 			self createbasewatchers();
+			self maps/mp/_satchel_charge::createsatchelwatcher();
+			self maps/mp/_proximity_grenade::createproximitygrenadewatcher();
+			self maps/mp/_bouncingbetty::createbouncingbettywatcher();
+			self maps/mp/_trophy_system::createtrophysystemwatcher();
+			self maps/mp/_sensor_grenade::createsensorgrenadewatcher();
+			self createclaymorewatcher();
+			self creatercbombwatcher();
+			self createqrdronewatcher();
+			self createplayerhelicopterwatcher();
+			self createballisticknifewatcher();
+			self createhatchetwatcher();
+			self createtactinsertwatcher();
 			self setupretrievablewatcher();
 			self thread watchweaponobjectusage();
 			self.watchersinitialized = 1;
@@ -153,33 +179,33 @@ resetwatchers()
 		return undefined;
 	}
 	team = self.team;
-	_a199 = self.weaponobjectwatcherarray;
-	_k199 = getFirstArrayKey( _a199 );
-	while ( isDefined( _k199 ) )
+	_a203 = self.weaponobjectwatcherarray;
+	_k203 = getFirstArrayKey( _a203 );
+	while ( isDefined( _k203 ) )
 	{
-		watcher = _a199[ _k199 ];
+		watcher = _a203[ _k203 ];
 		resetweaponobjectwatcher( watcher, team );
-		_k199 = getNextArrayKey( _a199, _k199 );
+		_k203 = getNextArrayKey( _a203, _k203 );
 	}
 }
 
 createbasewatchers()
 {
-	_a208 = level.watcherweapons;
-	index = getFirstArrayKey( _a208 );
+	_a212 = level.watcherweapons;
+	index = getFirstArrayKey( _a212 );
 	while ( isDefined( index ) )
 	{
-		weapon = _a208[ index ];
+		weapon = _a212[ index ];
 		self createweaponobjectwatcher( level.watcherweaponnames[ index ], weapon, self.team );
-		index = getNextArrayKey( _a208, index );
+		index = getNextArrayKey( _a212, index );
 	}
-	_a214 = level.retrievableweapons;
-	index = getFirstArrayKey( _a214 );
+	_a218 = level.retrievableweapons;
+	index = getFirstArrayKey( _a218 );
 	while ( isDefined( index ) )
 	{
-		weapon = _a214[ index ];
+		weapon = _a218[ index ];
 		self createweaponobjectwatcher( level.retrievableweaponnames[ index ], weapon, self.team );
-		index = getNextArrayKey( _a214, index );
+		index = getNextArrayKey( _a218, index );
 	}
 }
 
@@ -219,6 +245,7 @@ createhatchetwatcher()
 	watcher = self createuseweaponobjectwatcher( "hatchet", "hatchet_mp", self.team );
 	watcher.detonate = ::deleteent;
 	watcher.onspawn = ::voidonspawn;
+	watcher.ondamage = ::voidondamage;
 	watcher.onspawnretrievetriggers = ::onspawnhatchettrigger;
 }
 
@@ -230,10 +257,29 @@ createtactinsertwatcher()
 
 creatercbombwatcher()
 {
+	watcher = self createuseweaponobjectwatcher( "rcbomb", "rcbomb_mp", self.team );
+	watcher.altdetonate = 0;
+	watcher.headicon = 0;
+	watcher.ismovable = 1;
+	watcher.ownergetsassist = 1;
+	watcher.playdestroyeddialog = 0;
+	watcher.deleteonkillbrush = 0;
+	watcher.detonate = ::maps/mp/killstreaks/_rcbomb::blowup;
+	watcher.stuntime = 1;
 }
 
 createqrdronewatcher()
 {
+	watcher = self createuseweaponobjectwatcher( "qrdrone", "qrdrone_turret_mp", self.team );
+	watcher.altdetonate = 0;
+	watcher.headicon = 0;
+	watcher.ismovable = 1;
+	watcher.ownergetsassist = 1;
+	watcher.playdestroyeddialog = 0;
+	watcher.deleteonkillbrush = 0;
+	watcher.detonate = ::maps/mp/killstreaks/_qrdrone::qrdrone_blowup;
+	watcher.ondamage = ::maps/mp/killstreaks/_qrdrone::qrdrone_damagewatcher;
+	watcher.stuntime = 5;
 }
 
 createplayerhelicopterwatcher()
@@ -250,8 +296,8 @@ createclaymorewatcher()
 	watcher.detonate = ::claymoredetonate;
 	watcher.activatesound = "wpn_claymore_alert";
 	watcher.hackable = 1;
-	watcher.hackertoolradius = level.claymorehackertoolradius;
-	watcher.hackertooltimems = level.claymorehackertooltimems;
+	watcher.hackertoolradius = level.equipmenthackertoolradius;
+	watcher.hackertooltimems = level.equipmenthackertooltimems;
 	watcher.reconmodel = "t6_wpn_claymore_world_detect";
 	watcher.ownergetsassist = 1;
 	detectionconeangle = weapons_get_dvar_int( "scr_weaponobject_coneangle" );
@@ -260,7 +306,7 @@ createclaymorewatcher()
 	watcher.detectiongraceperiod = weapons_get_dvar( "scr_weaponobject_graceperiod" );
 	watcher.detonateradius = weapons_get_dvar_int( "scr_weaponobject_radius" );
 	watcher.stun = ::weaponstun;
-	watcher.stuntime = 5;
+	watcher.stuntime = 1;
 }
 
 waittillnotmoving_and_notstunned()
@@ -281,6 +327,10 @@ waittillnotmoving_and_notstunned()
 }
 
 voidonspawn( unused0, unused1 )
+{
+}
+
+voidondamage( unused0 )
 {
 }
 
@@ -305,6 +355,14 @@ deleteweaponobjectarray()
 		{
 			if ( isDefined( self.objectarray[ i ] ) )
 			{
+				if ( isDefined( self.objectarray[ i ].minemover ) )
+				{
+					if ( isDefined( self.objectarray[ i ].minemover.killcament ) )
+					{
+						self.objectarray[ i ].minemover.killcament delete();
+					}
+					self.objectarray[ i ].minemover delete();
+				}
 				self.objectarray[ i ] delete();
 			}
 			i++;
@@ -315,23 +373,24 @@ deleteweaponobjectarray()
 
 claymoredetonate( attacker, weaponname )
 {
-	from_emp = 0;
+	from_emp = maps/mp/killstreaks/_emp::isempkillstreakweapon( weaponname );
 	if ( !isDefined( from_emp ) || !from_emp )
 	{
 		if ( isDefined( attacker ) )
 		{
-			if ( level.teambased || attacker.team != self.owner.team && attacker != self.owner )
+			if ( self.owner isenemyplayer( attacker ) )
 			{
-				attacker maps/mp/_challenges::destroyedexplosive();
+				attacker maps/mp/_challenges::destroyedexplosive( weaponname );
+				maps/mp/_scoreevents::processscoreevent( "destroyed_claymore", attacker, self.owner, weaponname );
 			}
 		}
 	}
-	maps/mp/gametypes_zm/_weaponobjects::weapondetonate( attacker, weaponname );
+	maps/mp/gametypes/_weaponobjects::weapondetonate( attacker, weaponname );
 }
 
 weapondetonate( attacker, weaponname )
 {
-	from_emp = 0;
+	from_emp = maps/mp/killstreaks/_emp::isempweapon( weaponname );
 	if ( from_emp )
 	{
 		self delete();
@@ -339,10 +398,22 @@ weapondetonate( attacker, weaponname )
 	}
 	if ( isDefined( attacker ) )
 	{
-		self detonate( attacker );
+		if ( isDefined( self.owner ) && attacker != self.owner )
+		{
+			self.playdialog = 1;
+		}
+		if ( isplayer( attacker ) )
+		{
+			self detonate( attacker );
+		}
+		else
+		{
+			self detonate();
+		}
 	}
 	else if ( isDefined( self.owner ) && isplayer( self.owner ) )
 	{
+		self.playdialog = 0;
 		self detonate( self.owner );
 	}
 	else
@@ -355,20 +426,13 @@ waitanddetonate( object, delay, attacker, weaponname )
 {
 	object endon( "death" );
 	object endon( "hacked" );
-	from_emp = 0;
-	if ( from_emp )
+	from_emp = maps/mp/killstreaks/_emp::isempweapon( weaponname );
+	if ( from_emp && isDefined( object.name ) && object.name != "qrdrone_turret_mp" )
 	{
 		object setclientflag( 15 );
 		object setclientflag( 9 );
 		object.stun_fx = 1;
-		if ( isDefined( object.name ) && object.name == "qrdrone_turret_mp" )
-		{
-			playfx( level._equipment_emp_destroy_fx, object.origin + ( 0, 0, 1 ), ( 0, randomfloat( 360 ), 0 ) );
-		}
-		else
-		{
-			playfx( level._equipment_emp_destroy_fx, object.origin + vectorScale( ( 0, 0, 1 ), 5 ), ( 0, randomfloat( 360 ), 0 ) );
-		}
+		playfx( level._equipment_emp_destroy_fx, object.origin + vectorScale( ( 0, 0, 1 ), 5 ), ( 0, randomfloat( 360 ), 0 ) );
 		delay = 1,1;
 	}
 	if ( delay )
@@ -507,12 +571,51 @@ addweaponobject( watcher, weapon )
 	}
 	if ( watcher.deleteonkillbrush )
 	{
-		weapon thread deleteonkillbrush( self );
+		if ( isDefined( level.deleteonkillbrushoverride ) )
+		{
+			weapon thread [[ level.deleteonkillbrushoverride ]]( self, watcher );
+			return;
+		}
+		else
+		{
+			weapon thread deleteonkillbrush( self );
+		}
 	}
 }
 
 watchscramble( watcher )
 {
+	self endon( "death" );
+	self endon( "hacked" );
+	self waittillnotmoving();
+	if ( self maps/mp/_scrambler::checkscramblerstun() )
+	{
+		self thread stunstart( watcher );
+	}
+	else
+	{
+		self stunstop();
+	}
+	for ( ;; )
+	{
+		level waittill_any( "scrambler_spawn", "scrambler_death", "hacked" );
+		if ( isDefined( self.owner ) && self.owner isempjammed() )
+		{
+			continue;
+		}
+		else
+		{
+			if ( self maps/mp/_scrambler::checkscramblerstun() )
+			{
+				self thread stunstart( watcher );
+				break;
+			}
+			else
+			{
+				self stunstop();
+			}
+		}
+	}
 }
 
 deleteweaponobjecthelper( weapon_ent )
@@ -578,9 +681,9 @@ weaponobjectdamage( watcher )
 						}
 						if ( level.teambased && self.owner.team != attacker.team )
 						{
-							if ( maps/mp/gametypes_zm/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+							if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 							{
-								attacker maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback();
+								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 							}
 							continue;
 						}
@@ -588,9 +691,9 @@ weaponobjectdamage( watcher )
 						{
 							if ( !level.teambased && self.owner != attacker )
 							{
-								if ( maps/mp/gametypes_zm/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+								if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 								{
-									attacker maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback();
+									attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 								}
 							}
 						}
@@ -600,16 +703,16 @@ weaponobjectdamage( watcher )
 					case "emp_grenade_mp":
 						if ( level.teambased && self.owner.team != attacker.team )
 						{
-							if ( maps/mp/gametypes_zm/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+							if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 							{
-								attacker maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback();
+								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 							}
 						}
 						else if ( !level.teambased && self.owner != attacker )
 						{
-							if ( maps/mp/gametypes_zm/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+							if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 							{
-								attacker maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback();
+								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 							}
 						}
 						break;
@@ -628,9 +731,9 @@ weaponobjectdamage( watcher )
 						continue;
 					}
 				}
-				if ( maps/mp/gametypes_zm/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+				if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 				{
-					attacker maps/mp/gametypes_zm/_damagefeedback::updatedamagefeedback();
+					attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 				}
 				if ( !isvehicle( self ) && !friendlyfirecheck( self.owner, attacker ) )
 				{
@@ -648,6 +751,7 @@ weaponobjectdamage( watcher )
 			}
 			level.weaponobjectexplodethisframe = 1;
 			thread resetweaponobjectexplodethisframe();
+			self maps/mp/_entityheadicons::setentityheadicon( "none" );
 			if ( isDefined( type ) && !issubstr( type, "MOD_GRENADE_SPLASH" ) || issubstr( type, "MOD_GRENADE" ) && issubstr( type, "MOD_EXPLOSIVE" ) )
 			{
 				self.waschained = 1;
@@ -670,7 +774,7 @@ playdialogondeath( owner )
 	self waittill( "death" );
 	if ( isDefined( self.playdialog ) && self.playdialog )
 	{
-		owner maps/mp/gametypes_zm/_globallogic_audio::leaderdialogonplayer( "equipment_destroyed", "item_destroyed" );
+		owner maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "equipment_destroyed", "item_destroyed" );
 	}
 }
 
@@ -916,6 +1020,10 @@ commononspawnuseweaponobject( watcher, owner )
 			{
 				offset = level.weaponobjects_headicon_offset[ self.name ];
 			}
+			if ( isDefined( self ) )
+			{
+				self maps/mp/_entityheadicons::setentityheadicon( owner.pers[ "team" ], owner, offset );
+			}
 		}
 	}
 }
@@ -1025,6 +1133,33 @@ watchweaponobjectspawn()
 	}
 }
 
+anyobjectsinworld( weapon )
+{
+	objectsinworld = 0;
+	i = 0;
+	while ( i < self.weaponobjectwatcherarray.size )
+	{
+		if ( self.weaponobjectwatcherarray[ i ].weapon != weapon )
+		{
+			i++;
+			continue;
+		}
+		else
+		{
+			if ( isDefined( self.weaponobjectwatcherarray[ i ].detonate ) && self.weaponobjectwatcherarray[ i ].objectarray.size > 0 )
+			{
+				objectsinworld = 1;
+				break;
+			}
+		}
+		else
+		{
+			i++;
+		}
+	}
+	return objectsinworld;
+}
+
 watchweaponprojectileobjectspawn()
 {
 	self endon( "disconnect" );
@@ -1045,7 +1180,7 @@ watchweaponprojectileobjectspawn()
 				}
 				j++;
 			}
-			if ( isDefined( watcher.detonate ) && watcher.objectarray.size > 1 )
+			if ( isDefined( watcher.detonate ) && watcher.objectarray.size > 3 )
 			{
 				watcher thread waitanddetonate( watcher.objectarray[ 0 ], 0,1 );
 			}
@@ -1206,7 +1341,10 @@ hackertriggersetvisibility( owner )
 			self setvisibletoall();
 			self setteamfortrigger( "none" );
 		}
-		self setinvisibletoplayer( owner );
+		if ( isDefined( owner ) )
+		{
+			self setinvisibletoplayer( owner );
+		}
 		level waittill_any( "player_spawned", "joined_team" );
 	}
 }
@@ -1265,13 +1403,16 @@ hackerthink( trigger, watcher )
 		else
 		{
 			self.owner hackerremoveweapon( self );
-			self.owner maps/mp/gametypes_zm/_globallogic_audio::leaderdialogonplayer( "hacked_equip", "item_destroyed" );
+			self.owner maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "hacked_equip", "item_destroyed" );
 			self.hacked = 1;
 			self setmissileowner( player );
 			self setteam( player.pers[ "team" ] );
 			self.owner = player;
-			if ( isweaponequipment( self.name ) )
+			if ( isweaponequipment( self.name ) || self.name == "proximity_grenade_mp" )
 			{
+				maps/mp/_scoreevents::processscoreevent( "hacked", player );
+				player addweaponstat( "pda_hack_mp", "CombatRecordStat", 1 );
+				player maps/mp/_challenges::hackedordestroyedequipment();
 			}
 			if ( self.name == "satchel_charge_mp" && isDefined( player.lowermessage ) )
 			{
@@ -1307,14 +1448,6 @@ hackerthink( trigger, watcher )
 			}
 			return;
 		}
-	}
-}
-
-ishacked()
-{
-	if ( isDefined( self.hacked ) )
-	{
-		return self.hacked;
 	}
 }
 
@@ -1588,6 +1721,7 @@ proximityweaponobjectdetonation( watcher )
 	{
 		wait getDvarFloat( "perk_delayExplosiveTime" );
 	}
+	self maps/mp/_entityheadicons::setentityheadicon( "none" );
 	self.origin = traceorigin;
 	if ( isDefined( self.owner ) && isplayer( self.owner ) )
 	{
@@ -1598,6 +1732,12 @@ proximityweaponobjectdetonation( watcher )
 
 shouldaffectweaponobject( object, watcher )
 {
+	radius = getweaponexplosionradius( watcher.weapon );
+	distancesqr = distancesquared( self.origin, object.origin );
+	if ( ( radius * radius ) < distancesqr )
+	{
+		return 0;
+	}
 	pos = self.origin + vectorScale( ( 0, 0, 1 ), 32 );
 	if ( isDefined( watcher.ignoredirection ) )
 	{
@@ -1633,12 +1773,41 @@ deleteondeath( ent )
 	}
 }
 
+testkillbrushonstationary( killbrusharray, player )
+{
+	player endon( "disconnect" );
+	self endon( "death" );
+	self waittill( "stationary" );
+	wait 0,1;
+	i = 0;
+	while ( i < killbrusharray.size )
+	{
+		if ( self istouching( killbrusharray[ i ] ) )
+		{
+			if ( self.origin[ 2 ] > player.origin[ 2 ] )
+			{
+				return;
+			}
+			else
+			{
+				if ( isDefined( self ) )
+				{
+					self delete();
+				}
+				return;
+			}
+			i++;
+		}
+	}
+}
+
 deleteonkillbrush( player )
 {
 	player endon( "disconnect" );
 	self endon( "death" );
 	self endon( "stationary" );
 	killbrushes = getentarray( "trigger_hurt", "classname" );
+	self thread testkillbrushonstationary( killbrushes, player );
 	while ( 1 )
 	{
 		i = 0;
@@ -1879,6 +2048,14 @@ friendlyfirecheck( owner, attacker, forcedfriendlyfirerule )
 						return 1;
 					}
 				}
+				else
+				{
+					occupant_team = attacker maps/mp/_vehicles::vehicle_get_occupant_team();
+					if ( occupant_team != owner.pers[ "team" ] )
+					{
+						return 1;
+					}
+				}
 			}
 		}
 	}
@@ -2038,10 +2215,6 @@ onspawnretrievableweaponobject( watcher, player )
 		up = anglesToUp( self.angles );
 		triggerorigin = self.origin + up;
 	}
-	if ( isDefined( watcher.adjusttriggerorigin ) )
-	{
-		triggerorigin = self [[ watcher.adjusttriggerorigin ]]( triggerorigin );
-	}
 	self.pickuptrigger = spawn( "trigger_radius_use", triggerorigin );
 	self.pickuptrigger sethintlowpriority( 1 );
 	self.pickuptrigger setcursorhint( "HINT_NOICON", self );
@@ -2178,6 +2351,7 @@ pickup( player )
 	{
 		return;
 	}
+	self notify( "picked_up" );
 	self.playdialog = 0;
 	self destroyent();
 	player giveweapon( self.name );
@@ -2194,7 +2368,7 @@ ondestroyed( attacker )
 {
 	playfx( level._effect[ "tacticalInsertionFizzle" ], self.origin );
 	self playsound( "dst_tac_insert_break" );
-	self.owner maps/mp/gametypes_zm/_globallogic_audio::leaderdialogonplayer( "equipment_destroyed", "item_destroyed" );
+	self.owner maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "equipment_destroyed", "item_destroyed" );
 	self delete();
 }
 
@@ -2316,6 +2490,7 @@ attachreconmodel( modelname, owner )
 	reconmodel thread watchreconmodelfordeath( self );
 	reconmodel thread resetreconmodelonevent( "joined_team", owner );
 	reconmodel thread resetreconmodelonevent( "player_spawned", owner );
+	self.reconmodelentity = reconmodel;
 }
 
 resetreconmodelvisibility( owner )
@@ -2431,5 +2606,41 @@ resetreconmodelonevent( eventname, owner )
 switch_team( entity, weapon_name, owner )
 {
 /#
+	self notify( "stop_disarmthink" );
+	self endon( "stop_disarmthink" );
+	self endon( "death" );
+	setdvar( "scr_switch_team", "" );
+	while ( 1 )
+	{
+		wait 0,5;
+		devgui_int = getDvarInt( "scr_switch_team" );
+		if ( devgui_int != 0 )
+		{
+			team = "autoassign";
+			player = maps/mp/gametypes/_dev::getormakebot( team );
+			while ( !isDefined( player ) )
+			{
+				println( "Could not add test client" );
+				wait 1;
+			}
+			entity.owner hackerremoveweapon( entity );
+			entity.hacked = 1;
+			entity setowner( player );
+			entity setteam( player.pers[ "team" ] );
+			entity.owner = player;
+			entity notify( "hacked" );
+			level notify( "hacked" );
+			if ( entity.name == "camera_spike_mp" && isDefined( entity.camerahead ) )
+			{
+				entity.camerahead notify( "hacked" );
+			}
+			wait 0,05;
+			if ( isDefined( player ) && player.sessionstate == "playing" )
+			{
+				player notify( "grenade_fire" );
+			}
+			setdvar( "scr_switch_team", "0" );
+		}
 #/
+	}
 }

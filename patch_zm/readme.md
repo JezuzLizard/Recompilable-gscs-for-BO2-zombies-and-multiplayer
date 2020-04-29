@@ -48,6 +48,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+patch_zm/maps/mp/gametypes_zm/_weapon_utils.gsc
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
 patch_zm/maps/mp/zombies/_zm_buildables.gsc
 patch_zm/maps/mp/zombies/_zm_equip_turbine.gsc
@@ -92,7 +93,6 @@ patch_zm/maps/mp/gametypes_zm/_spawning.gsc
 patch_zm/maps/mp/gametypes_zm/_spawnlogic.gsc
 patch_zm/maps/mp/gametypes_zm/_spectating.gsc
 patch_zm/maps/mp/gametypes_zm/_tweakables.gsc
-patch_zm/maps/mp/gametypes_zm/_weapon_utils.gsc
 patch_zm/maps/mp/gametypes_zm/_weaponobjects.gsc
 patch_zm/maps/mp/gametypes_zm/_weapons.gsc
 ```

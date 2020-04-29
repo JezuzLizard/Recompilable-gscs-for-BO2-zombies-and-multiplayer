@@ -1,7 +1,8 @@
-#include maps/mp/gametypes_zm/_hostmigration;
-#include maps/mp/gametypes_zm/_globallogic_actor;
-#include maps/mp/gametypes_zm/_globallogic_player;
-#include maps/mp/gametypes_zm/_globallogic;
+#include maps/mp/gametypes/_hostmigration;
+#include maps/mp/gametypes/_globallogic_vehicle;
+#include maps/mp/gametypes/_globallogic_actor;
+#include maps/mp/gametypes/_globallogic_player;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/_audio;
 #include maps/mp/_utility;
 
@@ -29,6 +30,7 @@ codecallback_playerconnect()
 codecallback_playerdisconnect()
 {
 	self notify( "disconnect" );
+	level notify( "disconnect" );
 	client_num = self getentitynumber();
 	[[ level.callbackplayerdisconnect ]]();
 }
@@ -47,14 +49,6 @@ codecallback_hostmigrationsave()
 	println( "****CodeCallback_HostMigrationSave****" );
 #/
 	[[ level.callbackhostmigrationsave ]]();
-}
-
-codecallback_prehostmigrationsave()
-{
-/#
-	println( "****CodeCallback_PreHostMigrationSave****" );
-#/
-	[[ level.callbackprehostmigrationsave ]]();
 }
 
 codecallback_playermigrated()
@@ -106,6 +100,7 @@ codecallback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdea
 
 codecallback_vehicleradiusdamage( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, timeoffset )
 {
+	[[ level.callbackvehicleradiusdamage ]]( einflictor, eattacker, idamage, finnerdamage, fouterdamage, idflags, smeansofdeath, sweapon, vpoint, fradius, fconeanglecos, vconedir, timeoffset );
 }
 
 codecallback_faceeventnotify( notify_msg, ent )
@@ -163,19 +158,20 @@ setupcallbacks()
 
 setdefaultcallbacks()
 {
-	level.callbackstartgametype = ::maps/mp/gametypes_zm/_globallogic::callback_startgametype;
-	level.callbackplayerconnect = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerconnect;
-	level.callbackplayerdisconnect = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerdisconnect;
-	level.callbackplayerdamage = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerdamage;
-	level.callbackplayerkilled = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerkilled;
-	level.callbackplayermelee = ::maps/mp/gametypes_zm/_globallogic_player::callback_playermelee;
-	level.callbackplayerlaststand = ::maps/mp/gametypes_zm/_globallogic_player::callback_playerlaststand;
-	level.callbackactordamage = ::maps/mp/gametypes_zm/_globallogic_actor::callback_actordamage;
-	level.callbackactorkilled = ::maps/mp/gametypes_zm/_globallogic_actor::callback_actorkilled;
-	level.callbackplayermigrated = ::maps/mp/gametypes_zm/_globallogic_player::callback_playermigrated;
-	level.callbackhostmigration = ::maps/mp/gametypes_zm/_hostmigration::callback_hostmigration;
-	level.callbackhostmigrationsave = ::maps/mp/gametypes_zm/_hostmigration::callback_hostmigrationsave;
-	level.callbackprehostmigrationsave = ::maps/mp/gametypes_zm/_hostmigration::callback_prehostmigrationsave;
+	level.callbackstartgametype = ::maps/mp/gametypes/_globallogic::callback_startgametype;
+	level.callbackplayerconnect = ::maps/mp/gametypes/_globallogic_player::callback_playerconnect;
+	level.callbackplayerdisconnect = ::maps/mp/gametypes/_globallogic_player::callback_playerdisconnect;
+	level.callbackplayerdamage = ::maps/mp/gametypes/_globallogic_player::callback_playerdamage;
+	level.callbackplayerkilled = ::maps/mp/gametypes/_globallogic_player::callback_playerkilled;
+	level.callbackplayermelee = ::maps/mp/gametypes/_globallogic_player::callback_playermelee;
+	level.callbackplayerlaststand = ::maps/mp/gametypes/_globallogic_player::callback_playerlaststand;
+	level.callbackactordamage = ::maps/mp/gametypes/_globallogic_actor::callback_actordamage;
+	level.callbackactorkilled = ::maps/mp/gametypes/_globallogic_actor::callback_actorkilled;
+	level.callbackvehicledamage = ::maps/mp/gametypes/_globallogic_vehicle::callback_vehicledamage;
+	level.callbackvehicleradiusdamage = ::maps/mp/gametypes/_globallogic_vehicle::callback_vehicleradiusdamage;
+	level.callbackplayermigrated = ::maps/mp/gametypes/_globallogic_player::callback_playermigrated;
+	level.callbackhostmigration = ::maps/mp/gametypes/_hostmigration::callback_hostmigration;
+	level.callbackhostmigrationsave = ::maps/mp/gametypes/_hostmigration::callback_hostmigrationsave;
 }
 
 abortlevel()
@@ -188,8 +184,8 @@ abortlevel()
 	level.callbackplayerdisconnect = ::callbackvoid;
 	level.callbackplayerdamage = ::callbackvoid;
 	level.callbackplayerkilled = ::callbackvoid;
-	level.callbackplayermelee = ::callbackvoid;
 	level.callbackplayerlaststand = ::callbackvoid;
+	level.callbackplayermelee = ::callbackvoid;
 	level.callbackactordamage = ::callbackvoid;
 	level.callbackactorkilled = ::callbackvoid;
 	level.callbackvehicledamage = ::callbackvoid;

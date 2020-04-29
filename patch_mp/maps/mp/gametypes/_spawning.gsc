@@ -1,4 +1,7 @@
-#include maps/mp/gametypes_zm/_spawnlogic;
+#include maps/mp/gametypes/_spawnlogic;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/_tacticalinsertion;
+#include maps/mp/killstreaks/_airsupport;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
@@ -102,15 +105,117 @@ onplayerspawned()
 	for ( ;; )
 	{
 		self waittill( "spawned_player" );
-		self thread initialspawnprotection( "specialty_nottargetedbyairsupport", 1 );
-		self thread initialspawnprotection( "specialty_nokillstreakreticle", 0 );
-		self thread initialspawnprotection( "specialty_nottargettedbysentry", 0 );
+		self maps/mp/killstreaks/_airsupport::clearmonitoredspeed();
+		self thread initialspawnprotection();
+		self thread monitorgpsjammer();
 		if ( isDefined( self.pers[ "hasRadar" ] ) && self.pers[ "hasRadar" ] )
 		{
 			self.hasspyplane = 1;
 		}
 		self enable_player_influencers( 1 );
 		self thread ondeath();
+	}
+}
+
+monitorgpsjammer()
+{
+	self endon( "death" );
+	self endon( "disconnect" );
+	if ( self hasperk( "specialty_gpsjammer" ) == 0 )
+	{
+		return;
+	}
+	self gpsjammeractive();
+	graceperiods = getdvarintdefault( "perk_gpsjammer_graceperiods", 4 );
+	minspeed = getdvarintdefault( "perk_gpsjammer_min_speed", 100 );
+	mindistance = getdvarintdefault( "perk_gpsjammer_min_distance", 10 );
+	timeperiod = getdvarintdefault( "perk_gpsjammer_time_period", 200 );
+	timeperiodsec = timeperiod / 1000;
+	minspeedsq = minspeed * minspeed;
+	mindistancesq = mindistance * mindistance;
+	if ( minspeedsq == 0 )
+	{
+		return;
+	}
+/#
+	assert( timeperiodsec >= 0,05 );
+#/
+	if ( timeperiodsec < 0,05 )
+	{
+		return;
+	}
+	hasperk = 1;
+	statechange = 0;
+	faileddistancecheck = 0;
+	currentfailcount = 0;
+	timepassed = 0;
+	timesincedistancecheck = 0;
+	previousorigin = self.origin;
+	gpsjammerprotection = 0;
+	while ( 1 )
+	{
+/#
+		graceperiods = getdvarintdefault( "perk_gpsjammer_graceperiods", graceperiods );
+		minspeed = getdvarintdefault( "perk_gpsjammer_min_speed", minspeed );
+		mindistance = getdvarintdefault( "perk_gpsjammer_min_distance", mindistance );
+		timeperiod = getdvarintdefault( "perk_gpsjammer_time_period", timeperiod );
+		timeperiodsec = timeperiod / 1000;
+		minspeedsq = minspeed * minspeed;
+		mindistancesq = mindistance * mindistance;
+#/
+		gpsjammerprotection = 0;
+		if ( !isusingremote() || is_true( self.isplanting ) && is_true( self.isdefusing ) )
+		{
+			gpsjammerprotection = 1;
+		}
+		else
+		{
+			if ( timesincedistancecheck > 1 )
+			{
+				timesincedistancecheck = 0;
+				if ( distancesquared( previousorigin, self.origin ) < mindistancesq )
+				{
+					faileddistancecheck = 1;
+				}
+				else
+				{
+					faileddistancecheck = 0;
+				}
+				previousorigin = self.origin;
+			}
+			velocity = self getvelocity();
+			speedsq = lengthsquared( velocity );
+			if ( speedsq > minspeedsq && faileddistancecheck == 0 )
+			{
+				gpsjammerprotection = 1;
+			}
+		}
+		if ( gpsjammerprotection == 1 )
+		{
+			currentfailcount = 0;
+			if ( hasperk == 0 )
+			{
+				statechange = 0;
+				hasperk = 1;
+				self gpsjammeractive();
+			}
+		}
+		else
+		{
+			currentfailcount++;
+			if ( hasperk == 1 && currentfailcount >= graceperiods )
+			{
+				statechange = 1;
+				hasperk = 0;
+				self gpsjammerinactive();
+			}
+		}
+		if ( statechange == 1 )
+		{
+			level notify( "radar_status_change" );
+		}
+		timesincedistancecheck += timeperiodsec;
+		wait timeperiodsec;
 	}
 }
 
@@ -400,6 +505,21 @@ create_auto_turret_influencer( point, parent_team, angles )
 	return influencerid;
 }
 
+create_auto_turret_influencer_close( point, parent_team, angles )
+{
+	if ( !level.teambased )
+	{
+		weapon_team_mask = level.spawnsystem.ispawn_teammask_free;
+	}
+	else
+	{
+		weapon_team_mask = getotherteamsmask( parent_team );
+	}
+	projected_point = point + vectorScale( anglesToForward( angles ), level.spawnsystem.auto_turret_influencer_close_radius * 0,7 );
+	influencerid = addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, projected_point, level.spawnsystem.auto_turret_influencer_close_radius, level.spawnsystem.auto_turret_influencer_close_score, weapon_team_mask, "auto_turret_close,r,s", get_score_curve_index( level.spawnsystem.auto_turret_influencer_close_score_curve ) );
+	return influencerid;
+}
+
 create_dog_influencers()
 {
 	if ( !level.teambased )
@@ -629,38 +749,38 @@ create_enemy_spawned_influencers( origin, team )
 	{
 		other_team_mask = getotherteamsmask( team );
 	}
-	return addsphereinfluencer( level.spawnsystem.einfluencer_type_enemy_spawned, origin, level.spawnsystem.enemy_spawned_influencer_radius, level.spawnsystem.enemy_spawned_influencer_score, other_team_mask, "enemy_spawned,r,s", get_score_curve_index( level.spawnsystem.enemy_spawned_influencer_score_curve ), 7 );
+	return addsphereinfluencer( level.spawnsystem.einfluencer_type_enemy_spawned, origin, level.spawnsystem.enemy_spawned_influencer_radius, level.spawnsystem.enemy_spawned_influencer_score, other_team_mask, "enemy_spawned,r,s", get_score_curve_index( level.spawnsystem.enemy_spawned_influencer_score_curve ), level.spawnsystem.enemy_spawned_influencer_timeout_seconds );
 }
 
 updateallspawnpoints()
 {
-	_a1046 = level.teams;
-	_k1046 = getFirstArrayKey( _a1046 );
-	while ( isDefined( _k1046 ) )
+	_a1176 = level.teams;
+	_k1176 = getFirstArrayKey( _a1176 );
+	while ( isDefined( _k1176 ) )
 	{
-		team = _a1046[ _k1046 ];
+		team = _a1176[ _k1176 ];
 		gatherspawnentities( team );
-		_k1046 = getNextArrayKey( _a1046, _k1046 );
+		_k1176 = getNextArrayKey( _a1176, _k1176 );
 	}
 	clearspawnpoints();
 	if ( level.teambased )
 	{
-		_a1055 = level.teams;
-		_k1055 = getFirstArrayKey( _a1055 );
-		while ( isDefined( _k1055 ) )
+		_a1185 = level.teams;
+		_k1185 = getFirstArrayKey( _a1185 );
+		while ( isDefined( _k1185 ) )
 		{
-			team = _a1055[ _k1055 ];
+			team = _a1185[ _k1185 ];
 			addspawnpoints( team, level.unified_spawn_points[ team ].a );
-			_k1055 = getNextArrayKey( _a1055, _k1055 );
+			_k1185 = getNextArrayKey( _a1185, _k1185 );
 		}
 	}
-	else _a1062 = level.teams;
-	_k1062 = getFirstArrayKey( _a1062 );
-	while ( isDefined( _k1062 ) )
+	else _a1192 = level.teams;
+	_k1192 = getFirstArrayKey( _a1192 );
+	while ( isDefined( _k1192 ) )
 	{
-		team = _a1062[ _k1062 ];
+		team = _a1192[ _k1192 ];
 		addspawnpoints( "free", level.unified_spawn_points[ team ].a );
-		_k1062 = getNextArrayKey( _a1062, _k1062 );
+		_k1192 = getNextArrayKey( _a1192, _k1192 );
 	}
 	remove_unused_spawn_entities();
 }
@@ -688,15 +808,24 @@ get_player_spawning_dvars( reset_dvars )
 	dog_influencer_radius = 10 * k_player_height;
 	dog_influencer_score = 150;
 	ss.script_based_influencer_system = set_dvar_int_if_unset( "scr_script_based_influencer_system", "0", reset_dvars );
-	ss.randomness_range = set_dvar_float_if_unset( "scr_spawn_randomness_range", "10", reset_dvars );
-	ss.objective_facing_bonus = set_dvar_float_if_unset( "scr_spawn_objective_facing_bonus", "50", reset_dvars );
-	ss.friend_weak_influencer_score = set_dvar_float_if_unset( "scr_spawn_friend_weak_influencer_score", "10", reset_dvars );
-	ss.friend_weak_influencer_score_curve = set_dvar_if_unset( "scr_spawn_friend_weak_influencer_score_curve", "steep", reset_dvars );
-	ss.friend_weak_influencer_radius = set_dvar_float_if_unset( "scr_spawn_friend_weak_influencer_radius", player_height_times_10, reset_dvars );
+	ss.randomness_range = set_dvar_float_if_unset( "scr_spawn_randomness_range", "0", reset_dvars );
+	ss.objective_facing_bonus = set_dvar_float_if_unset( "scr_spawn_objective_facing_bonus", "0", reset_dvars );
+	if ( level.multiteam )
+	{
+		ss.friend_weak_influencer_score = set_dvar_float_if_unset( "scr_spawn_friend_weak_influencer_score", "200", reset_dvars );
+		ss.friend_weak_influencer_score_curve = set_dvar_if_unset( "scr_spawn_friend_weak_influencer_score_curve", "linear", reset_dvars );
+		ss.friend_weak_influencer_radius = set_dvar_float_if_unset( "scr_spawn_friend_weak_influencer_radius", "1200", reset_dvars );
+	}
+	else
+	{
+		ss.friend_weak_influencer_score = set_dvar_float_if_unset( "scr_spawn_friend_weak_influencer_score", "20", reset_dvars );
+		ss.friend_weak_influencer_score_curve = set_dvar_if_unset( "scr_spawn_friend_weak_influencer_score_curve", "linear", reset_dvars );
+		ss.friend_weak_influencer_radius = set_dvar_float_if_unset( "scr_spawn_friend_weak_influencer_radius", "700", reset_dvars );
+	}
 	ss.enemy_influencer_score = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_score", "-150", reset_dvars );
-	ss.enemy_influencer_score_curve = set_dvar_if_unset( "scr_spawn_enemy_influencer_score_curve", "steep", reset_dvars );
+	ss.enemy_influencer_score_curve = set_dvar_if_unset( "scr_spawn_enemy_influencer_score_curve", "linear", reset_dvars );
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "2600", reset_dvars );
-	ss.dead_friend_influencer_timeout_seconds = set_dvar_float_if_unset( "scr_spawn_dead_friend_influencer_timeout_seconds", "15", reset_dvars );
+	ss.dead_friend_influencer_timeout_seconds = set_dvar_float_if_unset( "scr_spawn_dead_friend_influencer_timeout_seconds", "20", reset_dvars );
 	ss.dead_friend_influencer_count = set_dvar_float_if_unset( "scr_spawn_dead_friend_influencer_count", "7", reset_dvars );
 	ss.dead_friend_influencer_score = set_dvar_float_if_unset( "scr_spawn_dead_friend_influencer_score", "-100", reset_dvars );
 	ss.dead_friend_influencer_score_curve = set_dvar_if_unset( "scr_spawn_dead_friend_influencer_score_curve", "steep", reset_dvars );
@@ -725,6 +854,9 @@ get_player_spawning_dvars( reset_dvars )
 	ss.auto_turret_influencer_score = set_dvar_float_if_unset( "scr_spawn_auto_turret_influencer_score", "-650", reset_dvars );
 	ss.auto_turret_influencer_score_curve = set_dvar_if_unset( "scr_spawn_auto_turret_influencer_score_curve", "linear", reset_dvars );
 	ss.auto_turret_influencer_radius = set_dvar_float_if_unset( "scr_spawn_auto_turret_influencer_radius", "" + 1200, reset_dvars );
+	ss.auto_turret_influencer_close_score = set_dvar_float_if_unset( "scr_spawn_auto_turret_influencer_close_score", "-250000", reset_dvars );
+	ss.auto_turret_influencer_close_score_curve = set_dvar_if_unset( "scr_spawn_auto_turret_influencer_close_score_curve", "constant", reset_dvars );
+	ss.auto_turret_influencer_close_radius = set_dvar_float_if_unset( "scr_spawn_auto_turret_influencer_close_radius", "" + 500, reset_dvars );
 	ss.rcbomb_influencer_score = set_dvar_float_if_unset( "scr_spawn_rcbomb_influencer_score", "-200", reset_dvars );
 	ss.rcbomb_influencer_score_curve = set_dvar_if_unset( "scr_spawn_rcbomb_influencer_score_curve", "steep", reset_dvars );
 	ss.rcbomb_influencer_radius = set_dvar_float_if_unset( "scr_spawn_rcbomb_influencer_radius", "" + ( 25 * k_player_height ), reset_dvars );
@@ -739,16 +871,22 @@ get_player_spawning_dvars( reset_dvars )
 	ss.aitank_influencer_score_curve = set_dvar_if_unset( "scr_spawn_aitank_influencer_score_curve", "linear", reset_dvars );
 	ss.aitank_influencer_radius = set_dvar_float_if_unset( "scr_spawn_aitank_influencer_radius", "" + ( 25 * k_player_height ), reset_dvars );
 	ss.enemy_spawned_influencer_score_curve = set_dvar_if_unset( "scr_spawn_enemy_spawned_influencer_score_curve", "constant", reset_dvars );
-	if ( level.teambased )
+	if ( level.multiteam )
 	{
-		ss.enemy_spawned_influencer_score = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_score", "-200", reset_dvars );
+		ss.enemy_spawned_influencer_score = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_score", "-400", reset_dvars );
+		ss.enemy_spawned_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_radius", "" + 1100, reset_dvars );
+	}
+	else if ( level.teambased )
+	{
+		ss.enemy_spawned_influencer_score = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_score", "-400", reset_dvars );
 		ss.enemy_spawned_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_radius", "" + 1100, reset_dvars );
 	}
 	else
 	{
-		ss.enemy_spawned_influencer_score = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_score", "-100", reset_dvars );
-		ss.enemy_spawned_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_radius", "" + 400, reset_dvars );
+		ss.enemy_spawned_influencer_score = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_score", "-400", reset_dvars );
+		ss.enemy_spawned_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_radius", "" + 1000, reset_dvars );
 	}
+	ss.enemy_spawned_influencer_timeout_seconds = set_dvar_float_if_unset( "scr_spawn_enemy_spawned_influencer_timeout_seconds", "7", reset_dvars );
 	ss.helicopter_influencer_score = set_dvar_float_if_unset( "scr_spawn_helicopter_influencer_score", "-500", reset_dvars );
 	ss.helicopter_influencer_score_curve = set_dvar_if_unset( "scr_spawn_helicopter_influencer_score_curve", "linear", reset_dvars );
 	ss.helicopter_influencer_radius = set_dvar_float_if_unset( "scr_spawn_helicopter_influencer_radius", "" + 2000, reset_dvars );
@@ -764,7 +902,6 @@ get_player_spawning_dvars( reset_dvars )
 	{
 		ss.unifiedsideswitching = 1;
 	}
-	set_dvar_int_if_unset( "spawnsystem_allow_non_team_spawns", "0", reset_dvars );
 	[[ level.gamemodespawndvars ]]( reset_dvars );
 	if ( isDefined( level.levelspawndvars ) )
 	{
@@ -791,7 +928,7 @@ onspawnplayer_unified( predictedspawn )
 		return;
 #/
 	}
-	use_new_spawn_system = 0;
+	use_new_spawn_system = 1;
 	initial_spawn = 1;
 	if ( isDefined( self.uspawn_already_spawned ) )
 	{
@@ -806,7 +943,52 @@ onspawnplayer_unified( predictedspawn )
 		use_new_spawn_system = 0;
 	}
 	set_dvar_if_unset( "scr_spawn_force_unified", "0" );
-	[[ level.onspawnplayer ]]( predictedspawn );
+	spawnoverride = self maps/mp/_tacticalinsertion::overridespawn( predictedspawn );
+	if ( use_new_spawn_system || getDvarInt( #"0BD11226" ) != 0 )
+	{
+		if ( !spawnoverride )
+		{
+			spawn_point = getspawnpoint( self, predictedspawn );
+			if ( isDefined( spawn_point ) )
+			{
+				if ( predictedspawn )
+				{
+					self predictspawnpoint( spawn_point.origin, spawn_point.angles );
+				}
+				else
+				{
+					create_enemy_spawned_influencers( spawn_point.origin, self.pers[ "team" ] );
+					self spawn( spawn_point.origin, spawn_point.angles );
+				}
+			}
+			else
+			{
+/#
+				println( "ERROR: unable to locate a usable spawn point for player" );
+#/
+				maps/mp/gametypes/_callbacksetup::abortlevel();
+			}
+		}
+		else
+		{
+			if ( predictedspawn && isDefined( self.tacticalinsertion ) )
+			{
+				self predictspawnpoint( self.tacticalinsertion.origin, self.tacticalinsertion.angles );
+			}
+		}
+		if ( !predictedspawn )
+		{
+			self.lastspawntime = getTime();
+			self enable_player_influencers( 1 );
+		}
+	}
+	else
+	{
+		if ( !spawnoverride )
+		{
+			[[ level.onspawnplayer ]]( predictedspawn );
+		}
+	}
 	if ( !predictedspawn )
 	{
 		self.uspawn_already_spawned = 1;
@@ -857,31 +1039,31 @@ get_debug_spawnpoint( player )
 	if ( team == "free" )
 	{
 		spawn_counts = 0;
-		_a1409 = level.teams;
-		_k1409 = getFirstArrayKey( _a1409 );
-		while ( isDefined( _k1409 ) )
+		_a1556 = level.teams;
+		_k1556 = getFirstArrayKey( _a1556 );
+		while ( isDefined( _k1556 ) )
 		{
-			team = _a1409[ _k1409 ];
+			team = _a1556[ _k1556 ];
 			spawn_counts += level.unified_spawn_points[ team ].a.size;
-			_k1409 = getNextArrayKey( _a1409, _k1409 );
+			_k1556 = getNextArrayKey( _a1556, _k1556 );
 		}
 		if ( level.test_spawn_point_index >= spawn_counts )
 		{
 			level.test_spawn_point_index = 0;
 		}
 		count = 0;
-		_a1420 = level.teams;
-		_k1420 = getFirstArrayKey( _a1420 );
-		while ( isDefined( _k1420 ) )
+		_a1567 = level.teams;
+		_k1567 = getFirstArrayKey( _a1567 );
+		while ( isDefined( _k1567 ) )
 		{
-			team = _a1420[ _k1420 ];
+			team = _a1567[ _k1567 ];
 			size = level.unified_spawn_points[ team ].a.size;
 			if ( level.test_spawn_point_index < ( count + size ) )
 			{
 				return level.unified_spawn_points[ team ].a[ level.test_spawn_point_index - count ];
 			}
 			count += size;
-			_k1420 = getNextArrayKey( _a1420, _k1420 );
+			_k1567 = getNextArrayKey( _a1567, _k1567 );
 		}
 	}
 	else if ( level.test_spawn_point_index >= level.unified_spawn_points[ team ].a.size )
@@ -934,7 +1116,7 @@ gatherspawnentities( player_team )
 	{
 		spawn_entities_s.a = [];
 	}
-	legacy_spawn_points = maps/mp/gametypes_zm/_spawnlogic::getteamspawnpoints( player_team );
+	legacy_spawn_points = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( player_team );
 	legacy_spawn_index = 0;
 	while ( legacy_spawn_index < legacy_spawn_points.size )
 	{
@@ -971,6 +1153,12 @@ remove_unused_spawn_entities()
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_dm_spawn";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_allies_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_axis_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_team1_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_team2_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_team3_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_team4_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_team5_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn_team6_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_tdm_spawn";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_ctf_spawn_allies_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_ctf_spawn_axis_start";
@@ -978,6 +1166,9 @@ remove_unused_spawn_entities()
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_ctf_spawn_axis";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_dom_spawn_allies_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_dom_spawn_axis_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dom_spawn_flag_a";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dom_spawn_flag_b";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dom_spawn_flag_c";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_dom_spawn";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_sab_spawn_allies_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_sab_spawn_axis_start";
@@ -985,6 +1176,12 @@ remove_unused_spawn_entities()
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_sab_spawn_axis";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_sd_spawn_attacker";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_sd_spawn_defender";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dem_spawn_attacker_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dem_spawn_defender_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dem_spawn_attackerOT_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dem_spawn_defenderOT_start";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dem_spawn_attacker";
+	spawn_entity_types[ spawn_entity_types.size ] = "mp_dem_spawn_defender";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_twar_spawn_axis_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_twar_spawn_allies_start";
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_twar_spawn";
@@ -998,7 +1195,7 @@ remove_unused_spawn_entities()
 		}
 		else
 		{
-			spawnpoints = maps/mp/gametypes_zm/_spawnlogic::getspawnpointarray( spawn_entity_types[ i ] );
+			spawnpoints = maps/mp/gametypes/_spawnlogic::getspawnpointarray( spawn_entity_types[ i ] );
 			delete_all_spawns( spawnpoints );
 		}
 		i++;
@@ -1035,39 +1232,65 @@ spawn_point_class_name_being_used( name )
 
 codecallback_updatespawnpoints()
 {
-	_a1624 = level.teams;
-	_k1624 = getFirstArrayKey( _a1624 );
-	while ( isDefined( _k1624 ) )
+	_a1788 = level.teams;
+	_k1788 = getFirstArrayKey( _a1788 );
+	while ( isDefined( _k1788 ) )
 	{
-		team = _a1624[ _k1624 ];
-		maps/mp/gametypes_zm/_spawnlogic::rebuildspawnpoints( team );
-		_k1624 = getNextArrayKey( _a1624, _k1624 );
+		team = _a1788[ _k1788 ];
+		maps/mp/gametypes/_spawnlogic::rebuildspawnpoints( team );
+		_k1788 = getNextArrayKey( _a1788, _k1788 );
 	}
 	level.unified_spawn_points = undefined;
 	updateallspawnpoints();
 }
 
-initialspawnprotection( specialtyname, spawnmonitorspeed )
+initialspawnprotection()
 {
 	self endon( "death" );
 	self endon( "disconnect" );
+	self thread maps/mp/killstreaks/_airsupport::monitorspeed( level.spawnprotectiontime );
 	if ( !isDefined( level.spawnprotectiontime ) || level.spawnprotectiontime == 0 )
 	{
 		return;
 	}
-	if ( specialtyname == "specialty_nottargetedbyairsupport" )
+	self.specialty_nottargetedbyairsupport = 1;
+	self spawnprotectionactive();
+	wait level.spawnprotectiontime;
+	self spawnprotectioninactive();
+	self.specialty_nottargetedbyairsupport = undefined;
+}
+
+getteamstartspawnname( team, spawnpointnamebase )
+{
+	spawn_point_team_name = team;
+	if ( !level.multiteam && game[ "switchedsides" ] )
 	{
-		self.specialty_nottargetedbyairsupport = 1;
-		wait level.spawnprotectiontime;
-		self.specialty_nottargetedbyairsupport = undefined;
+		spawn_point_team_name = getotherteam( team );
 	}
-	else
+	if ( level.multiteam )
 	{
-		if ( !self hasperk( specialtyname ) )
+		if ( team == "axis" )
 		{
-			self setperk( specialtyname );
-			wait level.spawnprotectiontime;
-			self unsetperk( specialtyname );
+			spawn_point_team_name = "team1";
+		}
+		else
+		{
+			if ( team == "allies" )
+			{
+				spawn_point_team_name = "team2";
+			}
+		}
+		if ( !isoneround() )
+		{
+			number = int( getsubstr( spawn_point_team_name, 4, 5 ) ) - 1;
+			number = ( ( number + game[ "roundsplayed" ] ) % level.teams.size ) + 1;
+			spawn_point_team_name = "team" + number;
 		}
 	}
+	return ( spawnpointnamebase + "_" ) + spawn_point_team_name + "_start";
+}
+
+gettdmstartspawnname( team )
+{
+	return getteamstartspawnname( team, "mp_tdm_spawn" );
 }

@@ -1,8 +1,8 @@
 #include maps/mp/_utility;
-#include maps/mp/gametypes_zm/_globallogic_audio;
+#include maps/mp/gametypes/_globallogic_audio;
 #include maps/mp/_music;
-#include maps/mp/gametypes_zm/_hud_message;
-#include maps/mp/gametypes_zm/_hud_util;
+#include maps/mp/gametypes/_hud_message;
+#include maps/mp/gametypes/_hud_util;
 
 init()
 {
@@ -99,7 +99,7 @@ hintmessageplayers( players, hinttext, duration )
 showinitialfactionpopup( team )
 {
 	self luinotifyevent( &"faction_popup", 1, game[ "strings" ][ team + "_name" ] );
-	maps/mp/gametypes_zm/_hud_message::oldnotifymessage( undefined, undefined, undefined, undefined );
+	maps/mp/gametypes/_hud_message::oldnotifymessage( undefined, undefined, undefined, undefined );
 }
 
 initnotifymessage()
@@ -111,7 +111,7 @@ initnotifymessage()
 			titlesize = 2;
 			textsize = 1,4;
 			iconsize = 24;
-			font = "extrabig";
+			font = "big";
 			point = "TOP";
 			relativepoint = "BOTTOM";
 			yoffset = 30;
@@ -122,7 +122,7 @@ initnotifymessage()
 			titlesize = 2,5;
 			textsize = 1,75;
 			iconsize = 30;
-			font = "extrabig";
+			font = "big";
 			point = "TOP";
 			relativepoint = "BOTTOM";
 			yoffset = 0;
@@ -134,7 +134,7 @@ initnotifymessage()
 		titlesize = 2;
 		textsize = 1,4;
 		iconsize = 24;
-		font = "extrabig";
+		font = "big";
 		point = "TOP";
 		relativepoint = "BOTTOM";
 		yoffset = 30;
@@ -145,7 +145,7 @@ initnotifymessage()
 		titlesize = 2,5;
 		textsize = 1,75;
 		iconsize = 30;
-		font = "extrabig";
+		font = "big";
 		point = "BOTTOM LEFT";
 		relativepoint = "TOP";
 		yoffset = 0;
@@ -205,6 +205,19 @@ notifymessage( notifydata )
 	self notify( "received award" );
 }
 
+playnotifyloop( duration )
+{
+	playnotifyloop = spawn( "script_origin", ( 1, 1, 1 ) );
+	playnotifyloop playloopsound( "uin_notify_data_loop" );
+	duration -= 4;
+	if ( duration < 1 )
+	{
+		duration = 1;
+	}
+	wait duration;
+	playnotifyloop delete();
+}
+
 shownotifymessage( notifydata, duration )
 {
 	self endon( "disconnect" );
@@ -222,7 +235,7 @@ shownotifymessage( notifydata, duration )
 	}
 	if ( isDefined( notifydata.leadersound ) )
 	{
-		self maps/mp/gametypes_zm/_globallogic_audio::leaderdialogonplayer( notifydata.leadersound );
+		self maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( notifydata.leadersound );
 	}
 	if ( isDefined( notifydata.glowcolor ) )
 	{
@@ -368,6 +381,10 @@ waitrequirevisibility( waittime )
 
 canreadtext()
 {
+	if ( self maps/mp/_utility::isflashbanged() )
+	{
+		return 0;
+	}
 	return 1;
 }
 
@@ -414,8 +431,13 @@ hintmessagedeaththink()
 lowermessagethink()
 {
 	self endon( "disconnect" );
+	messagetexty = level.lowertexty;
+	if ( self issplitscreen() )
+	{
+		messagetexty = level.lowertexty - 50;
+	}
 	self.lowermessage = createfontstring( "default", level.lowertextfontsize );
-	self.lowermessage setpoint( "CENTER", level.lowertextyalign, 0, level.lowertexty );
+	self.lowermessage setpoint( "CENTER", level.lowertextyalign, 0, messagetexty );
 	self.lowermessage settext( "" );
 	self.lowermessage.archived = 0;
 	timerfontsize = 1,5;
@@ -494,12 +516,16 @@ teamoutcomenotify( winner, isround, endreasontext )
 	outcometitle.glowalpha = 1;
 	outcometitle.hidewheninmenu = 0;
 	outcometitle.archived = 0;
+	outcometitle.immunetodemogamehudsettings = 1;
+	outcometitle.immunetodemofreecamera = 1;
 	outcometext = createfontstring( font, 2 );
 	outcometext setparent( outcometitle );
 	outcometext setpoint( "TOP", "BOTTOM", 0, 0 );
 	outcometext.glowalpha = 1;
 	outcometext.hidewheninmenu = 0;
 	outcometext.archived = 0;
+	outcometext.immunetodemogamehudsettings = 1;
+	outcometext.immunetodemofreecamera = 1;
 	if ( winner == "halftime" )
 	{
 		outcometitle settext( game[ "strings" ][ "halftime" ] );
@@ -548,6 +574,10 @@ teamoutcomenotify( winner, isround, endreasontext )
 			outcometitle settext( game[ "strings" ][ "victory" ] );
 		}
 		outcometitle.color = ( 0,42, 0,68, 0,46 );
+		if ( isDefined( level.endvictoryreasontext ) )
+		{
+			endreasontext = level.endvictoryreasontext;
+		}
 	}
 	else
 	{
@@ -560,6 +590,10 @@ teamoutcomenotify( winner, isround, endreasontext )
 			outcometitle settext( game[ "strings" ][ "defeat" ] );
 		}
 		outcometitle.color = ( 0,73, 0,29, 0,19 );
+		if ( isDefined( level.enddefeatreasontext ) )
+		{
+			endreasontext = level.enddefeatreasontext;
+		}
 	}
 	outcometext settext( endreasontext );
 	outcometitle setcod7decodefx( 200, duration, 600 );
@@ -572,15 +606,17 @@ teamoutcomenotify( winner, isround, endreasontext )
 	teamicons[ team ] setpoint( "TOP", "BOTTOM", currentx, spacing );
 	teamicons[ team ].hidewheninmenu = 0;
 	teamicons[ team ].archived = 0;
+	teamicons[ team ].immunetodemogamehudsettings = 1;
+	teamicons[ team ].immunetodemofreecamera = 1;
 	teamicons[ team ].alpha = 0;
 	teamicons[ team ] fadeovertime( 0,5 );
 	teamicons[ team ].alpha = 1;
 	currentx += iconspacing;
-	_a607 = level.teams;
-	_k607 = getFirstArrayKey( _a607 );
-	while ( isDefined( _k607 ) )
+	_a650 = level.teams;
+	_k650 = getFirstArrayKey( _a650 );
+	while ( isDefined( _k650 ) )
 	{
-		enemyteam = _a607[ _k607 ];
+		enemyteam = _a650[ _k650 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -591,12 +627,14 @@ teamoutcomenotify( winner, isround, endreasontext )
 			teamicons[ enemyteam ] setpoint( "TOP", "BOTTOM", currentx, spacing );
 			teamicons[ enemyteam ].hidewheninmenu = 0;
 			teamicons[ enemyteam ].archived = 0;
+			teamicons[ enemyteam ].immunetodemogamehudsettings = 1;
+			teamicons[ enemyteam ].immunetodemofreecamera = 1;
 			teamicons[ enemyteam ].alpha = 0;
 			teamicons[ enemyteam ] fadeovertime( 0,5 );
 			teamicons[ enemyteam ].alpha = 1;
 			currentx += iconspacing;
 		}
-		_k607 = getNextArrayKey( _a607, _k607 );
+		_k650 = getNextArrayKey( _a650, _k650 );
 	}
 	teamscores = [];
 	teamscores[ team ] = createfontstring( font, titlesize );
@@ -613,12 +651,14 @@ teamoutcomenotify( winner, isround, endreasontext )
 	}
 	teamscores[ team ].hidewheninmenu = 0;
 	teamscores[ team ].archived = 0;
+	teamscores[ team ].immunetodemogamehudsettings = 1;
+	teamscores[ team ].immunetodemofreecamera = 1;
 	teamscores[ team ] setpulsefx( 100, duration, 1000 );
-	_a641 = level.teams;
-	_k641 = getFirstArrayKey( _a641 );
-	while ( isDefined( _k641 ) )
+	_a688 = level.teams;
+	_k688 = getFirstArrayKey( _a688 );
+	while ( isDefined( _k688 ) )
 	{
-		enemyteam = _a641[ _k641 ];
+		enemyteam = _a688[ _k688 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -638,22 +678,30 @@ teamoutcomenotify( winner, isround, endreasontext )
 			}
 			teamscores[ enemyteam ].hidewheninmenu = 0;
 			teamscores[ enemyteam ].archived = 0;
+			teamscores[ enemyteam ].immunetodemogamehudsettings = 1;
+			teamscores[ enemyteam ].immunetodemofreecamera = 1;
 			teamscores[ enemyteam ] setpulsefx( 100, duration, 1000 );
 		}
-		_k641 = getNextArrayKey( _a641, _k641 );
+		_k688 = getNextArrayKey( _a688, _k688 );
 	}
 	font = "objective";
 	matchbonus = undefined;
 	if ( isDefined( self.matchbonus ) )
 	{
-		matchbonus = createfontstring( font, 2 );
-		matchbonus setparent( outcometext );
-		matchbonus setpoint( "TOP", "BOTTOM", 0, iconsize + ( spacing * 3 ) + teamscores[ team ].height );
-		matchbonus.glowalpha = 1;
-		matchbonus.hidewheninmenu = 0;
-		matchbonus.archived = 0;
-		matchbonus.label = game[ "strings" ][ "match_bonus" ];
-		matchbonus setvalue( self.matchbonus );
+		bonus = ceil( self.matchbonus * level.xpscale );
+		if ( bonus > 0 )
+		{
+			matchbonus = createfontstring( font, 2 );
+			matchbonus setparent( outcometext );
+			matchbonus setpoint( "TOP", "BOTTOM", 0, iconsize + ( spacing * 3 ) + teamscores[ team ].height );
+			matchbonus.glowalpha = 1;
+			matchbonus.hidewheninmenu = 0;
+			matchbonus.archived = 0;
+			matchbonus.immunetodemogamehudsettings = 1;
+			matchbonus.immunetodemofreecamera = 1;
+			matchbonus.label = game[ "strings" ][ "match_bonus" ];
+			matchbonus setvalue( bonus );
+		}
 	}
 	self thread resetoutcomenotify( teamicons, teamscores, outcometitle, outcometext );
 }
@@ -688,7 +736,7 @@ teamoutcomenotifyzombie( winner, isround, endreasontext )
 		wait 0,05;
 	}
 	self endon( "reset_outcome" );
-	if ( self issplitscreen() )
+	if ( level.splitscreen )
 	{
 		titlesize = 2;
 		spacing = 10;
@@ -705,9 +753,25 @@ teamoutcomenotifyzombie( winner, isround, endreasontext )
 	outcometitle.glowalpha = 1;
 	outcometitle.hidewheninmenu = 0;
 	outcometitle.archived = 0;
+	outcometitle.immunetodemogamehudsettings = 1;
+	outcometitle.immunetodemofreecamera = 1;
 	outcometitle settext( endreasontext );
 	outcometitle setpulsefx( 100, 60000, 1000 );
 	self thread resetoutcomenotify( undefined, undefined, outcometitle );
+}
+
+isintop( players, topn )
+{
+	i = 0;
+	while ( i < topn )
+	{
+		if ( isDefined( players[ i ] ) && self == players[ i ] )
+		{
+			return 1;
+		}
+		i++;
+	}
+	return 0;
 }
 
 outcomenotify( winner, isroundend, endreasontext )
@@ -747,34 +811,26 @@ outcomenotify( winner, isroundend, endreasontext )
 	}
 	else
 	{
-		if ( isDefined( players[ 1 ] ) && players[ 0 ].score == players[ 1 ].score && players[ 0 ].deaths == players[ 1 ].deaths || self == players[ 0 ] && self == players[ 1 ] )
+		if ( players[ 0 ].pointstowin == 0 )
 		{
 			outcometitle settext( game[ "strings" ][ "tie" ] );
 		}
+		else if ( self isintop( players, 3 ) )
+		{
+			outcometitle settext( game[ "strings" ][ "victory" ] );
+			outcometitle.color = ( 0,42, 0,68, 0,46 );
+		}
 		else
 		{
-			if ( isDefined( players[ 2 ] ) && players[ 0 ].score == players[ 2 ].score && players[ 0 ].deaths == players[ 2 ].deaths && self == players[ 2 ] )
-			{
-				outcometitle settext( game[ "strings" ][ "tie" ] );
-			}
-			else
-			{
-				if ( isDefined( players[ 0 ] ) && self == players[ 0 ] )
-				{
-					outcometitle settext( game[ "strings" ][ "victory" ] );
-					outcometitle.color = ( 0,42, 0,68, 0,46 );
-				}
-				else
-				{
-					outcometitle settext( game[ "strings" ][ "defeat" ] );
-					outcometitle.color = ( 0,73, 0,29, 0,19 );
-				}
-			}
+			outcometitle settext( game[ "strings" ][ "defeat" ] );
+			outcometitle.color = ( 0,73, 0,29, 0,19 );
 		}
 	}
 	outcometitle.glowalpha = 1;
 	outcometitle.hidewheninmenu = 0;
 	outcometitle.archived = 0;
+	outcometitle.immunetodemogamehudsettings = 1;
+	outcometitle.immunetodemofreecamera = 1;
 	outcometitle setcod7decodefx( 200, duration, 600 );
 	outcometext = createfontstring( font, 2 );
 	outcometext setparent( outcometitle );
@@ -782,6 +838,8 @@ outcomenotify( winner, isroundend, endreasontext )
 	outcometext.glowalpha = 1;
 	outcometext.hidewheninmenu = 0;
 	outcometext.archived = 0;
+	outcometext.immunetodemogamehudsettings = 1;
+	outcometext.immunetodemofreecamera = 1;
 	outcometext settext( endreasontext );
 	firsttitle = createfontstring( font, winnersize );
 	firsttitle setparent( outcometext );
@@ -789,6 +847,8 @@ outcomenotify( winner, isroundend, endreasontext )
 	firsttitle.glowalpha = 1;
 	firsttitle.hidewheninmenu = 0;
 	firsttitle.archived = 0;
+	firsttitle.immunetodemogamehudsettings = 1;
+	firsttitle.immunetodemofreecamera = 1;
 	if ( isDefined( players[ 0 ] ) )
 	{
 		firsttitle.label = &"MP_FIRSTPLACE_NAME";
@@ -801,6 +861,8 @@ outcomenotify( winner, isroundend, endreasontext )
 	secondtitle.glowalpha = 1;
 	secondtitle.hidewheninmenu = 0;
 	secondtitle.archived = 0;
+	secondtitle.immunetodemogamehudsettings = 1;
+	secondtitle.immunetodemofreecamera = 1;
 	if ( isDefined( players[ 1 ] ) )
 	{
 		secondtitle.label = &"MP_SECONDPLACE_NAME";
@@ -814,6 +876,8 @@ outcomenotify( winner, isroundend, endreasontext )
 	thirdtitle.glowalpha = 1;
 	thirdtitle.hidewheninmenu = 0;
 	thirdtitle.archived = 0;
+	thirdtitle.immunetodemogamehudsettings = 1;
+	thirdtitle.immunetodemofreecamera = 1;
 	if ( isDefined( players[ 2 ] ) )
 	{
 		thirdtitle.label = &"MP_THIRDPLACE_NAME";
@@ -826,10 +890,16 @@ outcomenotify( winner, isroundend, endreasontext )
 	matchbonus.glowalpha = 1;
 	matchbonus.hidewheninmenu = 0;
 	matchbonus.archived = 0;
+	matchbonus.immunetodemogamehudsettings = 1;
+	matchbonus.immunetodemofreecamera = 1;
 	if ( isDefined( self.matchbonus ) )
 	{
-		matchbonus.label = game[ "strings" ][ "match_bonus" ];
-		matchbonus setvalue( self.matchbonus );
+		bonus = ceil( self.matchbonus * level.xpscale );
+		if ( bonus > 0 )
+		{
+			matchbonus.label = game[ "strings" ][ "match_bonus" ];
+			matchbonus setvalue( bonus );
+		}
 	}
 	self thread updateoutcome( firsttitle, secondtitle, thirdtitle );
 	self thread resetoutcomenotify( undefined, undefined, outcometitle, outcometext, firsttitle, secondtitle, thirdtitle, matchbonus );
@@ -899,6 +969,8 @@ wageroutcomenotify( winner, endreasontext )
 	outcometitle.glowalpha = 1;
 	outcometitle.hidewheninmenu = 0;
 	outcometitle.archived = 0;
+	outcometitle.immunetodemogamehudsettings = 1;
+	outcometitle.immunetodemofreecamera = 1;
 	outcometitle setcod7decodefx( 200, duration, 600 );
 	outcometext = createfontstring( font, 2 );
 	outcometext setparent( outcometitle );
@@ -906,6 +978,8 @@ wageroutcomenotify( winner, endreasontext )
 	outcometext.glowalpha = 1;
 	outcometext.hidewheninmenu = 0;
 	outcometext.archived = 0;
+	outcometext.immunetodemogamehudsettings = 1;
+	outcometext.immunetodemofreecamera = 1;
 	outcometext settext( endreasontext );
 	playernamehudelems = [];
 	playercphudelems = [];
@@ -929,6 +1003,8 @@ wageroutcomenotify( winner, endreasontext )
 			secondtitle.glowalpha = 1;
 			secondtitle.hidewheninmenu = 0;
 			secondtitle.archived = 0;
+			secondtitle.immunetodemogamehudsettings = 1;
+			secondtitle.immunetodemofreecamera = 1;
 			secondtitle.label = &"MP_WAGER_PLACE_NAME";
 			secondtitle.playernum = i;
 			secondtitle setplayernamestring( players[ i ] );
@@ -939,6 +1015,8 @@ wageroutcomenotify( winner, endreasontext )
 			secondcp.glowalpha = 1;
 			secondcp.hidewheninmenu = 0;
 			secondcp.archived = 0;
+			secondcp.immunetodemogamehudsettings = 1;
+			secondcp.immunetodemofreecamera = 1;
 			secondcp.label = &"MENU_POINTS";
 			secondcp.currentvalue = 0;
 			if ( isDefined( players[ i ].wagerwinnings ) )
@@ -1039,12 +1117,16 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	outcometitle.glowalpha = 1;
 	outcometitle.hidewheninmenu = 0;
 	outcometitle.archived = 0;
+	outcometitle.immunetodemogamehudsettings = 1;
+	outcometitle.immunetodemofreecamera = 1;
 	outcometext = createfontstring( font, 2 );
 	outcometext setparent( outcometitle );
 	outcometext setpoint( "TOP", "BOTTOM", 0, 0 );
 	outcometext.glowalpha = 1;
 	outcometext.hidewheninmenu = 0;
 	outcometext.archived = 0;
+	outcometext.immunetodemogamehudsettings = 1;
+	outcometext.immunetodemofreecamera = 1;
 	if ( winner == "tie" )
 	{
 		if ( isroundend )
@@ -1102,11 +1184,13 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	teamicons[ team ].alpha = 0;
 	teamicons[ team ] fadeovertime( 0,5 );
 	teamicons[ team ].alpha = 1;
-	_a1171 = level.teams;
-	_k1171 = getFirstArrayKey( _a1171 );
-	while ( isDefined( _k1171 ) )
+	teamicons[ team ].immunetodemogamehudsettings = 1;
+	teamicons[ team ].immunetodemofreecamera = 1;
+	_a1269 = level.teams;
+	_k1269 = getFirstArrayKey( _a1269 );
+	while ( isDefined( _k1269 ) )
 	{
-		enemyteam = _a1171[ _k1171 ];
+		enemyteam = _a1269[ _k1269 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -1120,8 +1204,10 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 			teamicons[ enemyteam ].alpha = 0;
 			teamicons[ enemyteam ] fadeovertime( 0,5 );
 			teamicons[ enemyteam ].alpha = 1;
+			teamicons[ enemyteam ].immunetodemogamehudsettings = 1;
+			teamicons[ enemyteam ].immunetodemofreecamera = 1;
 		}
-		_k1171 = getNextArrayKey( _a1171, _k1171 );
+		_k1269 = getNextArrayKey( _a1269, _k1269 );
 	}
 	teamscores = [];
 	teamscores[ team ] = createfontstring( font, titlesize );
@@ -1131,12 +1217,14 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	teamscores[ team ] setvalue( getteamscore( team ) );
 	teamscores[ team ].hidewheninmenu = 0;
 	teamscores[ team ].archived = 0;
+	teamscores[ team ].immunetodemogamehudsettings = 1;
+	teamscores[ team ].immunetodemofreecamera = 1;
 	teamscores[ team ] setpulsefx( 100, duration, 1000 );
-	_a1197 = level.teams;
-	_k1197 = getFirstArrayKey( _a1197 );
-	while ( isDefined( _k1197 ) )
+	_a1299 = level.teams;
+	_k1299 = getFirstArrayKey( _a1299 );
+	while ( isDefined( _k1299 ) )
 	{
-		enemyteam = _a1197[ _k1197 ];
+		enemyteam = _a1299[ _k1299 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -1149,9 +1237,11 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 			teamscores[ enemyteam ] setvalue( getteamscore( enemyteam ) );
 			teamscores[ enemyteam ].hidewheninmenu = 0;
 			teamscores[ enemyteam ].archived = 0;
+			teamscores[ enemyteam ].immunetodemogamehudsettings = 1;
+			teamscores[ enemyteam ].immunetodemofreecamera = 1;
 			teamscores[ enemyteam ] setpulsefx( 100, duration, 1000 );
 		}
-		_k1197 = getNextArrayKey( _a1197, _k1197 );
+		_k1299 = getNextArrayKey( _a1299, _k1299 );
 	}
 	matchbonus = undefined;
 	sidebetwinnings = undefined;
@@ -1163,6 +1253,8 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 		matchbonus.glowalpha = 1;
 		matchbonus.hidewheninmenu = 0;
 		matchbonus.archived = 0;
+		matchbonus.immunetodemogamehudsettings = 1;
+		matchbonus.immunetodemofreecamera = 1;
 		matchbonus.label = game[ "strings" ][ "wager_winnings" ];
 		matchbonus setvalue( self.wagerwinnings );
 		if ( isDefined( game[ "side_bets" ] ) && game[ "side_bets" ] )
@@ -1173,6 +1265,8 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 			sidebetwinnings.glowalpha = 1;
 			sidebetwinnings.hidewheninmenu = 0;
 			sidebetwinnings.archived = 0;
+			sidebetwinnings.immunetodemogamehudsettings = 1;
+			sidebetwinnings.immunetodemofreecamera = 1;
 			sidebetwinnings.label = game[ "strings" ][ "wager_sidebet_winnings" ];
 			sidebetwinnings setvalue( self.pers[ "wager_sideBetWinnings" ] );
 		}
@@ -1202,24 +1296,24 @@ resetoutcomenotify( hudelemlist1, hudelemlist2, hudelem3, hudelem4, hudelem5, hu
 	destroyhudelem( hudelem10 );
 	while ( isDefined( hudelemlist1 ) )
 	{
-		_a1263 = hudelemlist1;
-		_k1263 = getFirstArrayKey( _a1263 );
-		while ( isDefined( _k1263 ) )
+		_a1371 = hudelemlist1;
+		_k1371 = getFirstArrayKey( _a1371 );
+		while ( isDefined( _k1371 ) )
 		{
-			elem = _a1263[ _k1263 ];
+			elem = _a1371[ _k1371 ];
 			destroyhudelem( elem );
-			_k1263 = getNextArrayKey( _a1263, _k1263 );
+			_k1371 = getNextArrayKey( _a1371, _k1371 );
 		}
 	}
 	while ( isDefined( hudelemlist2 ) )
 	{
-		_a1271 = hudelemlist2;
-		_k1271 = getFirstArrayKey( _a1271 );
-		while ( isDefined( _k1271 ) )
+		_a1379 = hudelemlist2;
+		_k1379 = getFirstArrayKey( _a1379 );
+		while ( isDefined( _k1379 ) )
 		{
-			elem = _a1271[ _k1271 ];
+			elem = _a1379[ _k1379 ];
 			destroyhudelem( elem );
-			_k1271 = getNextArrayKey( _a1271, _k1271 );
+			_k1379 = getNextArrayKey( _a1379, _k1379 );
 		}
 	}
 }

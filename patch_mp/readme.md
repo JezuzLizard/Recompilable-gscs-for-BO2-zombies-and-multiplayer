@@ -19,6 +19,7 @@ patch_mp/maps/mp/gametypes/_shellshock.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+patch_mp/maps/mp/gametypes/_weapon_utils.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
@@ -42,7 +43,6 @@ patch_mp/maps/mp/gametypes/_globallogic_spawn.gsc
 patch_mp/maps/mp/gametypes/_globallogic_ui.gsc
 patch_mp/maps/mp/gametypes/_globallogic_utils.gsc
 patch_mp/maps/mp/gametypes/_globallogic_vehicle.gsc
-patch_mp/maps/mp/gametypes/_gv_actions.gsc
 patch_mp/maps/mp/gametypes/_healthoverlay.gsc
 patch_mp/maps/mp/gametypes/_hostmigration.gsc
 patch_mp/maps/mp/gametypes/_hud.gsc
@@ -61,7 +61,6 @@ patch_mp/maps/mp/gametypes/_spawnlogic.gsc
 patch_mp/maps/mp/gametypes/_spectating.gsc
 patch_mp/maps/mp/gametypes/_tweakables.gsc
 patch_mp/maps/mp/gametypes/_wager.gsc
-patch_mp/maps/mp/gametypes/_weapon_utils.gsc
 patch_mp/maps/mp/gametypes/_weaponobjects.gsc
 patch_mp/maps/mp/gametypes/_weapons.gsc
 patch_mp/maps/mp/gametypes/conf.gsc

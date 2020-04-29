@@ -31,11 +31,14 @@ init()
 	level.primaryprogressbartexty = -75;
 	level.primaryprogressbartextx = 0;
 	level.primaryprogressbarfontsize = 1,4;
-	level.primaryprogressbarx_ss = 20;
-	level.primaryprogressbartextx_ss = 20;
-	level.primaryprogressbary_ss = 30;
-	level.primaryprogressbartexty_ss = 33;
-	level.primaryprogressbarheight_ss = 2;
+	if ( level.splitscreen )
+	{
+		level.primaryprogressbarx = 20;
+		level.primaryprogressbartextx = 20;
+		level.primaryprogressbary = 15;
+		level.primaryprogressbartexty = 0;
+		level.primaryprogressbarheight = 2;
+	}
 	level.secondaryprogressbary = -85;
 	level.secondaryprogressbarx = 0;
 	level.secondaryprogressbarheight = 9;
@@ -43,23 +46,32 @@ init()
 	level.secondaryprogressbartexty = -100;
 	level.secondaryprogressbartextx = 0;
 	level.secondaryprogressbarfontsize = 1,4;
-	level.secondaryprogressbarx_ss = 20;
-	level.secondaryprogressbartextx_ss = 20;
-	level.secondaryprogressbary_ss = 15;
-	level.secondaryprogressbartexty_ss = 0;
-	level.secondaryprogressbarheight_ss = 2;
+	if ( level.splitscreen )
+	{
+		level.secondaryprogressbarx = 20;
+		level.secondaryprogressbartextx = 20;
+		level.secondaryprogressbary = 15;
+		level.secondaryprogressbartexty = 0;
+		level.secondaryprogressbarheight = 2;
+	}
 	level.teamprogressbary = 32;
 	level.teamprogressbarheight = 14;
 	level.teamprogressbarwidth = 192;
 	level.teamprogressbartexty = 8;
 	level.teamprogressbarfontsize = 1,65;
 	setdvar( "ui_generic_status_bar", 0 );
-	level.lowertextyalign = "BOTTOM";
-	level.lowertexty = -42;
-	level.lowertextfontsize = 1,4;
-	level.lowertextyalign_ss = "CENTER";
-	level.lowertexty_ss = 40;
-	level.lowertextfontsize_ss = 1,4;
+	if ( level.splitscreen )
+	{
+		level.lowertextyalign = "BOTTOM";
+		level.lowertexty = -42;
+		level.lowertextfontsize = 1,4;
+	}
+	else
+	{
+		level.lowertextyalign = "CENTER";
+		level.lowertexty = 40;
+		level.lowertextfontsize = 1,4;
+	}
 }
 
 fontpulseinit()
@@ -106,12 +118,8 @@ fontpulse( player )
 	}
 }
 
-fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadername, n_sort )
+fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadername )
 {
-	if ( !isDefined( n_sort ) )
-	{
-		n_sort = 50;
-	}
 	wait startwait;
 	if ( !isDefined( self ) )
 	{
@@ -128,7 +136,8 @@ fadetoblackforxsec( startwait, blackscreenwait, fadeintime, fadeouttime, shadern
 	self.blackscreen.foreground = 0;
 	self.blackscreen.hidewhendead = 0;
 	self.blackscreen.hidewheninmenu = 1;
-	self.blackscreen.sort = n_sort;
+	self.blackscreen.immunetodemogamehudsettings = 1;
+	self.blackscreen.sort = 50;
 	if ( isDefined( shadername ) )
 	{
 		self.blackscreen setshader( shadername, 640, 480 );

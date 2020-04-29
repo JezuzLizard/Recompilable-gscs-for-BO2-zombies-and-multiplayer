@@ -1,6 +1,6 @@
-#include maps/mp/gametypes_zm/_spawnlogic;
-#include maps/mp/gametypes_zm/_gameobjects;
-#include maps/mp/gametypes_zm/_callbacksetup;
+#include maps/mp/gametypes/_spawnlogic;
+#include maps/mp/gametypes/_gameobjects;
+#include maps/mp/gametypes/_callbacksetup;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
@@ -91,7 +91,7 @@ addspawnpointsinternal( team, spawnpointname )
 /#
 		println( "^1ERROR: No " + spawnpointname + " spawnpoints found in level!" );
 #/
-		maps/mp/gametypes_zm/_callbacksetup::abortlevel();
+		maps/mp/gametypes/_callbacksetup::abortlevel();
 		wait 1;
 		return;
 	}
@@ -144,7 +144,7 @@ placespawnpoints( spawnpointname )
 /#
 		println( "^1No " + spawnpointname + " spawnpoints found in level!" );
 #/
-		maps/mp/gametypes_zm/_callbacksetup::abortlevel();
+		maps/mp/gametypes/_callbacksetup::abortlevel();
 		wait 1;
 		return;
 	}
@@ -564,7 +564,7 @@ storespawndata( spawnpoints, useweights, bestspawnpoint )
 			index = otherdata.size;
 			otherdata[ index ] = spawnstruct();
 			otherdata[ index ].origin = level.flags[ i ].origin;
-			otherdata[ index ].text = level.flags[ i ].useobj maps/mp/gametypes_zm/_gameobjects::getownerteam() + " flag";
+			otherdata[ index ].text = level.flags[ i ].useobj maps/mp/gametypes/_gameobjects::getownerteam() + " flag";
 			i++;
 		}
 	}
@@ -924,18 +924,7 @@ getallotherplayers()
 		}
 		else
 		{
-			if ( isDefined( level.customalivecheck ) )
-			{
-				if ( !( [[ level.customalivecheck ]]( player ) ) )
-				{
-					i++;
-					continue;
-				}
-			}
-			else
-			{
-				aliveplayers[ aliveplayers.size ] = player;
-			}
+			aliveplayers[ aliveplayers.size ] = player;
 		}
 		i++;
 	}
@@ -949,44 +938,32 @@ getallalliedandenemyplayers( obj )
 /#
 		assert( isDefined( level.teams[ self.team ] ) );
 #/
-		obj.allies = [];
-		obj.enemies = [];
-		i = 0;
-		while ( i < level.players.size )
+		obj.allies = level.aliveplayers[ self.team ];
+		obj.enemies = undefined;
+		_a833 = level.teams;
+		_k833 = getFirstArrayKey( _a833 );
+		while ( isDefined( _k833 ) )
 		{
-			if ( !isDefined( level.players[ i ] ) )
+			team = _a833[ _k833 ];
+			if ( team == self.team )
 			{
-				i++;
-				continue;
 			}
-			else player = level.players[ i ];
-			if ( player.sessionstate != "playing" || player == self )
+			else if ( !isDefined( obj.enemies ) )
 			{
-				i++;
-				continue;
+				obj.enemies = level.aliveplayers[ team ];
 			}
 			else
 			{
-				if ( isDefined( level.customalivecheck ) )
+				_a844 = level.aliveplayers[ team ];
+				_k844 = getFirstArrayKey( _a844 );
+				while ( isDefined( _k844 ) )
 				{
-					if ( !( [[ level.customalivecheck ]]( player ) ) )
-					{
-						i++;
-						continue;
-					}
-				}
-				else if ( player.team == self.team )
-				{
-					obj.allies[ obj.allies.size ] = player;
-					i++;
-					continue;
-				}
-				else
-				{
+					player = _a844[ _k844 ];
 					obj.enemies[ obj.enemies.size ] = player;
+					_k844 = getNextArrayKey( _a844, _k844 );
 				}
 			}
-			i++;
+			_k833 = getNextArrayKey( _a833, _k833 );
 		}
 	}
 	else obj.allies = [];
@@ -1015,57 +992,7 @@ initweights( spawnpoints )
 	}
 }
 
-spawnpointupdate_zm( spawnpoint )
-{
-	_a906 = level.teams;
-	_k906 = getFirstArrayKey( _a906 );
-	while ( isDefined( _k906 ) )
-	{
-		team = _a906[ _k906 ];
-		spawnpoint.distsum[ team ] = 0;
-		spawnpoint.enemydistsum[ team ] = 0;
-		_k906 = getNextArrayKey( _a906, _k906 );
-	}
-	players = get_players();
-	spawnpoint.numplayersatlastupdate = players.size;
-	_a913 = players;
-	_k913 = getFirstArrayKey( _a913 );
-	while ( isDefined( _k913 ) )
-	{
-		player = _a913[ _k913 ];
-		if ( !isDefined( player ) )
-		{
-		}
-		else if ( player.sessionstate != "playing" )
-		{
-		}
-		else if ( isDefined( level.customalivecheck ) )
-		{
-			if ( !( [[ level.customalivecheck ]]( player ) ) )
-			{
-			}
-		}
-		else
-		{
-			dist = distance( spawnpoint.origin, player.origin );
-			spawnpoint.distsum[ player.team ] += dist;
-			_a924 = level.teams;
-			_k924 = getFirstArrayKey( _a924 );
-			while ( isDefined( _k924 ) )
-			{
-				team = _a924[ _k924 ];
-				if ( team != player.team )
-				{
-					spawnpoint.enemydistsum[ team ] += dist;
-				}
-				_k924 = getNextArrayKey( _a924, _k924 );
-			}
-		}
-		_k913 = getNextArrayKey( _a913, _k913 );
-	}
-}
-
-getspawnpoint_nearteam( spawnpoints, favoredspawnpoints, forceallydistanceweight, forceenemydistanceweight )
+getspawnpoint_nearteam( spawnpoints, favoredspawnpoints )
 {
 	if ( !isDefined( spawnpoints ) )
 	{
@@ -1092,21 +1019,11 @@ getspawnpoint_nearteam( spawnpoints, favoredspawnpoints, forceallydistanceweight
 	getallalliedandenemyplayers( obj );
 	numplayers = obj.allies.size + obj.enemies.size;
 	allieddistanceweight = 2;
-	if ( isDefined( forceallydistanceweight ) )
-	{
-		allieddistanceweight = forceallydistanceweight;
-	}
-	enemydistanceweight = 1;
-	if ( isDefined( forceenemydistanceweight ) )
-	{
-		enemydistanceweight = forceenemydistanceweight;
-	}
 	myteam = self.team;
 	i = 0;
 	while ( i < spawnpoints.size )
 	{
 		spawnpoint = spawnpoints[ i ];
-		spawnpointupdate_zm( spawnpoint );
 		if ( !isDefined( spawnpoint.numplayersatlastupdate ) )
 		{
 			spawnpoint.numplayersatlastupdate = 0;
@@ -1115,11 +1032,11 @@ getspawnpoint_nearteam( spawnpoints, favoredspawnpoints, forceallydistanceweight
 		{
 			allydistsum = spawnpoint.distsum[ myteam ];
 			enemydistsum = spawnpoint.enemydistsum[ myteam ];
-			spawnpoint.weight = ( ( enemydistanceweight * enemydistsum ) - ( allieddistanceweight * allydistsum ) ) / spawnpoint.numplayersatlastupdate;
+			spawnpoint.weight = ( enemydistsum - ( allieddistanceweight * allydistsum ) ) / spawnpoint.numplayersatlastupdate;
 /#
 			if ( level.storespawndata || level.debugspawning )
 			{
-				spawnpoint.spawndata[ spawnpoint.spawndata.size ] = "Base weight: " + int( spawnpoint.weight ) + " = (" + enemydistanceweight + "*" + int( enemydistsum ) + " - " + allieddistanceweight + "*" + int( allydistsum ) + ") / " + spawnpoint.numplayersatlastupdate;
+				spawnpoint.spawndata[ spawnpoint.spawndata.size ] = "Base weight: " + int( spawnpoint.weight ) + " = (" + int( enemydistsum ) + " - " + allieddistanceweight + "*" + int( allydistsum ) + ") / " + spawnpoint.numplayersatlastupdate;
 #/
 			}
 			i++;
@@ -1200,76 +1117,6 @@ getspawnpoint_dm( spawnpoints )
 					nearbybadamount += ( baddist - dist ) / baddist;
 				}
 				distfromideal = abs( dist - idealdist );
-				totaldistfromideal += distfromideal;
-				j++;
-			}
-			avgdistfromideal = totaldistfromideal / aliveplayers.size;
-			welldistancedamount = ( idealdist - avgdistfromideal ) / idealdist;
-			spawnpoints[ i ].weight = ( welldistancedamount - ( nearbybadamount * 2 ) ) + randomfloat( 0,2 );
-			i++;
-		}
-	}
-	avoidsamespawn( spawnpoints );
-	avoidspawnreuse( spawnpoints, 0 );
-	avoidweapondamage( spawnpoints );
-	avoidvisibleenemies( spawnpoints, 0 );
-	return getspawnpoint_final( spawnpoints );
-}
-
-getspawnpoint_turned( spawnpoints, idealdist, baddist, idealdistteam, baddistteam )
-{
-	if ( !isDefined( spawnpoints ) )
-	{
-		return undefined;
-	}
-	spawnlogic_begin();
-	initweights( spawnpoints );
-	aliveplayers = getallotherplayers();
-	if ( !isDefined( idealdist ) )
-	{
-		idealdist = 1600;
-	}
-	if ( !isDefined( idealdistteam ) )
-	{
-		idealdistteam = 1200;
-	}
-	if ( !isDefined( baddist ) )
-	{
-		baddist = 1200;
-	}
-	if ( !isDefined( baddistteam ) )
-	{
-		baddistteam = 600;
-	}
-	myteam = self.team;
-	while ( aliveplayers.size > 0 )
-	{
-		i = 0;
-		while ( i < spawnpoints.size )
-		{
-			totaldistfromideal = 0;
-			nearbybadamount = 0;
-			j = 0;
-			while ( j < aliveplayers.size )
-			{
-				dist = distance( spawnpoints[ i ].origin, aliveplayers[ j ].origin );
-				distfromideal = 0;
-				if ( aliveplayers[ j ].team == myteam )
-				{
-					if ( dist < baddistteam )
-					{
-						nearbybadamount += ( baddistteam - dist ) / baddistteam;
-					}
-					distfromideal = abs( dist - idealdistteam );
-				}
-				else
-				{
-					if ( dist < baddist )
-					{
-						nearbybadamount += ( baddist - dist ) / baddist;
-					}
-					distfromideal = abs( dist - idealdist );
-				}
 				totaldistfromideal += distfromideal;
 				j++;
 			}
@@ -2039,11 +1886,11 @@ spawnperframeupdate()
 getnonteamsum( skip_team, sums )
 {
 	value = 0;
-	_a1986 = level.teams;
-	_k1986 = getFirstArrayKey( _a1986 );
-	while ( isDefined( _k1986 ) )
+	_a1836 = level.teams;
+	_k1836 = getFirstArrayKey( _a1836 );
+	while ( isDefined( _k1836 ) )
 	{
-		team = _a1986[ _k1986 ];
+		team = _a1836[ _k1836 ];
 		if ( team == skip_team )
 		{
 		}
@@ -2051,7 +1898,7 @@ getnonteamsum( skip_team, sums )
 		{
 			value += sums[ team ];
 		}
-		_k1986 = getNextArrayKey( _a1986, _k1986 );
+		_k1836 = getNextArrayKey( _a1836, _k1836 );
 	}
 	return value;
 }
@@ -2059,11 +1906,11 @@ getnonteamsum( skip_team, sums )
 getnonteammindist( skip_team, mindists )
 {
 	dist = 9999999;
-	_a2000 = level.teams;
-	_k2000 = getFirstArrayKey( _a2000 );
-	while ( isDefined( _k2000 ) )
+	_a1850 = level.teams;
+	_k1850 = getFirstArrayKey( _a1850 );
+	while ( isDefined( _k1850 ) )
 	{
-		team = _a2000[ _k2000 ];
+		team = _a1850[ _k1850 ];
 		if ( team == skip_team )
 		{
 		}
@@ -2074,7 +1921,7 @@ getnonteammindist( skip_team, mindists )
 				dist = mindists[ team ];
 			}
 		}
-		_k2000 = getNextArrayKey( _a2000, _k2000 );
+		_k1850 = getNextArrayKey( _a1850, _k1850 );
 	}
 	return dist;
 }
@@ -2084,15 +1931,15 @@ spawnpointupdate( spawnpoint )
 	if ( level.teambased )
 	{
 		sights = [];
-		_a2018 = level.teams;
-		_k2018 = getFirstArrayKey( _a2018 );
-		while ( isDefined( _k2018 ) )
+		_a1868 = level.teams;
+		_k1868 = getFirstArrayKey( _a1868 );
+		while ( isDefined( _k1868 ) )
 		{
-			team = _a2018[ _k2018 ];
+			team = _a1868[ _k1868 ];
 			spawnpoint.enemysights[ team ] = 0;
 			sights[ team ] = 0;
 			spawnpoint.nearbyplayers[ team ] = [];
-			_k2018 = getNextArrayKey( _a2018, _k2018 );
+			_k1868 = getNextArrayKey( _a1868, _k1868 );
 		}
 	}
 	else spawnpoint.enemysights = 0;
@@ -2108,16 +1955,16 @@ spawnpointupdate( spawnpoint )
 	{
 		mindist[ "all" ] = 9999999;
 	}
-	_a2047 = level.teams;
-	_k2047 = getFirstArrayKey( _a2047 );
-	while ( isDefined( _k2047 ) )
+	_a1897 = level.teams;
+	_k1897 = getFirstArrayKey( _a1897 );
+	while ( isDefined( _k1897 ) )
 	{
-		team = _a2047[ _k2047 ];
+		team = _a1897[ _k1897 ];
 		spawnpoint.distsum[ team ] = 0;
 		spawnpoint.enemydistsum[ team ] = 0;
 		spawnpoint.minenemydist[ team ] = 9999999;
 		mindist[ team ] = 9999999;
-		_k2047 = getNextArrayKey( _a2047, _k2047 );
+		_k1897 = getNextArrayKey( _a1897, _k1897 );
 	}
 	spawnpoint.numplayersatlastupdate = 0;
 	i = 0;
@@ -2179,16 +2026,16 @@ spawnpointupdate( spawnpoint )
 	}
 	if ( level.teambased )
 	{
-		_a2128 = level.teams;
-		_k2128 = getFirstArrayKey( _a2128 );
-		while ( isDefined( _k2128 ) )
+		_a1978 = level.teams;
+		_k1978 = getFirstArrayKey( _a1978 );
+		while ( isDefined( _k1978 ) )
 		{
-			team = _a2128[ _k2128 ];
+			team = _a1978[ _k1978 ];
 			spawnpoint.enemysights[ team ] = getnonteamsum( team, sights );
 			spawnpoint.minenemydist[ team ] = getnonteammindist( team, mindist );
 			spawnpoint.distsum[ team ] = distsum[ team ];
 			spawnpoint.enemydistsum[ team ] = getnonteamsum( team, distsum );
-			_k2128 = getNextArrayKey( _a2128, _k2128 );
+			_k1978 = getNextArrayKey( _a1978, _k1978 );
 		}
 	}
 	else spawnpoint.distsum[ "all" ] = distsum[ "all" ];
@@ -2215,11 +2062,11 @@ lastminutesighttraces( spawnpoint )
 	closestdistsq = undefined;
 	secondclosest = undefined;
 	secondclosestdistsq = undefined;
-	_a2162 = spawnpoint.nearbyplayers;
-	_k2162 = getFirstArrayKey( _a2162 );
-	while ( isDefined( _k2162 ) )
+	_a2012 = spawnpoint.nearbyplayers;
+	_k2012 = getFirstArrayKey( _a2012 );
+	while ( isDefined( _k2012 ) )
 	{
-		team = _a2162[ _k2162 ];
+		team = _a2012[ _k2012 ];
 		if ( team == self.team )
 		{
 		}
@@ -2265,7 +2112,7 @@ lastminutesighttraces( spawnpoint )
 				i++;
 			}
 		}
-		_k2162 = getNextArrayKey( _a2162, _k2162 );
+		_k2012 = getNextArrayKey( _a2012, _k2012 );
 	}
 	if ( isDefined( closest ) )
 	{
@@ -2491,6 +2338,6 @@ getrandomintermissionpoint()
 /#
 	assert( spawnpoints.size );
 #/
-	spawnpoint = maps/mp/gametypes_zm/_spawnlogic::getspawnpoint_random( spawnpoints );
+	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_random( spawnpoints );
 	return spawnpoint;
 }

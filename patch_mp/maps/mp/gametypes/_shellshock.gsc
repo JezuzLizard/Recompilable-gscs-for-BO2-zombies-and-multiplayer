@@ -11,7 +11,11 @@ init()
 
 shellshockondamage( cause, damage )
 {
-	if ( cause != "MOD_EXPLOSIVE" && cause != "MOD_GRENADE" && cause != "MOD_GRENADE_SPLASH" || cause == "MOD_PROJECTILE" && cause == "MOD_PROJECTILE_SPLASH" )
+	if ( self maps/mp/_utility::isflashbanged() )
+	{
+		return;
+	}
+	if ( cause == "MOD_EXPLOSIVE" || cause == "MOD_GRENADE" || cause == "MOD_GRENADE_SPLASH" || cause == "MOD_PROJECTILE" || cause == "MOD_PROJECTILE_SPLASH" )
 	{
 		time = 0;
 		if ( damage >= 90 )
@@ -26,12 +30,9 @@ shellshockondamage( cause, damage )
 		{
 			time = 2;
 		}
-		else
+		if ( damage > 10 )
 		{
-			if ( damage > 10 )
-			{
-				time = 2;
-			}
+			time = 2;
 		}
 		if ( time )
 		{
@@ -62,4 +63,3 @@ rcbomb_earthquake( position )
 	playrumbleonposition( "grenade_rumble", position );
 	earthquake( 0.5, 0.5, self.origin, 512 );
 }
-
