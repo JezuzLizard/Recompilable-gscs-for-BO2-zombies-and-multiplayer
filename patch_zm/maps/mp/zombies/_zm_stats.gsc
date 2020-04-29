@@ -6,7 +6,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.player_stats_init = ::player_stats_init;
 	level.add_client_stat = ::add_client_stat;
@@ -14,7 +14,7 @@ init()
 	level.track_gibs = ::do_stats_for_gibs;
 }
 
-player_stats_init()
+player_stats_init() //checked matches cerberus output
 {
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "kills", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "suicides", 0 );
@@ -195,7 +195,7 @@ player_stats_init()
 	}
 }
 
-update_players_stats_at_match_end( players )
+update_players_stats_at_match_end( players ) //checked partially matches cerberus output //did not change while loop to for loop to prevent infinite loop continue bug
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -214,12 +214,9 @@ update_players_stats_at_match_end( players )
 		{
 			matchrecorderincrementheaderstat( "winningTeam", 1 );
 		}
-		else
+		else if ( level.gamemodulewinningteam == "A" )
 		{
-			if ( level.gamemodulewinningteam == "A" )
-			{
-				matchrecorderincrementheaderstat( "winningTeam", 2 );
-			}
+			matchrecorderincrementheaderstat( "winningTeam", 2 );
 		}
 	}
 	recordmatchsummaryzombieendgamedata( game_mode, game_mode_group, map_location_name, level.round_number );
@@ -233,49 +230,46 @@ update_players_stats_at_match_end( players )
 			i++;
 			continue;
 		}
-		else
+		distance = player get_stat_distance_traveled();
+		player addplayerstatwithgametype( "distance_traveled", distance );
+		player add_location_gametype_stat( level.scr_zm_map_start_location, level.scr_zm_ui_gametype, "time_played_total", player.pers[ "time_played_total" ] );
+		recordplayermatchend( player );
+		recordplayerstats( player, "presentAtEnd", 1 );
+		player maps/mp/zombies/_zm_weapons::updateweapontimingszm( newtime );
+		if ( isDefined( level._game_module_stat_update_func ) )
 		{
-			distance = player get_stat_distance_traveled();
-			player addplayerstatwithgametype( "distance_traveled", distance );
-			player add_location_gametype_stat( level.scr_zm_map_start_location, level.scr_zm_ui_gametype, "time_played_total", player.pers[ "time_played_total" ] );
-			recordplayermatchend( player );
-			recordplayerstats( player, "presentAtEnd", 1 );
-			player maps/mp/zombies/_zm_weapons::updateweapontimingszm( newtime );
-			if ( isDefined( level._game_module_stat_update_func ) )
+			player [[ level._game_module_stat_update_func ]]();
+		}
+		old_high_score = player get_game_mode_stat( game_mode, "score" );
+		if ( player.score_total > old_high_score )
+		{
+			player set_game_mode_stat( game_mode, "score", player.score_total );
+		}
+		if ( gamemodeismode( level.gamemode_public_match ) )
+		{
+			player gamehistoryfinishmatch( 4, 0, 0, 0, 0, 0 );
+			if ( isDefined( player.pers[ "matchesPlayedStatsTracked" ] ) )
 			{
-				player [[ level._game_module_stat_update_func ]]();
-			}
-			old_high_score = player get_game_mode_stat( game_mode, "score" );
-			if ( player.score_total > old_high_score )
-			{
-				player set_game_mode_stat( game_mode, "score", player.score_total );
-			}
-			if ( gamemodeismode( level.gamemode_public_match ) )
-			{
-				player gamehistoryfinishmatch( 4, 0, 0, 0, 0, 0 );
-				if ( isDefined( player.pers[ "matchesPlayedStatsTracked" ] ) )
+				gamemode = maps/mp/gametypes_zm/_globallogic::getcurrentgamemode();
+				player maps/mp/gametypes_zm/_globallogic::incrementmatchcompletionstat( gamemode, "played", "completed" );
+				if ( isDefined( player.pers[ "matchesHostedStatsTracked" ] ) )
 				{
-					gamemode = maps/mp/gametypes_zm/_globallogic::getcurrentgamemode();
-					player maps/mp/gametypes_zm/_globallogic::incrementmatchcompletionstat( gamemode, "played", "completed" );
-					if ( isDefined( player.pers[ "matchesHostedStatsTracked" ] ) )
-					{
-						player maps/mp/gametypes_zm/_globallogic::incrementmatchcompletionstat( gamemode, "hosted", "completed" );
-					}
+					player maps/mp/gametypes_zm/_globallogic::incrementmatchcompletionstat( gamemode, "hosted", "completed" );
 				}
 			}
-			if ( !isDefined( player.pers[ "previous_distance_traveled" ] ) )
-			{
-				player.pers[ "previous_distance_traveled" ] = 0;
-			}
-			distancethisround = int( player.pers[ "distance_traveled" ] - player.pers[ "previous_distance_traveled" ] );
-			player.pers[ "previous_distance_traveled" ] = player.pers[ "distance_traveled" ];
-			player incrementplayerstat( "distance_traveled", distancethisround );
 		}
+		if ( !isDefined( player.pers[ "previous_distance_traveled" ] ) )
+		{
+			player.pers[ "previous_distance_traveled" ] = 0;
+		}
+		distancethisround = int( player.pers[ "distance_traveled" ] - player.pers[ "previous_distance_traveled" ] );
+		player.pers[ "previous_distance_traveled" ] = player.pers[ "distance_traveled" ];
+		player incrementplayerstat( "distance_traveled", distancethisround );
 		i++;
 	}
 }
 
-update_playing_utc_time( matchendutctime )
+update_playing_utc_time( matchendutctime ) //checked changed to match cerberus output //order of operations may need to be reviewed
 {
 	current_days = int( matchendutctime / 86400 );
 	last_days = self get_global_stat( "TIMESTAMPLASTDAY1" );
@@ -284,36 +278,32 @@ update_playing_utc_time( matchendutctime )
 	timestamp_name = "";
 	if ( diff_days > 0 )
 	{
-		i = 5;
-		while ( i > diff_days )
+		for ( i = 5; i > diff_days; i-- )
 		{
 			timestamp_name = "TIMESTAMPLASTDAY" + ( i - diff_days );
 			timestamp_name_to = "TIMESTAMPLASTDAY" + i;
 			timestamp_value = self get_global_stat( timestamp_name );
 			self set_global_stat( timestamp_name_to, timestamp_value );
-			i--;
 
 		}
-		i = 2;
-		while ( i <= diff_days && i < 6 )
+		for ( i = 2; i <= diff_days && i < 6; i++ )
 		{
 			timestamp_name = "TIMESTAMPLASTDAY" + i;
 			self set_global_stat( timestamp_name, 0 );
-			i++;
 		}
 		self set_global_stat( "TIMESTAMPLASTDAY1", matchendutctime );
 	}
 }
 
-survival_classic_custom_stat_update()
+survival_classic_custom_stat_update() //checked matches cerberus output
 {
 }
 
-grief_custom_stat_update()
-{
+grief_custom_stat_update() //checked matches cerberus output
+{ 
 }
 
-add_game_mode_group_stat( game_mode, stat_name, value )
+add_game_mode_group_stat( game_mode, stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -322,7 +312,7 @@ add_game_mode_group_stat( game_mode, stat_name, value )
 	self adddstat( "PlayerStatsByGameTypeGroup", game_mode, stat_name, "statValue", value );
 }
 
-set_game_mode_group_stat( game_mode, stat_name, value )
+set_game_mode_group_stat( game_mode, stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -331,12 +321,12 @@ set_game_mode_group_stat( game_mode, stat_name, value )
 	self setdstat( "PlayerStatsByGameTypeGroup", game_mode, stat_name, "statValue", value );
 }
 
-get_game_mode_group_stat( game_mode, stat_name )
+get_game_mode_group_stat( game_mode, stat_name ) //checked matches cerberus output
 {
 	return self getdstat( "PlayerStatsByGameTypeGroup", game_mode, stat_name, "statValue" );
 }
 
-add_game_mode_stat( game_mode, stat_name, value )
+add_game_mode_stat( game_mode, stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -345,7 +335,7 @@ add_game_mode_stat( game_mode, stat_name, value )
 	self adddstat( "PlayerStatsByGameType", game_mode, stat_name, "statValue", value );
 }
 
-set_game_mode_stat( game_mode, stat_name, value )
+set_game_mode_stat( game_mode, stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -354,17 +344,17 @@ set_game_mode_stat( game_mode, stat_name, value )
 	self setdstat( "PlayerStatsByGameType", game_mode, stat_name, "statValue", value );
 }
 
-get_game_mode_stat( game_mode, stat_name )
+get_game_mode_stat( game_mode, stat_name ) //checked matches cerberus output
 {
 	return self getdstat( "PlayerStatsByGameType", game_mode, stat_name, "statValue" );
 }
 
-get_global_stat( stat_name )
+get_global_stat( stat_name ) //checked matches cerberus output
 {
 	return self getdstat( "PlayerStatsList", stat_name, "StatValue" );
 }
 
-set_global_stat( stat_name, value )
+set_global_stat( stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -373,7 +363,7 @@ set_global_stat( stat_name, value )
 	self setdstat( "PlayerStatsList", stat_name, "StatValue", value );
 }
 
-add_global_stat( stat_name, value )
+add_global_stat( stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -382,7 +372,7 @@ add_global_stat( stat_name, value )
 	self adddstat( "PlayerStatsList", stat_name, "StatValue", value );
 }
 
-get_map_stat( stat_name, map )
+get_map_stat( stat_name, map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -391,7 +381,7 @@ get_map_stat( stat_name, map )
 	return self getdstat( "PlayerStatsByMap", map, stat_name );
 }
 
-set_map_stat( stat_name, value, map )
+set_map_stat( stat_name, value, map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -404,7 +394,7 @@ set_map_stat( stat_name, value, map )
 	self setdstat( "PlayerStatsByMap", map, stat_name, value );
 }
 
-add_map_stat( stat_name, value, map )
+add_map_stat( stat_name, value, map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -417,12 +407,12 @@ add_map_stat( stat_name, value, map )
 	self adddstat( "PlayerStatsByMap", map, stat_name, value );
 }
 
-get_location_gametype_stat( start_location, game_type, stat_name )
+get_location_gametype_stat( start_location, game_type, stat_name ) //checked matches cerberus output
 {
 	return self getdstat( "PlayerStatsByStartLocation", start_location, "startLocationGameTypeStats", game_type, "stats", stat_name, "StatValue" );
 }
 
-set_location_gametype_stat( start_location, game_type, stat_name, value )
+set_location_gametype_stat( start_location, game_type, stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -431,7 +421,7 @@ set_location_gametype_stat( start_location, game_type, stat_name, value )
 	self setdstat( "PlayerStatsByStartLocation", start_location, "startLocationGameTypeStats", game_type, "stats", stat_name, "StatValue", value );
 }
 
-add_location_gametype_stat( start_location, game_type, stat_name, value )
+add_location_gametype_stat( start_location, game_type, stat_name, value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -440,7 +430,7 @@ add_location_gametype_stat( start_location, game_type, stat_name, value )
 	self adddstat( "PlayerStatsByStartLocation", start_location, "startLocationGameTypeStats", game_type, "stats", stat_name, "StatValue", value );
 }
 
-get_map_weaponlocker_stat( stat_name, map )
+get_map_weaponlocker_stat( stat_name, map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -449,7 +439,7 @@ get_map_weaponlocker_stat( stat_name, map )
 	return self getdstat( "PlayerStatsByMap", map, "weaponLocker", stat_name );
 }
 
-set_map_weaponlocker_stat( stat_name, value, map )
+set_map_weaponlocker_stat( stat_name, value, map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -469,7 +459,7 @@ set_map_weaponlocker_stat( stat_name, value, map )
 	}
 }
 
-add_map_weaponlocker_stat( stat_name, value, map )
+add_map_weaponlocker_stat( stat_name, value, map ) //checked matches cerberus output 
 {
 	if ( !isDefined( map ) )
 	{
@@ -482,21 +472,21 @@ add_map_weaponlocker_stat( stat_name, value, map )
 	self adddstat( "PlayerStatsByMap", map, "weaponLocker", stat_name, value );
 }
 
-has_stored_weapondata( map )
+has_stored_weapondata( map ) //checked changed to match cerberus output
 {
 	if ( !isDefined( map ) )
 	{
 		map = level.script;
 	}
 	storedweapon = self get_map_weaponlocker_stat( "name", map );
-	if ( isDefined( storedweapon ) && isstring( storedweapon ) || storedweapon == "" && isint( storedweapon ) && storedweapon == 0 )
+	if ( isDefined( storedweapon ) || isstring( storedweapon ) && storedweapon == "" || isint( storedweapon ) && storedweapon == 0 )
 	{
 		return 0;
 	}
 	return 1;
 }
 
-get_stored_weapondata( map )
+get_stored_weapondata( map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -516,7 +506,7 @@ get_stored_weapondata( map )
 	return undefined;
 }
 
-clear_stored_weapondata( map )
+clear_stored_weapondata( map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -530,7 +520,7 @@ clear_stored_weapondata( map )
 	self set_map_weaponlocker_stat( "alt_stock", 0, map );
 }
 
-set_stored_weapondata( weapondata, map )
+set_stored_weapondata( weapondata, map ) //checked matches cerberus output
 {
 	if ( !isDefined( map ) )
 	{
@@ -544,7 +534,7 @@ set_stored_weapondata( weapondata, map )
 	self set_map_weaponlocker_stat( "alt_stock", weapondata[ "alt_stock" ], map );
 }
 
-add_client_stat( stat_name, stat_value, include_gametype )
+add_client_stat( stat_name, stat_value, include_gametype ) //checked matches cerberus output
 {
 	if ( getDvar( "ui_zm_mapstartlocation" ) == "" || is_true( level.zm_disable_recording_stats ) )
 	{
@@ -558,7 +548,7 @@ add_client_stat( stat_name, stat_value, include_gametype )
 	self.stats_this_frame[ stat_name ] = 1;
 }
 
-increment_player_stat( stat_name )
+increment_player_stat( stat_name ) //checked matches cerberus output
 {
 	if ( getDvar( "ui_zm_mapstartlocation" ) == "" || is_true( level.zm_disable_recording_stats ) )
 	{
@@ -567,7 +557,7 @@ increment_player_stat( stat_name )
 	self incrementplayerstat( stat_name, 1 );
 }
 
-increment_root_stat( stat_name, stat_value )
+increment_root_stat( stat_name, stat_value ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -576,7 +566,7 @@ increment_root_stat( stat_name, stat_value )
 	self adddstat( stat_name, stat_value );
 }
 
-increment_client_stat( stat_name, include_gametype )
+increment_client_stat( stat_name, include_gametype ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -585,7 +575,7 @@ increment_client_stat( stat_name, include_gametype )
 	add_client_stat( stat_name, 1, include_gametype );
 }
 
-set_client_stat( stat_name, stat_value, include_gametype )
+set_client_stat( stat_name, stat_value, include_gametype ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -596,7 +586,7 @@ set_client_stat( stat_name, stat_value, include_gametype )
 	self.stats_this_frame[ stat_name ] = 1;
 }
 
-zero_client_stat( stat_name, include_gametype )
+zero_client_stat( stat_name, include_gametype ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -607,7 +597,7 @@ zero_client_stat( stat_name, include_gametype )
 	self.stats_this_frame[ stat_name ] = 1;
 }
 
-increment_map_cheat_stat( stat_name )
+increment_map_cheat_stat( stat_name ) //checked matches cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -616,30 +606,27 @@ increment_map_cheat_stat( stat_name )
 	self adddstat( "PlayerStatsByMap", level.script, "cheats", stat_name, 1 );
 }
 
-get_stat_distance_traveled()
+get_stat_distance_traveled() //checked changed to match cerberu output
 {
 	miles = int( self.pers[ "distance_traveled" ] / 63360 );
 	remainder = ( self.pers[ "distance_traveled" ] / 63360 ) - miles;
-	if ( miles < 1 && remainder < 0,5 )
+	if ( miles < 1 && remainder < 0.5 )
 	{
 		miles = 1;
 	}
-	else
+	else if ( remainder >= 0.5 )
 	{
-		if ( remainder >= 0,5 )
-		{
-			miles++;
-		}
+		miles++;
 	}
 	return miles;
 }
 
-get_stat_round_number()
+get_stat_round_number() //checked matches cerberus output
 {
 	return level.round_number;
 }
 
-get_stat_combined_rank_value_survival_classic()
+get_stat_combined_rank_value_survival_classic() //checked matches cerberus output 
 {
 	rounds = get_stat_round_number();
 	kills = self.pers[ "kills" ];
@@ -647,11 +634,11 @@ get_stat_combined_rank_value_survival_classic()
 	{
 		rounds = 99;
 	}
-	result = ( rounds * 10000000 ) + kills;
+	result = rounds * 10000000 + kills;
 	return result;
 }
 
-get_stat_combined_rank_value_grief()
+get_stat_combined_rank_value_grief() //checked matches cerberus output
 {
 	wins = self.pers[ "wins" ];
 	losses = self.pers[ "losses" ];
@@ -664,11 +651,11 @@ get_stat_combined_rank_value_grief()
 		losses = 9999;
 	}
 	losses_value = 9999 - losses;
-	result = ( wins * 10000 ) + losses_value;
+	result = wins * 10000 + losses_value;
 	return result;
 }
 
-update_global_counters_on_match_end()
+update_global_counters_on_match_end() //checked changed to match cerberus output
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -776,11 +763,8 @@ update_global_counters_on_match_end()
 	tomb_golden_hard_hat = 0;
 	tomb_perk_extension = 0;
 	players = get_players();
-	_a838 = players;
-	_k838 = getFirstArrayKey( _a838 );
-	while ( isDefined( _k838 ) )
+	foreach ( player in players )
 	{
-		player = _a838[ _k838 ];
 		deaths += player.pers[ "deaths" ];
 		kills += player.pers[ "kills" ];
 		headshots += player.pers[ "headshots" ];
@@ -882,7 +866,6 @@ update_global_counters_on_match_end()
 		tomb_golden_shovel += player.pers[ "tomb_golden_shovel" ];
 		tomb_golden_hard_hat += player.pers[ "tomb_golden_hard_hat" ];
 		tomb_perk_extension += player.pers[ "tomb_perk_extension" ];
-		_k838 = getNextArrayKey( _a838, _k838 );
 	}
 	game_mode = getDvar( "ui_gametype" );
 	incrementcounter( "global_zm_" + game_mode, 1 );
@@ -996,58 +979,52 @@ update_global_counters_on_match_end()
 	incrementcounter( "global_zm_tomb_perk_extension", tomb_perk_extension );
 }
 
-get_specific_stat( stat_category, stat_name )
+get_specific_stat( stat_category, stat_name ) //checked matches cerberus output
 {
 	return self getdstat( stat_category, stat_name, "StatValue" );
 }
 
-do_stats_for_gibs( zombie, limb_tags_array )
+do_stats_for_gibs( zombie, limb_tags_array ) //checked partially changed to match cerberus output //did not use foreach to prevent infinite loop due to continue
 {
-	while ( isDefined( zombie ) && isDefined( zombie.attacker ) && isplayer( zombie.attacker ) )
-	{
-		_a1069 = limb_tags_array;
-		_k1069 = getFirstArrayKey( _a1069 );
-		while ( isDefined( _k1069 ) )
+	if ( isDefined( zombie ) && isDefined( zombie.attacker ) && isplayer( zombie.attacker ) )
+	{	
+		i = 0;
+		while ( i < limb_tags_array.size )
 		{
-			limb = _a1069[ _k1069 ];
 			stat_name = undefined;
-			if ( limb == level._zombie_gib_piece_index_right_arm )
+			if ( limb_tags_array[ i ] == level._zombie_gib_piece_index_right_arm )
 			{
 				stat_name = "right_arm_gibs";
 			}
-			else if ( limb == level._zombie_gib_piece_index_left_arm )
+			else if ( limb_tags_array[ i ] == level._zombie_gib_piece_index_left_arm )
 			{
 				stat_name = "left_arm_gibs";
 			}
-			else if ( limb == level._zombie_gib_piece_index_right_leg )
+			else if ( limb_tags_array[ i ] == level._zombie_gib_piece_index_right_leg )
 			{
 				stat_name = "right_leg_gibs";
 			}
-			else if ( limb == level._zombie_gib_piece_index_left_leg )
+			else if ( limb_tags_array[ i ] == level._zombie_gib_piece_index_left_leg )
 			{
 				stat_name = "left_leg_gibs";
 			}
-			else
+			else if ( limb == level._zombie_gib_piece_index_head )
 			{
-				if ( limb == level._zombie_gib_piece_index_head )
-				{
-					stat_name = "head_gibs";
-				}
+				stat_name = "head_gibs";
 			}
 			if ( !isDefined( stat_name ) )
 			{
+				i++;
+				continue;
 			}
-			else
-			{
-				zombie.attacker increment_client_stat( stat_name, 0 );
-				zombie.attacker increment_client_stat( "gibs" );
-			}
-			_k1069 = getNextArrayKey( _a1069, _k1069 );
+			zombie.attacker increment_client_stat( stat_name, 0 );
+			zombie.attacker increment_client_stat( "gibs" );
+			i++;
 		}
 	}
 }
 
-initializematchstats()
+initializematchstats() //checked matches cerberus output
 {
 	if ( !level.onlinegame || !gamemodeismode( level.gamemode_public_match ) )
 	{
@@ -1058,18 +1035,20 @@ initializematchstats()
 	self gamehistorystartmatch( getgametypeenumfromname( currgametype, 0 ) );
 }
 
-adjustrecentstats()
+adjustrecentstats() //checked matches cerberus output
 {
+	/*
 /#
 	if ( getDvarInt( "scr_writeConfigStrings" ) == 1 || getDvarInt( "scr_hostmigrationtest" ) == 1 )
 	{
 		return;
 #/
 	}
+	*/
 	initializematchstats();
 }
 
-uploadstatssoon()
+uploadstatssoon() //checked matches cerberus output
 {
 	self notify( "upload_stats_soon" );
 	self endon( "upload_stats_soon" );
@@ -1077,3 +1056,4 @@ uploadstatssoon()
 	wait 1;
 	uploadstats( self );
 }
+

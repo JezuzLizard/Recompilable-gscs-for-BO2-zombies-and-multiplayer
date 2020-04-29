@@ -7,9 +7,9 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "zombie_turbine" );
+//#using_animtree( "zombie_turbine" );
 
-init( hint, howto )
+init( hint, howto ) //checked matches cerberus output
 {
 	if ( !isDefined( hint ) )
 	{
@@ -35,7 +35,7 @@ init( hint, howto )
 	level._turbine_disappear_fx = loadfx( "maps/zombie/fx_zmb_tranzit_turbine_explo" );
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -44,7 +44,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self thread setupwatchers();
@@ -55,14 +55,14 @@ onplayerspawned()
 	}
 }
 
-setupwatchers()
+setupwatchers() //checked matches cerberus output
 {
 	self waittill( "weapon_watchers_created" );
 	watcher = maps/mp/gametypes_zm/_weaponobjects::getweaponobjectwatcher( "equip_turbine" );
-	watcher.onspawnretrievetriggers = ::maps/mp/zombies/_zm_equipment::equipment_onspawnretrievableweaponobject;
+	watcher.onspawnretrievetriggers = maps/mp/zombies/_zm_equipment::equipment_onspawnretrievableweaponobject;
 }
 
-watchturbineuse()
+watchturbineuse() //checked matches cerberus output
 {
 	self notify( "watchTurbineUse" );
 	self endon( "watchTurbineUse" );
@@ -81,7 +81,7 @@ watchturbineuse()
 	}
 }
 
-cleanupoldturbine( preserve_state )
+cleanupoldturbine( preserve_state ) //checked matches cerberus output
 {
 	if ( isDefined( self.localpower ) )
 	{
@@ -109,7 +109,7 @@ cleanupoldturbine( preserve_state )
 	}
 }
 
-watchforcleanup()
+watchforcleanup() //checked matches cerberus output
 {
 	self notify( "turbine_cleanup" );
 	self endon( "turbine_cleanup" );
@@ -120,7 +120,7 @@ watchforcleanup()
 	}
 }
 
-depower_on_disconnect( localpower )
+depower_on_disconnect( localpower ) //checked matches cerberus output
 {
 	self notify( "depower_on_disconnect" );
 	self endon( "depower_on_disconnect" );
@@ -131,13 +131,13 @@ depower_on_disconnect( localpower )
 	}
 }
 
-placeturbine( origin, angles )
+placeturbine( origin, angles ) //checked matches cerberus output
 {
 	item = self maps/mp/zombies/_zm_equipment::placed_equipment_think( "p6_anim_zm_buildable_turbine", "equip_turbine_zm", origin, angles );
 	return item;
 }
 
-dropturbine()
+dropturbine() //checked matches cerberus output
 {
 	item = thread maps/mp/zombies/_zm_equipment::dropped_equipment_think( "p6_anim_zm_buildable_turbine", "equip_turbine_zm", self.origin, self.angles );
 	if ( isDefined( item ) )
@@ -159,7 +159,7 @@ dropturbine()
 	return item;
 }
 
-pickupturbine( item )
+pickupturbine( item ) //checked matches cerberus output
 {
 	item.owner = self;
 	self.turbine_power_on = item.turbine_power_on;
@@ -177,11 +177,11 @@ pickupturbine( item )
 	self.turbine_is_powering_on = undefined;
 }
 
-transferturbine( fromplayer, toplayer )
+transferturbine( fromplayer, toplayer ) //checked changed to match cerberus output
 {
-	while ( isDefined( toplayer.turbine_is_powering_on ) || toplayer.turbine_is_powering_on && isDefined( fromplayer.turbine_is_powering_on ) && fromplayer.turbine_is_powering_on )
+	while ( isDefined( toplayer.turbine_is_powering_on ) && toplayer.turbine_is_powering_on || isDefined( fromplayer.turbine_is_powering_on ) && fromplayer.turbine_is_powering_on )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	if ( isDefined( fromplayer.buildableturbine ) && isDefined( fromplayer.buildableturbine.dying ) && fromplayer.buildableturbine.dying )
 	{
@@ -236,7 +236,7 @@ transferturbine( fromplayer, toplayer )
 	}
 }
 
-startturbinedeploy( weapon )
+startturbinedeploy( weapon ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -260,9 +260,11 @@ startturbinedeploy( weapon )
 	self thread turbinepowerdiminish( origin, powerradius );
 	if ( isDefined( weapon ) )
 	{
+		/*
 /#
 		self thread debugturbine( powerradius );
 #/
+		*/
 		self thread turbineaudio();
 		self thread turbineanim();
 		self thread turbinepowerthink( weapon, powerradius );
@@ -277,7 +279,7 @@ startturbinedeploy( weapon )
 	}
 }
 
-turbine_watch_for_emp( weapon, powerradius )
+turbine_watch_for_emp( weapon, powerradius ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -294,16 +296,13 @@ turbine_watch_for_emp( weapon, powerradius )
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	self.turbine_emped = 1;
 	self.turbine_emp_time = getTime();
 	self notify( "turbine_power_change" );
 }
 
-turbinepowerthink( weapon, powerradius )
+turbinepowerthink( weapon, powerradius ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -311,7 +310,7 @@ turbinepowerthink( weapon, powerradius )
 	self.buildableturbine endon( "death" );
 	origin = weapon.origin;
 	self thread turbine_watch_for_emp( weapon, powerradius );
-	if ( isDefined( self.turbine_power_on ) || self.turbine_power_on && isDefined( self.turbine_emped ) && self.turbine_emped )
+	if ( isDefined( self.turbine_power_on ) && self.turbine_power_on || isDefined( self.turbine_emped ) && self.turbine_emped )
 	{
 		self thread turbinepoweron( origin, powerradius );
 	}
@@ -326,28 +325,22 @@ turbinepowerthink( weapon, powerradius )
 				origin = weapon.origin;
 			}
 			self thread turbinepoweron( origin, powerradius );
-			continue;
+			//continue;
 		}
-		else
+		else if ( isDefined( self.turbine_power_is_on ) && !self.turbine_power_is_on )
 		{
-			if ( isDefined( self.turbine_power_is_on ) && !self.turbine_power_is_on )
-			{
-				self thread turbinepoweroff( origin, powerradius );
-				break;
-			}
-			else
-			{
-				if ( isDefined( weapon ) )
-				{
-					origin = weapon.origin;
-				}
-				self thread turbinepoweron( origin, powerradius );
-			}
+			self thread turbinepoweroff( origin, powerradius );
+			break;
 		}
+		else if ( isDefined( weapon ) )
+		{
+			origin = weapon.origin;
+		}
+		self thread turbinepoweron( origin, powerradius );
 	}
 }
 
-turbinepowermove( weapon )
+turbinepowermove( weapon ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -364,11 +357,11 @@ turbinepowermove( weapon )
 			}
 			origin = weapon.origin;
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-turbinewarmup()
+turbinewarmup() //checked matches cerberus output //order of operations may need to be checked
 {
 	if ( isDefined( self.turbine_emped ) && self.turbine_emped )
 	{
@@ -383,14 +376,14 @@ turbinewarmup()
 		self.turbine_emp_time = undefined;
 	}
 	self.buildableturbine maps/mp/zombies/_zm_equipment::signal_equipment_activated( 3 );
-	wait 0,5;
+	wait 0.5;
 	self.buildableturbine maps/mp/zombies/_zm_equipment::signal_equipment_activated( 2 );
-	wait 0,5;
+	wait 0.5;
 	self.buildableturbine maps/mp/zombies/_zm_equipment::signal_equipment_activated( 1 );
-	wait 0,5;
+	wait 0.5;
 }
 
-turbinepoweron( origin, powerradius )
+turbinepoweron( origin, powerradius ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -420,7 +413,7 @@ turbinepoweron( origin, powerradius )
 	}
 }
 
-turbinepoweroff( origin, powerradius )
+turbinepoweroff( origin, powerradius ) //checked matches cerberus output
 {
 	if ( isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
 	{
@@ -439,7 +432,7 @@ turbinepoweroff( origin, powerradius )
 	}
 }
 
-turbine_disappear_fx( origin, waittime )
+turbine_disappear_fx( origin, waittime ) //checked matches cerberus output
 {
 	if ( isDefined( waittime ) && waittime > 0 )
 	{
@@ -452,7 +445,7 @@ turbine_disappear_fx( origin, waittime )
 	}
 }
 
-turbinefxonce( withaoe )
+turbinefxonce( withaoe ) //checked matches cerberus output
 {
 	if ( isDefined( self ) && isDefined( self.buildableturbine ) && isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
 	{
@@ -488,26 +481,26 @@ turbinefxonce( withaoe )
 	}
 }
 
-turbinefx()
+turbinefx() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "equip_turbine_zm_taken" );
 	while ( isDefined( self ) && isDefined( self.buildableturbine ) && isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
 	{
 		self turbinefxonce( 1 );
-		wait 0,5;
+		wait 0.5;
 		self turbinefxonce( 0 );
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-turbineaudio()
+turbineaudio() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.buildableturbine ) )
 	{
 		return;
 	}
-	if ( isDefined( self.turbine_power_is_on ) || !self.turbine_power_is_on && isDefined( self.turbine_emped ) && self.turbine_emped )
+	if ( isDefined( self.turbine_power_is_on ) && !self.turbine_power_is_on || isDefined( self.turbine_emped ) && self.turbine_emped )
 	{
 		self.buildableturbine stoploopsound();
 		return;
@@ -515,12 +508,12 @@ turbineaudio()
 	self.buildableturbine playloopsound( "zmb_turbine_loop", 2 );
 }
 
-init_animtree()
+init_animtree() //checked matches cerberus output
 {
 	scriptmodelsuseanimtree( -1 );
 }
 
-turbineanim( wait_for_end )
+turbineanim( wait_for_end ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.buildableturbine ) )
 	{
@@ -533,17 +526,12 @@ turbineanim( wait_for_end )
 		animlength = getanimlength( %o_zombie_buildable_turbine_death );
 		self.buildableturbine setanim( %o_zombie_buildable_turbine_death );
 		break;
-}
-else
-{
+	}
 	if ( isDefined( self.turbine_emped ) && self.turbine_emped )
 	{
 		self.buildableturbine clearanim( %o_zombie_buildable_turbine_fullpower, 0 );
 		return;
-		break;
-}
-else
-{
+	}
 	switch( self.turbine_power_level )
 	{
 		case 3:
@@ -560,15 +548,13 @@ else
 			self.buildableturbine setanim( %o_zombie_buildable_turbine_neardeath );
 			break;
 	}
-}
-}
-if ( isDefined( wait_for_end ) && wait_for_end )
-{
-wait animlength;
-}
+	if ( isDefined( wait_for_end ) && wait_for_end )
+	{
+		wait animlength;
+	}
 }
 
-turbinedecay()
+turbinedecay() //checked changed to match cerberus output //order of operations may need to be checked
 {
 	self notify( "turbineDecay" );
 	self endon( "turbineDecay" );
@@ -601,30 +587,27 @@ turbinedecay()
 		{
 			self.turbine_power_level = 0;
 		}
-		else
+		else if ( isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
 		{
-			if ( isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
+			cost = 1;
+			if ( isDefined( self.localpower ) )
 			{
-				cost = 1;
-				if ( isDefined( self.localpower ) )
-				{
-					cost += maps/mp/zombies/_zm_power::get_local_power_cost( self.localpower );
-				}
-				self.turbine_health -= cost;
-				if ( self.turbine_health < 200 )
-				{
-					self.turbine_power_level = 1;
-					break;
-				}
-				else if ( self.turbine_health < 600 )
-				{
-					self.turbine_power_level = 2;
-					break;
-				}
-				else
-				{
-					self.turbine_power_level = 4;
-				}
+				cost += maps/mp/zombies/_zm_power::get_local_power_cost( self.localpower );
+			}
+			self.turbine_health -= cost;
+			if ( self.turbine_health < 200 )
+			{
+				self.turbine_power_level = 1;
+				break;
+			}
+			else if ( self.turbine_health < 600 )
+			{
+				self.turbine_power_level = 2;
+				break;
+			}
+			else
+			{
+				self.turbine_power_level = 4;
 			}
 		}
 		if ( old_power_level != self.turbine_power_level )
@@ -653,7 +636,7 @@ turbinedecay()
 	self cleanupoldturbine();
 }
 
-destroy_placed_turbine()
+destroy_placed_turbine() //checked matches cerberus output
 {
 	if ( isDefined( self.buildableturbine ) )
 	{
@@ -661,7 +644,7 @@ destroy_placed_turbine()
 		{
 			while ( isDefined( self.buildableturbine ) )
 			{
-				wait 0,05;
+				wait 0.05;
 			}
 			return;
 		}
@@ -675,13 +658,13 @@ destroy_placed_turbine()
 	}
 }
 
-wait_and_take_equipment()
+wait_and_take_equipment() //checked matches cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	self thread maps/mp/zombies/_zm_equipment::equipment_release( "equip_turbine_zm" );
 }
 
-turbinepowerdiminish( origin, powerradius )
+turbinepowerdiminish( origin, powerradius ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -696,31 +679,32 @@ turbinepowerdiminish( origin, powerradius )
 				case 4:
 					break;
 				case 3:
-					case 2:
-						self.turbine_power_on = 1;
-						wait randomintrange( 12, 20 );
-						self turbinepoweroff( origin, powerradius );
-						self.turbine_power_on = 0;
-						wait randomintrange( 3, 8 );
-						self turbinepoweron( origin, powerradius );
-						break;
-					case 1:
-						self.turbine_power_on = 1;
-						wait randomintrange( 3, 7 );
-						self turbinepoweroff( origin, powerradius );
-						self.turbine_power_on = 0;
-						wait randomintrange( 6, 12 );
-						self turbinepoweron( origin, powerradius );
-						break;
-				}
+					break;
+				case 2:
+					self.turbine_power_on = 1;
+					wait randomintrange( 12, 20 );
+					self turbinepoweroff( origin, powerradius );
+					self.turbine_power_on = 0;
+					wait randomintrange( 3, 8 );
+					self turbinepoweron( origin, powerradius );
+					break;
+				case 1:
+					self.turbine_power_on = 1;
+					wait randomintrange( 3, 7 );
+					self turbinepoweroff( origin, powerradius );
+					self.turbine_power_on = 0;
+					wait randomintrange( 6, 12 );
+					self turbinepoweron( origin, powerradius );
+					break;
 			}
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 }
 
-debugturbine( radius )
+debugturbine( radius ) //checked changed to match cerberus output may need to check order of operations
 {
+	/*
 /#
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -728,9 +712,10 @@ debugturbine( radius )
 	self.buildableturbine endon( "death" );
 	while ( isDefined( self.buildableturbine ) )
 	{
+		//missing dvar name
 		if ( getDvarInt( #"EB512CB7" ) )
 		{
-			color = ( 0, 0, 1 );
+			color = ( 0, 1, 0 );
 			text = "";
 			if ( isDefined( self.turbine_health ) )
 			{
@@ -739,7 +724,7 @@ debugturbine( radius )
 			if ( isDefined( self.buildableturbine.dying ) && self.buildableturbine.dying )
 			{
 				text = "dying";
-				color = ( 0, 0, 1 );
+				color = ( 0, 0, 0 );
 			}
 			else
 			{
@@ -765,7 +750,7 @@ debugturbine( radius )
 						{
 							if ( self.turbine_health < 200 )
 							{
-								color = ( 0, 0, 1 );
+								color = ( 1, 0, 0 );
 								break;
 							}
 							else if ( self.turbine_health < 600 )
@@ -775,15 +760,17 @@ debugturbine( radius )
 							}
 							else
 							{
-								color = ( 0, 0, 1 );
+								color = ( 1, 1, 0 );
 							}
 						}
 					}
 				}
 			}
-			print3d( self.buildableturbine.origin + vectorScale( ( 0, 0, 1 ), 60 ), text, color, 1, 0,5, 1 );
+			print3d( self.buildableturbine.origin + vectorScale( ( 0, 0, 1 ), 60 ), text, color, 1, 0.5, 1 );
 		}
-		wait 0,05;
+		wait 0.05;
 #/
 	}
+	*/
 }
+

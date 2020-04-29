@@ -13,7 +13,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	init_blockers();
 	if ( isDefined( level.quantum_bomb_register_result_func ) )
@@ -22,7 +22,7 @@ init()
 	}
 }
 
-init_blockers()
+init_blockers() //checked matches cerberus output
 {
 	level.exterior_goals = getstructarray( "exterior_goal", "targetname" );
 	array_thread( level.exterior_goals, ::blocker_init );
@@ -38,22 +38,20 @@ init_blockers()
 	array_thread( flag_blockers, ::flag_blocker );
 }
 
-door_init()
+door_init() //checked changed to match cerberus output
 {
 	self.type = undefined;
 	self.purchaser = undefined;
 	self._door_open = 0;
 	targets = getentarray( self.target, "targetname" );
-	while ( isDefined( self.script_flag ) && !isDefined( level.flag[ self.script_flag ] ) )
+	if ( isDefined( self.script_flag ) && !isDefined( level.flag[ self.script_flag ] ) )
 	{
-		while ( isDefined( self.script_flag ) )
+		if ( isDefined( self.script_flag ) )
 		{
 			tokens = strtok( self.script_flag, "," );
-			i = 0;
-			while ( i < tokens.size )
+			for ( i = 0; i < tokens.size; i++ )
 			{
 				flag_init( self.script_flag );
-				i++;
 			}
 		}
 	}
@@ -62,8 +60,7 @@ door_init()
 		self.script_noteworthy = "default";
 	}
 	self.doors = [];
-	i = 0;
-	while ( i < targets.size )
+	for ( i = 0; i < targets.size; i++ )
 	{
 		targets[ i ] door_classify( self );
 		if ( !isDefined( targets[ i ].og_origin ) )
@@ -71,7 +68,6 @@ door_init()
 			targets[ i ].og_origin = targets[ i ].origin;
 			targets[ i ].og_angles = targets[ i ].angles;
 		}
-		i++;
 	}
 	cost = 1000;
 	if ( isDefined( self.zombie_cost ) )
@@ -96,109 +92,96 @@ door_init()
 			}
 			return;
 		}
-		else
+		else if ( self.script_noteworthy == "local_electric_door" )
 		{
-			if ( self.script_noteworthy == "local_electric_door" )
+			if ( getDvar( "ui_gametype" ) == "zgrief" )
 			{
-				if ( getDvar( "ui_gametype" ) == "zgrief" )
-				{
-					self setinvisibletoall();
-					return;
-				}
-				self sethintstring( &"ZOMBIE_NEED_LOCAL_POWER" );
-				if ( isDefined( level.door_dialog_function ) )
-				{
-					self thread [[ level.door_dialog_function ]]();
-				}
+				self setinvisibletoall();
 				return;
 			}
-			else
+			self sethintstring( &"ZOMBIE_NEED_LOCAL_POWER" );
+			if ( isDefined( level.door_dialog_function ) )
 			{
-				if ( self.script_noteworthy == "kill_counter_door" )
-				{
-					self sethintstring( &"ZOMBIE_DOOR_ACTIVATE_COUNTER", cost );
-					return;
-				}
+				self thread [[ level.door_dialog_function ]]();
 			}
+			return;
+		}
+		else if ( self.script_noteworthy == "kill_counter_door" )
+		{
+			self sethintstring( &"ZOMBIE_DOOR_ACTIVATE_COUNTER", cost );
+			return;
 		}
 	}
 	self set_hint_string( self, "default_buy_door", cost );
 }
 
-door_classify( parent_trig )
+door_classify( parent_trig ) //checked changed to match cerberus output
 {
 	if ( isDefined( self.script_noteworthy ) && self.script_noteworthy == "clip" )
 	{
 		parent_trig.clip = self;
 		parent_trig.script_string = "clip";
 		break;
-}
-else
-{
+	}
 	if ( !isDefined( self.script_string ) )
 	{
 		if ( isDefined( self.script_angles ) )
 		{
 			self.script_string = "rotate";
 		}
-		else
+		else if ( isDefined( self.script_vector ) )
 		{
-			if ( isDefined( self.script_vector ) )
-			{
-				self.script_string = "move";
-			}
+			self.script_string = "move";
 		}
-		break;
-}
-else if ( !isDefined( self.script_string ) )
-{
-	self.script_string = "";
-}
-switch( self.script_string )
-{
-	case "anim":
-/#
-		assert( isDefined( self.script_animname ), "Blocker_init: You must specify a script_animname for " + self.targetname );
-#/
-/#
-		assert( isDefined( level.scr_anim[ self.script_animname ] ), "Blocker_init: You must define a level.scr_anim for script_anim -> " + self.script_animname );
-#/
-/#
-		assert( isDefined( level.blocker_anim_func ), "Blocker_init: You must define a level.blocker_anim_func" );
-#/
-		break;
-	case "counter_1s":
-		parent_trig.counter_1s = self;
-		return;
+	if ( !isDefined( self.script_string ) )
+	{
+		self.script_string = "";
+	}
+	switch( self.script_string )
+	{
+		case "anim":
+			/*
+	/#
+			assert( isDefined( self.script_animname ), "Blocker_init: You must specify a script_animname for " + self.targetname );
+	#/
+	/#
+			assert( isDefined( level.scr_anim[ self.script_animname ] ), "Blocker_init: You must define a level.scr_anim for script_anim -> " + self.script_animname );
+	#/
+	/#
+			assert( isDefined( level.blocker_anim_func ), "Blocker_init: You must define a level.blocker_anim_func" );
+	#/
+			*/
+			break;
+		case "counter_1s":
+			parent_trig.counter_1s = self;
+			return;
 		case "counter_10s":
 			parent_trig.counter_10s = self;
 			return;
-			case "counter_100s":
-				parent_trig.counter_100s = self;
-				return;
-				case "explosives":
-					if ( !isDefined( parent_trig.explosives ) )
-					{
-						parent_trig.explosives = [];
-					}
-					parent_trig.explosives[ parent_trig.explosives.size ] = self;
-					return;
+		case "counter_100s":
+			parent_trig.counter_100s = self;
+			return;
+		case "explosives":
+			if ( !isDefined( parent_trig.explosives ) )
+			{
+				parent_trig.explosives = [];
 			}
-		}
-		if ( self.classname == "script_brushmodel" )
-		{
-			self disconnectpaths();
-		}
-		parent_trig.doors[ parent_trig.doors.size ] = self;
+			parent_trig.explosives[ parent_trig.explosives.size ] = self;
+			return;
 	}
+	if ( self.classname == "script_brushmodel" )
+	{
+		self disconnectpaths();
+	}
+	parent_trig.doors[ parent_trig.doors.size ] = self;
 }
 
-door_buy()
+door_buy() //checked matches cerberus output
 {
 	self waittill( "trigger", who, force );
 	if ( isDefined( level.custom_door_buy_check ) )
 	{
-		if ( !( who [[ level.custom_door_buy_check ]]( self ) ) )
+		if ( !who [[ level.custom_door_buy_check ]]( self ) )
 		{
 			return 0;
 		}
@@ -211,11 +194,11 @@ door_buy()
 	{
 		return 0;
 	}
-	if ( who in_revive_trigger() )
+	if ( who maps/mp/zombies/_zm_utility::in_revive_trigger() )
 	{
 		return 0;
 	}
-	if ( is_player_valid( who ) )
+	if ( maps/mp/zombies/_zm_utility::is_player_valid( who ) )
 	{
 		players = get_players();
 		cost = self.zombie_cost;
@@ -256,15 +239,13 @@ door_buy()
 	return 1;
 }
 
-door_delay()
+door_delay() //checked changed to match cerberus output
 {
-	while ( isDefined( self.explosives ) )
+	if ( isDefined( self.explosives ) )
 	{
-		i = 0;
-		while ( i < self.explosives.size )
+		for ( i = 0; i < self.explosives.size; i++ )
 		{
 			self.explosives[ i ] show();
-			i++;
 		}
 	}
 	if ( !isDefined( self.script_int ) )
@@ -272,35 +253,31 @@ door_delay()
 		self.script_int = 5;
 	}
 	all_trigs = getentarray( self.target, "target" );
-	i = 0;
-	while ( i < all_trigs.size )
+	for ( i = 0; i < all_trigs.size; i++ )
 	{
 		all_trigs[ i ] trigger_off();
-		i++;
 	}
 	wait self.script_int;
-	i = 0;
-	while ( i < self.script_int )
+	for ( i = 0; i < self.script_int; i++ )
 	{
+		/*
 /#
 		iprintln( self.script_int - i );
 #/
+		*/
 		wait 1;
-		i++;
 	}
-	while ( isDefined( self.explosives ) )
+	if ( isDefined( self.explosives ) )
 	{
-		i = 0;
-		while ( i < self.explosives.size )
+		for ( i = 0; i < self.explosives.size; i++ )
 		{
 			playfx( level._effect[ "def_explosion" ], self.explosives[ i ].origin, anglesToForward( self.explosives[ i ].angles ) );
 			self.explosives[ i ] hide();
-			i++;
 		}
 	}
 }
 
-door_activate( time, open, quick, use_blocker_clip_for_pathing )
+door_activate( time, open, quick, use_blocker_clip_for_pathing ) //checked matches cerberus output
 {
 	if ( !isDefined( open ) )
 	{
@@ -316,7 +293,7 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing )
 	}
 	if ( isDefined( self.door_moving ) )
 	{
-		if ( isDefined( self.script_noteworthy ) || self.script_noteworthy == "clip" && isDefined( self.script_string ) && self.script_string == "clip" )
+		if ( isDefined( self.script_noteworthy ) && self.script_noteworthy == "clip" || isDefined( self.script_string ) && self.script_string == "clip" )
 		{
 			if ( !is_true( use_blocker_clip_for_pathing ) )
 			{
@@ -343,7 +320,7 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing )
 			self connectpaths();
 		}
 	}
-	if ( isDefined( self.script_noteworthy ) || self.script_noteworthy == "clip" && isDefined( self.script_string ) && self.script_string == "clip" )
+	if ( isDefined( self.script_noteworthy ) && self.script_noteworthy == "clip" || isDefined( self.script_string ) && self.script_string == "clip" )
 	{
 		if ( !open )
 		{
@@ -390,16 +367,16 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing )
 					self thread disconnect_paths_when_done();
 				}
 			}
-			wait randomfloat( 0,15 );
+			wait randomfloat( 0.15 );
 			break;
 		case "move":
 		case "slide_apart":
 			if ( isDefined( self.script_vector ) )
 			{
 				vector = vectorScale( self.script_vector, scale );
-				if ( time >= 0,5 )
+				if ( time >= 0.5 )
 				{
-					self moveto( self.origin + vector, time, time * 0,25, time * 0,25 );
+					self moveto( self.origin + vector, time, time * 0.25, time * 0.25 );
 				}
 				else
 				{
@@ -411,16 +388,16 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing )
 					self thread disconnect_paths_when_done();
 				}
 			}
-			wait randomfloat( 0,15 );
+			wait randomfloat( 0.15 );
 			break;
 		case "anim":
 			self [[ level.blocker_anim_func ]]( self.script_animname );
 			self thread door_solid_thread_anim();
-			wait randomfloat( 0,15 );
+			wait randomfloat( 0.15 );
 			break;
 		case "physics":
 			self thread physics_launch_door( self );
-			wait 0,1;
+			wait 0.1;
 			break;
 	}
 	if ( isDefined( self.script_firefx ) )
@@ -429,7 +406,7 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing )
 	}
 }
 
-kill_trapped_zombies( trigger )
+kill_trapped_zombies( trigger ) //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop continue bug
 {
 	zombies = getaiarray( level.zombie_team );
 	if ( !isDefined( zombies ) )
@@ -448,117 +425,96 @@ kill_trapped_zombies( trigger )
 		{
 			zombies[ i ].marked_for_recycle = 1;
 			zombies[ i ] dodamage( zombies[ i ].health + 666, trigger.origin, self );
-			wait randomfloat( 0,15 );
+			wait randomfloat( 0.15 );
 			i++;
 			continue;
 		}
-		else
+		if ( isDefined( level.custom_trapped_zombies ) )
 		{
-			if ( isDefined( level.custom_trapped_zombies ) )
-			{
-				zombies[ i ] thread [[ level.custom_trapped_zombies ]]();
-				wait randomfloat( 0,15 );
-			}
+			zombies[ i ] thread [[ level.custom_trapped_zombies ]]();
+			wait randomfloat( 0.15 );
 		}
 		i++;
 	}
 }
 
-any_player_touching( trigger )
+any_player_touching( trigger ) //checked changed to match cerberus output
 {
-	_a556 = get_players();
-	_k556 = getFirstArrayKey( _a556 );
-	while ( isDefined( _k556 ) )
+	foreach ( player in get_players() )
 	{
-		player = _a556[ _k556 ];
 		if ( player istouching( trigger ) )
 		{
 			return 1;
 		}
-		wait 0,01;
-		_k556 = getNextArrayKey( _a556, _k556 );
+		wait 0.01;
 	}
 	return 0;
 }
 
-any_player_touching_any( trigger, more_triggers )
+any_player_touching_any( trigger, more_triggers ) //checked changed to match cerberus output
 {
-	_a567 = get_players();
-	_k567 = getFirstArrayKey( _a567 );
-	while ( isDefined( _k567 ) )
+	foreach ( player in get_players() )
 	{
-		player = _a567[ _k567 ];
 		while ( is_player_valid( player, 0, 1 ) )
 		{
 			if ( isDefined( trigger ) && player istouching( trigger ) )
 			{
 				return 1;
 			}
-			while ( isDefined( more_triggers ) && more_triggers.size > 0 )
+			if ( isDefined( more_triggers ) && more_triggers.size > 0 )
 			{
-				_a574 = more_triggers;
-				_k574 = getFirstArrayKey( _a574 );
-				while ( isDefined( _k574 ) )
+				foreach ( trig in more_triggers )
 				{
-					trig = _a574[ _k574 ];
 					if ( isDefined( trig ) && player istouching( trig ) )
 					{
 						return 1;
 					}
-					_k574 = getNextArrayKey( _a574, _k574 );
 				}
 			}
 		}
-		_k567 = getNextArrayKey( _a567, _k567 );
 	}
 	return 0;
 }
 
-any_zombie_touching_any( trigger, more_triggers )
+any_zombie_touching_any( trigger, more_triggers ) //checked changed to match cerberus output
 {
 	zombies = getaiarray( level.zombie_team );
-	_a586 = zombies;
-	_k586 = getFirstArrayKey( _a586 );
-	while ( isDefined( _k586 ) )
+	foreach ( zombie in zombies )
 	{
-		zombie = _a586[ _k586 ];
 		if ( isDefined( trigger ) && zombie istouching( trigger ) )
 		{
 			return 1;
 		}
-		while ( isDefined( more_triggers ) && more_triggers.size > 0 )
+		if ( isDefined( more_triggers ) && more_triggers.size > 0 )
 		{
-			_a591 = more_triggers;
-			_k591 = getFirstArrayKey( _a591 );
-			while ( isDefined( _k591 ) )
+			foreach ( trig in more_triggers )
 			{
-				trig = _a591[ _k591 ];
 				if ( isDefined( trig ) && zombie istouching( trig ) )
 				{
 					return 1;
 				}
-				_k591 = getNextArrayKey( _a591, _k591 );
 			}
 		}
-		_k586 = getNextArrayKey( _a586, _k586 );
 	}
 	return 0;
 }
 
-wait_trigger_clear( trigger, more_triggers, end_on )
+wait_trigger_clear( trigger, more_triggers, end_on ) //checked matches cerberus output
 {
 	self endon( end_on );
 	while ( any_player_touching_any( trigger, more_triggers ) || any_zombie_touching_any( trigger, more_triggers ) )
 	{
 		wait 1;
 	}
+	/*
 /#
 	println( "ZM BLOCKER local door trigger clear\n" );
 #/
+	*/
 	self notify( "trigger_clear" );
 }
 
-waittill_door_trigger_clear_local_power_off( trigger, all_trigs )
+waittill_door_trigger_clear_local_power_off( trigger, all_trigs ) //checked matches cerberus output
 {
 	self endon( "trigger_clear" );
 	while ( 1 )
@@ -567,14 +523,16 @@ waittill_door_trigger_clear_local_power_off( trigger, all_trigs )
 		{
 			self waittill( "local_power_off" );
 		}
+		/*
 /#
 		println( "ZM BLOCKER local door power off\n" );
 #/
+		*/
 		self wait_trigger_clear( trigger, all_trigs, "local_power_on" );
 	}
 }
 
-waittill_door_trigger_clear_global_power_off( trigger, all_trigs )
+waittill_door_trigger_clear_global_power_off( trigger, all_trigs ) //checked matches cerberus output
 {
 	self endon( "trigger_clear" );
 	while ( 1 )
@@ -583,14 +541,16 @@ waittill_door_trigger_clear_global_power_off( trigger, all_trigs )
 		{
 			self waittill( "power_off" );
 		}
+		/*
 /#
 		println( "ZM BLOCKER global door power off\n" );
 #/
+		*/
 		self wait_trigger_clear( trigger, all_trigs, "power_on" );
 	}
 }
 
-waittill_door_can_close()
+waittill_door_can_close() //checked changed to match cerberus output
 {
 	trigger = undefined;
 	if ( isDefined( self.door_hold_trigger ) )
@@ -598,7 +558,7 @@ waittill_door_can_close()
 		trigger = getent( self.door_hold_trigger, "targetname" );
 	}
 	all_trigs = getentarray( self.target, "target" );
-	switch( self.script_noteworthy )
+	switch ( self.script_noteworthy )
 	{
 		case "local_electric_door":
 			if ( isDefined( trigger ) || isDefined( all_trigs ) )
@@ -606,36 +566,29 @@ waittill_door_can_close()
 				self waittill_door_trigger_clear_local_power_off( trigger, all_trigs );
 				self thread kill_trapped_zombies( trigger );
 			}
-			else
+			else if ( isDefined( self.local_power_on ) && self.local_power_on )
 			{
-				if ( isDefined( self.local_power_on ) && self.local_power_on )
-				{
-					self waittill( "local_power_off" );
-				}
+				self waittill( "local_power_off" );
 			}
 			return;
-			case "electric_door":
-				if ( isDefined( trigger ) || isDefined( all_trigs ) )
+		case "electric_door":
+			if ( isDefined( trigger ) || isDefined( all_trigs ) )
+			{
+				self waittill_door_trigger_clear_global_power_off( trigger, all_trigs );
+				if ( isDefined( trigger ) )
 				{
-					self waittill_door_trigger_clear_global_power_off( trigger, all_trigs );
-					if ( isDefined( trigger ) )
-					{
-						self thread kill_trapped_zombies( trigger );
-					}
+					self thread kill_trapped_zombies( trigger );
 				}
-				else
-				{
-					if ( isDefined( self.power_on ) && self.power_on )
-					{
-						self waittill( "power_off" );
-					}
-				}
-				return;
-		}
+			}
+			else if ( isDefined( self.power_on ) && self.power_on )
+			{
+				self waittill( "power_off" );
+			}
+			return;
 	}
 }
 
-door_think()
+door_think() //checked changed to match cerberus output
 {
 	self endon( "kill_door_think" );
 	cost = 1000;
@@ -644,118 +597,124 @@ door_think()
 		cost = self.zombie_cost;
 	}
 	self sethintlowpriority( 1 );
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		switch ( self.script_noteworthy )
 		{
-			switch( self.script_noteworthy )
-			{
-				case "local_electric_door":
-					if ( isDefined( self.local_power_on ) && !self.local_power_on )
-					{
-						self waittill( "local_power_on" );
-					}
-					if ( isDefined( self._door_open ) && !self._door_open )
-					{
-/#
-						println( "ZM BLOCKER local door opened\n" );
-#/
-						self door_opened( cost, 1 );
-						if ( !isDefined( self.power_cost ) )
-						{
-							self.power_cost = 0;
-						}
-						self.power_cost += 200;
-					}
-					self sethintstring( "" );
-					if ( isDefined( level.local_doors_stay_open ) && level.local_doors_stay_open )
-					{
-						return;
-					}
-					wait 3;
-					self waittill_door_can_close();
-					self door_block();
-					if ( isDefined( self._door_open ) && self._door_open )
-					{
-/#
-						println( "ZM BLOCKER local door closed\n" );
-#/
-						self door_opened( cost, 1 );
-					}
-					self sethintstring( &"ZOMBIE_NEED_LOCAL_POWER" );
-					wait 3;
+			case "local_electric_door":
+				if ( isDefined( self.local_power_on ) && !self.local_power_on )
+				{
+					self waittill( "local_power_on" );
 				}
-				case "electric_door":
-					if ( isDefined( self.power_on ) && !self.power_on )
-					{
-						self waittill( "power_on" );
-					}
-					if ( isDefined( self._door_open ) && !self._door_open )
-					{
+				if ( isDefined( self._door_open ) && !self._door_open )
+				{
+					/*
 /#
-						println( "ZM BLOCKER global door opened\n" );
+					println( "ZM BLOCKER local door opened\n" );
 #/
-						self door_opened( cost, 1 );
-						if ( !isDefined( self.power_cost ) )
-						{
-							self.power_cost = 0;
-						}
-						self.power_cost += 200;
-					}
-					self sethintstring( "" );
-					if ( isDefined( level.local_doors_stay_open ) && level.local_doors_stay_open )
+					*/
+					self door_opened( cost, 1 );
+					if ( !isDefined( self.power_cost ) )
 					{
-						return;
+						self.power_cost = 0;
 					}
-					wait 3;
-					self waittill_door_can_close();
-					self door_block();
-					if ( isDefined( self._door_open ) && self._door_open )
-					{
-/#
-						println( "ZM BLOCKER global door closed\n" );
-#/
-						self door_opened( cost, 1 );
-					}
-					self sethintstring( &"ZOMBIE_NEED_POWER" );
-					wait 3;
+					self.power_cost += 200;
 				}
-				case "electric_buyable_door":
-					flag_wait( "power_on" );
-					self set_hint_string( self, "default_buy_door", cost );
-					while ( !self door_buy() )
-					{
-						continue;
-					}
-					case "delay_door":
-						while ( !self door_buy() )
-						{
-							continue;
-						}
-						self door_delay();
-						break;
-					default:
-						if ( isDefined( level._default_door_custom_logic ) )
-						{
-							self [[ level._default_door_custom_logic ]]();
-							break;
-					}
-					else while ( !self door_buy() )
-					{
-						continue;
-					}
-				}
-				self door_opened( cost );
-				if ( !flag( "door_can_close" ) )
+				self sethintstring( "" );
+				if ( isDefined( level.local_doors_stay_open ) && level.local_doors_stay_open )
 				{
 					return;
 				}
-				else }
-		}
+				wait 3;
+				self waittill_door_can_close();
+				self door_block();
+				if ( isDefined( self._door_open ) && self._door_open )
+				{
+					/*
+/#
+					println( "ZM BLOCKER local door closed\n" );
+#/
+					*/
+					self door_opened( cost, 1 );
+				}
+				self sethintstring( &"ZOMBIE_NEED_LOCAL_POWER" );
+				wait 3;
+				continue;
+			case "electric_door":
+				if ( isDefined( self.power_on ) && !self.power_on )
+				{
+					self waittill( "power_on" );
+				}
+				if ( isDefined( self._door_open ) && !self._door_open )
+				{
+					/*
+/#
+					println( "ZM BLOCKER global door opened\n" );
+#/
+					*/
+					self door_opened( cost, 1 );
+					if ( !isDefined( self.power_cost ) )
+					{
+						self.power_cost = 0;
+					}
+					self.power_cost += 200;
+				}
+				self sethintstring( "" );
+				if ( isDefined( level.local_doors_stay_open ) && level.local_doors_stay_open )
+				{
+					return;
+				}
+				wait 3;
+				self waittill_door_can_close();
+				self door_block();
+				if ( isDefined( self._door_open ) && self._door_open )
+				{
+					/*
+/#
+					println( "ZM BLOCKER global door closed\n" );
+#/
+					*/
+					self door_opened( cost, 1 );
+				}
+				self sethintstring( &"ZOMBIE_NEED_POWER" );
+				wait 3;
+				continue;
+			case "electric_buyable_door":
+				flag_wait( "power_on" );
+				self set_hint_string( self, "default_buy_door", cost );
+				if ( !self door_buy() )
+				{
+					continue;
+				}
+				break;
+			case "delay_door":
+				if ( !self door_buy() )
+				{
+					continue;
+				}
+				self door_delay();
+				break;
+			default:
+				if ( isDefined( level._default_door_custom_logic ) )
+				{
+					self [[ level._default_door_custom_logic ]]();
+					break;
+				}
+				if ( !self door_buy() )
+				{
+					continue;
+				}
+				break;
+			}
+			self door_opened( cost );
+			if ( !flag( "door_can_close" ) )
+			{
+				break;
+			}
 	}
 }
 
-self_and_flag_wait( msg )
+self_and_flag_wait( msg ) //checked matches cerberus output
 {
 	self endon( msg );
 	if ( isDefined( self.power_door_ignore_flag_wait ) && self.power_door_ignore_flag_wait )
@@ -768,23 +727,21 @@ self_and_flag_wait( msg )
 	}
 }
 
-door_block()
+door_block() //checked changed to match cerberus output
 {
-	while ( isDefined( self.doors ) )
+	if ( isDefined( self.doors ) )
 	{
-		i = 0;
-		while ( i < self.doors.size )
+		for ( i = 0; i < self.doors.size; i++ )
 		{
-			if ( isDefined( self.doors[ i ].script_noteworthy ) || self.doors[ i ].script_noteworthy == "clip" && isDefined( self.doors[ i ].script_string ) && self.doors[ i ].script_string == "clip" )
+			if ( isDefined( self.doors[ i ].script_noteworthy ) && self.doors[ i ].script_noteworthy == "clip" || isDefined( self.doors[ i ].script_string ) && self.doors[ i ].script_string == "clip" )
 			{
 				self.doors[ i ] solid();
 			}
-			i++;
 		}
 	}
 }
 
-door_opened( cost, quick_close )
+door_opened( cost, quick_close ) //checked partially changed to match cerberus output //did not foreach to prevent infinite loop with continues
 {
 	if ( isDefined( self.door_is_moving ) && self.door_is_moving )
 	{
@@ -793,64 +750,56 @@ door_opened( cost, quick_close )
 	self.has_been_opened = 1;
 	all_trigs = getentarray( self.target, "target" );
 	self.door_is_moving = 1;
-	_a848 = all_trigs;
-	_k848 = getFirstArrayKey( _a848 );
-	while ( isDefined( _k848 ) )
+	j = 0;
+	while ( j < all_trigs.size )
 	{
-		trig = _a848[ _k848 ];
-		trig.door_is_moving = 1;
-		trig trigger_off();
-		trig.has_been_opened = 1;
-		if ( !isDefined( trig._door_open ) || trig._door_open == 0 )
+		all_trigs[ j ].door_is_moving = 1;
+		all_trigs[ j ] trigger_off();
+		all_trigs[ j ].has_been_opened = 1;
+		if ( !isDefined( all_trigs[ j ]._door_open ) || all_trigs[ j ]._door_open == 0 )
 		{
-			trig._door_open = 1;
-			trig notify( "door_opened" );
+			all_trigs[ j ]._door_open = 1;
+			all_trigs[ j ] notify( "door_opened" );
 			level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "door_open" );
 		}
 		else
 		{
-			trig._door_open = 0;
+			all_trigs[ j ]._door_open = 0;
 		}
-		if ( isDefined( trig.script_flag ) && trig._door_open == 1 )
+		if ( isDefined( all_trigs[ j ].script_flag ) && all_trigs[ j ]._door_open == 1 )
 		{
-			tokens = strtok( trig.script_flag, "," );
-			i = 0;
-			while ( i < tokens.size )
+			tokens = strtok( all_trigs[ j ].script_flag, "," );
+			for ( i = 0; i < tokens.size; i++ )
 			{
 				flag_set( tokens[ i ] );
-				i++;
 			}
+			break;
 		}
-		else while ( isDefined( trig.script_flag ) && trig._door_open == 0 )
+		if ( isDefined( all_trigs[ j ].script_flag ) && all_trigs[ j ]._door_open == 0 )
 		{
-			tokens = strtok( trig.script_flag, "," );
-			i = 0;
-			while ( i < tokens.size )
+			tokens = strtok( all_trigs[ j ].script_flag, "," );
+			for ( i = 0; i < tokens.size; i++ )
 			{
 				flag_clear( tokens[ i ] );
-				i++;
 			}
 		}
-		if ( isDefined( quick_close ) && quick_close )
+		else if ( isDefined( quick_close ) && quick_close )
 		{
-			trig set_hint_string( trig, "" );
+			all_trigs[ j ] set_hint_string( all_trigs[ j ], "" );
+			j++;
+			continue;
 		}
-		else
+		if ( all_trigs[ j ]._door_open == 1 && flag( "door_can_close" ) )
 		{
-			if ( trig._door_open == 1 && flag( "door_can_close" ) )
-			{
-				trig set_hint_string( trig, "default_buy_door_close" );
-				break;
-			}
-			else
-			{
-				if ( trig._door_open == 0 )
-				{
-					trig set_hint_string( trig, "default_buy_door", cost );
-				}
-			}
+			all_trigs[ j ] set_hint_string( all_trigs[ j ], "default_buy_door_close" );
+			j++;
+			continue;
 		}
-		_k848 = getNextArrayKey( _a848, _k848 );
+		if ( all_trigs[ j ]._door_open == 0 )
+		{
+			all_trigs[ j ] set_hint_string( all_trigs[ j ], "default_buy_door", cost );
+		}
+		j++;
 	}
 	level notify( "door_opened" );
 	if ( isDefined( self.doors ) )
@@ -858,36 +807,31 @@ door_opened( cost, quick_close )
 		is_script_model_door = 0;
 		have_moving_clip_for_door = 0;
 		use_blocker_clip_for_pathing = 0;
-		_a905 = self.doors;
-		_k905 = getFirstArrayKey( _a905 );
-		while ( isDefined( _k905 ) )
-		{
-			door = _a905[ _k905 ];
-			if ( is_true( door.ignore_use_blocker_clip_for_pathing_check ) )
-			{
-			}
-			else if ( door.classname == "script_model" )
-			{
-				is_script_model_door = 1;
-			}
-			else
-			{
-				if ( door.classname == "script_brushmodel" && isDefined( door.script_noteworthy ) && door.script_noteworthy != "clip" || !isDefined( door.script_string ) && door.script_string != "clip" )
-				{
-					have_moving_clip_for_door = 1;
-				}
-			}
-			_k905 = getNextArrayKey( _a905, _k905 );
-		}
-		if ( is_script_model_door )
-		{
-			use_blocker_clip_for_pathing = !have_moving_clip_for_door;
-		}
 		i = 0;
 		while ( i < self.doors.size )
 		{
-			self.doors[ i ] thread door_activate( self.doors[ i ].script_transition_time, self._door_open, quick_close, use_blocker_clip_for_pathing );
+			if ( is_true( door.ignore_use_blocker_clip_for_pathing_check ) )
+			{
+				i++;
+				continue;
+			}
+			if ( door.classname == "script_model" )
+			{
+				is_script_model_door = 1;
+			}
+			if ( door.classname == "script_brushmodel" && isDefined( door.script_noteworthy ) && door.script_noteworthy != "clip" || !isDefined( door.script_string ) && door.script_string != "clip" )
+			{
+				have_moving_clip_for_door = 1;
+			}
 			i++;
+		}
+		if ( is_script_model_door && !have_moving_clip_for_door )
+		{
+			use_blocker_clip_for_pathing = 1;
+		}
+		for ( i = 0; i < self.doors.size; i++ )
+		{
+			self.doors[ i ] thread door_activate( self.doors[ i ].script_transition_time, self._door_open, quick_close, use_blocker_clip_for_pathing );
 		}
 		if ( self.doors.size )
 		{
@@ -897,49 +841,41 @@ door_opened( cost, quick_close )
 	level.active_zone_names = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();
 	wait 1;
 	self.door_is_moving = 0;
-	_a948 = all_trigs;
-	_k948 = getFirstArrayKey( _a948 );
-	while ( isDefined( _k948 ) )
+	foreach ( trig in all_trigs )
 	{
-		trig = _a948[ _k948 ];
 		trig.door_is_moving = 0;
-		_k948 = getNextArrayKey( _a948, _k948 );
 	}
 	if ( isDefined( quick_close ) && quick_close )
 	{
-		i = 0;
-		while ( i < all_trigs.size )
+		for ( i = 0; i < all_trigs.size; i++ ) 
 		{
 			all_trigs[ i ] trigger_on();
-			i++;
 		}
 		return;
 	}
-	while ( flag( "door_can_close" ) )
+	if ( flag( "door_can_close" ) )
 	{
 		wait 2;
-		i = 0;
-		while ( i < all_trigs.size )
+		for ( i = 0; i < all_trigs.size; i++ )
 		{
 			all_trigs[ i ] trigger_on();
-			i++;
 		}
 	}
 }
 
-physics_launch_door( door_trig )
+physics_launch_door( door_trig ) //checked matches cerberus output
 {
 	vec = vectorScale( vectornormalize( self.script_vector ), 10 );
-	self rotateroll( 5, 0,05 );
-	wait 0,05;
-	self moveto( self.origin + vec, 0,1 );
+	self rotateroll( 5, 0.05 );
+	wait 0.05;
+	self moveto( self.origin + vec, 0.1 );
 	self waittill( "movedone" );
 	self physicslaunch( self.origin, self.script_vector * 300 );
 	wait 60;
 	self delete();
 }
 
-door_solid_thread()
+door_solid_thread() //checked changed to match cerberus output
 {
 	self waittill_either( "rotatedone", "movedone" );
 	self.door_moving = undefined;
@@ -947,17 +883,12 @@ door_solid_thread()
 	{
 		players = get_players();
 		player_touching = 0;
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			if ( players[ i ] istouching( self ) )
 			{
 				player_touching = 1;
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 		if ( !player_touching )
@@ -969,7 +900,7 @@ door_solid_thread()
 	}
 }
 
-door_solid_thread_anim()
+door_solid_thread_anim() //checked changed to match cerberus output
 {
 	self waittillmatch( "door_anim" );
 	return "end";
@@ -978,17 +909,12 @@ door_solid_thread_anim()
 	{
 		players = get_players();
 		player_touching = 0;
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			if ( players[ i ] istouching( self ) )
 			{
 				player_touching = 1;
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 		if ( !player_touching )
@@ -1000,18 +926,18 @@ door_solid_thread_anim()
 	}
 }
 
-disconnect_paths_when_done()
+disconnect_paths_when_done() //checked matches cerberus output
 {
 	self waittill_either( "rotatedone", "movedone" );
 	self disconnectpaths();
 }
 
-self_disconnectpaths()
+self_disconnectpaths() //checked matches cerberus output
 {
 	self disconnectpaths();
 }
 
-debris_init()
+debris_init() //checked matches cerberus output
 {
 	cost = 1000;
 	if ( isDefined( self.zombie_cost ) )
@@ -1027,62 +953,53 @@ debris_init()
 	self thread debris_think();
 }
 
-debris_think()
+debris_think() //partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop bug due to continue
 {
 	if ( isDefined( level.custom_debris_function ) )
 	{
 		self [[ level.custom_debris_function ]]();
 	}
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		self waittill( "trigger", who, force );
+		if ( getDvarInt( "zombie_unlock_all" ) > 0 || isDefined( force ) && force )
 		{
-			self waittill( "trigger", who, force );
-			if ( getDvarInt( "zombie_unlock_all" ) > 0 || isDefined( force ) && force )
+		}
+		else if ( !who usebuttonpressed() )
+		{
+			continue;
+		}
+		if ( who maps/mp/zombies/_zm_utility::in_revive_trigger() )
+		{
+			continue;
+		}
+		if ( maps/mp/zombies/_zm_utility::is_player_valid( who ) )
+		{
+			players = get_players();
+			if ( getDvarInt( "zombie_unlock_all" ) > 0 )
 			{
+			}
+			else if ( who.score >= self.zombie_cost )
+			{
+				who maps/mp/zombies/_zm_score::minus_to_player_score( self.zombie_cost );
+				maps/mp/_demo::bookmark( "zm_player_door", getTime(), who );
+				who maps/mp/zombies/_zm_stats::increment_client_stat( "doors_purchased" );
+				who maps/mp/zombies/_zm_stats::increment_player_stat( "doors_purchased" );
 			}
 			else
 			{
-				while ( !who usebuttonpressed() )
-				{
-					continue;
-				}
-				while ( who in_revive_trigger() )
-				{
-					continue;
-				}
-			}
-			if ( is_player_valid( who ) )
-			{
-				players = get_players();
-				if ( getDvarInt( "zombie_unlock_all" ) > 0 )
-				{
-					break;
-				}
-				else if ( who.score >= self.zombie_cost )
-				{
-					who maps/mp/zombies/_zm_score::minus_to_player_score( self.zombie_cost );
-					maps/mp/_demo::bookmark( "zm_player_door", getTime(), who );
-					who maps/mp/zombies/_zm_stats::increment_client_stat( "doors_purchased" );
-					who maps/mp/zombies/_zm_stats::increment_player_stat( "doors_purchased" );
-					break;
-				}
-				else
-				{
-					play_sound_at_pos( "no_purchase", self.origin );
-					who maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "door_deny" );
-				}
+				play_sound_at_pos( "no_purchase", self.origin );
+				who maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "door_deny" );
+				continue;
 			}
 			bbprint( "zombie_uses", "playername %s playerscore %d round %d cost %d name %s x %f y %f z %f type %s", who.name, who.score, level.round_number, self.zombie_cost, self.script_flag, self.origin, "door" );
 			junk = getentarray( self.target, "targetname" );
 			while ( isDefined( self.script_flag ) )
 			{
 				tokens = strtok( self.script_flag, "," );
-				i = 0;
-				while ( i < tokens.size )
+				for ( i = 0; i < tokens.size; i++ )
 				{
 					flag_set( tokens[ i ] );
-					i++;
 				}
 			}
 			play_sound_at_pos( "purchase", self.origin );
@@ -1102,7 +1019,7 @@ debris_think()
 						continue;
 					}
 				}
-				else struct = undefined;
+				struct = undefined;
 				if ( isDefined( junk[ i ].script_linkto ) )
 				{
 					struct = getstruct( junk[ i ].script_linkto, "script_linkname" );
@@ -1118,18 +1035,13 @@ debris_think()
 					i++;
 					continue;
 				}
-				else
-				{
-					junk[ i ] delete();
-				}
+				junk[ i ] delete();
 				i++;
 			}
 			all_trigs = getentarray( self.target, "target" );
-			i = 0;
-			while ( i < all_trigs.size )
+			for ( i = 0; i < all_trigs.size; i++ )
 			{
 				all_trigs[ i ] delete();
-				i++;
 			}
 			if ( isDefined( clip ) )
 			{
@@ -1139,15 +1051,12 @@ debris_think()
 				}
 				clip delete();
 			}
-			return;
-		}
-		else
-		{
+			break;
 		}
 	}
 }
 
-debris_move( struct )
+debris_move( struct ) //checked changed to match cerberus output
 {
 	self script_delay();
 	self notsolid();
@@ -1157,30 +1066,28 @@ debris_move( struct )
 	{
 		playfx( level._effect[ self.script_firefx ], self.origin );
 	}
-	while ( isDefined( self.script_noteworthy ) )
+	if ( isDefined( self.script_noteworthy ) )
 	{
-		while ( self.script_noteworthy == "jiggle" )
+		if ( self.script_noteworthy == "jiggle" )
 		{
 			num = randomintrange( 3, 5 );
 			og_angles = self.angles;
-			i = 0;
-			while ( i < num )
+			for ( i = 0; i < num; i++ )
 			{
 				angles = og_angles + ( -5 + randomfloat( 10 ), -5 + randomfloat( 10 ), -5 + randomfloat( 10 ) );
-				time = randomfloatrange( 0,1, 0,4 );
+				time = randomfloatrange( 0.1, 0.4 );
 				self rotateto( angles, time );
-				wait ( time - 0,05 );
-				i++;
+				wait ( time - 0.05 );
 			}
 		}
 	}
-	time = 0,5;
+	time = 0.5;
 	if ( isDefined( self.script_transition_time ) )
 	{
 		time = self.script_transition_time;
 	}
-	self moveto( struct.origin, time, time * 0,5 );
-	self rotateto( struct.angles, time * 0,75 );
+	self moveto( struct.origin, time, time * 0.5 );
+	self rotateto( struct.angles, time * 0.75 );
 	self waittill( "movedone" );
 	if ( isDefined( self.script_fxid ) )
 	{
@@ -1190,15 +1097,15 @@ debris_move( struct )
 	self delete();
 }
 
-blocker_disconnect_paths( start_node, end_node, two_way )
+blocker_disconnect_paths( start_node, end_node, two_way ) //checked matches cerberus output
 {
 }
 
-blocker_connect_paths( start_node, end_node, two_way )
+blocker_connect_paths( start_node, end_node, two_way ) //checked matches cerberus output
 {
 }
 
-blocker_init()
+blocker_init() //checked partially changed to match cerberus output //did not change while loop to for loop to prevent infinite loop caused by continue
 {
 	if ( !isDefined( self.target ) )
 	{
@@ -1217,15 +1124,9 @@ blocker_init()
 				j++;
 				continue;
 			}
-			else self.zbarrier = targets[ j ];
+			self.zbarrier = targets[ j ];
 			if ( isDefined( level.zbarrier_script_string_sets_collision ) && level.zbarrier_script_string_sets_collision )
 			{
-				if ( isDefined( self.zbarrier.script_string ) )
-				{
-				}
-				else
-				{
-				}
 				m_collision = "p6_anim_zm_barricade_board_collision";
 			}
 			else
@@ -1235,14 +1136,12 @@ blocker_init()
 			precachemodel( m_collision );
 			self.zbarrier setzbarriercolmodel( m_collision );
 			self.zbarrier.chunk_health = [];
-			i = 0;
-			while ( i < self.zbarrier getnumzbarrierpieces() )
+			for ( i = 0; i < self.zbarrier getnumzbarrierpieces(); i++ )
 			{
 				self.zbarrier.chunk_health[ i ] = 0;
-				i++;
 			}
 		}
-		else if ( isDefined( targets[ j ].script_string ) && targets[ j ].script_string == "rock" )
+		if ( isDefined( targets[ j ].script_string ) && targets[ j ].script_string == "rock" )
 		{
 			targets[ j ].material = "rock";
 		}
@@ -1252,15 +1151,16 @@ blocker_init()
 			{
 				if ( isDefined( targets[ j ].script_noteworthy ) )
 				{
-					if ( targets[ j ].script_noteworthy != "2" && targets[ j ].script_noteworthy != "3" && targets[ j ].script_noteworthy != "4" || targets[ j ].script_noteworthy == "5" && targets[ j ].script_noteworthy == "6" )
+					if ( targets[ j ].script_noteworthy == "2" || targets[ j ].script_noteworthy == "3" || targets[ j ].script_noteworthy == "4" || targets[ j ].script_noteworthy == "5" || targets[ j ].script_noteworthy == "6" )
 					{
 						targets[ j ] hide();
+						/*
 /#
 						iprintlnbold( " Hide " );
 #/
+						*/
 					}
 				}
-				break;
 			}
 			else if ( targets[ j ].script_parameters == "repair_board" )
 			{
@@ -1275,24 +1175,16 @@ blocker_init()
 					{
 						targets[ j ].material = "glass";
 						targets[ j ] thread destructible_glass_barricade( targets[ j ].unbroken_section, self );
-						break;
 					}
-					else
+					else if ( isDefined( targets[ j ].unbroken_section.script_noteworthy ) && targets[ j ].unbroken_section.script_noteworthy == "metal" )
 					{
-						if ( isDefined( targets[ j ].unbroken_section.script_noteworthy ) && targets[ j ].unbroken_section.script_noteworthy == "metal" )
-						{
-							targets[ j ].material = "metal";
-						}
+						targets[ j ].material = "metal";
 					}
 				}
-				break;
 			}
-			else
+			else if ( targets[ j ].script_parameters == "barricade_vents" )
 			{
-				if ( targets[ j ].script_parameters == "barricade_vents" )
-				{
-					targets[ j ].material = "metal_vent";
-				}
+				targets[ j ].material = "metal_vent";
 			}
 		}
 		if ( isDefined( targets[ j ].targetname ) )
@@ -1312,8 +1204,7 @@ blocker_init()
 		j++;
 	}
 	target_nodes = getnodearray( self.target, "targetname" );
-	j = 0;
-	while ( j < target_nodes.size )
+	for ( j = 0; j < target_nodes.size; j++ )
 	{
 		if ( target_nodes[ j ].type == "Begin" )
 		{
@@ -1324,17 +1215,14 @@ blocker_init()
 			}
 			blocker_disconnect_paths( self.neg_start, self.neg_end );
 		}
-		j++;
 	}
 	if ( isDefined( self.zbarrier ) )
 	{
 		if ( isDefined( self.barrier_chunks ) )
 		{
-			i = 0;
-			while ( i < self.barrier_chunks.size )
+			for ( i = 0; i < self.barrier_chunks.size; i++ )
 			{
 				self.barrier_chunks[ i ] delete();
-				i++;
 			}
 			self.barrier_chunks = [];
 		}
@@ -1350,22 +1238,22 @@ blocker_init()
 	self thread blocker_think();
 }
 
-should_delete_zbarriers()
+should_delete_zbarriers() //checked matches cerberus output
 {
 	gametype = getDvar( "ui_gametype" );
-	if ( !is_classic() && !is_standard() && gametype != "zgrief" )
+	if ( !maps/mp/zombies/_zm_utility::is_classic() && !maps/mp/zombies/_zm_utility::is_standard() && gametype != "zgrief" )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-destructible_glass_barricade( unbroken_section, node )
+destructible_glass_barricade( unbroken_section, node ) //checked matches cerberus output
 {
 	unbroken_section setcandamage( 1 );
 	unbroken_section.health = 99999;
 	unbroken_section waittill( "damage", amount, who );
-	if ( is_player_valid( who ) || who maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( maps/mp/zombies/_zm_utility::is_player_valid( who ) || who maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 	{
 		self thread maps/mp/zombies/_zm_spawner::zombie_boardtear_offset_fx_horizontle( self, node );
 		level thread remove_chunk( self, node, 1 );
@@ -1375,59 +1263,57 @@ destructible_glass_barricade( unbroken_section, node )
 	}
 }
 
-blocker_attack_spots()
+blocker_attack_spots() //checked changed to match cerberus output //may need to review order of operations
 {
 	spots = [];
 	numslots = self.zbarrier getzbarriernumattackslots();
 	numslots = int( max( numslots, 1 ) );
 	if ( numslots % 2 )
 	{
-		spots[ spots.size ] = groundpos_ignore_water_new( self.zbarrier.origin + vectorScale( ( -1, 0, 0 ), 60 ) );
+		spots[ spots.size ] = groundpos_ignore_water_new( self.zbarrier.origin + vectorScale( ( 0, 0, 1 ), 60 ) );
 	}
-	while ( numslots > 1 )
+	if ( numslots > 1 )
 	{
 		reps = floor( numslots / 2 );
 		slot = 1;
-		i = 0;
-		while ( i < reps )
+		for ( i = 0; i < reps; i++ ) 
 		{
 			offset = self.zbarrier getzbarrierattackslothorzoffset() * ( i + 1 );
-			spots[ spots.size ] = groundpos_ignore_water_new( spots[ 0 ] + ( anglesToRight( self.angles ) * offset ) + vectorScale( ( -1, 0, 0 ), 60 ) );
+			spots[ spots.size ] = groundpos_ignore_water_new( spots[ 0 ] + ( anglesToRight( self.angles ) * offset ) + vectorScale( ( 0, 0, 1 ), 60 ) );
 			slot++;
 			if ( slot < numslots )
 			{
-				spots[ spots.size ] = groundpos_ignore_water_new( spots[ 0 ] + ( anglesToRight( self.angles ) * ( offset * -1 ) ) + vectorScale( ( -1, 0, 0 ), 60 ) );
+				spots[ spots.size ] = groundpos_ignore_water_new( spots[ 0 ] + ( anglesToRight( self.angles ) * ( offset * -1 ) ) + vectorScale( ( 0, 0, 1 ), 60 ) );
 				slot++;
 			}
-			i++;
 		}
 	}
 	taken = [];
-	i = 0;
-	while ( i < spots.size )
+	for ( i = 0; i < spots.size; i++ )
 	{
 		taken[ i ] = 0;
-		i++;
 	}
 	self.attack_spots_taken = taken;
 	self.attack_spots = spots;
+	/*
 /#
 	self thread debug_attack_spots_taken();
 #/
+	*/
 }
 
-blocker_choke()
+blocker_choke() //checked matches cerberus output
 {
 	level._blocker_choke = 0;
 	level endon( "stop_blocker_think" );
 	while ( 1 )
 	{
-		wait 0,05;
+		wait 0.05;
 		level._blocker_choke = 0;
 	}
 }
 
-blocker_think()
+blocker_think() //checked changed to match cerberus output
 {
 	level endon( "stop_blocker_think" );
 	if ( !isDefined( level._blocker_choke ) )
@@ -1441,20 +1327,20 @@ blocker_think()
 	}
 	while ( 1 )
 	{
-		wait 0,5;
+		wait 0.5;
 		if ( use_choke )
 		{
 			if ( level._blocker_choke > 3 )
 			{
-				wait 0,05;
+				wait 0.05;
 			}
 		}
 		level._blocker_choke++;
-		while ( all_chunks_intact( self, self.barrier_chunks ) )
+		if ( all_chunks_intact( self, self.barrier_chunks ) )
 		{
 			continue;
 		}
-		while ( no_valid_repairable_boards( self, self.barrier_chunks ) )
+		if ( no_valid_repairable_boards( self, self.barrier_chunks ) )
 		{
 			continue;
 		}
@@ -1462,13 +1348,13 @@ blocker_think()
 	}
 }
 
-player_fails_blocker_repair_trigger_preamble( player, players, trigger, hold_required )
+player_fails_blocker_repair_trigger_preamble( player, players, trigger, hold_required ) //checked matches cerberus output
 {
 	if ( !isDefined( trigger ) )
 	{
 		return 1;
 	}
-	if ( !is_player_valid( player ) )
+	if ( !maps/mp/zombies/_zm_utility::is_player_valid( player ) )
 	{
 		return 1;
 	}
@@ -1484,14 +1370,14 @@ player_fails_blocker_repair_trigger_preamble( player, players, trigger, hold_req
 	{
 		return 1;
 	}
-	if ( player in_revive_trigger() )
+	if ( player maps/mp/zombies/_zm_utility::in_revive_trigger() )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-has_blocker_affecting_perk()
+has_blocker_affecting_perk() //checked matches cerberus output
 {
 	has_perk = undefined;
 	if ( self hasperk( "specialty_fastreload" ) )
@@ -1501,7 +1387,7 @@ has_blocker_affecting_perk()
 	return has_perk;
 }
 
-do_post_chunk_repair_delay( has_perk )
+do_post_chunk_repair_delay( has_perk ) //checked matches cerberus output
 {
 	if ( !self script_delay() )
 	{
@@ -1509,7 +1395,7 @@ do_post_chunk_repair_delay( has_perk )
 	}
 }
 
-handle_post_board_repair_rewards( cost, zbarrier )
+handle_post_board_repair_rewards( cost, zbarrier ) //checked matches cerberus output
 {
 	self maps/mp/zombies/_zm_stats::increment_client_stat( "boards" );
 	self maps/mp/zombies/_zm_stats::increment_player_stat( "boards" );
@@ -1530,26 +1416,28 @@ handle_post_board_repair_rewards( cost, zbarrier )
 	}
 }
 
-blocker_unitrigger_think()
+blocker_unitrigger_think() //checked matches cerberus output
 {
 	self endon( "kill_trigger" );
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
-		self.stub.trigger_target notify( "trigger" );
+		self.stub.trigger_target notify( "trigger", player );
 	}
 }
 
-blocker_trigger_think()
+blocker_trigger_think() //checked changed to match cerberus output
 {
 	self endon( "blocker_hacked" );
 	if ( isDefined( level.no_board_repair ) && level.no_board_repair )
 	{
 		return;
 	}
+	/*
 /#
 	println( "ZM >> TRIGGER blocker_trigger_think " );
 #/
+	*/
 	level endon( "stop_blocker_think" );
 	cost = 10;
 	if ( isDefined( self.zombie_cost ) )
@@ -1559,8 +1447,8 @@ blocker_trigger_think()
 	original_cost = cost;
 	if ( !isDefined( self.unitrigger_stub ) )
 	{
-		radius = 94,21;
-		height = 94,21;
+		radius = 94.21;
+		height = 94.21;
 		if ( isDefined( self.trigger_location ) )
 		{
 			trigger_location = self.trigger_location;
@@ -1577,7 +1465,7 @@ blocker_trigger_think()
 		{
 			height = trigger_location.height;
 		}
-		trigger_pos = groundpos( trigger_location.origin ) + vectorScale( ( -1, 0, 0 ), 4 );
+		trigger_pos = groundpos( trigger_location.origin ) + vectorScale( ( 0, 0, 1 ), 4 );
 		self.unitrigger_stub = spawnstruct();
 		self.unitrigger_stub.origin = trigger_pos;
 		self.unitrigger_stub.radius = radius;
@@ -1590,18 +1478,20 @@ blocker_trigger_think()
 		maps/mp/zombies/_zm_unitrigger::unregister_unitrigger( self.unitrigger_stub );
 		if ( !isDefined( trigger_location.angles ) )
 		{
-			trigger_location.angles = ( -1, 0, 0 );
+			trigger_location.angles = ( 0, 0, 0 );
 		}
-		self.unitrigger_stub.origin = ( groundpos( trigger_location.origin ) + vectorScale( ( -1, 0, 0 ), 4 ) ) + ( anglesToForward( trigger_location.angles ) * -11 );
+		self.unitrigger_stub.origin = ( groundpos( trigger_location.origin ) + vectorScale( ( 0, 0, 1 ), 4 ) ) + ( anglesToForward( trigger_location.angles ) * -11 );
 	}
 	self thread trigger_delete_on_repair();
 	thread maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( self.unitrigger_stub, ::blocker_unitrigger_think );
+	/*
 /#
 	if ( getDvarInt( "zombie_debug" ) > 0 )
 	{
 		thread debug_blocker( trigger_pos, radius, height );
 #/
 	}
+	*/
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
@@ -1630,7 +1520,7 @@ blocker_trigger_think()
 			{
 				break;
 			}
-			else if ( isDefined( self.zbarrier ) )
+			if ( isDefined( self.zbarrier ) )
 			{
 				chunk = get_random_destroyed_chunk( self, self.barrier_chunks );
 				if ( isDefined( player.pers_upgrades_awarded[ "board" ] ) )
@@ -1662,13 +1552,13 @@ blocker_trigger_think()
 						{
 							chunk play_sound_on_ent( "rebuild_barrier_piece" );
 						}
-						playsoundatposition( "zmb_cha_ching", ( -1, 0, 0 ) );
+						playsoundatposition( "zmb_cha_ching", ( 0, 0, 0 ) );
 					}
 				}
 				if ( chunk.script_parameters == "bar" )
 				{
 					chunk play_sound_on_ent( "rebuild_barrier_piece" );
-					playsoundatposition( "zmb_cha_ching", ( -1, 0, 0 ) );
+					playsoundatposition( "zmb_cha_ching", ( 0, 0, 0 ) );
 				}
 				if ( isDefined( chunk.script_parameters ) )
 				{
@@ -1681,12 +1571,9 @@ blocker_trigger_think()
 								chunk hide();
 								break;
 							}
-							else
+							else if ( chunk.script_noteworthy == "3" )
 							{
-								if ( chunk.script_noteworthy == "3" )
-								{
-									chunk hide();
-								}
+								chunk hide();
 							}
 						}
 					}
@@ -1711,35 +1598,31 @@ blocker_trigger_think()
 			{
 				break;
 			}
-			else
+			player handle_post_board_repair_rewards( cost, self );
+			if ( all_chunks_intact( self, self.barrier_chunks ) )
 			{
-				player handle_post_board_repair_rewards( cost, self );
-				if ( all_chunks_intact( self, self.barrier_chunks ) )
-				{
-					self notify( "all_boards_repaired" );
-					return;
-				}
-				if ( no_valid_repairable_boards( self, self.barrier_chunks ) )
-				{
-					self notify( "no valid boards" );
-					return;
-				}
+				self notify( "all_boards_repaired" );
+				return;
+			}
+			if ( no_valid_repairable_boards( self, self.barrier_chunks ) )
+			{
+				self notify( "no valid boards" );
+				return;
 			}
 		}
 	}
 }
 
-random_destroyed_chunk_show()
+random_destroyed_chunk_show() //checked matches cerberus output
 {
-	wait 0,5;
+	wait 0.5;
 	self show();
 }
 
-door_repaired_rumble_n_sound()
+door_repaired_rumble_n_sound() //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( distance( players[ i ].origin, self.origin ) < 150 )
 		{
@@ -1748,36 +1631,35 @@ door_repaired_rumble_n_sound()
 				players[ i ] thread board_completion();
 			}
 		}
-		i++;
 	}
 }
 
-board_completion()
+board_completion() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 }
 
-trigger_delete_on_repair()
+trigger_delete_on_repair() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		self waittill_either( "all_boards_repaired", "no valid boards" );
 		maps/mp/zombies/_zm_unitrigger::unregister_unitrigger( self.unitrigger_stub );
-		return;
+		break;
 	}
 }
 
-rebuild_barrier_reward_reset()
+rebuild_barrier_reward_reset() //checked matches cerberus output
 {
 	self.rebuild_barrier_reward = 0;
 }
 
-remove_chunk( chunk, node, destroy_immediately, zomb )
+remove_chunk( chunk, node, destroy_immediately, zomb ) //checked changed to match cerberus output
 {
 	chunk update_states( "mid_tear" );
 	if ( isDefined( chunk.script_parameters ) )
 	{
-		if ( chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" && chunk.script_parameters == "barricade_vents" )
+		if ( chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
 		{
 			chunk thread zombie_boardtear_audio_offset( chunk );
 		}
@@ -1804,7 +1686,7 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 		if ( isDefined( chunk.script_noteworthy ) && chunk.script_noteworthy == "4" )
 		{
 			ent = spawn( "script_origin", chunk.origin );
-			ent.angles = node.angles + vectorScale( ( -1, 0, 0 ), 180 );
+			ent.angles = node.angles + vectorScale( ( 0, 1, 0 ), 180 );
 			dist = 100;
 			if ( isDefined( chunk.script_move_dist ) )
 			{
@@ -1816,10 +1698,10 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 				dist = 100 + randomint( 100 );
 			}
 			dest = ent.origin + ( anglesToForward( ent.angles ) * dist );
-			trace = bullettrace( dest + vectorScale( ( -1, 0, 0 ), 16 ), dest + vectorScale( ( -1, 0, 0 ), 200 ), 0, undefined );
+			trace = bullettrace( dest + vectorScale( ( 0, 0, 1 ), 16 ), dest + vectorScale( ( 0, 0, -1 ), 200 ), 0, undefined );
 			if ( trace[ "fraction" ] == 1 )
 			{
-				dest += vectorScale( ( -1, 0, 0 ), 200 );
+				dest += vectorScale( ( 0, 0, -1 ), 200 );
 			}
 			else
 			{
@@ -1829,21 +1711,21 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 			time = ent fake_physicslaunch( dest, 300 + randomint( 100 ) );
 			if ( randomint( 100 ) > 40 )
 			{
-				ent rotatepitch( 180, time * 0,5 );
+				ent rotatepitch( 180, time * 0.5 );
 			}
 			else
 			{
-				ent rotatepitch( 90, time, time * 0,5 );
+				ent rotatepitch( 90, time, time * 0.5 );
 			}
 			wait time;
 			chunk hide();
-			wait 0,1;
+			wait 0.1;
 			ent delete();
 		}
 		else
 		{
 			ent = spawn( "script_origin", chunk.origin );
-			ent.angles = node.angles + vectorScale( ( -1, 0, 0 ), 180 );
+			ent.angles = node.angles + vectorScale( ( 0, 1, 0 ), 180 );
 			dist = 100;
 			if ( isDefined( chunk.script_move_dist ) )
 			{
@@ -1855,10 +1737,10 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 				dist = 100 + randomint( 100 );
 			}
 			dest = ent.origin + ( anglesToForward( ent.angles ) * dist );
-			trace = bullettrace( dest + vectorScale( ( -1, 0, 0 ), 16 ), dest + vectorScale( ( -1, 0, 0 ), 200 ), 0, undefined );
+			trace = bullettrace( dest + vectorScale( ( 0, 0, 1 ), 16 ), dest + vectorScale( ( 0, 0, -1 ), 200 ), 0, undefined );
 			if ( trace[ "fraction" ] == 1 )
 			{
-				dest += vectorScale( ( -1, 0, 0 ), 200 );
+				dest += vectorScale( ( 0, 0, -1 ), 200 );
 			}
 			else
 			{
@@ -1876,16 +1758,16 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 			}
 			wait time;
 			chunk hide();
-			wait 0,1;
+			wait 0.1;
 			ent delete();
 		}
 		chunk update_states( "destroyed" );
 		chunk notify( "destroyed" );
 	}
-	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" && chunk.script_parameters == "barricade_vents" )
+	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
 	{
 		ent = spawn( "script_origin", chunk.origin );
-		ent.angles = node.angles + vectorScale( ( -1, 0, 0 ), 180 );
+		ent.angles = node.angles + vectorScale( ( 0, 1, 0 ), 180 );
 		dist = 100;
 		if ( isDefined( chunk.script_move_dist ) )
 		{
@@ -1897,10 +1779,10 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 			dist = 100 + randomint( 100 );
 		}
 		dest = ent.origin + ( anglesToForward( ent.angles ) * dist );
-		trace = bullettrace( dest + vectorScale( ( -1, 0, 0 ), 16 ), dest + vectorScale( ( -1, 0, 0 ), 200 ), 0, undefined );
+		trace = bullettrace( dest + vectorScale( ( 0, 0, 1 ), 16 ), dest + vectorScale( ( 0, 0, -1 ), 200 ), 0, undefined );
 		if ( trace[ "fraction" ] == 1 )
 		{
-			dest += vectorScale( ( -1, 0, 0 ), 200 );
+			dest += vectorScale( ( 0, 0, -1 ), 200 );
 		}
 		else
 		{
@@ -1917,11 +1799,11 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 		}
 		if ( randomint( 100 ) > 40 )
 		{
-			ent rotatepitch( 180, time * 0,5 );
+			ent rotatepitch( 180, time * 0.5 );
 		}
 		else
 		{
-			ent rotatepitch( 90, time, time * 0,5 );
+			ent rotatepitch( 90, time, time * 0.5 );
 		}
 		wait time;
 		if ( isDefined( chunk.unbroken_section ) )
@@ -1932,7 +1814,7 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 			}
 		}
 		chunk hide();
-		wait 0,1;
+		wait 0.1;
 		ent delete();
 		chunk update_states( "destroyed" );
 		chunk notify( "destroyed" );
@@ -1942,13 +1824,13 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 		if ( isDefined( chunk.script_noteworthy ) && chunk.script_noteworthy == "6" )
 		{
 			ent = spawn( "script_origin", chunk.origin );
-			ent.angles = node.angles + vectorScale( ( -1, 0, 0 ), 180 );
+			ent.angles = node.angles + vectorScale( ( 0, 1, 0 ), 180 );
 			dist = 100 + randomint( 100 );
 			dest = ent.origin + ( anglesToForward( ent.angles ) * dist );
-			trace = bullettrace( dest + vectorScale( ( -1, 0, 0 ), 16 ), dest + vectorScale( ( -1, 0, 0 ), 200 ), 0, undefined );
+			trace = bullettrace( dest + vectorScale( ( 0, 0, 1 ), 16 ), dest + vectorScale( ( 0, 0, -1 ), 200 ), 0, undefined );
 			if ( trace[ "fraction" ] == 1 )
 			{
-				dest += vectorScale( ( -1, 0, 0 ), 200 );
+				dest += vectorScale( ( 0, 0, -1 ), 200 );
 			}
 			else
 			{
@@ -1958,11 +1840,11 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 			time = ent fake_physicslaunch( dest, 200 + randomint( 100 ) );
 			if ( randomint( 100 ) > 40 )
 			{
-				ent rotatepitch( 180, time * 0,5 );
+				ent rotatepitch( 180, time * 0.5 );
 			}
 			else
 			{
-				ent rotatepitch( 90, time, time * 0,5 );
+				ent rotatepitch( 90, time, time * 0.5 );
 			}
 			wait time;
 			chunk hide();
@@ -1980,16 +1862,16 @@ remove_chunk( chunk, node, destroy_immediately, zomb )
 	}
 }
 
-remove_chunk_rotate_grate( chunk )
+remove_chunk_rotate_grate( chunk ) //checked changed to match cerberus output
 {
 	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters == "grate" )
 	{
-		chunk vibrate( vectorScale( ( -1, 0, 0 ), 270 ), 0,2, 0,4, 0,4 );
+		chunk vibrate( vectorScale( ( 0, 1, 0 ), 270 ), 0.2, 0.4, 0.4 );
 		return;
 	}
 }
 
-zombie_boardtear_audio_offset( chunk )
+zombie_boardtear_audio_offset( chunk ) //checked changed to match cerberus output
 {
 	if ( isDefined( chunk.material ) && !isDefined( chunk.already_broken ) )
 	{
@@ -1998,68 +1880,53 @@ zombie_boardtear_audio_offset( chunk )
 	if ( isDefined( chunk.material ) && chunk.material == "glass" && chunk.already_broken == 0 )
 	{
 		chunk playsound( "zmb_break_glass_barrier" );
-		wait randomfloatrange( 0,3, 0,6 );
+		wait randomfloatrange( 0.3, 0.6 );
 		chunk playsound( "zmb_break_glass_barrier" );
 		chunk.already_broken = 1;
 	}
-	else
+	else if ( isDefined( chunk.material ) && chunk.material == "metal" && chunk.already_broken == 0 )
 	{
-		if ( isDefined( chunk.material ) && chunk.material == "metal" && chunk.already_broken == 0 )
+		chunk playsound( "grab_metal_bar" );
+		wait randomfloatrange( 0.3, 0.6 );
+		chunk playsound( "break_metal_bar" );
+		chunk.already_broken = 1;
+	}
+	else if ( isDefined( chunk.material ) && chunk.material == "rock" )
+	{
+		if ( isDefined( level.use_clientside_rock_tearin_fx ) && !level.use_clientside_rock_tearin_fx )
 		{
-			chunk playsound( "grab_metal_bar" );
-			wait randomfloatrange( 0,3, 0,6 );
-			chunk playsound( "break_metal_bar" );
-			chunk.already_broken = 1;
-			return;
+			chunk playsound( "zmb_break_rock_barrier" );
+			wait randomfloatrange( 0.3, 0.6 );
+			chunk playsound( "zmb_break_rock_barrier" );
 		}
-		else
+		chunk.already_broken = 1;
+	}
+	else if ( isDefined( chunk.material ) && chunk.material == "metal_vent" )
+	{
+		if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
 		{
-			if ( isDefined( chunk.material ) && chunk.material == "rock" )
-			{
-				if ( isDefined( level.use_clientside_rock_tearin_fx ) && !level.use_clientside_rock_tearin_fx )
-				{
-					chunk playsound( "zmb_break_rock_barrier" );
-					wait randomfloatrange( 0,3, 0,6 );
-					chunk playsound( "zmb_break_rock_barrier" );
-				}
-				chunk.already_broken = 1;
-				return;
-			}
-			else
-			{
-				if ( isDefined( chunk.material ) && chunk.material == "metal_vent" )
-				{
-					if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
-					{
-						chunk playsound( "evt_vent_slat_remove" );
-					}
-					return;
-				}
-				else
-				{
-					if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
-					{
-						chunk play_sound_on_ent( "break_barrier_piece" );
-						wait randomfloatrange( 0,3, 0,6 );
-						chunk play_sound_on_ent( "break_barrier_piece" );
-					}
-					chunk.already_broken = 1;
-				}
-			}
+			chunk playsound( "evt_vent_slat_remove" );
 		}
 	}
+	else if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
+	{
+		chunk play_sound_on_ent( "break_barrier_piece" );
+		wait randomfloatrange( 0.3, 0.6 );
+		chunk play_sound_on_ent( "break_barrier_piece" );
+	}
+	chunk.already_broken = 1;
 }
 
-zombie_bartear_audio_offset( chunk )
+zombie_bartear_audio_offset( chunk ) //checked matches cerberus output
 {
 	chunk play_sound_on_ent( "grab_metal_bar" );
-	wait randomfloatrange( 0,3, 0,6 );
+	wait randomfloatrange( 0.3, 0.6 );
 	chunk play_sound_on_ent( "break_metal_bar" );
-	wait randomfloatrange( 1, 1,3 );
+	wait randomfloatrange( 1, 1.3 );
 	chunk play_sound_on_ent( "drop_metal_bar" );
 }
 
-ensure_chunk_is_back_to_origin( chunk )
+ensure_chunk_is_back_to_origin( chunk ) //checked matches cerberus output
 {
 	if ( chunk.origin != chunk.og_origin )
 	{
@@ -2068,17 +1935,19 @@ ensure_chunk_is_back_to_origin( chunk )
 	}
 }
 
-replace_chunk( barrier, chunk, perk, upgrade, via_powerup )
+replace_chunk( barrier, chunk, perk, upgrade, via_powerup ) //checked changed to match cerberus output
 {
 	if ( !isDefined( barrier.zbarrier ) )
 	{
 		chunk update_states( "mid_repair" );
+		/*
 /#
 		assert( isDefined( chunk.og_origin ) );
 #/
 /#
 		assert( isDefined( chunk.og_angles ) );
 #/
+		*/
 		sound = "rebuild_barrier_hover";
 		if ( isDefined( chunk.script_presound ) )
 		{
@@ -2109,14 +1978,11 @@ replace_chunk( barrier, chunk, perk, upgrade, via_powerup )
 	{
 		if ( perk == "speciality_fastreload" )
 		{
-			scalar = 0,31;
+			scalar = 0.31;
 		}
-		else
+		else if ( perk == "speciality_fastreload_upgrade" )
 		{
-			if ( perk == "speciality_fastreload_upgrade" )
-			{
-				scalar = 0,2112;
-			}
+			scalar = 0.2112;
 		}
 	}
 	barrier.zbarrier showzbarrierpiece( chunk );
@@ -2125,36 +1991,29 @@ replace_chunk( barrier, chunk, perk, upgrade, via_powerup )
 	wait waitduration;
 }
 
-open_all_zbarriers()
+open_all_zbarriers() //checked partially changed to match cerberus output //did not change while loop to for loop because of infinite continue loop bug
 {
-	_a2642 = level.exterior_goals;
-	_k2642 = getFirstArrayKey( _a2642 );
-	while ( isDefined( _k2642 ) )
+	i = 0;
+	while ( i < level.exterior_goals.size )
 	{
-		barrier = _a2642[ _k2642 ];
-		while ( isDefined( barrier.zbarrier ) )
+		if ( isDefined( level.exterior_goals[ i ].zbarrier ) )
 		{
-			x = 0;
-			while ( x < barrier.zbarrier getnumzbarrierpieces() )
+			for ( x = 0; x < level.exterior_goals[ i ].zbarrier getnumzbarrierpieces(); x++ )
 			{
-				barrier.zbarrier setzbarrierpiecestate( x, "opening" );
-				x++;
+				level.exterior_goals[ i ].zbarrier setzbarrierpiecestate( x, "opening" );
 			}
 		}
-		if ( isDefined( barrier.clip ) )
+		else if ( isDefined( level.exterior_goals[ i ].clip ) )
 		{
-			barrier.clip disable_trigger();
-			barrier.clip connectpaths();
+			level.exterior_goals[ i ].clip disable_trigger();
+			level.exterior_goals[ i ].clip connectpaths();
+			continue;
 		}
-		else
-		{
-			blocker_connect_paths( barrier.neg_start, barrier.neg_end );
-		}
-		_k2642 = getNextArrayKey( _a2642, _k2642 );
+		blocker_connect_paths( level.exterior_goals[ i ].neg_start, level.exterior_goals[ i ].neg_end );
 	}
 }
 
-zombie_boardtear_audio_plus_fx_offset_repair_horizontal( chunk )
+zombie_boardtear_audio_plus_fx_offset_repair_horizontal( chunk ) //checked changed to match cerberus output
 {
 	if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
@@ -2164,32 +2023,28 @@ zombie_boardtear_audio_plus_fx_offset_repair_horizontal( chunk )
 		}
 		else
 		{
-			earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0,3, 0,6 );
+			earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
+			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 1 ), 30 ) );
+			wait randomfloatrange( 0.3, 0.6 );
 			chunk play_sound_on_ent( "break_barrier_piece" );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
+			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, -1 ), 30 ) );
 		}
+	}
+	else if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
+	{
+		chunk clearclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
 	}
 	else
 	{
-		if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
-		{
-			chunk clearclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
-			return;
-		}
-		else
-		{
-			earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0,3, 0,6 );
-			chunk play_sound_on_ent( "break_barrier_piece" );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-		}
+		earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, 1 ), 30 ) );
+		wait randomfloatrange( 0.3, 0.6 );
+		chunk play_sound_on_ent( "break_barrier_piece" );
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, -1 ), 30 ) );
 	}
 }
 
-zombie_boardtear_audio_plus_fx_offset_repair_verticle( chunk )
+zombie_boardtear_audio_plus_fx_offset_repair_verticle( chunk ) //checked changed to match cerberus output
 {
 	if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
@@ -2199,60 +2054,56 @@ zombie_boardtear_audio_plus_fx_offset_repair_verticle( chunk )
 		}
 		else
 		{
-			earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0,3, 0,6 );
+			earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
+			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 1, 0, 0 ), 30 ) );
+			wait randomfloatrange( 0.3, 0.6 );
 			chunk play_sound_on_ent( "break_barrier_piece" );
 			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 		}
+	}
+	else if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
+	{
+		chunk clearclientflag( level._zombie_scriptmover_flag_board_vertical_fx );
 	}
 	else
 	{
-		if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
-		{
-			chunk clearclientflag( level._zombie_scriptmover_flag_board_vertical_fx );
-			return;
-		}
-		else
-		{
-			earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0,3, 0,6 );
-			chunk play_sound_on_ent( "break_barrier_piece" );
-			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-		}
+		earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 1, 0, 0 ), 30 ) );
+		wait randomfloatrange( 0.3, 0.6 );
+		chunk play_sound_on_ent( "break_barrier_piece" );
+		playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 	}
 }
 
-zombie_gratetear_audio_plus_fx_offset_repair_horizontal( chunk )
+zombie_gratetear_audio_plus_fx_offset_repair_horizontal( chunk ) //checked matches cerberus output
 {
-	earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
+	earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
 	chunk play_sound_on_ent( "bar_rebuild_slam" );
 	switch( randomint( 9 ) )
 	{
 		case 0:
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfx( level._effect[ "fx_zombie_bar_break_lite" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 			break;
 		case 1:
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 			break;
 		case 2:
 			playfx( level._effect[ "fx_zombie_bar_break_lite" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 			break;
 		case 3:
 			playfx( level._effect[ "fx_zombie_bar_break" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfx( level._effect[ "fx_zombie_bar_break_lite" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 			break;
 		case 4:
 			playfx( level._effect[ "fx_zombie_bar_break_lite" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfx( level._effect[ "fx_zombie_bar_break_lite" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 			break;
 		case 5:
@@ -2270,35 +2121,35 @@ zombie_gratetear_audio_plus_fx_offset_repair_horizontal( chunk )
 	}
 }
 
-zombie_bartear_audio_plus_fx_offset_repair_horizontal( chunk )
+zombie_bartear_audio_plus_fx_offset_repair_horizontal( chunk ) //checked matches cerberus output
 {
-	earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
+	earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
 	chunk play_sound_on_ent( "bar_rebuild_slam" );
 	switch( randomint( 9 ) )
 	{
 		case 0:
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 			break;
 		case 1:
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_left" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_right" );
 			break;
 		case 2:
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_right" );
 			break;
 		case 3:
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_left" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 			break;
 		case 4:
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_left" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_right" );
 			break;
 		case 5:
@@ -2316,35 +2167,35 @@ zombie_bartear_audio_plus_fx_offset_repair_horizontal( chunk )
 	}
 }
 
-zombie_bartear_audio_plus_fx_offset_repair_verticle( chunk )
+zombie_bartear_audio_plus_fx_offset_repair_verticle( chunk ) //checked matches cerberus output
 {
-	earthquake( randomfloatrange( 0,3, 0,4 ), randomfloatrange( 0,2, 0,4 ), chunk.origin, 150 );
+	earthquake( randomfloatrange( 0.3, 0.4 ), randomfloatrange( 0.2, 0.4 ), chunk.origin, 150 );
 	chunk play_sound_on_ent( "bar_rebuild_slam" );
 	switch( randomint( 9 ) )
 	{
 		case 0:
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 			break;
 		case 1:
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_top" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_bottom" );
 			break;
 		case 2:
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_bottom" );
 			break;
 		case 3:
 			playfxontag( level._effect[ "fx_zombie_bar_break" ], chunk, "Tag_fx_top" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 			break;
 		case 4:
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_top" );
-			wait randomfloatrange( 0, 0,3 );
+			wait randomfloatrange( 0, 0.3 );
 			playfxontag( level._effect[ "fx_zombie_bar_break_lite" ], chunk, "Tag_fx_bottom" );
 			break;
 		case 5:
@@ -2362,7 +2213,7 @@ zombie_bartear_audio_plus_fx_offset_repair_verticle( chunk )
 	}
 }
 
-add_new_zombie_spawners()
+add_new_zombie_spawners() //checked changed to match cerberus output
 {
 	if ( isDefined( self.target ) )
 	{
@@ -2378,22 +2229,22 @@ add_new_zombie_spawners()
 		return;
 	}
 	zombies_to_add = self.possible_spawners;
-	i = 0;
-	while ( i < self.possible_spawners.size )
+	for ( i = 0; i < self.possible_spawners.size; i++ )
 	{
 		self.possible_spawners[ i ].is_enabled = 1;
 		add_spawner( self.possible_spawners[ i ] );
-		i++;
 	}
 }
 
-flag_blocker()
+flag_blocker() //checked matches cerberus output
 {
 	if ( !isDefined( self.script_flag_wait ) )
 	{
+		/*
 /#
 		assertmsg( "Flag Blocker at " + self.origin + " does not have a script_flag_wait key value pair" );
 #/
+		*/
 		return;
 	}
 	if ( !isDefined( level.flag[ self.script_flag_wait ] ) )
@@ -2419,95 +2270,88 @@ flag_blocker()
 		self disable_trigger();
 		return;
 	}
+	/*
 /#
 	assertmsg( "flag blocker at " + self.origin + ", the type "" + type + "" is not recognized" );
 #/
+	*/
 }
 
-update_states( states )
+update_states( states ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( states ) );
 #/
+	*/
 	self.state = states;
 }
 
-quantum_bomb_open_nearest_door_validation( position )
+quantum_bomb_open_nearest_door_validation( position ) //checked changed to match cerberus output
 {
 	range_squared = 32400;
 	zombie_doors = getentarray( "zombie_door", "targetname" );
-	i = 0;
-	while ( i < zombie_doors.size )
+	for ( i = 0; i < zombie_doors.size; i++ )
 	{
 		if ( distancesquared( zombie_doors[ i ].origin, position ) < range_squared )
 		{
 			return 1;
 		}
-		i++;
 	}
 	zombie_airlock_doors = getentarray( "zombie_airlock_buy", "targetname" );
-	i = 0;
-	while ( i < zombie_airlock_doors.size )
+	for ( i = 0; i < zombie_airlock_doors.size; i++ )
 	{
 		if ( distancesquared( zombie_airlock_doors[ i ].origin, position ) < range_squared )
 		{
 			return 1;
 		}
-		i++;
 	}
 	zombie_debris = getentarray( "zombie_debris", "targetname" );
-	i = 0;
-	while ( i < zombie_debris.size )
+	for ( i = 0; i < zombie_debris.size; i++ )
 	{
 		if ( distancesquared( zombie_debris[ i ].origin, position ) < range_squared )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-quantum_bomb_open_nearest_door_result( position )
+quantum_bomb_open_nearest_door_result( position ) //checked changed to match cerberus output
 {
 	range_squared = 32400;
 	zombie_doors = getentarray( "zombie_door", "targetname" );
-	i = 0;
-	while ( i < zombie_doors.size )
+	for ( i = 0; i < zombie_doors.size; i++ )
 	{
 		if ( distancesquared( zombie_doors[ i ].origin, position ) < range_squared )
 		{
 			self thread maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "quant_good" );
-			zombie_doors[ i ] notify( "trigger" );
+			zombie_doors[ i ] notify( "trigger", self, 1 );
 			[[ level.quantum_bomb_play_area_effect_func ]]( position );
 			return;
 		}
-		i++;
 	}
 	zombie_airlock_doors = getentarray( "zombie_airlock_buy", "targetname" );
-	i = 0;
-	while ( i < zombie_airlock_doors.size )
+	for ( i = 0; i < zombie_airlock_doors.size; i++ )
 	{
 		if ( distancesquared( zombie_airlock_doors[ i ].origin, position ) < range_squared )
 		{
 			self thread maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "quant_good" );
-			zombie_airlock_doors[ i ] notify( "trigger" );
+			zombie_airlock_doors[ i ] notify( "trigger", self, 1 );
 			[[ level.quantum_bomb_play_area_effect_func ]]( position );
 			return;
 		}
-		i++;
 	}
 	zombie_debris = getentarray( "zombie_debris", "targetname" );
-	i = 0;
-	while ( i < zombie_debris.size )
+	for ( i = 0; i < zombie_debris.size; i++ )
 	{
 		if ( distancesquared( zombie_debris[ i ].origin, position ) < range_squared )
 		{
 			self thread maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "quant_good" );
-			zombie_debris[ i ] notify( "trigger" );
+			zombie_debris[ i ] notify( "trigger", self, 1 );
 			[[ level.quantum_bomb_play_area_effect_func ]]( position );
 			return;
 		}
-		i++;
 	}
 }
+

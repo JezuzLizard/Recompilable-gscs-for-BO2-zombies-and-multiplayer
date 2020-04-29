@@ -2,16 +2,18 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init_sidequests()
+init_sidequests() //checked matches cerberus output
 {
 	level._sidequest_icons_base_x = -225;
 	level._zombie_sidequests = [];
+	/*
 /#
 	level thread sidequest_debug();
 #/
+	*/
 }
 
-is_sidequest_allowed( a_gametypes )
+is_sidequest_allowed( a_gametypes ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.gamedifficulty ) && level.gamedifficulty == 0 )
 	{
@@ -22,21 +24,21 @@ is_sidequest_allowed( a_gametypes )
 	{
 		a_gametypes = array( a_gametypes );
 	}
-	i = 0;
-	while ( i < a_gametypes.size )
+	for ( i = 0; i < a_gametypes.size; i++ )
 	{
 		if ( getDvar( "g_gametype" ) == a_gametypes[ i ] )
 		{
 			b_is_gametype_active = 1;
 		}
-		i++;
 	}
 	return b_is_gametype_active;
 }
 
-sidequest_debug()
+sidequest_debug() //checked matches cerberus output
 {
+	/*
 /#
+	//dvar name is unknown
 	if ( getDvar( #"A7AC338D" ) != "1" )
 	{
 		return;
@@ -46,9 +48,10 @@ sidequest_debug()
 		wait 1;
 #/
 	}
+	*/
 }
 
-damager_trigger_thread( dam_types, trigger_func )
+damager_trigger_thread( dam_types, trigger_func ) //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -58,16 +61,11 @@ damager_trigger_thread( dam_types, trigger_func )
 		self.dam_dir = dir;
 		self.dam_point = point;
 		self.dam_type = type;
-		i = 0;
-		while ( i < dam_types.size )
+		for ( i = 0; i < dam_types.size; i++ )
 		{
 			if ( type == dam_types[ i ] )
 			{
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 	}
@@ -78,7 +76,7 @@ damager_trigger_thread( dam_types, trigger_func )
 	self notify( "triggered" );
 }
 
-damage_trigger_thread()
+damage_trigger_thread() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -88,18 +86,18 @@ damage_trigger_thread()
 	}
 }
 
-sidequest_uses_teleportation( name )
+sidequest_uses_teleportation( name ) //checked matches cerberus output
 {
 	level._zombie_sidequests[ name ].uses_teleportation = 1;
 }
 
-declare_sidequest_icon( sidequest_name, icon_name, shader_name )
+declare_sidequest_icon( sidequest_name, icon_name, shader_name ) //checked matches cerberus output
 {
 	sidequest = level._zombie_sidequests[ sidequest_name ];
 	sidequest.icons[ icon_name ] = shader_name;
 }
 
-create_icon( shader_name, x )
+create_icon( shader_name, x ) //checked matches cerberus output
 {
 	icon = create_simple_hud( self );
 	icon.foreground = 1;
@@ -116,7 +114,7 @@ create_icon( shader_name, x )
 	return icon;
 }
 
-add_sidequest_icon( sidequest_name, icon_name )
+add_sidequest_icon( sidequest_name, icon_name ) //checked matches cerberus output
 {
 	if ( !isDefined( self.sidequest_icons ) )
 	{
@@ -132,10 +130,10 @@ add_sidequest_icon( sidequest_name, icon_name )
 	{
 		base_x += level._zombiemode_sidequest_icon_offset;
 	}
-	self.sidequest_icons[ icon_name ] = self create_icon( sq.icons[ icon_name ], base_x + ( self.sidequest_icons.size * 34 ) );
+	self.sidequest_icons[ icon_name ] = self create_icon( sq.icons[ icon_name ], base_x + self.sidequest_icons.size * 34 );
 }
 
-remove_sidequest_icon( sidequest_name, icon_name )
+remove_sidequest_icon( sidequest_name, icon_name ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.sidequest_icons ) )
 	{
@@ -148,14 +146,12 @@ remove_sidequest_icon( sidequest_name, icon_name )
 	icon = self.sidequest_icons[ icon_name ];
 	new_array = [];
 	keys = getarraykeys( self.sidequest_icons );
-	i = 0;
-	while ( i < keys.size )
+	for ( i = 0; i < keys.size; i++ )
 	{
 		if ( keys[ i ] != icon_name )
 		{
 			new_array[ keys[ i ] ] = self.sidequest_icons[ keys[ i ] ];
 		}
-		i++;
 	}
 	self.sidequest_icons = new_array;
 	icon destroy();
@@ -165,20 +161,19 @@ remove_sidequest_icon( sidequest_name, icon_name )
 	{
 		base_x += level._zombiemode_sidequest_icon_offset;
 	}
-	i = 0;
-	while ( i < keys.size )
+	for ( i = 0; i < keys.size; i++ )
 	{
-		self.sidequest_icons[ keys[ i ] ].x = base_x + ( i * 34 );
-		i++;
+		self.sidequest_icons[ keys[ i ] ].x = base_x + i * 34;
 	}
 }
 
-declare_sidequest( name, init_func, logic_func, complete_func, generic_stage_start_func, generic_stage_end_func )
+declare_sidequest( name, init_func, logic_func, complete_func, generic_stage_start_func, generic_stage_end_func ) //checked matches cerberus output
 {
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
 		init_sidequests();
 	}
+	/*
 /#
 	if ( isDefined( level._zombie_sidequests[ name ] ) )
 	{
@@ -186,6 +181,7 @@ declare_sidequest( name, init_func, logic_func, complete_func, generic_stage_sta
 		return;
 #/
 	}
+	*/
 	sq = spawnstruct();
 	sq.name = name;
 	sq.stages = [];
@@ -205,8 +201,9 @@ declare_sidequest( name, init_func, logic_func, complete_func, generic_stage_sta
 	level._zombie_sidequests[ name ] = sq;
 }
 
-declare_sidequest_stage( sidequest_name, stage_name, init_func, logic_func, exit_func )
+declare_sidequest_stage( sidequest_name, stage_name, init_func, logic_func, exit_func ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -224,6 +221,7 @@ declare_sidequest_stage( sidequest_name, stage_name, init_func, logic_func, exit
 		return;
 #/
 	}
+	*/
 	stage = spawnstruct();
 	stage.name = stage_name;
 	stage.stage_number = level._zombie_sidequests[ sidequest_name ].stages.size;
@@ -237,8 +235,9 @@ declare_sidequest_stage( sidequest_name, stage_name, init_func, logic_func, exit
 	level._zombie_sidequests[ sidequest_name ].stages[ stage_name ] = stage;
 }
 
-set_stage_time_limit( sidequest_name, stage_name, time_limit, timer_func )
+set_stage_time_limit( sidequest_name, stage_name, time_limit, timer_func ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -256,13 +255,15 @@ set_stage_time_limit( sidequest_name, stage_name, time_limit, timer_func )
 		return;
 #/
 	}
+	*/
 	level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].time_limit = time_limit;
 	level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].time_limit_func = timer_func;
 }
 
-declare_stage_asset_from_struct( sidequest_name, stage_name, target_name, thread_func, trigger_thread_func )
+declare_stage_asset_from_struct( sidequest_name, stage_name, target_name, thread_func, trigger_thread_func ) //checked changed to match cerberus output
 {
 	structs = getstructarray( target_name, "targetname" );
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -285,8 +286,8 @@ declare_stage_asset_from_struct( sidequest_name, stage_name, target_name, thread
 		return;
 #/
 	}
-	i = 0;
-	while ( i < structs.size )
+	*/
+	for ( i = 0; i < structs.size; i++ )
 	{
 		asset = spawnstruct();
 		asset.type = "struct";
@@ -294,12 +295,12 @@ declare_stage_asset_from_struct( sidequest_name, stage_name, target_name, thread
 		asset.thread_func = thread_func;
 		asset.trigger_thread_func = trigger_thread_func;
 		level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].assets[ level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].assets.size ] = asset;
-		i++;
 	}
 }
 
-declare_stage_title( sidequest_name, stage_name, title )
+declare_stage_title( sidequest_name, stage_name, title ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -317,12 +318,14 @@ declare_stage_title( sidequest_name, stage_name, title )
 		return;
 #/
 	}
+	*/
 	level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].title = title;
 }
 
-declare_stage_asset( sidequest_name, stage_name, target_name, thread_func, trigger_thread_func )
+declare_stage_asset( sidequest_name, stage_name, target_name, thread_func, trigger_thread_func ) //checked changed to match cerberus output
 {
 	ents = getentarray( target_name, "targetname" );
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -345,8 +348,8 @@ declare_stage_asset( sidequest_name, stage_name, target_name, thread_func, trigg
 		return;
 #/
 	}
-	i = 0;
-	while ( i < ents.size )
+	*/
+	for ( i = 0; i < ents.size; i++ )
 	{
 		asset = spawnstruct();
 		asset.type = "entity";
@@ -354,13 +357,13 @@ declare_stage_asset( sidequest_name, stage_name, target_name, thread_func, trigg
 		asset.thread_func = thread_func;
 		asset.trigger_thread_func = trigger_thread_func;
 		level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].assets[ level._zombie_sidequests[ sidequest_name ].stages[ stage_name ].assets.size ] = asset;
-		i++;
 	}
 }
 
-declare_sidequest_asset( sidequest_name, target_name, thread_func, trigger_thread_func )
+declare_sidequest_asset( sidequest_name, target_name, thread_func, trigger_thread_func ) //checked changed to match cerberus output
 {
 	ents = getentarray( target_name, "targetname" );
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -378,8 +381,8 @@ declare_sidequest_asset( sidequest_name, target_name, thread_func, trigger_threa
 		return;
 #/
 	}
-	i = 0;
-	while ( i < ents.size )
+	*/
+	for ( i = 0; i < ents.size; i++ )
 	{
 		asset = spawnstruct();
 		asset.type = "entity";
@@ -389,13 +392,13 @@ declare_sidequest_asset( sidequest_name, target_name, thread_func, trigger_threa
 		asset.ent.thread_func = thread_func;
 		asset.ent.trigger_thread_func = trigger_thread_func;
 		level._zombie_sidequests[ sidequest_name ].assets[ level._zombie_sidequests[ sidequest_name ].assets.size ] = asset;
-		i++;
 	}
 }
 
-declare_sidequest_asset_from_struct( sidequest_name, target_name, thread_func, trigger_thread_func )
+declare_sidequest_asset_from_struct( sidequest_name, target_name, thread_func, trigger_thread_func ) //checked changed to match cerberus output
 {
 	structs = getstructarray( target_name, "targetname" );
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -413,8 +416,8 @@ declare_sidequest_asset_from_struct( sidequest_name, target_name, thread_func, t
 		return;
 #/
 	}
-	i = 0;
-	while ( i < structs.size )
+	*/
+	for ( i = 0; i < structs.size; i++ )
 	{
 		asset = spawnstruct();
 		asset.type = "struct";
@@ -422,11 +425,10 @@ declare_sidequest_asset_from_struct( sidequest_name, target_name, thread_func, t
 		asset.thread_func = thread_func;
 		asset.trigger_thread_func = trigger_thread_func;
 		level._zombie_sidequests[ sidequest_name ].assets[ level._zombie_sidequests[ sidequest_name ].assets.size ] = asset;
-		i++;
 	}
 }
 
-build_asset_from_struct( asset, parent_struct )
+build_asset_from_struct( asset, parent_struct ) //checked matches cerberus output
 {
 	ent = spawn( "script_model", asset.origin );
 	if ( isDefined( asset.model ) )
@@ -453,10 +455,9 @@ build_asset_from_struct( asset, parent_struct )
 	return ent;
 }
 
-delete_stage_assets()
+delete_stage_assets() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.active_assets.size )
+	for ( i = 0; i < self.active_assets.size; i++ )
 	{
 		asset = self.active_assets[ i ];
 		switch( asset.type )
@@ -464,48 +465,44 @@ delete_stage_assets()
 			case "struct":
 				if ( isDefined( asset.trigger ) )
 				{
+					/*
 /#
 					println( "Deleting trigger from struct type asset." );
 #/
+					*/
 					asset.trigger delete();
 					asset.trigger = undefined;
 				}
 				asset delete();
 				break;
-			i++;
-			continue;
 			case "entity":
 				if ( isDefined( asset.trigger ) )
 				{
+					/*
 /#
 					println( "Deleting trigger from ent type asset." );
 #/
+					*/
 					asset.trigger delete();
 					asset.trigger = undefined;
 				}
 				break;
-			i++;
-			continue;
 		}
-		i++;
 	}
 	remaining_assets = [];
-	i = 0;
-	while ( i < self.active_assets.size )
+	for ( i = 0; i < self.active_assets.size; i++ )
 	{
 		if ( isDefined( self.active_assets[ i ] ) )
 		{
 			remaining_assets[ remaining_assets.size ] = self.active_assets[ i ];
 		}
-		i++;
 	}
 	self.active_assets = remaining_assets;
 }
 
-build_assets()
+build_assets() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.assets.size )
+	for ( i = 0; i < self.assets.size; i++ )
 	{
 		asset = undefined;
 		switch( self.assets[ i ].type )
@@ -515,17 +512,12 @@ build_assets()
 				self.active_assets[ self.active_assets.size ] = build_asset_from_struct( asset, self.assets[ i ] );
 				break;
 			case "entity":
-				j = 0;
-				while ( j < self.active_assets.size )
+				for ( j = 0; j < self.active_assets.size; j++ )
 				{
 					if ( self.active_assets[ j ] == self.assets[ i ].ent )
 					{
 						asset = self.active_assets[ j ];
 						break;
-					}
-					else
-					{
-						j++;
 					}
 				}
 				asset = self.assets[ i ].ent;
@@ -533,12 +525,14 @@ build_assets()
 				self.active_assets[ self.active_assets.size ] = asset;
 				break;
 			default:
+				/*
 /#
 				println( "*** ERROR: Don't know how to build asset of type " + self.assets.type );
 #/
+				*/
 				break;
 		}
-		if ( isDefined( asset.script_noteworthy ) && self.assets[ i ].type == "entity" || !isDefined( asset.trigger ) && isDefined( asset.script_noteworthy ) )
+		if ( isDefined( asset.script_noteworthy ) && self.assets[ i ].type == "entity" && !isDefined( asset.trigger ) || isDefined( asset.script_noteworthy ) )
 		{
 			trigger_radius = 15;
 			trigger_height = 72;
@@ -555,7 +549,7 @@ build_assets()
 			{
 				trigger_spawnflags = asset.script_trigger_spawnflags;
 			}
-			trigger_offset = ( 0, 1, 0 );
+			trigger_offset = ( 0, 0, 0 );
 			if ( isDefined( asset.script_vector ) )
 			{
 				trigger_offset = asset.script_vector;
@@ -581,7 +575,6 @@ build_assets()
 					}
 					self.active_assets[ self.active_assets.size - 1 ].trigger = use_trigger;
 					break;
-				break;
 				case "trigger_radius_damage":
 					damage_trigger = spawn( "trigger_damage", asset.origin + trigger_offset, trigger_spawnflags, trigger_radius, trigger_height );
 					if ( isDefined( asset.radius ) )
@@ -599,7 +592,6 @@ build_assets()
 					}
 					self.active_assets[ self.active_assets.size - 1 ].trigger = damage_trigger;
 					break;
-				break;
 				case "trigger_radius":
 					radius_trigger = spawn( "trigger_radius", asset.origin + trigger_offset, trigger_spawnflags, trigger_radius, trigger_height );
 					if ( isDefined( asset.radius ) )
@@ -617,22 +609,21 @@ build_assets()
 					}
 					self.active_assets[ self.active_assets.size - 1 ].trigger = radius_trigger;
 					break;
-				break;
+
 			}
 		}
 		if ( isDefined( self.assets[ i ].thread_func ) && !isDefined( self.active_assets[ self.active_assets.size - 1 ].dont_rethread ) )
 		{
 			self.active_assets[ self.active_assets.size - 1 ] thread [[ self.assets[ i ].thread_func ]]();
 		}
-		if ( ( i % 2 ) == 0 )
+		if ( i % 2 == 0 )
 		{
 			wait_network_frame();
 		}
-		i++;
 	}
 }
 
-radius_trigger_thread()
+radius_trigger_thread() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -645,36 +636,35 @@ radius_trigger_thread()
 		self.owner_ent notify( "triggered" );
 		while ( player istouching( self ) )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 		self.owner_ent notify( "untriggered" );
 	}
 }
 
-thread_on_assets( target_name, thread_func )
+thread_on_assets( target_name, thread_func ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.active_assets.size )
+	for ( i = 0; i < self.active_assets.size; i++ )
 	{
 		if ( self.active_assets[ i ].targetname == target_name )
 		{
 			self.active_assets[ i ] thread [[ thread_func ]]();
 		}
-		i++;
 	}
 }
 
-stage_logic_func_wrapper( sidequest, stage )
+stage_logic_func_wrapper( sidequest, stage ) //checked matches cerberus output
 {
 	if ( isDefined( stage.logic_func ) )
 	{
-		level endon( ( sidequest.name + "_" ) + stage.name + "_over" );
+		level endon( sidequest.name + "_" + stage.name + "_over" );
 		stage [[ stage.logic_func ]]();
 	}
 }
 
-sidequest_start( sidequest_name )
+sidequest_start( sidequest_name ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -687,6 +677,7 @@ sidequest_start( sidequest_name )
 		return;
 #/
 	}
+	*/
 	sidequest = level._zombie_sidequests[ sidequest_name ];
 	sidequest build_assets();
 	if ( isDefined( sidequest.init_func ) )
@@ -699,7 +690,7 @@ sidequest_start( sidequest_name )
 	}
 }
 
-stage_start( sidequest, stage )
+stage_start( sidequest, stage ) //checked matches cerberus output
 {
 	if ( isstring( sidequest ) )
 	{
@@ -711,7 +702,7 @@ stage_start( sidequest, stage )
 	}
 	stage build_assets();
 	sidequest.active_stage = stage.stage_number;
-	level notify( ( sidequest.name + "_" ) + stage.name + "_started" );
+	level notify( sidequest.name + "_" + stage.name + "_started" );
 	stage.completed = 0;
 	if ( isDefined( sidequest.generic_stage_start_func ) )
 	{
@@ -733,7 +724,7 @@ stage_start( sidequest, stage )
 	}
 }
 
-display_stage_title( wait_for_teleport_done_notify )
+display_stage_title( wait_for_teleport_done_notify ) //checked changed to match cerberus output
 {
 	if ( wait_for_teleport_done_notify )
 	{
@@ -745,16 +736,16 @@ display_stage_title( wait_for_teleport_done_notify )
 	stage_text.alignx = "center";
 	stage_text.aligny = "middle";
 	stage_text.foreground = 1;
-	stage_text.fontscale = 1,6;
+	stage_text.fontscale = 1.6;
 	stage_text.sort = 20;
 	stage_text.x = 320;
 	stage_text.y = 300;
 	stage_text.og_scale = 1;
-	stage_text.color = vectorScale( ( 0, 1, 0 ), 128 );
+	stage_text.color = vectorScale( ( 1, 0, 0 ), 128 );
 	stage_text.alpha = 0;
 	stage_text.fontstyle3d = "shadowedmore";
 	stage_text settext( self.title );
-	stage_text fadeovertime( 0,5 );
+	stage_text fadeovertime( 0.5 );
 	stage_text.alpha = 1;
 	wait 5;
 	stage_text fadeovertime( 1 );
@@ -763,22 +754,24 @@ display_stage_title( wait_for_teleport_done_notify )
 	stage_text destroy();
 }
 
-time_limited_stage( sidequest )
+time_limited_stage( sidequest ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "*** Starting timer for sidequest " + sidequest.name + " stage " + self.name + " : " + self.time_limit + " seconds." );
 #/
-	level endon( ( sidequest.name + "_" ) + self.name + "_over" );
+	*/
+	level endon( sidequest.name + "_" + self.name + "_over" );
 	level endon( "suspend_timer" );
 	level endon( "end_game" );
 	time_limit = undefined;
 	if ( isDefined( self.time_limit_func ) )
 	{
-		time_limit = [[ self.time_limit_func ]]() * 0,25;
+		time_limit = [[ self.time_limit_func ]]() * 0.25;
 	}
 	else
 	{
-		time_limit = self.time_limit * 0,25;
+		time_limit = self.time_limit * 0.25;
 	}
 	wait time_limit;
 	level notify( "timed_stage_75_percent" );
@@ -792,8 +785,9 @@ time_limited_stage( sidequest )
 	stage_failed( sidequest, self );
 }
 
-sidequest_println( str )
+sidequest_println( str ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( getDvar( #"A7AC338D" ) != "1" )
 	{
@@ -801,29 +795,25 @@ sidequest_println( str )
 	}
 	println( str );
 #/
+	*/
 }
 
-precache_sidequest_assets()
+precache_sidequest_assets() //checked changed to match cerberus output
 {
 	sidequest_names = getarraykeys( level._zombie_sidequests );
-	i = 0;
-	while ( i < sidequest_names.size )
+	for ( i = 0; i < sidequest_names.size; i++ )
 	{
 		sq = level._zombie_sidequests[ sidequest_names[ i ] ];
 		icon_keys = getarraykeys( sq.icons );
-		j = 0;
-		while ( j < icon_keys.size )
+		for ( j = 0; j < icon_keys.size; j++ )
 		{
 			precacheshader( sq.icons[ icon_keys[ j ] ] );
-			j++;
 		}
 		stage_names = getarraykeys( sq.stages );
-		j = 0;
-		while ( j < stage_names.size )
+		for ( j = 0; j < stage_names.size; j++ )
 		{
 			stage = sq.stages[ stage_names[ j ] ];
-			k = 0;
-			while ( k < stage.assets.size )
+			for ( k = 0; k < stage.assets.size; k++ )
 			{
 				asset = stage.assets[ k ];
 				if ( isDefined( asset.type ) && asset.type == "struct" )
@@ -833,16 +823,14 @@ precache_sidequest_assets()
 						precachemodel( asset.model );
 					}
 				}
-				k++;
 			}
-			j++;
 		}
-		i++;
 	}
 }
 
-sidequest_complete( sidequest_name )
+sidequest_complete( sidequest_name ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -855,11 +843,13 @@ sidequest_complete( sidequest_name )
 		return;
 #/
 	}
+	*/
 	return level._zombie_sidequests[ sidequest_name ].sidequest_complete;
 }
 
-stage_completed( sidequest_name, stage_name )
+stage_completed( sidequest_name, stage_name ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -878,27 +868,32 @@ stage_completed( sidequest_name, stage_name )
 	}
 	println( "*** stage completed called." );
 #/
+	*/
 	sidequest = level._zombie_sidequests[ sidequest_name ];
 	stage = sidequest.stages[ stage_name ];
 	level thread stage_completed_internal( sidequest, stage );
 }
 
-stage_completed_internal( sidequest, stage )
+stage_completed_internal( sidequest, stage ) //checked changed to match cerberus output
 {
-	level notify( ( sidequest.name + "_" ) + stage.name + "_over" );
-	level notify( ( sidequest.name + "_" ) + stage.name + "_completed" );
+	level notify( sidequest.name + "_" + stage.name + "_over" );
+	level notify( sidequest.name + "_" + stage.name + "_completed" );
 	if ( isDefined( sidequest.generic_stage_end_func ) )
 	{
+		/*
 /#
 		println( "Calling generic end func." );
 #/
+		*/
 		stage [[ sidequest.generic_stage_end_func ]]();
 	}
 	if ( isDefined( stage.exit_func ) )
 	{
+		/*
 /#
 		println( "Calling stage end func." );
 #/
+		*/
 		stage [[ stage.exit_func ]]( 1 );
 	}
 	stage.completed = 1;
@@ -907,17 +902,12 @@ stage_completed_internal( sidequest, stage )
 	stage delete_stage_assets();
 	all_complete = 1;
 	stage_names = getarraykeys( sidequest.stages );
-	i = 0;
-	while ( i < stage_names.size )
+	for ( i = 0; i < stage_names.size; i++ )
 	{
 		if ( sidequest.stages[ stage_names[ i ] ].completed == 0 )
 		{
 			all_complete = 0;
 			break;
-		}
-		else
-		{
-			i++;
 		}
 	}
 	if ( all_complete == 1 )
@@ -931,10 +921,10 @@ stage_completed_internal( sidequest, stage )
 	}
 }
 
-stage_failed_internal( sidequest, stage )
+stage_failed_internal( sidequest, stage ) //checked matches cerberus output
 {
-	level notify( ( sidequest.name + "_" ) + stage.name + "_over" );
-	level notify( ( sidequest.name + "_" ) + stage.name + "_failed" );
+	level notify( sidequest.name + "_" + stage.name + "_over" );
+	level notify( sidequest.name + "_" + stage.name + "_failed" );
 	if ( isDefined( sidequest.generic_stage_end_func ) )
 	{
 		stage [[ sidequest.generic_stage_end_func ]]();
@@ -947,11 +937,13 @@ stage_failed_internal( sidequest, stage )
 	stage delete_stage_assets();
 }
 
-stage_failed( sidequest, stage )
+stage_failed( sidequest, stage ) //checked matches cerberus output
 {
+	/*
 /#
 	println( "*** Stage failed called." );
 #/
+	*/
 	if ( isstring( sidequest ) )
 	{
 		sidequest = level._zombie_sidequests[ sidequest ];
@@ -963,64 +955,57 @@ stage_failed( sidequest, stage )
 	level thread stage_failed_internal( sidequest, stage );
 }
 
-get_sidequest_stage( sidequest, stage_number )
+get_sidequest_stage( sidequest, stage_number ) //checked changed to match cerberus output
 {
 	stage = undefined;
 	stage_names = getarraykeys( sidequest.stages );
-	i = 0;
-	while ( i < stage_names.size )
+	for ( i = 0; i < stage_names.size; i++ )
 	{
 		if ( sidequest.stages[ stage_names[ i ] ].stage_number == stage_number )
 		{
 			stage = sidequest.stages[ stage_names[ i ] ];
 			break;
 		}
-		else
-		{
-			i++;
-		}
 	}
 	return stage;
 }
 
-get_damage_trigger( radius, origin, damage_types )
+get_damage_trigger( radius, origin, damage_types ) //checked matches cerberus output
 {
 	trig = spawn( "trigger_damage", origin, 0, radius, 72 );
 	trig thread dam_trigger_thread( damage_types );
 	return trig;
 }
 
-dam_trigger_thread( damage_types )
+dam_trigger_thread( damage_types ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	damage_type = "NONE";
 	while ( 1 )
 	{
 		self waittill( "damage", amount, attacker, dir, point, mod );
-		i = 0;
-		while ( i < damage_types.size )
+		for ( i = 0; i < damage_types.size; i++ )
 		{
 			if ( mod == damage_types[ i ] )
 			{
 				self notify( "triggered" );
 			}
-			i++;
 		}
 	}
 }
 
-use_trigger_thread()
+use_trigger_thread() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
 		self.owner_ent notify( "triggered" );
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-sidequest_stage_active( sidequest_name, stage_name )
+sidequest_stage_active( sidequest_name, stage_name ) //checked matches cerberus output
 {
 	sidequest = level._zombie_sidequests[ sidequest_name ];
 	stage = sidequest.stages[ stage_name ];
@@ -1034,8 +1019,9 @@ sidequest_stage_active( sidequest_name, stage_name )
 	}
 }
 
-sidequest_start_next_stage( sidequest_name )
+sidequest_start_next_stage( sidequest_name ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level._zombie_sidequests ) )
 	{
@@ -1048,6 +1034,7 @@ sidequest_start_next_stage( sidequest_name )
 		return;
 #/
 	}
+	*/
 	sidequest = level._zombie_sidequests[ sidequest_name ];
 	if ( sidequest.sidequest_complete == 1 )
 	{
@@ -1065,20 +1052,22 @@ sidequest_start_next_stage( sidequest_name )
 	stage = get_sidequest_stage( sidequest, last_completed );
 	if ( !isDefined( stage ) )
 	{
+		/*
 /#
 		println( "*** ERROR:  Sidequest " + sidequest_name + " has no stage number " + last_completed );
 #/
+		*/
 		return;
 	}
 	stage_start( sidequest, stage );
 	return stage;
 }
 
-main()
+main() //checked matches cerberus output
 {
 }
 
-is_facing( facee )
+is_facing( facee ) //checked matches cerberus output
 {
 	orientation = self getplayerangles();
 	forwardvec = anglesToForward( orientation );
@@ -1088,10 +1077,10 @@ is_facing( facee )
 	tofaceevec2d = ( tofaceevec[ 0 ], tofaceevec[ 1 ], 0 );
 	unittofaceevec2d = vectornormalize( tofaceevec2d );
 	dotproduct = vectordot( unitforwardvec2d, unittofaceevec2d );
-	return dotproduct > 0,9;
+	return dotproduct > 0.9;
 }
 
-fake_use( notify_string, qualifier_func )
+fake_use( notify_string, qualifier_func ) //checked changed to match cerberus output
 {
 	waittillframeend;
 	while ( 1 )
@@ -1100,12 +1089,13 @@ fake_use( notify_string, qualifier_func )
 		{
 			return;
 		}
+		/*
 /#
 		print3d( self.origin, "+", vectorScale( ( 0, 1, 0 ), 255 ), 1 );
 #/
+		*/
 		players = get_players();
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			qualifier_passed = 1;
 			if ( isDefined( qualifier_func ) )
@@ -1118,13 +1108,13 @@ fake_use( notify_string, qualifier_func )
 				{
 					if ( players[ i ] usebuttonpressed() )
 					{
-						self notify( notify_string );
+						self notify( notify_string, players[ i ] );
 						return;
 					}
 				}
 			}
-			i++;
 		}
-		wait 0,1;
+		wait 0.1;
 	}
 }
+

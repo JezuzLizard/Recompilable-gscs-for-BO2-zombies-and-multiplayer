@@ -3093,6 +3093,7 @@ is_magic_bullet_shield_enabled( ent ) //checked changed at own discretion
 	{
 		return 1;
 	}
+	return 0;
 }
 
 really_play_2d_sound( sound ) //checked changed to match cerberus output
@@ -3604,22 +3605,30 @@ register_lethal_grenade_for_level( weaponname ) //checked changed at own discret
 	level.zombie_lethal_grenade_list[ weaponname ] = weaponname;
 }
 
-is_lethal_grenade( weaponname ) //checked matches cerberus output
+is_lethal_grenade( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( level.zombie_lethal_grenade_list ) )
 	{
 		return 0;
 	}
-	return isDefined( level.zombie_lethal_grenade_list[ weaponname ] );
+	if ( isDefined( level.zombie_lethal_grenade_list[ weaponname ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-is_player_lethal_grenade( weaponname ) //checked matches cerberus output
+is_player_lethal_grenade( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( self.current_lethal_grenade ) )
 	{
 		return 0;
 	}
-	return self.current_lethal_grenade == weaponname;
+	if ( self.current_lethal_grenade == weaponname )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 get_player_lethal_grenade() //checked matches cerberus output
@@ -3655,22 +3664,30 @@ register_tactical_grenade_for_level( weaponname ) //checked changed at own discr
 	level.zombie_tactical_grenade_list[ weaponname ] = weaponname;
 }
 
-is_tactical_grenade( weaponname ) //checked matches cerberus output
+is_tactical_grenade( weaponname ) //checked matches cerberus output //checked changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( level.zombie_tactical_grenade_list ) )
 	{
 		return 0;
 	}
-	return isDefined( level.zombie_tactical_grenade_list[ weaponname ] );
+	if ( isDefined( level.zombie_tactical_grenade_list[ weaponname ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-is_player_tactical_grenade( weaponname ) //checked matches cerberus output
+is_player_tactical_grenade( weaponname ) //checked matches cerberus output //checked changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( self.current_tactical_grenade ) )
 	{
 		return 0;
 	}
-	return self.current_tactical_grenade == weaponname;
+	if ( self.current_tactical_grenade == weaponname )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 get_player_tactical_grenade() //checked matches cerberus output
@@ -3707,22 +3724,30 @@ register_placeable_mine_for_level( weaponname ) //checked changed at own discret
 	level.zombie_placeable_mine_list[ weaponname ] = weaponname;
 }
 
-is_placeable_mine( weaponname ) //checked matches cerberus output
+is_placeable_mine( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( level.zombie_placeable_mine_list ) )
 	{
 		return 0;
 	}
-	return isDefined( level.zombie_placeable_mine_list[ weaponname ] );
+	if ( isDefined( level.zombie_placeable_mine_list[ weaponname ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-is_player_placeable_mine( weaponname ) //checked matches cerberus output
+is_player_placeable_mine( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( self.current_placeable_mine ) )
 	{
 		return 0;
 	}
-	return self.current_placeable_mine == weaponname;
+	if ( self.current_placeable_mine == weaponname )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 get_player_placeable_mine() //checked matches cerberus output
@@ -3753,22 +3778,30 @@ register_melee_weapon_for_level( weaponname ) //checked matches cerberus output
 	level.zombie_melee_weapon_list[ weaponname ] = weaponname;
 }
 
-is_melee_weapon( weaponname ) //checked matches cerberus output
+is_melee_weapon( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( level.zombie_melee_weapon_list ) )
 	{
 		return 0;
 	}
-	return isDefined( level.zombie_melee_weapon_list[ weaponname ] );
+	if ( isDefined( level.zombie_melee_weapon_list[ weaponname ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-is_player_melee_weapon( weaponname ) //checked matches cerberus output
+is_player_melee_weapon( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( self.current_melee_weapon ) )
 	{
 		return 0;
 	}
-	return self.current_melee_weapon == weaponname;
+	if ( self.current_melee_weapon == weaponname )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 get_player_melee_weapon() //checked matches cerberus output
@@ -3804,27 +3837,39 @@ register_equipment_for_level( weaponname ) //checked matches cerberus output
 	level.zombie_equipment_list[ weaponname ] = weaponname;
 }
 
-is_equipment( weaponname ) //checked matches cerberus output
+is_equipment( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( level.zombie_equipment_list ) )
 	{
 		return 0;
 	}
-	return isDefined( level.zombie_equipment_list[ weaponname ] );
+	if ( isDefined( level.zombie_equipment_list[ weaponname ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-is_equipment_that_blocks_purchase( weaponname ) //checked matches cerberus output
+is_equipment_that_blocks_purchase( weaponname ) //checked matches cerberus output //changed at own discretion
 {
-	return is_equipment( weaponname );
+	if ( is_equipment( weaponname ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-is_player_equipment( weaponname ) //checked matches cerberus output
+is_player_equipment( weaponname ) //checked matches cerberus output //changed at own discretion
 {
 	if ( !isDefined( weaponname ) || !isDefined( self.current_equipment ) )
 	{
 		return 0;
 	}
-	return self.current_equipment == weaponname;
+	if ( self.current_equipment == weaponname )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 has_deployed_equipment( weaponname ) //checked changed to match cerberus output
@@ -3857,9 +3902,13 @@ get_player_equipment() //checked matches cerberus output
 	return self.current_equipment;
 }
 
-hacker_active() //checked matches cerberus output
+hacker_active() //checked matches cerberus output //changed at own discretion
 {
-	return self maps/mp/zombies/_zm_equipment::is_equipment_active( "equip_hacker_zm" );
+	if ( self maps/mp/zombies/_zm_equipment::is_equipment_active( "equip_hacker_zm" ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 set_player_equipment( weaponname ) //checked matches cerberus output
@@ -5620,6 +5669,8 @@ get_player_perk_purchase_limit() //checked matches cerberus output
 	}
 	return level.perk_purchase_limit;
 }
+
+
 
 
 
