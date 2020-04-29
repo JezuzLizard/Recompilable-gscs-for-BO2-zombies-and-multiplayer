@@ -35,6 +35,10 @@ Copying code from the Cerberus Decompiled output if the code from the 2014 dump 
 Each time you do this make sure to indicate that the code was checked in a comment next to the function so that way its easy to tell what functions have been checked and changed from their original outputs
 Once you have checked the code in a script try compiling it and test it to see what errors occur.
 
+Always check if statements with many different conditions. Never use continues in foreach or for loops it will cause an infinite loop for an unknown reason. Always check the numbers values and order of operations between the scripts the cerberus decompiler is always correct about the values of numbers but does not account for order of operations. Make use of the debugging mod once your script is compileable and runs without crashing( zombies only for now ).
+
+If you need more help contact me on my Discord username JezuzLizard#7864.
+
 **Common Errors**
 
 Infinite While Loop Without Wait:
