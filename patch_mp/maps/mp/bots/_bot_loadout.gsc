@@ -3,7 +3,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	level.bot_banned_killstreaks = array( "KILLSTREAK_RCBOMB", "KILLSTREAK_QRDRONE", "KILLSTREAK_REMOTE_MISSILE", "KILLSTREAK_REMOTE_MORTAR", "KILLSTREAK_HELICOPTER_GUNNER" );
@@ -14,24 +14,21 @@ init()
 		{
 			continue;
 		}
-		else
-		{
-			player thread on_bot_connect();
-		}
+		player thread on_bot_connect();
 	}
 }
 
-on_bot_connect()
+on_bot_connect() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	if ( isDefined( self.pers[ "bot_loadout" ] ) )
 	{
 		return;
 	}
-	wait 0,1;
+	wait 0.1;
 	if ( ( self getentitynumber() % 2 ) == 0 )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self maps/mp/bots/_bot::bot_set_rank();
 	if ( level.onlinegame && !sessionmodeisprivate() )
@@ -51,21 +48,18 @@ on_bot_connect()
 		self botsetdefaultclass( 9, "class_sniper" );
 	}
 	max_allocation = 10;
-	i = 1;
-	while ( i <= 3 )
+	for ( i = 1; i <= 3; i++ )
 	{
 		if ( self isitemlocked( maps/mp/gametypes/_rank::getitemindex( "feature_allocation_slot_" + i ) ) )
 		{
 			max_allocation--;
-
 		}
-		i++;
 	}
 	self bot_construct_loadout( max_allocation );
 	self.pers[ "bot_loadout" ] = 1;
 }
 
-bot_construct_loadout( allocation_max )
+bot_construct_loadout( allocation_max ) //checked matches cerberus output
 {
 	if ( self isitemlocked( maps/mp/gametypes/_rank::getitemindex( "feature_cac" ) ) )
 	{
@@ -97,7 +91,7 @@ bot_construct_loadout( allocation_max )
 	pixendevent();
 }
 
-bot_construct_class( class, items, allocation_max )
+bot_construct_class( class, items, allocation_max ) //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	allocation = 0;
 	claimed_count = bot_build_claimed_list( items );
@@ -115,12 +109,9 @@ bot_construct_class( class, items, allocation_max )
 			bot_choose_weapon_option( class, "reticle", 0 );
 			allocation += bot_choose_primary_attachments( class, weapon, allocation, allocation_max );
 		}
-		else
+		else if ( !claimed_count[ "primary" ] )
 		{
-			if ( !claimed_count[ "primary" ] )
-			{
-				secondary_chance = 100;
-			}
+			secondary_chance = 100;
 		}
 		remaining = allocation_max - allocation;
 		if ( remaining >= 1 && bot_make_choice( secondary_chance, claimed_count[ "secondary" ], 1 ) )
@@ -129,7 +120,6 @@ bot_construct_class( class, items, allocation_max )
 			{
 				self botclassadditem( class, "BONUSCARD_OVERKILL" );
 				weapon = bot_choose_weapon( class, items[ "primary" ] );
-				allocation++;
 				allocation++;
 				continue;
 			}
@@ -220,11 +210,8 @@ bot_construct_class( class, items, allocation_max )
 						i++;
 						continue;
 					}
-					else
-					{
-					}
 				}
-				else i++;
+				i++;
 			}
 		}
 		else if ( next_action == "lethal" )
@@ -241,16 +228,12 @@ bot_construct_class( class, items, allocation_max )
 				self botclassadditem( class, "BONUSCARD_DANGER_CLOSE" );
 				allocation++;
 			}
-			else
+			else if ( remaining >= 1 && !claimed_count[ "primarygrenade" ] )
 			{
-				if ( remaining >= 1 && !claimed_count[ "primarygrenade" ] )
-				{
-					bot_choose_weapon( class, items[ "primarygrenade" ] );
-					claimed_count[ "primarygrenade" ]++;
-					allocation++;
-				}
+				bot_choose_weapon( class, items[ "primarygrenade" ] );
+				claimed_count[ "primarygrenade" ]++;
+				allocation++;
 			}
-			continue;
 		}
 		else if ( next_action == "tactical" )
 		{
@@ -269,7 +252,6 @@ bot_construct_class( class, items, allocation_max )
 					claimed_count[ "specialgrenade" ] = 2;
 					allocation += 2;
 				}
-				break;
 			}
 			else
 			{
@@ -284,97 +266,80 @@ bot_construct_class( class, items, allocation_max )
 	}
 }
 
-bot_make_choice( chance, claimed, max_claim )
+bot_make_choice( chance, claimed, max_claim ) //checked changed at own discretion
 {
-	if ( claimed < max_claim )
+	if ( claimed < max_claim && randomint( 100 ) < chance )
 	{
-		return randomint( 100 ) < chance;
+		return 1;
 	}
+	return 0;
 }
 
-bot_chose_action( action1, chance1, action2, chance2, action3, chance3, action4, chance4 )
+bot_chose_action( action1, chance1, action2, chance2, action3, chance3, action4, chance4 ) //checked changed to match cerberus output
 {
 	chance1 = int( chance1 / 10 );
 	chance2 = int( chance2 / 10 );
 	chance3 = int( chance3 / 10 );
 	chance4 = int( chance4 / 10 );
 	actions = [];
-	i = 0;
-	while ( i < chance1 )
+	for ( i = 0; i < chance1; i++ )
 	{
 		actions[ actions.size ] = action1;
-		i++;
 	}
-	i = 0;
-	while ( i < chance2 )
+	for ( i = 0; i < chance2; i++ )
 	{
 		actions[ actions.size ] = action2;
-		i++;
 	}
-	i = 0;
-	while ( i < chance3 )
+	for ( i = 0; i < chance3; i++ )
 	{
 		actions[ actions.size ] = action3;
-		i++;
 	}
-	i = 0;
-	while ( i < chance4 )
+	for ( i = 0; i < chance4; i++ )
 	{
 		actions[ actions.size ] = action4;
-		i++;
 	}
 	return random( actions );
 }
 
-bot_item_is_claimed( item )
+bot_item_is_claimed( item ) //checked changed to match cerberus output
 {
-	_a370 = self.claimed_items;
-	_k370 = getFirstArrayKey( _a370 );
-	while ( isDefined( _k370 ) )
+	foreach ( claim in self.claimed_items )
 	{
-		claim = _a370[ _k370 ];
 		if ( claim == item )
 		{
 			return 1;
 		}
-		_k370 = getNextArrayKey( _a370, _k370 );
 	}
 	return 0;
 }
 
-bot_choose_weapon( class, items )
+bot_choose_weapon( class, items ) //checked changed to match cerberus output
 {
 	if ( !isDefined( items ) || !items.size )
 	{
 		return undefined;
 	}
 	start = randomint( items.size );
-	i = 0;
-	while ( i < items.size )
+	for ( i = 0; i < items.size; i++ )
 	{
 		weapon = items[ start ];
 		if ( !bot_item_is_claimed( weapon ) )
 		{
 			break;
 		}
-		else
-		{
-			start = ( start + 1 ) % items.size;
-			i++;
-		}
+		start = ( start + 1 ) % items.size;
 	}
 	self.claimed_items[ self.claimed_items.size ] = weapon;
 	self botclassadditem( class, weapon );
 	return weapon;
 }
 
-bot_build_weapon_options_list( optiontype )
+bot_build_weapon_options_list( optiontype ) //checked changed to match cerberus output
 {
 	level.botweaponoptionsid[ optiontype ] = [];
 	level.botweaponoptionsprob[ optiontype ] = [];
 	prob = 0;
-	row = 0;
-	while ( row < 255 )
+	for ( row = 0; row < 255; row++ )
 	{
 		if ( tablelookupcolumnforrow( "mp/attachmentTable.csv", row, 1 ) == optiontype )
 		{
@@ -383,11 +348,10 @@ bot_build_weapon_options_list( optiontype )
 			prob += int( tablelookupcolumnforrow( "mp/attachmentTable.csv", row, 15 ) );
 			level.botweaponoptionsprob[ optiontype ][ index ] = prob;
 		}
-		row++;
 	}
 }
 
-bot_choose_weapon_option( class, optiontype, primary )
+bot_choose_weapon_option( class, optiontype, primary ) //checked changed to match cerberus output may need to review order of operations
 {
 	if ( !isDefined( level.botweaponoptionsid ) )
 	{
@@ -407,22 +371,17 @@ bot_choose_weapon_option( class, optiontype, primary )
 		maxprob += ( 4 * maxprob ) * ( ( 20 - self.pers[ "rank" ] ) / 20 );
 	}
 	rnd = randomint( int( maxprob ) );
-	i = 0;
-	while ( i < numoptions )
+	for ( i = 0; i < numoptions; i++ )
 	{
 		if ( level.botweaponoptionsprob[ optiontype ][ i ] > rnd )
 		{
 			self botclasssetweaponoption( class, primary, optiontype, level.botweaponoptionsid[ optiontype ][ i ] );
 			return;
 		}
-		else
-		{
-			i++;
-		}
 	}
 }
 
-bot_choose_primary_attachments( class, weapon, allocation, allocation_max )
+bot_choose_primary_attachments( class, weapon, allocation, allocation_max ) //checked changed to match cerberus output
 {
 	attachments = getweaponattachments( weapon );
 	remaining = allocation_max - allocation;
@@ -453,35 +412,29 @@ bot_choose_primary_attachments( class, weapon, allocation, allocation_max )
 		}
 		return count;
 	}
-	else
+	else if ( remaining >= 2 && attachment_action == "2_attachments" )
 	{
-		if ( remaining >= 2 && attachment_action == "2_attachments" )
+		a1 = random( attachments );
+		self botclassaddattachment( class, weapon, a1, "primaryattachment1" );
+		attachments = getweaponattachments( weapon, a1 );
+		if ( attachments.size )
 		{
-			a1 = random( attachments );
-			self botclassaddattachment( class, weapon, a1, "primaryattachment1" );
-			attachments = getweaponattachments( weapon, a1 );
-			if ( attachments.size )
-			{
-				a2 = random( attachments );
-				self botclassaddattachment( class, weapon, a2, "primaryattachment2" );
-				return 2;
-			}
-			return 1;
+			a2 = random( attachments );
+			self botclassaddattachment( class, weapon, a2, "primaryattachment2" );
+			return 2;
 		}
-		else
-		{
-			if ( remaining >= 1 && attachment_action == "1_attachments" )
-			{
-				a = random( attachments );
-				self botclassaddattachment( class, weapon, a, "primaryattachment1" );
-				return 1;
-			}
-		}
+		return 1;
+	}
+	else if ( remaining >= 1 && attachment_action == "1_attachments" )
+	{
+		a = random( attachments );
+		self botclassaddattachment( class, weapon, a, "primaryattachment1" );
+		return 1;
 	}
 	return 0;
 }
 
-bot_choose_secondary_attachments( class, weapon, allocation, allocation_max )
+bot_choose_secondary_attachments( class, weapon, allocation, allocation_max ) //checked changed to match cerberus output
 {
 	attachments = getweaponattachments( weapon );
 	remaining = allocation_max - allocation;
@@ -504,19 +457,16 @@ bot_choose_secondary_attachments( class, weapon, allocation, allocation_max )
 		}
 		return 1;
 	}
-	else
+	else if ( remaining >= 1 && attachment_action == "1_attachments" )
 	{
-		if ( remaining >= 1 && attachment_action == "1_attachments" )
-		{
-			a = random( attachments );
-			self botclassaddattachment( class, weapon, a, "secondaryattachment1" );
-			return 1;
-		}
+		a = random( attachments );
+		self botclassaddattachment( class, weapon, a, "secondaryattachment1" );
+		return 1;
 	}
 	return 0;
 }
 
-bot_build_item_list()
+bot_build_item_list() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	pixbeginevent( "bot_build_item_list" );
 	items = [];
@@ -532,32 +482,29 @@ bot_build_item_list()
 				i++;
 				continue;
 			}
-			else number = int( tablelookupcolumnforrow( level.statstableid, row, 0 ) );
+			number = int( tablelookupcolumnforrow( level.statstableid, row, 0 ) );
 			if ( self isitemlocked( number ) )
 			{
 				i++;
 				continue;
 			}
-			else allocation = int( tablelookupcolumnforrow( level.statstableid, row, 12 ) );
+			allocation = int( tablelookupcolumnforrow( level.statstableid, row, 12 ) );
 			if ( allocation < 0 )
 			{
 				i++;
 				continue;
 			}
-			else name = tablelookupcolumnforrow( level.statstableid, row, 3 );
+			name = tablelookupcolumnforrow( level.statstableid, row, 3 );
 			if ( bot_item_is_banned( slot, name ) )
 			{
 				i++;
 				continue;
 			}
-			else
+			if ( !isDefined( items[ slot ] ) )
 			{
-				if ( !isDefined( items[ slot ] ) )
-				{
-					items[ slot ] = [];
-				}
-				items[ slot ][ items[ slot ].size ] = name;
+				items[ slot ] = [];
 			}
+			items[ slot ][ items[ slot ].size ] = name;
 		}
 		i++;
 	}
@@ -565,13 +512,13 @@ bot_build_item_list()
 	return items;
 }
 
-bot_item_is_banned( slot, item )
+bot_item_is_banned( slot, item ) //checked changed to match cerberus output
 {
 	if ( item == "WEAPON_KNIFE_BALLISTIC" )
 	{
 		return 1;
 	}
-	if ( getDvarInt( #"97A055DA" ) == 0 && item == "WEAPON_PEACEKEEPER" )
+	if ( /* getDvarInt( #"97A055DA" ) == 0 && */ item == "WEAPON_PEACEKEEPER" )
 	{
 		return 1;
 	}
@@ -579,31 +526,24 @@ bot_item_is_banned( slot, item )
 	{
 		return 0;
 	}
-	_a633 = level.bot_banned_killstreaks;
-	_k633 = getFirstArrayKey( _a633 );
-	while ( isDefined( _k633 ) )
+	foreach ( banned in level.bot_banned_killstreaks )
 	{
-		banned = _a633[ _k633 ];
 		if ( item == banned )
 		{
 			return 1;
 		}
-		_k633 = getNextArrayKey( _a633, _k633 );
 	}
 	return 0;
 }
 
-bot_build_claimed_list( items )
+bot_build_claimed_list( items ) //checked changed to match cerberus output
 {
 	claimed = [];
 	keys = getarraykeys( items );
-	_a649 = keys;
-	_k649 = getFirstArrayKey( _a649 );
-	while ( isDefined( _k649 ) )
+	foreach ( key in keys )
 	{
-		key = _a649[ _k649 ];
 		claimed[ key ] = 0;
-		_k649 = getNextArrayKey( _a649, _k649 );
 	}
 	return claimed;
 }
+

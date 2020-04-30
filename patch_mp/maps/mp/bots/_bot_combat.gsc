@@ -3,7 +3,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-bot_combat_think( damage, attacker, direction )
+bot_combat_think( damage, attacker, direction ) //checked partially changed to match cerberus output changed at own discretion
 {
 	self allowattack( 0 );
 	self pressads( 0 );
@@ -21,6 +21,7 @@ bot_combat_think( damage, attacker, direction )
 			return;
 		}
 		difficulty = maps/mp/bots/_bot::bot_get_difficulty();
+		/*
 /#
 		if ( bot_has_enemy() )
 		{
@@ -33,6 +34,7 @@ bot_combat_think( damage, attacker, direction )
 				}
 			}
 		}
+		*/
 		sight = bot_best_enemy();
 		bot_select_weapon();
 		ent = self.bot.threat.entity;
@@ -48,28 +50,28 @@ bot_combat_think( damage, attacker, direction )
 					self lookat( prediction + ( 0, 0, height ) );
 					self addgoal( ent.origin, 24, 4, "enemy_patrol" );
 					self allowattack( 0 );
-					wait 0,05;
+					wait 0.05;
 					continue;
 				}
-				else self addgoal( self.origin, 24, 3, "enemy_patrol" );
-				if ( difficulty != "easy" && cointoss() )
+				else 
 				{
-					self bot_combat_throw_lethal( pos );
-					self bot_combat_throw_tactical( pos );
+					self addgoal( self.origin, 24, 3, "enemy_patrol" );
+					if ( difficulty != "easy" && cointoss() )
+					{
+						self bot_combat_throw_lethal( pos );
+						self bot_combat_throw_tactical( pos );
+					}
+					bot_combat_dead();
+					self addgoal( pos, 24, 4, "enemy_patrol" );
 				}
-				bot_combat_dead();
-				self addgoal( pos, 24, 4, "enemy_patrol" );
 			}
 			bot_combat_idle( damage, attacker, direction );
 			return;
 		}
-		else
+		else if ( threat_dead() )
 		{
-			if ( threat_dead() )
-			{
-				bot_combat_dead();
-				return;
-			}
+			bot_combat_dead();
+			return;
 		}
 		bot_update_cover();
 		bot_combat_main();
@@ -78,50 +80,41 @@ bot_combat_think( damage, attacker, direction )
 			bot_turret_set_dangerous( ent );
 			bot_combat_throw_smoke( ent.origin );
 		}
-		if ( !threat_is_turret() || threat_is_ai_tank() && threat_is_equipment() )
+		if ( !threat_is_turret() || threat_is_ai_tank() || threat_is_equipment() )
 		{
 			bot_combat_throw_emp( ent.origin );
 			bot_combat_throw_lethal( ent.origin );
 		}
-		else
+		else if ( threat_is_qrdrone() )
 		{
-			if ( threat_is_qrdrone() )
-			{
-				bot_combat_throw_emp( ent.origin );
-				break;
-			}
-			else
-			{
-				if ( threat_requires_rocket( ent ) )
-				{
-					self cancelgoal( "enemy_patrol" );
-					self addgoal( self.origin, 24, 4, "cover" );
-				}
-			}
+			bot_combat_throw_emp( ent.origin );
+			break;
+		}
+		else if ( threat_requires_rocket( ent ) )
+		{
+			self cancelgoal( "enemy_patrol" );
+			self addgoal( self.origin, 24, 4, "cover" );
 		}
 		if ( difficulty == "easy" )
 		{
-			wait 0,5;
+			wait 0.5;
 			continue;
 		}
-		else if ( difficulty == "normal" )
+		if ( difficulty == "normal" )
 		{
-			wait 0,25;
+			wait 0.25;
 			continue;
 		}
-		else if ( difficulty == "hard" )
+		if ( difficulty == "hard" )
 		{
-			wait 0,1;
+			wait 0.1;
 			continue;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05; //fu difficulty
 	}
 }
 
-bot_can_do_combat()
+bot_can_do_combat() //checked matches cerberus output
 {
 	if ( self ismantling() || self isonladder() )
 	{
@@ -130,34 +123,29 @@ bot_can_do_combat()
 	return 1;
 }
 
-threat_dead()
+threat_dead() //checked changed at own discretion
 {
 	if ( bot_has_enemy() )
 	{
 		ent = self.bot.threat.entity;
-		if ( threat_is_turret() )
+		if ( threat_is_turret() && isDefined( ent.dead ) && ent.dead )
 		{
-			if ( isDefined( ent.dead ) )
-			{
-				return ent.dead;
-			}
+			return 1;
 		}
-		else
+		if ( threat_is_qrdrone() && isDefined( ent.crash_accel ) && ent.crash_accel )
 		{
-			if ( threat_is_qrdrone() )
-			{
-				if ( isDefined( ent.crash_accel ) )
-				{
-					return ent.crash_accel;
-				}
-			}
+			return 1;
 		}
-		return !isalive( ent );
+		if ( !isalive( ent ) )
+		{
+			return 1;
+		}
+		return 0;
 	}
-	return 1;
+	return 0;
 }
 
-bot_can_reload()
+bot_can_reload() //checked changed to match cerberus output
 {
 	weapon = self getcurrentweapon();
 	if ( weapon == "none" )
@@ -168,14 +156,14 @@ bot_can_reload()
 	{
 		return 0;
 	}
-	if ( !self isreloading() || self isswitchingweapons() && self isthrowinggrenade() )
+	if ( self isreloading() || self isswitchingweapons() || self isthrowinggrenade() )
 	{
 		return 0;
 	}
 	return 1;
 }
 
-bot_combat_idle( damage, attacker, direction )
+bot_combat_idle( damage, attacker, direction ) //checked matches cerberus output
 {
 	self pressads( 0 );
 	self allowattack( 0 );
@@ -184,15 +172,15 @@ bot_combat_idle( damage, attacker, direction )
 	weapon = self getcurrentweapon();
 	if ( bot_can_reload() )
 	{
-		frac = 0,5;
+		frac = 0.5;
 		if ( bot_has_lmg() )
 		{
-			frac = 0,25;
+			frac = 0.25;
 		}
-		frac += randomfloatrange( -0,1, 0,1 );
+		frac += randomfloatrange( -0.1, 0.1 );
 		if ( bot_weapon_ammo_frac() < frac )
 		{
-			self pressusebutton( 0,1 );
+			self pressusebutton( 0.1 );
 		}
 	}
 	if ( isDefined( damage ) )
@@ -204,22 +192,22 @@ bot_combat_idle( damage, attacker, direction )
 	self cancelgoal( "flee" );
 }
 
-bot_combat_dead( damage )
+bot_combat_dead( damage ) //checked matches cerberus output
 {
 	difficulty = maps/mp/bots/_bot::bot_get_difficulty();
 	switch( difficulty )
 	{
 		case "easy":
-			wait 0,75;
+			wait 0.75;
 			break;
 		case "normal":
-			wait 0,5;
+			wait 0.5;
 			break;
 		case "hard":
-			wait 0,25;
+			wait 0.25;
 			break;
 		case "fu":
-			wait 0,1;
+			wait 0.1;
 			break;
 	}
 	self allowattack( 0 );
@@ -230,16 +218,16 @@ bot_combat_dead( damage )
 			wait 1;
 			break;
 		case "hard":
-			wait_endon( 0,5, "damage" );
+			wait_endon( 0.5, "damage" );
 			break;
 		case "fu":
-			wait_endon( 0,25, "damage" );
+			wait_endon( 0.25, "damage" );
 			break;
 	}
 	bot_clear_enemy();
 }
 
-bot_combat_main()
+bot_combat_main() //checked partially changed to match cerberus output changed at own discretion
 {
 	weapon = self getcurrentweapon();
 	currentammo = self getweaponammoclip( weapon ) + self getweaponammostock( weapon );
@@ -252,9 +240,9 @@ bot_combat_main()
 		return;
 	}
 	time = getTime();
-	if ( !bot_should_hip_fire() )
+	if ( !bot_should_hip_fire() && self.bot.threat.dot > 0.96 )
 	{
-		ads = self.bot.threat.dot > 0,96;
+		ads = 1;
 	}
 	difficulty = maps/mp/bots/_bot::bot_get_difficulty();
 	if ( ads )
@@ -312,16 +300,13 @@ bot_combat_main()
 			self allowattack( 0 );
 		}
 	}
+	else if ( bot_on_target( self.bot.threat.aim_target, 45 ) )
+	{
+		self allowattack( 1 );
+	}
 	else
 	{
-		if ( bot_on_target( self.bot.threat.aim_target, 45 ) )
-		{
-			self allowattack( 1 );
-		}
-		else
-		{
-			self allowattack( 0 );
-		}
+		self allowattack( 0 );
 	}
 	if ( threat_is_equipment() )
 	{
@@ -355,16 +340,13 @@ bot_combat_main()
 	{
 		self bot_riotshield_think( self.bot.threat.entity );
 	}
-	else
+	else if ( bot_has_shotgun() )
 	{
-		if ( bot_has_shotgun() )
-		{
-			self bot_shotgun_think();
-		}
+		self bot_shotgun_think();
 	}
 }
 
-bot_combat_melee( weapon )
+bot_combat_melee( weapon ) //checked partially changed to match cerberus output
 {
 	if ( !threat_is_player() && !threat_is_dog() )
 	{
@@ -416,13 +398,12 @@ bot_combat_melee( weapon )
 			if ( weapon == "knife_held_mp" )
 			{
 				self pressattackbutton();
-				wait 0,1;
-				break;
+				wait 0.1;
 			}
 			else
 			{
 				self pressmelee();
-				wait 0,1;
+				wait 0.1;
 			}
 		}
 		goal = self getgoal( "enemy_patrol" );
@@ -445,106 +426,94 @@ bot_combat_melee( weapon )
 			}
 			self addgoal( prediction, 4, 4, "enemy_patrol" );
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-bot_get_fov()
+bot_get_fov() //checked matches cerberus output
 {
 	weapon = self getcurrentweapon();
 	reduction = 1;
 	if ( weapon != "none" && isweaponscopeoverlay( weapon ) && self playerads() >= 1 )
 	{
-		reduction = 0,25;
+		reduction = 0.25;
 	}
 	return self.bot.fov * reduction;
 }
 
-bot_get_converge_time()
+bot_get_converge_time() //checked changed at own discretion
 {
 	difficulty = maps/mp/bots/_bot::bot_get_difficulty();
 	switch( difficulty )
 	{
 		case "easy":
 			return 3500;
-			case "normal":
-				return 2000;
-				case "hard":
-					return 1500;
-					case "fu":
-						return 100;
-					}
-					return 2000;
-				}
-			}
-		}
+		case "normal":
+			return 2000;
+		case "hard":
+			return 1500;
+		case "fu":
+			return 100;
+		default:
+			return 2000;
 	}
 }
 
-bot_get_converge_rate()
+bot_get_converge_rate() //checked changed at own discretion
 {
 	difficulty = maps/mp/bots/_bot::bot_get_difficulty();
 	switch( difficulty )
 	{
 		case "easy":
 			return 2;
-			case "normal":
-				return 4;
-				case "hard":
-					return 5;
-					case "fu":
-						return 7;
-					}
-					return 4;
-				}
-			}
-		}
+		case "normal":
+			return 4;
+		case "hard":
+			return 5;
+		case "fu":
+			return 7;
+		default:
+			return 4;
 	}
 }
 
-bot_get_melee_range_sq()
+bot_get_melee_range_sq() //checked changed at own discretion
 {
 	difficulty = maps/mp/bots/_bot::bot_get_difficulty();
 	switch( difficulty )
 	{
 		case "easy":
 			return 1600;
-			case "normal":
-				return 4900;
-				case "hard":
-					return 4900;
-					case "fu":
-						return 4900;
-					}
-					return 4900;
-				}
-			}
-		}
+		case "normal":
+			return 4900;
+		case "hard":
+			return 4900;
+		case "fu":
+			return 4900;
+		default:
+			return 4900;
 	}
 }
 
-bot_get_aim_error()
+bot_get_aim_error() //checked changed at own discretion
 {
 	difficulty = maps/mp/bots/_bot::bot_get_difficulty();
 	switch( difficulty )
 	{
 		case "easy":
 			return 30;
-			case "normal":
-				return 20;
-				case "hard":
-					return 15;
-					case "fu":
-						return 2;
-					}
-					return 20;
-				}
-			}
-		}
+		case "normal":
+			return 20;
+		case "hard":
+			return 15;
+		case "fu":
+			return 2;
+		default:			
+			return 20;
 	}
 }
 
-bot_update_lookat( origin, frac )
+bot_update_lookat( origin, frac ) //checked matches cerberus output
 {
 	angles = vectorToAngle( origin - self.origin );
 	right = anglesToRight( angles );
@@ -566,7 +535,7 @@ bot_update_lookat( origin, frac )
 	self lookat( end );
 }
 
-bot_on_target( aim_target, radius )
+bot_on_target( aim_target, radius ) //checked matches cerberus output
 {
 	angles = self getplayerangles();
 	forward = anglesToForward( angles );
@@ -580,7 +549,7 @@ bot_on_target( aim_target, radius )
 	return 0;
 }
 
-bot_dot_product( origin )
+bot_dot_product( origin ) //checked matches cerberus output
 {
 	angles = self getplayerangles();
 	forward = anglesToForward( angles );
@@ -590,70 +559,82 @@ bot_dot_product( origin )
 	return dot;
 }
 
-bot_has_enemy()
+bot_has_enemy() //checked changed at own discretion
 {
-	return isDefined( self.bot.threat.entity );
+	if ( isDefined( self.bot.threat.entity ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-threat_is_player()
+threat_is_player() //checked changed at own discretion
 {
 	ent = self.bot.threat.entity;
-	if ( isDefined( ent ) )
+	if ( isDefined( ent ) && isplayer( ent ) )
 	{
-		return isplayer( ent );
+		return 1;
 	}
+	return 0;
 }
 
-threat_is_dog()
+threat_is_dog() //checked changed at own discretion
 {
 	ent = self.bot.threat.entity;
-	if ( isDefined( ent ) )
+	if ( isDefined( ent ) && isai( ent ) )
 	{
-		return isai( ent );
+		return 1;
 	}
+	return 0;
 }
 
-threat_is_turret()
+threat_is_turret() //checked changed at own discretion
 {
 	ent = self.bot.threat.entity;
-	if ( isDefined( ent ) )
+	if ( isDefined( ent ) && ent.classname == "auto_turret" )
 	{
-		return ent.classname == "auto_turret";
+		return 1;
 	}
+	return 0;
 }
 
-threat_is_ai_tank()
+threat_is_ai_tank() //checked changed at own discretion
 {
 	ent = self.bot.threat.entity;
-	if ( isDefined( ent ) && isDefined( ent.targetname ) )
+	if ( isDefined( ent ) && isDefined( ent.targetname ) && ent.targetname == "talon" )
 	{
-		return ent.targetname == "talon";
+		return 1;
 	}
+	return 0;
 }
 
-threat_is_qrdrone( ent )
+threat_is_qrdrone( ent ) //checked changed at own discretion
 {
 	if ( !isDefined( ent ) )
 	{
 		ent = self.bot.threat.entity;
 	}
-	if ( isDefined( ent ) && isDefined( ent.helitype ) )
+	if ( isDefined( ent ) && isDefined( ent.helitype ) && ent.helitype == "qrdrone" )
 	{
-		return ent.helitype == "qrdrone";
-	}
-}
-
-threat_using_riotshield()
-{
-	if ( threat_is_player() )
-	{
-		weapon = self.bot.threat.entity getcurrentweapon();
-		return weapon == "riotshield_mp";
+		return 1;
 	}
 	return 0;
 }
 
-threat_is_equipment()
+threat_using_riotshield() //checked changed at own discretion
+{
+	if ( threat_is_player() )
+	{
+		weapon = self.bot.threat.entity getcurrentweapon();
+		if ( weapon == "riotshield_mp" )
+		{
+			return ;
+		}
+	}
+	return 0;
+}
+
+threat_is_equipment() //checked changed at own discretion
 {
 	ent = self.bot.threat.entity;
 	if ( !isDefined( ent ) )
@@ -668,19 +649,20 @@ threat_is_equipment()
 	{
 		return 1;
 	}
-	if ( isDefined( ent.name ) )
+	if ( isDefined( ent.name ) && isweaponequipment( ent.name ) )
 	{
-		return isweaponequipment( ent.name );
+		return 1;
 	}
+	return 0;
 }
 
-bot_clear_enemy()
+bot_clear_enemy() //checked matches cerberus output
 {
 	self clearlookat();
 	self.bot.threat.entity = undefined;
 }
 
-bot_best_enemy()
+bot_best_enemy() //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
 	fov = bot_get_fov();
 	ent = self.bot.threat.entity;
@@ -701,71 +683,69 @@ bot_best_enemy()
 		}
 	}
 	enemies = self getthreats( fov );
-	_a791 = enemies;
-	_k791 = getFirstArrayKey( _a791 );
-	while ( isDefined( _k791 ) )
+	i = 0;
+	while ( i < enemies.size )
 	{
-		enemy = _a791[ _k791 ];
-		if ( threat_should_ignore( enemy ) )
+		if ( threat_should_ignore( enemies[ i ] ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( !isplayer( enemy ) && enemy.classname != "grenade" )
+		if ( !isplayer( enemies[ i ] ) && enemies[ i ].classname != "grenade" )
 		{
 			if ( level.gametype == "hack" )
 			{
-				if ( enemy.classname == "script_vehicle" )
+				if ( enemies[ i ].classname == "script_vehicle" )
 				{
+					i++;
+					continue;
 				}
 			}
-			else if ( enemy.classname == "auto_turret" )
+			if ( enemies[ i ].classname == "auto_turret" )
 			{
-				if ( isDefined( enemy.dead ) || enemy.dead && isDefined( enemy.carried ) && enemy.carried )
-				{
+				if ( isDefined( enemies[ i ].dead ) && enemies[ i ].dead || isDefined( enemies[ i ].carried ) && enemies[ i ].carried )
+				{	
+					i++;
+					continue;
 				}
-				else
+				if ( isDefined( enemies[ i ].turret_active ) && !enemies[ i ].turret_active )
 				{
-					if ( isDefined( enemy.turret_active ) && !enemy.turret_active )
-					{
-						break;
-					}
+					i++;
+					continue;
 				}
-				else
+			}
+			if ( threat_requires_rocket( enemies[ i ] ) )
+			{
+				if ( !bot_has_launcher() )
 				{
-					if ( threat_requires_rocket( enemy ) )
-					{
-						if ( !bot_has_launcher() )
-						{
-							break;
-						}
-						else origin = self getplayercamerapos();
-						angles = vectorToAngle( enemy.origin - origin );
-						if ( angles[ 0 ] < 290 )
-						{
-							threat_ignore( enemy, 3,5 );
-							break;
-						}
-					}
+					i++;
+					continue;
 				}
-				else
+				origin = self getplayercamerapos();
+				angles = vectorToAngle( enemies[ i ].origin - origin );
+				if ( angles[ 0 ] < 290 )
 				{
-					if ( self botsighttracepassed( enemy ) )
-					{
-						self.bot.threat.entity = enemy;
-						self.bot.threat.time_first_sight = getTime();
-						self.bot.threat.time_recent_sight = getTime();
-						self.bot.threat.dot = bot_dot_product( enemy.origin );
-						self.bot.threat.position = enemy.origin;
-						return 1;
-					}
+					threat_ignore( enemies[ i ], 3.5 );
+					i++;
+					continue;
 				}
 			}
 		}
-		_k791 = getNextArrayKey( _a791, _k791 );
+		if ( self botsighttracepassed( enemies[ i ] ) )
+		{
+			self.bot.threat.entity = enemies[ i ];
+			self.bot.threat.time_first_sight = getTime();
+			self.bot.threat.time_recent_sight = getTime();
+			self.bot.threat.dot = bot_dot_product( enemies[ i ].origin );
+			self.bot.threat.position = enemies[ i ].origin;
+			return 1;
+		}
+		i++;
 	}
 	return 0;
 }
 
-threat_requires_rocket( enemy )
+threat_requires_rocket( enemy ) //checked changed to match cerberus output
 {
 	if ( !isDefined( enemy ) || isplayer( enemy ) )
 	{
@@ -781,12 +761,9 @@ threat_requires_rocket( enemy )
 		{
 			return 1;
 		}
-		else
+		else if ( enemy.targetname == "uav" || enemy.targetname == "counteruav" )
 		{
-			if ( enemy.targetname == "uav" || enemy.targetname == "counteruav" )
-			{
-				return 1;
-			}
+			return 1;
 		}
 	}
 	if ( enemy.classname == "script_vehicle" && enemy.vehicleclass == "helicopter" )
@@ -796,7 +773,7 @@ threat_requires_rocket( enemy )
 	return 0;
 }
 
-threat_is_warthog( enemy )
+threat_is_warthog( enemy ) //checked matches cerberus output
 {
 	if ( !isDefined( enemy ) || isplayer( enemy ) )
 	{
@@ -809,7 +786,7 @@ threat_is_warthog( enemy )
 	return 0;
 }
 
-threat_should_ignore( entity )
+threat_should_ignore( entity ) //checked matches cerberus output
 {
 	ignore_time = self.bot.ignore_entity[ entity getentitynumber() ];
 	if ( isDefined( ignore_time ) )
@@ -822,12 +799,12 @@ threat_should_ignore( entity )
 	return 0;
 }
 
-threat_ignore( entity, secs )
+threat_ignore( entity, secs ) //checked matches cerberus output
 {
-	self.bot.ignore_entity[ entity getentitynumber() ] = getTime() + ( secs * 1000 );
+	self.bot.ignore_entity[ entity getentitynumber() ] = getTime() + secs * 1000;
 }
 
-bot_update_aim( frames )
+bot_update_aim( frames ) //checked matches cerberus output
 {
 	ent = self.bot.threat.entity;
 	prediction = self predictposition( ent, frames );
@@ -844,16 +821,16 @@ bot_update_aim( frames )
 	if ( threat_using_riotshield() )
 	{
 		dot = ent bot_dot_product( self.origin );
-		if ( dot > 0,8 && ent getstance() == "stand" )
+		if ( dot > 0.8 && ent getstance() == "stand" )
 		{
 			return prediction + vectorScale( ( 0, 0, 1 ), 5 );
 		}
 	}
-	torso = prediction + ( 0, 0, height / 1,6 );
+	torso = prediction + ( 0, 0, height / 1.6 );
 	return torso;
 }
 
-bot_update_cover()
+bot_update_cover() //checked partially changed to match cerberus output did not change while loop to foreach see the github for more info
 {
 	if ( maps/mp/bots/_bot::bot_get_difficulty() == "easy" )
 	{
@@ -886,7 +863,7 @@ bot_update_cover()
 		return;
 	}
 	dot = enemy bot_dot_product( self.origin );
-	if ( dot < 0,8 && !bot_has_shotgun() )
+	if ( dot < 0.8 && !bot_has_shotgun() )
 	{
 		self cancelgoal( "cover" );
 		self cancelgoal( "flee" );
@@ -899,17 +876,14 @@ bot_update_cover()
 	{
 		cover_score += 1;
 	}
-	if ( cover_score > 0,25 )
+	if ( cover_score > 0.25 )
 	{
 		nodes = getnodesinradiussorted( self.origin, 1024, 256, 512, "Path", 8 );
 		nearest = bot_nearest_node( enemy.origin );
-		while ( isDefined( nearest ) && !self hasgoal( "flee" ) )
+		if ( isDefined( nearest ) && !self hasgoal( "flee" ) )
 		{
-			_a1018 = nodes;
-			_k1018 = getFirstArrayKey( _a1018 );
-			while ( isDefined( _k1018 ) )
+			foreach ( node in nodes )
 			{
-				node = _a1018[ _k1018 ];
 				if ( !nodesvisible( nearest, node ) && !nodescanpath( nearest, node ) )
 				{
 					self cancelgoal( "cover" );
@@ -917,11 +891,10 @@ bot_update_cover()
 					self addgoal( node, 24, 4, "flee" );
 					return;
 				}
-				_k1018 = getNextArrayKey( _a1018, _k1018 );
 			}
 		}
 	}
-	else if ( cover_score > -0,25 )
+	else if ( cover_score > -0.25 )
 	{
 		if ( self hasgoal( "cover" ) )
 		{
@@ -933,45 +906,44 @@ bot_update_cover()
 			nodes = getnodesinradiussorted( self.origin, 256, 0, 256, "Path", 8 );
 		}
 		nearest = bot_nearest_node( enemy.origin );
-		while ( isDefined( nearest ) )
+		if ( isDefined( nearest ) )
 		{
-			_a1048 = nodes;
-			_k1048 = getFirstArrayKey( _a1048 );
-			while ( isDefined( _k1048 ) )
+			i = 0;
+			while ( i < nodes.size )
 			{
-				node = _a1048[ _k1048 ];
-				if ( !canclaimnode( node, self.team ) )
+				if ( !canclaimnode( nodes[ i ], self.team ) )
 				{
+					i++;
+					continue;
 				}
-				else if ( node.type != "Path" && !within_fov( node.origin, node.angles, enemy.origin, bot_get_fov() ) )
+				else if ( nodes[ i ].type != "Path" && !within_fov( nodes[ i ].origin, nodes[ i ].angles, enemy.origin, bot_get_fov() ) )
 				{
+					i++;
+					continue;
 				}
 				else
 				{
-					if ( !nodescanpath( nearest, node ) && nodesvisible( nearest, node ) )
+					if ( !nodescanpath( nearest, nodes[ i ] ) && nodesvisible( nearest, nodes[ i ] ) )
 					{
-						if ( node.type == "Cover Left" )
+						if ( nodes[ i ].type == "Cover Left" )
 						{
-							right = anglesToRight( node.angles );
+							right = anglesToRight( nodes[ i ].angles );
 							dir = vectorScale( right, 16 );
-							node = node.origin - dir;
+							node = nodes[ i ].origin - dir;
 						}
-						else
+						else if ( nodes[ i ].type == "Cover Right" )
 						{
-							if ( node.type == "Cover Right" )
-							{
-								right = anglesToRight( node.angles );
-								dir = vectorScale( right, 16 );
-								node = node.origin + dir;
-							}
+							right = anglesToRight( nodes[ i ].angles );
+							dir = vectorScale( right, 16 );
+							node = nodes[ i ].origin + dir;
 						}
 						self cancelgoal( "flee" );
 						self cancelgoal( "enemy_patrol" );
-						self addgoal( node, 8, 4, "cover" );
+						self addgoal( nodes[ i ], 8, 4, "cover" );
 						return;
 					}
 				}
-				_k1048 = getNextArrayKey( _a1048, _k1048 );
+				i++;
 			}
 		}
 	}
@@ -981,7 +953,7 @@ bot_update_cover()
 	}
 }
 
-bot_update_attack( enemy, dot_from, dot_to, sight, aim_target )
+bot_update_attack( enemy, dot_from, dot_to, sight, aim_target ) //checked matches cerberus output
 {
 	self allowattack( 0 );
 	self pressads( 0 );
@@ -995,7 +967,7 @@ bot_update_attack( enemy, dot_from, dot_to, sight, aim_target )
 		return;
 	}
 	radius = 50;
-	if ( dot_to > 0,9 )
+	if ( dot_to > 0.9 )
 	{
 		self pressads( 1 );
 	}
@@ -1023,7 +995,7 @@ bot_update_attack( enemy, dot_from, dot_to, sight, aim_target )
 	}
 }
 
-bot_weapon_ammo_frac()
+bot_weapon_ammo_frac() //checked matches cerberus output
 {
 	if ( self isreloading() || self isswitchingweapons() )
 	{
@@ -1043,7 +1015,7 @@ bot_weapon_ammo_frac()
 	return current / total;
 }
 
-bot_select_weapon()
+bot_select_weapon() //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
 	if ( !self isthrowinggrenade() || self isswitchingweapons() && self isreloading() )
 	{
@@ -1070,23 +1042,20 @@ bot_select_weapon()
 	{
 		if ( !bot_using_launcher() )
 		{
-			_a1202 = primaries;
-			_k1202 = getFirstArrayKey( _a1202 );
-			while ( isDefined( _k1202 ) )
+			i = 0;
+			while ( i < primaries.size )
 			{
-				primary = _a1202[ _k1202 ];
-				if ( !self getweaponammoclip( primary ) && !self getweaponammostock( primary ) )
+				if ( !self getweaponammoclip( primaries[ i ] ) && !self getweaponammostock( primaries[ i ] ) )
 				{
+					i++;
+					continue;
 				}
-				else
+				if ( primaries[ i ] == "smaw_mp" || primaries[ i ] == "fhj18_mp" )
 				{
-					if ( primary == "smaw_mp" || primary == "fhj18_mp" )
-					{
-						self switchtoweapon( primary );
-						return;
-					}
+					self switchtoweapon( primaries[ i ] );
+					return;
 				}
-				_k1202 = getNextArrayKey( _a1202, _k1202 );
+				i++;
 			}
 		}
 		else if ( !clip && !stock && !threat_is_qrdrone() )
@@ -1095,26 +1064,19 @@ bot_select_weapon()
 		}
 		return;
 	}
-	else
+	else if ( weapon == "fhj18_mp" && !target_istarget( ent ) )
 	{
-		if ( weapon == "fhj18_mp" && !target_istarget( ent ) )
+		foreach ( primary in primaries )
 		{
-			_a1225 = primaries;
-			_k1225 = getFirstArrayKey( _a1225 );
-			while ( isDefined( _k1225 ) )
+			if ( primary != weapon )
 			{
-				primary = _a1225[ _k1225 ];
-				if ( primary != weapon )
-				{
-					self switchtoweapon( primary );
-					return;
-				}
-				_k1225 = getNextArrayKey( _a1225, _k1225 );
+				self switchtoweapon( primary );
+				return;
 			}
-			return;
 		}
+		return;
 	}
-	while ( !clip )
+	if ( !clip )
 	{
 		if ( stock )
 		{
@@ -1123,46 +1085,43 @@ bot_select_weapon()
 				return;
 			}
 		}
-		_a1247 = primaries;
-		_k1247 = getFirstArrayKey( _a1247 );
-		while ( isDefined( _k1247 ) )
+		i = 0;
+		while ( i < primaries.size )
 		{
-			primary = _a1247[ _k1247 ];
-			if ( primary == weapon || primary == "fhj18_mp" )
+			if ( primaries[ i ] == weapon || primaries[ i ] == "fhj18_mp" )
 			{
+				i++;
+				continue;
 			}
-			else
+			if ( self getweaponammoclip( primaries[ i ] ) )
 			{
-				if ( self getweaponammoclip( primary ) )
-				{
-					self switchtoweapon( primary );
-					return;
-				}
+				self switchtoweapon( primaries[ i ] );
+				return;
 			}
-			_k1247 = getNextArrayKey( _a1247, _k1247 );
+			i++;
 		}
-		while ( bot_using_launcher() || bot_has_lmg() )
+		if ( bot_using_launcher() || bot_has_lmg() )
 		{
-			_a1263 = primaries;
-			_k1263 = getFirstArrayKey( _a1263 );
-			while ( isDefined( _k1263 ) )
+			i = 0;
+			while ( i < primaries.size )
 			{
-				primary = _a1263[ _k1263 ];
-				if ( primary == weapon || primary == "fhj18_mp" )
+				if ( primaries[ i ] == weapon || primaries[ i ] == "fhj18_mp" )
 				{
+					i++;
+					continue;
 				}
 				else
 				{
-					self switchtoweapon( primary );
+					self switchtoweapon( primaries[ i ] );
 					return;
 				}
-				_k1263 = getNextArrayKey( _a1263, _k1263 );
+				i++;
 			}
 		}
 	}
 }
 
-bot_has_shotgun()
+bot_has_shotgun() //checked changed at own discretion
 {
 	weapon = self getcurrentweapon();
 	if ( weapon == "none" )
@@ -1173,19 +1132,24 @@ bot_has_shotgun()
 	{
 		return 1;
 	}
-	if ( !bot_has_weapon_class( "spread" ) )
+	if ( bot_has_weapon_class( "spread" ) || bot_has_weapon_class( "pistol spread" ) )
 	{
-		return bot_has_weapon_class( "pistol spread" );
+		return 1;
 	}
+	return 0;
 }
 
-bot_has_crossbow()
+bot_has_crossbow() //checked changed at own discretion
 {
 	weapon = self getcurrentweapon();
-	return weapon == "crossbow_mp";
+	if ( weapon == "crossbow_mp" )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-bot_has_launcher()
+bot_has_launcher() //checked matches cerberus output
 {
 	if ( self getweaponammoclip( "smaw_mp" ) > 0 || self getweaponammostock( "smaw_mp" ) > 0 )
 	{
@@ -1198,7 +1162,7 @@ bot_has_launcher()
 	return 0;
 }
 
-bot_has_melee_weapon()
+bot_has_melee_weapon() //checked changed at own discretion
 {
 	weapon = self getcurrentweapon();
 	if ( weapon == "fhj18_mp" )
@@ -1208,49 +1172,61 @@ bot_has_melee_weapon()
 			return 1;
 		}
 	}
-	if ( weapon != "riotshield_mp" )
+	if ( weapon == "riotshield_mp" || weapon == "knife_held_mp" )
 	{
-		return weapon == "knife_held_mp";
+		return 1;
 	}
+	return 0;
 }
 
-bot_has_pistol()
+bot_has_pistol() //checked changed at own discretion
 {
-	if ( !bot_has_weapon_class( "pistol" ) )
+	if ( bot_has_weapon_class( "pistol" ) || bot_has_weapon_class( "pistol spread" ) )
 	{
-		return bot_has_weapon_class( "pistol spread" );
+		return 1;
 	}
+	return 0;
 }
 
-bot_has_lmg()
+bot_has_lmg() //checked changed at own discretion
 {
-	return bot_has_weapon_class( "mg" );
+	if ( bot_has_weapon_class( "mg" ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-bot_has_sniper()
+bot_has_sniper() //checked changed at own discretion
 {
-	return bot_has_weapon_class( "sniper" );
+	if ( bot_has_weapon_class( "sniper" ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-bot_using_launcher()
+bot_using_launcher() //checked changed at own discretion
 {
 	weapon = self getcurrentweapon();
-	if ( weapon != "smaw_mp" && weapon != "fhj18_mp" )
+	if ( weapon == "smaw_mp" || weapon == "fhj18_mp" || weapon == "usrpg_mp" )
 	{
-		return weapon == "usrpg_mp";
+		return 1;
 	}
+	return 0;
 }
 
-bot_has_minigun()
+bot_has_minigun() //checked changed at own discretion
 {
 	weapon = self getcurrentweapon();
-	if ( weapon != "minigun_mp" )
+	if ( weapon == "minigun_mp" || weapon == "inventory_minigun_mp" )
 	{
-		return weapon == "inventory_minigun_mp";
+		return 1;
 	}
+	return 0;
 }
 
-bot_has_weapon_class( class )
+bot_has_weapon_class( class ) //checked changed at own discretion
 {
 	if ( self isreloading() )
 	{
@@ -1261,15 +1237,19 @@ bot_has_weapon_class( class )
 	{
 		return 0;
 	}
-	return weaponclass( weapon ) == class;
+	if ( weaponclass( weapon ) == class )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-bot_health_frac()
+bot_health_frac() //checked matches cerberus output
 {
 	return self.health / self.maxhealth;
 }
 
-bot_should_hip_fire()
+bot_should_hip_fire() //checked matches cerberus output
 {
 	enemy = self.bot.threat.entity;
 	weapon = self getcurrentweapon();
@@ -1317,7 +1297,7 @@ bot_should_hip_fire()
 	return distsq < ( distcheck * distcheck );
 }
 
-bot_patrol_near_enemy( damage, attacker, direction )
+bot_patrol_near_enemy( damage, attacker, direction ) //checked matches cerberus output
 {
 	if ( threat_is_warthog( attacker ) )
 	{
@@ -1370,7 +1350,7 @@ bot_patrol_near_enemy( damage, attacker, direction )
 	}
 }
 
-bot_nearest_node( origin )
+bot_nearest_node( origin ) //checked matches cerberus output
 {
 	node = getnearestnode( origin );
 	if ( isDefined( node ) )
@@ -1385,7 +1365,7 @@ bot_nearest_node( origin )
 	return undefined;
 }
 
-bot_lookat_entity( entity )
+bot_lookat_entity( entity ) //checked matches cerberus output
 {
 	if ( isplayer( entity ) && entity getstance() != "prone" )
 	{
@@ -1407,42 +1387,39 @@ bot_lookat_entity( entity )
 	}
 }
 
-bot_combat_throw_lethal( origin )
+bot_combat_throw_lethal( origin ) //checked partially changed to match cerberus output did not change while loop to foreach see the github for more info
 {
 	weapons = self getweaponslist();
 	radius = 256;
 	if ( self hasperk( "specialty_flakjacket" ) )
 	{
-		radius *= 0,25;
+		radius *= 0.25;
 	}
-	if ( distancesquared( self.origin, origin ) < ( radius * radius ) )
+	if ( distancesquared( self.origin, origin ) < radius * radius )
 	{
 		return 0;
 	}
-	_a1562 = weapons;
-	_k1562 = getFirstArrayKey( _a1562 );
-	while ( isDefined( _k1562 ) )
+	i = 0;
+	while ( i < weapons.size )
 	{
-		weapon = _a1562[ _k1562 ];
-		if ( self getweaponammostock( weapon ) <= 0 )
+		if ( self getweaponammostock( weapons[ i ] ) <= 0 )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( weapons[ i ] == "frag_grenade_mp" || weapons[ i ] == "sticky_grenade_mp" )
 		{
-			if ( weapon == "frag_grenade_mp" || weapon == "sticky_grenade_mp" )
+			if ( self throwgrenade( weapons[ i ], origin ) )
 			{
-				if ( self throwgrenade( weapon, origin ) )
-				{
-					return 1;
-				}
+				return 1;
 			}
 		}
-		_k1562 = getNextArrayKey( _a1562, _k1562 );
+		i++;
 	}
 	return 0;
 }
 
-bot_combat_throw_tactical( origin )
+bot_combat_throw_tactical( origin ) //checked partially changed to match cerberus output did not change while loop to foreach see the github for more info
 {
 	weapons = self getweaponslist();
 	if ( !self hasperk( "specialty_flashprotection" ) )
@@ -1452,60 +1429,56 @@ bot_combat_throw_tactical( origin )
 			return 0;
 		}
 	}
-	_a1593 = weapons;
-	_k1593 = getFirstArrayKey( _a1593 );
-	while ( isDefined( _k1593 ) )
+	i = 0;
+	while ( i < weapons.size )
 	{
-		weapon = _a1593[ _k1593 ];
-		if ( self getweaponammostock( weapon ) <= 0 )
+		if ( self getweaponammostock( weapons[ i ] ) <= 0 )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( weapons[ i ] == "flash_grenade_mp" || weapons[ i ] == "concussion_grenade_mp" )
 		{
-			if ( weapon == "flash_grenade_mp" || weapon == "concussion_grenade_mp" )
+			if ( self throwgrenade( weapons[ i ], origin ) )
 			{
-				if ( self throwgrenade( weapon, origin ) )
-				{
-					return 1;
-				}
+				return 1;
 			}
 		}
-		_k1593 = getNextArrayKey( _a1593, _k1593 );
+		i++;
 	}
 	return 0;
 }
 
-bot_combat_throw_smoke( origin )
+bot_combat_throw_smoke( origin ) //checked partially changed to match cerberus output did not change while loop to foreach see the github for more info
 {
 	if ( self getweaponammostock( "willy_pete_mp" ) <= 0 )
 	{
 		return 0;
 	}
 	time = getTime();
-	_a1621 = level.players;
-	_k1621 = getFirstArrayKey( _a1621 );
-	while ( isDefined( _k1621 ) )
+	i = 0;
+	while ( i < level.players.size )
 	{
-		player = _a1621[ _k1621 ];
-		if ( !isDefined( player.smokegrenadetime ) )
+		if ( !isDefined( level.players[ i ].smokegrenadetime ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( ( time - player.smokegrenadetime ) > 12000 )
+		if ( ( time - level.players[ i ].smokegrenadetime ) > 12000 )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( distancesquared( origin, level.players[ i ].smokegrenadeposition ) < 65536 )
 		{
-			if ( distancesquared( origin, player.smokegrenadeposition ) < 65536 )
-			{
-				return 0;
-			}
+			return 0;
 		}
-		_k1621 = getNextArrayKey( _a1621, _k1621 );
+		i++;
 	}
 	return self throwgrenade( "willy_pete_mp", origin );
 }
 
-bot_combat_throw_emp( origin )
+bot_combat_throw_emp( origin ) //checked matches cerberus output
 {
 	if ( self getweaponammostock( "emp_mp" ) <= 0 )
 	{
@@ -1514,39 +1487,31 @@ bot_combat_throw_emp( origin )
 	return self throwgrenade( "emp_mp", origin );
 }
 
-bot_combat_throw_proximity( origin )
+bot_combat_throw_proximity( origin ) //checked changed to match cerberus output
 {
-	_a1654 = level.missileentities;
-	_k1654 = getFirstArrayKey( _a1654 );
-	while ( isDefined( _k1654 ) )
+	foreach ( missile in level.missileentities )
 	{
-		missile = _a1654[ _k1654 ];
 		if ( isDefined( missile ) && distancesquared( missile.origin, origin ) < 65536 )
 		{
 			return 0;
 		}
-		_k1654 = getNextArrayKey( _a1654, _k1654 );
 	}
 	return self throwgrenade( "proximity_grenade_mp", origin );
 }
 
-bot_combat_tactical_insertion( origin )
+bot_combat_tactical_insertion( origin ) //checked changed to match cerberus output
 {
-	_a1667 = level.missileentities;
-	_k1667 = getFirstArrayKey( _a1667 );
-	while ( isDefined( _k1667 ) )
+	foreach ( missile in level.missileentities )
 	{
-		missile = _a1667[ _k1667 ];
 		if ( isDefined( missile ) && distancesquared( missile.origin, origin ) < 65536 )
 		{
 			return 0;
 		}
-		_k1667 = getNextArrayKey( _a1667, _k1667 );
 	}
 	return self throwgrenade( "tactical_insertion_mp", origin );
 }
 
-bot_combat_toss_flash( origin )
+bot_combat_toss_flash( origin ) //checked changed to match cerberus output
 {
 	if ( maps/mp/bots/_bot::bot_get_difficulty() == "easy" )
 	{
@@ -1556,22 +1521,18 @@ bot_combat_toss_flash( origin )
 	{
 		return 0;
 	}
-	_a1690 = level.missileentities;
-	_k1690 = getFirstArrayKey( _a1690 );
-	while ( isDefined( _k1690 ) )
+	foreach ( missile in level.missileentities )
 	{
-		missile = _a1690[ _k1690 ];
 		if ( isDefined( missile ) && distancesquared( missile.origin, origin ) < 65536 )
 		{
 			return 0;
 		}
-		_k1690 = getNextArrayKey( _a1690, _k1690 );
 	}
 	self pressattackbutton( 2 );
 	return 1;
 }
 
-bot_combat_toss_frag( origin )
+bot_combat_toss_frag( origin ) //checked changed to match cerberus output
 {
 	if ( maps/mp/bots/_bot::bot_get_difficulty() == "easy" )
 	{
@@ -1581,22 +1542,18 @@ bot_combat_toss_frag( origin )
 	{
 		return 0;
 	}
-	_a1714 = level.missileentities;
-	_k1714 = getFirstArrayKey( _a1714 );
-	while ( isDefined( _k1714 ) )
+	foreach ( missile in level.missileentities )
 	{
-		missile = _a1714[ _k1714 ];
 		if ( isDefined( missile ) && distancesquared( missile.origin, origin ) < 16384 )
 		{
 			return 0;
 		}
-		_k1714 = getNextArrayKey( _a1714, _k1714 );
 	}
 	self pressattackbutton( 1 );
 	return 1;
 }
 
-bot_shotgun_think()
+bot_shotgun_think() //checked partially changed to match cerberus output did not change foreach to while loop see github for more info
 {
 	if ( self isthrowinggrenade() || self isswitchingweapons() )
 	{
@@ -1619,16 +1576,13 @@ bot_shotgun_think()
 			self pressads( 1 );
 		}
 	}
-	else
+	else if ( self getweaponammoclip( weapon ) && distsq < 90000 )
 	{
-		if ( self getweaponammoclip( weapon ) && distsq < 90000 )
-		{
-			self cancelgoal( "enemy_patrol" );
-			self addgoal( self.origin, 24, 4, "cover" );
-		}
+		self cancelgoal( "enemy_patrol" );
+		self addgoal( self.origin, 24, 4, "cover" );
 	}
 	dot = self bot_dot_product( self.bot.threat.aim_target );
-	if ( distsq < 250000 && dot > 0,98 )
+	if ( distsq < 250000 && dot > 0.98 )
 	{
 		self allowattack( 1 );
 		return;
@@ -1640,7 +1594,7 @@ bot_shotgun_think()
 	if ( self threat_is_player() )
 	{
 		dot = enemy bot_dot_product( self.origin );
-		if ( dot < 0,9 )
+		if ( dot < 0.9 )
 		{
 			return;
 		}
@@ -1651,32 +1605,35 @@ bot_shotgun_think()
 	}
 	primaries = self getweaponslistprimaries();
 	weapon = self getcurrentweapon();
-	_a1793 = primaries;
-	_k1793 = getFirstArrayKey( _a1793 );
-	while ( isDefined( _k1793 ) )
+	i = 0;
+	while ( i < primaries.size )
 	{
-		primary = _a1793[ _k1793 ];
-		if ( primary == weapon )
+		if ( primaries[ i ] == weapon )
 		{
+			i++;
+			continue;
 		}
-		else if ( !self getweaponammoclip( primary ) )
+		if ( !self getweaponammoclip( primaries[ i ] ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( maps/mp/gametypes/_weapon_utils::isguidedrocketlauncherweapon( primary ) )
+		if ( maps/mp/gametypes/_weapon_utils::isguidedrocketlauncherweapon( primaries[ i ] ) )
 		{
+			i++;
+			continue;
 		}
-		else class = weaponclass( primary );
-		if ( class != "spread" && class != "pistol spread" || class == "melee" && class == "item" )
+		class = weaponclass( primaries[ i ] );
+		if ( class == "spread" || class == "pistol spread" || class == "melee" && class == "item" )
 		{
+			i++;
+			continue;
 		}
-		else
+		if ( self switchtoweapon( primaries[ i ] ) )
 		{
-			if ( self switchtoweapon( primary ) )
-			{
-				return;
-			}
+			return;
 		}
-		_k1793 = getNextArrayKey( _a1793, _k1793 );
+		i++;
 	}
 	if ( self getweaponammostock( "willy_pete_mp" ) > 0 )
 	{
@@ -1685,13 +1642,13 @@ bot_shotgun_think()
 	}
 }
 
-bot_turret_set_dangerous( turret )
+bot_turret_set_dangerous( turret ) //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
 	if ( !level.teambased )
 	{
 		return;
 	}
-	if ( isDefined( turret.dead ) || turret.dead && isDefined( turret.carried ) && turret.carried )
+	if ( isDefined( turret.dead ) && turret.dead || isDefined( turret.carried ) && turret.carried )
 	{
 		return;
 	}
@@ -1712,61 +1669,50 @@ bot_turret_set_dangerous( turret )
 	if ( turret.turrettype == "sentry" )
 	{
 		nodes = getvisiblenodes( nearest );
-		_a1868 = nodes;
-		_k1868 = getFirstArrayKey( _a1868 );
-		while ( isDefined( _k1868 ) )
+		foreach ( node in nodes )
 		{
-			node = _a1868[ _k1868 ];
 			dir = vectornormalize( node.origin - turret.origin );
 			dot = vectordot( forward, dir );
-			if ( dot >= 0,5 )
+			if ( dot >= 0.5 )
 			{
 				turret turret_mark_node_dangerous( node );
 			}
-			_k1868 = getNextArrayKey( _a1868, _k1868 );
 		}
 	}
-	else while ( turret.turrettype == "microwave" )
+	if ( turret.turrettype == "microwave" )
 	{
 		nodes = getnodesinradius( turret.origin, level.microwave_radius, 0 );
-		_a1883 = nodes;
-		_k1883 = getFirstArrayKey( _a1883 );
-		while ( isDefined( _k1883 ) )
+		i = 0;
+		while ( i < nodes.size )
 		{
-			node = _a1883[ _k1883 ];
-			if ( !nodesvisible( nearest, node ) )
+			if ( !nodesvisible( nearest, nodes[ i ] ) )
 			{
+				i++;
+				continue;
 			}
-			else
+			dir = vectornormalize( nodes[ i ].origin - turret.origin );
+			dot = vectordot( forward, dir );
+			if ( dot >= level.microwave_turret_cone_dot )
 			{
-				dir = vectornormalize( node.origin - turret.origin );
-				dot = vectordot( forward, dir );
-				if ( dot >= level.microwave_turret_cone_dot )
-				{
-					turret turret_mark_node_dangerous( node );
-				}
+				turret turret_mark_node_dangerous( nodes[ i ] );
 			}
-			_k1883 = getNextArrayKey( _a1883, _k1883 );
+			i++;
 		}
 	}
 }
 
-bot_turret_nearest_node( turret )
+bot_turret_nearest_node( turret ) //checked changed to match cerberus output
 {
 	nodes = getnodesinradiussorted( turret.origin, 256, 0 );
 	forward = anglesToForward( turret.angles );
-	_a1906 = nodes;
-	_k1906 = getFirstArrayKey( _a1906 );
-	while ( isDefined( _k1906 ) )
+	foreach ( node in nodes )
 	{
-		node = _a1906[ _k1906 ];
 		dir = vectornormalize( node.origin - turret.origin );
 		dot = vectordot( forward, dir );
-		if ( dot > 0,5 )
+		if ( dot > 0.5 )
 		{
 			return node;
 		}
-		_k1906 = getNextArrayKey( _a1906, _k1906 );
 	}
 	if ( nodes.size )
 	{
@@ -1775,26 +1721,23 @@ bot_turret_nearest_node( turret )
 	return undefined;
 }
 
-turret_mark_node_dangerous( node )
+turret_mark_node_dangerous( node ) //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
-	_a1927 = level.teams;
-	_k1927 = getFirstArrayKey( _a1927 );
-	while ( isDefined( _k1927 ) )
+	i = 0;
+	while ( i < level.teams.size )
 	{
-		team = _a1927[ _k1927 ];
-		if ( team == self.owner.team )
+		if ( level.teams[ i ] == self.owner.team )
 		{
+			i++;
+			continue;
 		}
-		else
-		{
-			node setdangerous( team, 1 );
-		}
-		_k1927 = getNextArrayKey( _a1927, _k1927 );
+		node setdangerous( level.teams[ i ], 1 );
+		i++;
 	}
 	self.dangerous_nodes[ self.dangerous_nodes.size ] = node;
 }
 
-turret_get_attack_node()
+turret_get_attack_node() //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
 	nearest = bot_nearest_node( self.origin );
 	if ( !isDefined( nearest ) )
@@ -1803,40 +1746,37 @@ turret_get_attack_node()
 	}
 	nodes = getnodesinradiussorted( self.origin, 512, 64 );
 	forward = anglesToForward( self.angles );
-	_a1952 = nodes;
-	_k1952 = getFirstArrayKey( _a1952 );
-	while ( isDefined( _k1952 ) )
+	i = 0;
+	while ( i < nodes.size )
 	{
-		node = _a1952[ _k1952 ];
-		if ( !nodesvisible( node, nearest ) )
+		if ( !nodesvisible( nodes[ i ], nearest ) )
 		{
+			i++;
+			continue;
 		}
-		else
+		dir = vectornormalize( nodes[ i ].origin - self.origin );
+		dot = vectordot( forward, dir );
+		if ( dot < 0.5 )
 		{
-			dir = vectornormalize( node.origin - self.origin );
-			dot = vectordot( forward, dir );
-			if ( dot < 0,5 )
-			{
-				return node;
-			}
+			return nodes[ i ];
 		}
-		_k1952 = getNextArrayKey( _a1952, _k1952 );
+		i++;
 	}
 	return undefined;
 }
 
-bot_riotshield_think( enemy )
+bot_riotshield_think( enemy ) //checked matches cerberus output
 {
 	dot = enemy bot_dot_product( self.origin );
 	if ( !bot_has_crossbow() && !bot_using_launcher() && enemy getstance() != "stand" )
 	{
-		if ( dot > 0,8 )
+		if ( dot > 0.8 )
 		{
 			self allowattack( 0 );
 		}
 	}
 	forward = anglesToForward( enemy.angles );
-	origin = enemy.origin + ( forward * randomintrange( 256, 512 ) );
+	origin = enemy.origin + forward * randomintrange( 256, 512 );
 	if ( self bot_combat_throw_lethal( origin ) )
 	{
 		return;
@@ -1860,7 +1800,7 @@ bot_riotshield_think( enemy )
 	}
 }
 
-bot_riotshield_dangerous_think( enemy, goal )
+bot_riotshield_dangerous_think( enemy, goal ) //checked partially changed to match cerberus output
 {
 	nearest = bot_nearest_node( enemy.origin );
 	if ( !isDefined( nearest ) )
@@ -1876,61 +1816,49 @@ bot_riotshield_dangerous_think( enemy, goal )
 	}
 	nodes = array_randomize( nodes );
 	forward = anglesToForward( enemy.angles );
-	_a2037 = nodes;
-	_k2037 = getFirstArrayKey( _a2037 );
-	while ( isDefined( _k2037 ) )
+	i = 0;
+	while ( i < nodes.size )
 	{
-		node = _a2037[ _k2037 ];
-		if ( !nodesvisible( node, nearest ) )
+		if ( !nodesvisible( nodes[ i ], nearest ) )
 		{
+			i++;
+			continue;
 		}
-		else
+		dir = vectornormalize( nodes[ i ].origin - enemy.origin );
+		dot = vectordot( forward, dir );
+		if ( dot < 0 )
 		{
-			dir = vectornormalize( node.origin - enemy.origin );
-			dot = vectordot( forward, dir );
-			if ( dot < 0 )
+			if ( distancesquared( self.origin, enemy.origin ) < 262144 )
 			{
-				if ( distancesquared( self.origin, enemy.origin ) < 262144 )
-				{
-					self addgoal( node, 24, 4, "cover" );
-				}
-				else
-				{
-					self addgoal( node, 24, 3, "cover" );
-				}
-				break;
+				self addgoal( nodes[ i ], 24, 4, "cover" );
 			}
+			else
+			{
+				self addgoal( nodes[ i ], 24, 3, "cover" );
+			}
+			break;
 		}
-		else
-		{
-			_k2037 = getNextArrayKey( _a2037, _k2037 );
-		}
+		i++;
 	}
 	if ( !level.teambased )
 	{
 		return;
 	}
 	nodes = getnodesinradius( enemy.origin, 512, 0 );
-	_a2069 = nodes;
-	_k2069 = getFirstArrayKey( _a2069 );
-	while ( isDefined( _k2069 ) )
+	foreach ( node in nodes )
 	{
-		node = _a2069[ _k2069 ];
 		dir = vectornormalize( node.origin - enemy.origin );
 		dot = vectordot( forward, dir );
-		if ( dot >= 0,5 )
+		if ( dot >= 0.5 )
 		{
 			node setdangerous( self.team, 1 );
 		}
-		_k2069 = getNextArrayKey( _a2069, _k2069 );
 	}
 	enemy wait_endon( 5, "death" );
-	_a2082 = nodes;
-	_k2082 = getFirstArrayKey( _a2082 );
-	while ( isDefined( _k2082 ) )
+	foreach ( node in nodes )
 	{
-		node = _a2082[ _k2082 ];
 		node setdangerous( self.team, 0 );
-		_k2082 = getNextArrayKey( _a2082, _k2082 );
 	}
 }
+
+

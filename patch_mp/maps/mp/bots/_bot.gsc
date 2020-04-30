@@ -250,12 +250,12 @@ bot_count_enemy_bots( friend_team ) //checked partially changed to match cerberu
 	i = 0;
 	while ( i < level.teams.size )
 	{
-		if ( team == friend_team )
+		if ( level.teams[ i ] == friend_team )
 		{
 			i++;
 			continue;
 		}
-		enemies += bot_count_bots( team );
+		enemies += bot_count_bots( level.teams[ i ] );
 		i++;
 	}
 	return enemies;
@@ -595,7 +595,7 @@ bot_choose_class() //checked partially changed to match cerberus output did not 
 			sidearm = self getloadoutweapon( i, "secondary" );
 			if ( sidearm == "fhj18_mp" )
 			{
-				self notify( "menuresponse", "changeclass", bot_classes[i] );
+				self notify( "menuresponse", "changeclass", bot_classes[ i ] );
 				i++;
 				continue;
 			}
@@ -997,14 +997,14 @@ bot_update_failsafe() //checked partially changed to match cerberus output //did
 		{
 			while ( i < nodes.size )
 			{
-				if ( !bot_failsafe_node_valid( nearest, node ) )
+				if ( !bot_failsafe_node_valid( nearest, nodes[ i ] ) )
 				{
 					i++;
 					continue;
 				}
 				else
 				{
-					self botsetfailsafenode( node );
+					self botsetfailsafenode( nodes[ i ] );
 					wait 0.5;
 					self.bot.update_idle_lookat = 0;
 					self bot_update_lookat();
@@ -1767,7 +1767,7 @@ bot_update_weapon()
 		}
 		if ( ( self getweaponammoclip( primaries[ i ] ) || self getweaponammostock( primaries[ i ] ) ) && primaries[ i ] != weapon )
 		{
-			self switchtoweapon( primary );
+			self switchtoweapon( primaries[ i ] );
 			return;
 		}
 	}
@@ -1796,7 +1796,7 @@ bot_update_crate() //checked partially changed to match cerberus output continue
 					i++;
 					continue;
 				}
-				if ( crate.hacker.team == self.team )
+				if ( crates[ i ].hacker.team == self.team )
 				{
 					i++;
 					continue;
@@ -2579,4 +2579,5 @@ devgui_bot_spawn_think( origin, yaw ) //didn't check dev call
 	}
 	*/
 }
+
 
