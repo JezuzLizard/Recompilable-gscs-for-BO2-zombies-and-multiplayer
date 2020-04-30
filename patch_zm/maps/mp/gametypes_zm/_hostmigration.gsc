@@ -1,12 +1,11 @@
-#include maps/mp/zombies/_zm;
 #include maps/mp/gametypes_zm/_hud;
-#include maps/mp/zombies/_zm_utility;
 #include maps/mp/gametypes_zm/_hud_util;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-debug_script_structs()
+debug_script_structs() //dev call did not check
 {
+	/*
 /#
 	if ( isDefined( level.struct ) )
 	{
@@ -31,9 +30,10 @@ debug_script_structs()
 	}
 	else println( "*** No structs defined." );
 #/
+	*/
 }
 
-updatetimerpausedness()
+updatetimerpausedness() //checked matches cerberus output
 {
 	shouldbestopped = isDefined( level.hostmigrationtimer );
 	if ( !level.timerstopped && shouldbestopped )
@@ -41,54 +41,49 @@ updatetimerpausedness()
 		level.timerstopped = 1;
 		level.timerpausetime = getTime();
 	}
-	else
+	else if ( level.timerstopped && !shouldbestopped )
 	{
-		if ( level.timerstopped && !shouldbestopped )
-		{
-			level.timerstopped = 0;
-			level.discardtime += getTime() - level.timerpausetime;
-		}
+		level.timerstopped = 0;
+		level.discardtime += getTime() - level.timerpausetime;
 	}
 }
 
-callback_hostmigrationsave()
+callback_hostmigrationsave() //checked matches cerberus output
 {
 }
 
-callback_prehostmigrationsave()
+callback_prehostmigrationsave() //checked matches cerberus output
 {
 	undo_link_changes();
-	disablezombies( 1 );
+	disablezombies(1);
 	if ( is_true( level._hm_should_pause_spawning ) )
 	{
 		flag_set( "spawn_zombies" );
 	}
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		level.players[ i ] enableinvulnerability();
-		i++;
 	}
 }
 
-pausetimer()
+pausetimer() //checked matches cerberus output
 {
 	level.migrationtimerpausetime = getTime();
 }
 
-resumetimer()
+resumetimer() //checked matches cerberus output
 {
 	level.discardtime += getTime() - level.migrationtimerpausetime;
 }
 
-locktimer()
+locktimer() //checked matches cerberus output
 {
 	level endon( "host_migration_begin" );
 	level endon( "host_migration_end" );
 	for ( ;; )
 	{
 		currtime = getTime();
-		wait 0,05;
+		wait 0.05;
 		if ( !level.timerstopped && isDefined( level.discardtime ) )
 		{
 			level.discardtime += getTime() - currtime;
@@ -96,7 +91,7 @@ locktimer()
 	}
 }
 
-callback_hostmigration()
+callback_hostmigration() //checked changed to match cerberus output
 {
 	redo_link_changes();
 	setslowmotion( 1, 1, 0 );
@@ -104,71 +99,65 @@ callback_hostmigration()
 	level.hostmigrationreturnedplayercount = 0;
 	if ( level.gameended )
 	{
-/#
-		println( "Migration starting at time " + getTime() + ", but game has ended, so no countdown." );
-#/
+			/*
+		/#
+			println("Migration starting at time " + GetTime() + ", but game has ended, so no countdown.");
+		#/
+			*/
 		return;
 	}
-	sethostmigrationstatus( 1 );
+	sethostmigrationstatus(1);
 	level notify( "host_migration_begin" );
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
-		if ( isDefined( level.hostmigration_link_entity_callback ) )
+		if ( isdefined( level.hostmigration_link_entity_callback ) )
 		{
-			if ( !isDefined( level.players[ i ]._host_migration_link_entity ) )
+			if ( !isdefined( level.players[ i ]._host_migration_link_entity ) )
 			{
-				level.players[ i ]._host_migration_link_entity = level.players[ i ] [[ level.hostmigration_link_entity_callback ]]();
+				level.players[i]._host_migration_link_entity = level.players[ i ] [[ level.hostmigration_link_entity_callback ]]();
 			}
 		}
 		level.players[ i ] thread hostmigrationtimerthink();
-		i++;
 	}
-	while ( isDefined( level.hostmigration_ai_link_entity_callback ) )
+	if ( isdefined( level.hostmigration_ai_link_entity_callback ) )
 	{
-		zombies = getaiarray( level.zombie_team );
-		while ( isDefined( zombies ) && zombies.size > 0 )
+		zombies = getaiarray(level.zombie_team);
+		if ( isdefined( zombies ) && zombies.size > 0 )
 		{
-			_a133 = zombies;
-			_k133 = getFirstArrayKey( _a133 );
-			while ( isDefined( _k133 ) )
+			foreach(zombie in zombies)
 			{
-				zombie = _a133[ _k133 ];
-				if ( !isDefined( zombie._host_migration_link_entity ) )
+				if ( !isdefined( zombie._host_migration_link_entity ) )
 				{
 					zombie._host_migration_link_entity = zombie [[ level.hostmigration_ai_link_entity_callback ]]();
 				}
-				_k133 = getNextArrayKey( _a133, _k133 );
 			}
 		}
 	}
-	if ( level.inprematchperiod )
+	else if ( level.inprematchperiod )
 	{
-		level waittill( "prematch_over" );
+		level waittill("prematch_over");
 	}
-/#
-	println( "Migration starting at time " + getTime() );
-#/
+		/*
+	/#
+		println( "Migration starting at time " + GetTime() );
+	#/
+		*/
 	level.hostmigrationtimer = 1;
 	thread locktimer();
 	zombies = getaiarray( level.zombie_team );
-	while ( isDefined( zombies ) && zombies.size > 0 )
+	if ( isdefined( zombies ) && zombies.size > 0 )
 	{
-		_a156 = zombies;
-		_k156 = getFirstArrayKey( _a156 );
-		while ( isDefined( _k156 ) )
+		foreach ( zombie in zombies )
 		{
-			zombie = _a156[ _k156 ];
-			if ( isDefined( zombie._host_migration_link_entity ) )
+			if ( isdefined(zombie._host_migration_link_entity ) ) 
 			{
 				ent = spawn( "script_origin", zombie.origin );
 				ent.angles = zombie.angles;
-				zombie linkto( ent );
+				zombie linkto(ent);
 				ent linkto( zombie._host_migration_link_entity, "tag_origin", zombie._host_migration_link_entity worldtolocalcoords( ent.origin ), ent.angles + zombie._host_migration_link_entity.angles );
 				zombie._host_migration_link_helper = ent;
 				zombie linkto( zombie._host_migration_link_helper );
 			}
-			_k156 = getNextArrayKey( _a156, _k156 );
 		}
 	}
 	level endon( "host_migration_begin" );
@@ -178,33 +167,25 @@ callback_hostmigration()
 		flag_clear( "spawn_zombies" );
 	}
 	hostmigrationwait();
-	_a185 = level.players;
-	_k185 = getFirstArrayKey( _a185 );
-	while ( isDefined( _k185 ) )
+	foreach ( player in level.players )
 	{
-		player = _a185[ _k185 ];
 		player thread post_migration_become_vulnerable();
-		_k185 = getNextArrayKey( _a185, _k185 );
 	}
 	zombies = getaiarray( level.zombie_team );
-	while ( isDefined( zombies ) && zombies.size > 0 )
+	if ( isdefined( zombies ) && zombies.size > 0 )
 	{
-		_a193 = zombies;
-		_k193 = getFirstArrayKey( _a193 );
-		while ( isDefined( _k193 ) )
+		foreach ( zombie in zombies )
 		{
-			zombie = _a193[ _k193 ];
-			if ( isDefined( zombie._host_migration_link_entity ) )
+			if ( isdefined(zombie._host_migration_link_entity ) )
 			{
 				zombie unlink();
 				zombie._host_migration_link_helper delete();
 				zombie._host_migration_link_helper = undefined;
 				zombie._host_migration_link_entity = undefined;
 			}
-			_k193 = getNextArrayKey( _a193, _k193 );
 		}
 	}
-	enablezombies( 1 );
+	enablezombies(1);
 	if ( level._hm_should_pause_spawning )
 	{
 		flag_set( "spawn_zombies" );
@@ -212,46 +193,48 @@ callback_hostmigration()
 	level.hostmigrationtimer = undefined;
 	level._hm_should_pause_spawning = undefined;
 	sethostmigrationstatus( 0 );
-/#
-	println( "Migration finished at time " + getTime() );
-#/
+		/*
+	/#
+		println("Migration finished at time " + GetTime());
+	#/
+		*/
 	level notify( "host_migration_end" );
 }
 
-post_migration_become_vulnerable()
+post_migration_become_vulnerable() //checked matches cerberus output
 {
 	self endon( "disconnect" );
-	wait 3;
+	wait( 3 );
 	self disableinvulnerability();
 }
 
-matchstarttimerconsole_internal( counttime, matchstarttimer )
+matchstarttimerconsole_internal( counttime, matchstarttimer ) //checked matches cerberus output
 {
 	waittillframeend;
+	visionsetnaked( "mpIntro", 0 );
 	level endon( "match_start_timer_beginning" );
 	while ( counttime > 0 && !level.gameended )
 	{
 		matchstarttimer thread maps/mp/gametypes_zm/_hud::fontpulse( level );
-		wait ( matchstarttimer.inframes * 0,05 );
+		wait ( matchstarttimer.inframes * 0.05 );
 		matchstarttimer setvalue( counttime );
 		counttime--;
-
-		wait ( 1 - ( matchstarttimer.inframes * 0,05 ) );
+		wait ( 1 - ( matchstarttimer.inframes * 0.05 ) );
 	}
 }
 
-matchstarttimerconsole( type, duration )
+matchstarttimerconsole( type, duration ) //checked matches cerberus output
 {
 	level notify( "match_start_timer_beginning" );
 	wait 0,05;
-	matchstarttext = createserverfontstring( "objective", 1,5 );
+	matchstarttext = createserverfontstring( "objective", 1.5 );
 	matchstarttext setpoint( "CENTER", "CENTER", 0, -40 );
 	matchstarttext.sort = 1001;
 	matchstarttext settext( game[ "strings" ][ "waiting_for_teams" ] );
 	matchstarttext.foreground = 0;
 	matchstarttext.hidewheninmenu = 1;
 	matchstarttext settext( game[ "strings" ][ type ] );
-	matchstarttimer = createserverfontstring( "objective", 2,2 );
+	matchstarttimer = createserverfontstring( "objective", 2.2 );
 	matchstarttimer setpoint( "CENTER", "CENTER", 0, 0 );
 	matchstarttimer.sort = 1001;
 	matchstarttimer.color = ( 1, 1, 0 );
@@ -267,7 +250,7 @@ matchstarttimerconsole( type, duration )
 	matchstarttext destroyelem();
 }
 
-hostmigrationwait()
+hostmigrationwait() //checked matches cerberus output may need to check order of operations
 {
 	level endon( "game_ended" );
 	if ( level.hostmigrationreturnedplayercount < ( ( level.players.size * 2 ) / 3 ) )
@@ -275,17 +258,18 @@ hostmigrationwait()
 		thread matchstarttimerconsole( "waiting_for_teams", 20 );
 		hostmigrationwaitforplayers();
 	}
+	level notify( "host_migration_countdown_begin" );
 	thread matchstarttimerconsole( "match_starting_in", 5 );
 	wait 5;
 }
 
-hostmigrationwaitforplayers()
+hostmigrationwaitforplayers() //checked matches cerberus output
 {
 	level endon( "hostmigration_enoughplayers" );
 	wait 15;
 }
 
-hostmigrationtimerthink_internal()
+hostmigrationtimerthink_internal() //checked matches cerberus output
 {
 	level endon( "host_migration_begin" );
 	level endon( "host_migration_end" );
@@ -294,23 +278,25 @@ hostmigrationtimerthink_internal()
 	{
 		self waittill( "spawned" );
 	}
-	if ( isDefined( self._host_migration_link_entity ) )
+	if ( isdefined( self._host_migration_link_entity ) )
 	{
 		ent = spawn( "script_origin", self.origin );
 		ent.angles = self.angles;
 		self linkto( ent );
 		ent linkto( self._host_migration_link_entity, "tag_origin", self._host_migration_link_entity worldtolocalcoords( ent.origin ), ent.angles + self._host_migration_link_entity.angles );
 		self._host_migration_link_helper = ent;
-/#
-		println( "Linking player to ent " + self._host_migration_link_entity.targetname );
-#/
+			/*
+		/#
+			println( "Linking player to ent " + self._host_migration_link_entity.targetname );
+		#/
+			*/
 	}
 	self.hostmigrationcontrolsfrozen = 1;
 	self freezecontrols( 1 );
 	level waittill( "host_migration_end" );
 }
 
-hostmigrationtimerthink()
+hostmigrationtimerthink() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "host_migration_begin" );
@@ -319,16 +305,18 @@ hostmigrationtimerthink()
 	{
 		self freezecontrols( 0 );
 		self.hostmigrationcontrolsfrozen = 0;
-/#
-		println( " Host migration unfreeze controls" );
-#/
+			/*
+		/#
+			println(" Host migration unfreeze controls");
+		#/
+			*/
 	}
-	if ( isDefined( self._host_migration_link_entity ) )
+	if ( isdefined( self._host_migration_link_entity ) )
 	{
 		self unlink();
 		self._host_migration_link_helper delete();
 		self._host_migration_link_helper = undefined;
-		if ( isDefined( self._host_migration_link_entity._post_host_migration_thread ) )
+		if ( isdefined( self._host_migration_link_entity._post_host_migration_thread ) )
 		{
 			self thread [[ self._host_migration_link_entity._post_host_migration_thread ]]( self._host_migration_link_entity );
 		}
@@ -336,7 +324,7 @@ hostmigrationtimerthink()
 	}
 }
 
-waittillhostmigrationdone()
+waittillhostmigrationdone() //checked matches cerberus output
 {
 	if ( !isDefined( level.hostmigrationtimer ) )
 	{
@@ -347,7 +335,7 @@ waittillhostmigrationdone()
 	return getTime() - starttime;
 }
 
-waittillhostmigrationstarts( duration )
+waittillhostmigrationstarts( duration ) //checked matches cerberus output
 {
 	if ( isDefined( level.hostmigrationtimer ) )
 	{
@@ -357,15 +345,17 @@ waittillhostmigrationstarts( duration )
 	wait duration;
 }
 
-waitlongdurationwithhostmigrationpause( duration )
+waitlongdurationwithhostmigrationpause( duration ) //checked matches cerberus output may need to check order of operations
 {
 	if ( duration == 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( duration > 0 );
 #/
+	*/
 	starttime = getTime();
 	endtime = getTime() + ( duration * 1000 );
 	while ( getTime() < endtime )
@@ -377,25 +367,68 @@ waitlongdurationwithhostmigrationpause( duration )
 			endtime += timepassed;
 		}
 	}
+	/*
+/#
 	if ( getTime() != endtime )
 	{
-/#
 		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO endtime = " + endtime );
 #/
 	}
+	*/
 	waittillhostmigrationdone();
 	return getTime() - starttime;
 }
 
-waitlongdurationwithgameendtimeupdate( duration )
+waitlongdurationwithhostmigrationpauseemp( duration ) //checked matches cerberus output may need to check order of operations
 {
 	if ( duration == 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( duration > 0 );
 #/
+	*/
+	starttime = getTime();
+	empendtime = getTime() + ( duration * 1000 );
+	level.empendtime = empendtime;
+	while ( getTime() < empendtime )
+	{
+		waittillhostmigrationstarts( ( empendtime - getTime() ) / 1000 );
+		if ( isDefined( level.hostmigrationtimer ) )
+		{
+			timepassed = waittillhostmigrationdone();
+			if ( isDefined( empendtime ) )
+			{
+				empendtime += timepassed;
+			}
+		}
+	}
+	/*
+/#
+	if ( getTime() != empendtime )
+	{
+		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO empendtime = " + empendtime );
+#/
+	}
+	*/
+	waittillhostmigrationdone();
+	level.empendtime = undefined;
+	return getTime() - starttime;
+}
+
+waitlongdurationwithgameendtimeupdate( duration ) //checked matches cerberus output may need to check order of operations
+{
+	if ( duration == 0 )
+	{
+		return;
+	}
+	/*
+/#
+	assert( duration > 0 );
+#/
+	*/
 	starttime = getTime();
 	endtime = getTime() + ( duration * 1000 );
 	while ( getTime() < endtime )
@@ -408,12 +441,14 @@ waitlongdurationwithgameendtimeupdate( duration )
 			wait 1;
 		}
 	}
+	/*
 /#
 	if ( getTime() != endtime )
 	{
 		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO endtime = " + endtime );
 #/
 	}
+	*/
 	while ( isDefined( level.hostmigrationtimer ) )
 	{
 		endtime += 1000;
@@ -423,124 +458,114 @@ waitlongdurationwithgameendtimeupdate( duration )
 	return getTime() - starttime;
 }
 
-find_alternate_player_place( v_origin, min_radius, max_radius, max_height, ignore_targetted_nodes )
+find_alternate_player_place( v_origin, min_radius, max_radius, max_height, ignore_targetted_nodes ) //checked partially changed to match cerberus output //continue in for loop bad see github for more info
 {
 	found_node = undefined;
 	a_nodes = getnodesinradiussorted( v_origin, max_radius, min_radius, max_height, "pathnodes" );
-	while ( isDefined( a_nodes ) && a_nodes.size > 0 )
+	if ( isdefined( a_nodes) && a_nodes.size > 0 )
 	{
 		a_player_volumes = getentarray( "player_volume", "script_noteworthy" );
 		index = a_nodes.size - 1;
 		i = index;
-		while ( i >= 0 )
+		while ( i >= 0; )
 		{
-			n_node = a_nodes[ i ];
+			n_node = a_nodes[i];
 			if ( ignore_targetted_nodes == 1 )
 			{
-				if ( isDefined( n_node.target ) )
+				if ( isdefined( n_node.target ) )
 				{
 					i--;
 					continue;
 				}
 			}
-			else
+			if ( !positionwouldtelefrag( n_node.origin ) )
 			{
-				if ( !positionwouldtelefrag( n_node.origin ) )
+				if ( maps/mp/zombies/_zm_utility::check_point_in_enabled_zone( n_node.origin, 1, a_player_volumes ) )
 				{
-					if ( maps/mp/zombies/_zm_utility::check_point_in_enabled_zone( n_node.origin, 1, a_player_volumes ) )
+					v_start = ( n_node.origin[ 0 ], n_node.origin[ 1 ], n_node.origin[ 2 ] + 30 );
+					v_end = ( n_node.origin[ 0 ], n_node.origin[ 1 ], n_node.origin[ 2 ] - 30 );
+					trace = bullettrace( v_start, v_end, 0, undefined );
+					if ( trace["fraction"] < 1 )
 					{
-						v_start = ( n_node.origin[ 0 ], n_node.origin[ 1 ], n_node.origin[ 2 ] + 30 );
-						v_end = ( n_node.origin[ 0 ], n_node.origin[ 1 ], n_node.origin[ 2 ] - 30 );
-						trace = bullettrace( v_start, v_end, 0, undefined );
-						if ( trace[ "fraction" ] < 1 )
+						override_abort = 0;
+						if ( isdefined( level._chugabud_reject_node_override_func ) )
 						{
-							override_abort = 0;
-							if ( isDefined( level._chugabud_reject_node_override_func ) )
-							{
-								override_abort = [[ level._chugabud_reject_node_override_func ]]( v_origin, n_node );
-							}
-							if ( !override_abort )
-							{
-								found_node = n_node;
-								break;
-							}
+							override_abort = [[ level._chugabud_reject_node_override_func ]]( v_origin, n_node );
+						}
+						if ( !override_abort )
+						{
+							found_node = n_node;
+							break;
 						}
 					}
 				}
 			}
-			else
-			{
-				i--;
-
-			}
+			i--;
 		}
 	}
 	return found_node;
 }
 
-hostmigration_put_player_in_better_place()
+hostmigration_put_player_in_better_place() //checked changed to match cerberus output
 {
 	spawnpoint = undefined;
 	spawnpoint = find_alternate_player_place( self.origin, 50, 150, 64, 1 );
-	if ( !isDefined( spawnpoint ) )
+	if ( !isdefined(spawnpoint ) )
 	{
 		spawnpoint = find_alternate_player_place( self.origin, 150, 400, 64, 1 );
 	}
-	if ( !isDefined( spawnpoint ) )
+	if ( !isdefined(spawnpoint ) )
 	{
 		spawnpoint = find_alternate_player_place( self.origin, 50, 400, 256, 0 );
 	}
-	if ( !isDefined( spawnpoint ) )
+	if ( !isdefined( spawnpoint ) )
 	{
 		spawnpoint = maps/mp/zombies/_zm::check_for_valid_spawn_near_team( self, 1 );
 	}
-	if ( !isDefined( spawnpoint ) )
+	if ( !isdefined( spawnpoint ) )
 	{
 		match_string = "";
 		location = level.scr_zm_map_start_location;
-		if ( location != "default" && location == "" && isDefined( level.default_start_location ) )
+		if ( location == "default" || location == "" && isdefined(level.default_start_location ) )
 		{
 			location = level.default_start_location;
 		}
-		match_string = ( level.scr_zm_ui_gametype + "_" ) + location;
+		match_string = level.scr_zm_ui_gametype + "_" + location;
 		spawnpoints = [];
 		structs = getstructarray( "initial_spawn", "script_noteworthy" );
-		while ( isDefined( structs ) )
+		if ( isdefined( structs ) )
 		{
-			_a559 = structs;
-			_k559 = getFirstArrayKey( _a559 );
-			while ( isDefined( _k559 ) )
+			foreach ( struct in structs )
 			{
-				struct = _a559[ _k559 ];
-				while ( isDefined( struct.script_string ) )
+				if ( isdefined( struct.script_string ) )
 				{
 					tokens = strtok( struct.script_string, " " );
-					_a565 = tokens;
-					_k565 = getFirstArrayKey( _a565 );
-					while ( isDefined( _k565 ) )
+					i = 0;
+					while ( i < tokens.size )
 					{
-						token = _a565[ _k565 ];
 						if ( token == match_string )
 						{
 							spawnpoints[ spawnpoints.size ] = struct;
 						}
-						_k565 = getNextArrayKey( _a565, _k565 );
+						i++;
 					}
 				}
-				_k559 = getNextArrayKey( _a559, _k559 );
 			}
 		}
-		if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
+		else if ( !isdefined(spawnpoints) || spawnpoints.size == 0 )
 		{
 			spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
 		}
-/#
-		assert( isDefined( spawnpoints ), "Could not find initial spawn points!" );
-#/
+			/*
+		/#
+			assert( isdefined( spawnpoints ), "Could not find initial spawn points!" );
+		#/	
+			*/
 		spawnpoint = maps/mp/zombies/_zm::getfreespawnpoint( spawnpoints, self );
 	}
-	if ( isDefined( spawnpoint ) )
+	if ( isdefined( spawnpoint ) )
 	{
 		self setorigin( spawnpoint.origin );
 	}
 }
+

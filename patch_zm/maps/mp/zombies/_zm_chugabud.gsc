@@ -11,7 +11,7 @@
 #include maps/mp/_utility;
 #include maps/mp/zombies/_zm_perks;
 
-init()
+init() //checked matches cerberus output
 {
 	level.chugabud_laststand_func = ::chugabud_laststand;
 	level thread chugabud_hostmigration();
@@ -20,15 +20,15 @@ init()
 	add_custom_limited_weapon_check( ::is_weapon_available_in_chugabud_corpse );
 }
 
-chugabug_precache()
+chugabug_precache() //checked matches cerberus output
 {
 }
 
-chugabud_player_init()
+chugabud_player_init() //checked matches cerberus output
 {
 }
 
-chugabud_laststand()
+chugabud_laststand() //checked changed to match cerberus output
 {
 	self endon( "player_suicide" );
 	self endon( "disconnect" );
@@ -39,7 +39,7 @@ chugabud_laststand()
 	self maps/mp/zombies/_zm_chugabud::chugabud_save_loadout();
 	self maps/mp/zombies/_zm_chugabud::chugabud_fake_death();
 	wait 3;
-	if ( isDefined( self.insta_killed ) || self.insta_killed && isDefined( self.disable_chugabud_corpse ) )
+	if ( isDefined( self.insta_killed ) && self.insta_killed || isDefined( self.disable_chugabud_corpse ) )
 	{
 		create_corpse = 0;
 	}
@@ -102,7 +102,7 @@ chugabud_laststand()
 	self chugabud_laststand_cleanup( corpse, undefined );
 }
 
-chugabud_laststand_cleanup( corpse, str_notify )
+chugabud_laststand_cleanup( corpse, str_notify ) //checked matches cerberus output
 {
 	if ( isDefined( str_notify ) )
 	{
@@ -112,23 +112,22 @@ chugabud_laststand_cleanup( corpse, str_notify )
 	self chugabud_corpse_cleanup( corpse, 1 );
 }
 
-chugabud_bleed_timeout( delay, corpse )
+chugabud_bleed_timeout( delay, corpse ) //checked changed to match cerberus output
 {
 	self endon( "player_suicide" );
 	self endon( "disconnect" );
 	corpse endon( "death" );
 	wait delay;
-	while ( isDefined( corpse.revivetrigger ) )
+	if ( isDefined( corpse.revivetrigger ) )
 	{
 		while ( corpse.revivetrigger.beingrevived )
 		{
 			wait 0.01;
 		}
 	}
-	while ( isDefined( self.loadout.perks ) && flag( "solo_game" ) )
+	if ( isDefined( self.loadout.perks ) && flag( "solo_game" ) )
 	{
-		i = 0;
-		while ( i < self.loadout.perks.size )
+		for ( i = 0; i < self.loadout.perks.size; i++ )
 		{
 			perk = self.loadout.perks[ i ];
 			if ( perk == "specialty_quickrevive" )
@@ -137,13 +136,12 @@ chugabud_bleed_timeout( delay, corpse )
 				corpse notify( "player_revived" );
 				return;
 			}
-			i++;
 		}
 	}
 	self chugabud_corpse_cleanup( corpse, 0 );
 }
 
-chugabud_corpse_cleanup( corpse, was_revived )
+chugabud_corpse_cleanup( corpse, was_revived ) //checked matches cerberus output
 {
 	self notify( "chugabud_effects_cleanup" );
 	if ( was_revived )
@@ -174,14 +172,14 @@ chugabud_corpse_cleanup( corpse, was_revived )
 	self.e_chugabud_corpse = undefined;
 }
 
-chugabud_handle_multiple_instances( corpse )
+chugabud_handle_multiple_instances( corpse ) //checked matches cerberus output
 {
 	corpse endon( "death" );
 	self waittill( "perk_chugabud_activated" );
 	self chugabud_corpse_cleanup( corpse, 0 );
 }
 
-chugabud_spawn_corpse()
+chugabud_spawn_corpse() //checked matches cerberus output
 {
 	corpse = maps/mp/zombies/_zm_clone::spawn_player_clone( self, self.origin, undefined, self.whos_who_shader );
 	corpse.angles = self.angles;
@@ -192,7 +190,7 @@ chugabud_spawn_corpse()
 	return corpse;
 }
 
-chugabud_revive_hud_create()
+chugabud_revive_hud_create() //checked matches cerberus output
 {
 	self.revive_hud = newclienthudelem( self );
 	self.revive_hud.alignx = "center";
@@ -209,7 +207,7 @@ chugabud_revive_hud_create()
 	return self.revive_hud;
 }
 
-chugabud_save_loadout()
+chugabud_save_loadout() //checked changed to match cerberus output
 {
 	primaries = self getweaponslistprimaries();
 	currentweapon = self getcurrentweapon();
@@ -218,17 +216,13 @@ chugabud_save_loadout()
 	self.loadout.weapons = [];
 	self.loadout.score = self.score;
 	self.loadout.current_weapon = -1;
-	_a376 = primaries;
-	index = getFirstArrayKey( _a376 );
-	while ( isDefined( index ) )
+	foreach ( weapon in primaries )
 	{
-		weapon = _a376[ index ];
 		self.loadout.weapons[ index ] = maps/mp/zombies/_zm_weapons::get_player_weapondata( self, weapon );
 		if ( weapon == currentweapon || self.loadout.weapons[ index ][ "alt_name" ] == currentweapon )
 		{
 			self.loadout.current_weapon = index;
 		}
-		index = getNextArrayKey( _a376, index );
 	}
 	self.loadout.equipment = self get_player_equipment();
 	if ( isDefined( self.loadout.equipment ) )
@@ -249,7 +243,7 @@ chugabud_save_loadout()
 	}
 }
 
-chugabud_save_grenades()
+chugabud_save_grenades() //checked matches cerberus output
 {
 	if ( self hasweapon( "emp_grenade_zm" ) )
 	{
@@ -268,20 +262,16 @@ chugabud_save_grenades()
 	}
 }
 
-chugabud_give_loadout()
+chugabud_give_loadout() //checked partially changed to match cerberus output continues in for loops bad see the github for more info
 {
 	self takeallweapons();
 	loadout = self.loadout;
 	primaries = self getweaponslistprimaries();
-	while ( loadout.weapons.size > 1 || primaries.size > 1 )
+	if ( loadout.weapons.size > 1 || primaries.size > 1 )
 	{
-		_a458 = primaries;
-		_k458 = getFirstArrayKey( _a458 );
-		while ( isDefined( _k458 ) )
+		foreach ( weapon in primaries )
 		{
-			weapon = _a458[ _k458 ];
 			self takeweapon( weapon );
-			_k458 = getNextArrayKey( _a458, _k458 );
 		}
 	}
 	i = 0;
@@ -292,15 +282,12 @@ chugabud_give_loadout()
 			i++;
 			continue;
 		}
-		else if ( loadout.weapons[ i ][ "name" ] == "none" )
+		if ( loadout.weapons[ i ][ "name" ] == "none" )
 		{
 			i++;
 			continue;
 		}
-		else
-		{
-			self maps/mp/zombies/_zm_weapons::weapondata_give( loadout.weapons[ i ] );
-		}
+		self maps/mp/zombies/_zm_weapons::weapondata_give( loadout.weapons[ i ] );
 		i++;
 	}
 	if ( loadout.current_weapon >= 0 && isDefined( loadout.weapons[ loadout.current_weapon ][ "name" ] ) )
@@ -314,17 +301,14 @@ chugabud_give_loadout()
 	self.score = loadout.score;
 	self.pers[ "score" ] = loadout.score;
 	perk_array = maps/mp/zombies/_zm_perks::get_perk_array( 1 );
-	i = 0;
-	while ( i < perk_array.size )
+	for ( i = 0; i < perk_array.size; i++ )
 	{
 		perk = perk_array[ i ];
 		self unsetperk( perk );
 		self.num_perks--;
-
 		self set_perk_clientfield( perk, 0 );
-		i++;
 	}
-	while ( isDefined( loadout.perks ) && loadout.perks.size > 0 )
+	if ( isDefined( loadout.perks ) && loadout.perks.size > 0 )
 	{
 		i = 0;
 		while ( i < loadout.perks.size )
@@ -334,7 +318,7 @@ chugabud_give_loadout()
 				i++;
 				continue;
 			}
-			else if ( loadout.perks[ i ] == "specialty_quickrevive" && flag( "solo_game" ) )
+			if ( loadout.perks[ i ] == "specialty_quickrevive" && flag( "solo_game" ) )
 			{
 				level.solo_game_free_player_quickrevive = 1;
 			}
@@ -343,10 +327,7 @@ chugabud_give_loadout()
 				i++;
 				continue;
 			}
-			else
-			{
-				maps/mp/zombies/_zm_perks::give_perk( loadout.perks[ i ] );
-			}
+			maps/mp/zombies/_zm_perks::give_perk( loadout.perks[ i ] );
 			i++;
 		}
 	}
@@ -361,7 +342,7 @@ chugabud_give_loadout()
 	}
 }
 
-chugabud_restore_grenades()
+chugabud_restore_grenades() //checked matches cerberus output
 {
 	if ( isDefined( self.loadout.hasemp ) && self.loadout.hasemp )
 	{
@@ -375,7 +356,7 @@ chugabud_restore_grenades()
 	}
 }
 
-chugabud_restore_claymore()
+chugabud_restore_claymore() //checked matches cerberus output
 {
 	if ( isDefined( self.loadout.hasclaymore ) && self.loadout.hasclaymore && !self hasweapon( "claymore_zm" ) )
 	{
@@ -386,7 +367,7 @@ chugabud_restore_claymore()
 	}
 }
 
-chugabud_fake_death()
+chugabud_fake_death() //checked matches cerberus output
 {
 	level notify( "fake_death" );
 	self notify( "fake_death" );
@@ -401,7 +382,7 @@ chugabud_fake_death()
 	wait 0.9;
 }
 
-chugabud_fake_revive()
+chugabud_fake_revive() //checked matches cerberus output
 {
 	level notify( "fake_revive" );
 	self notify( "fake_revive" );
@@ -446,7 +427,7 @@ chugabud_fake_revive()
 	self disableinvulnerability();
 }
 
-chugabud_get_spawnpoint()
+chugabud_get_spawnpoint() //checked partially changed to match cerberus output nested foreach is probably bad
 {
 	spawnpoint = undefined;
 	if ( get_chugabug_spawn_point_from_nodes( self.origin, 500, 700, 64, 1 ) )
@@ -475,36 +456,30 @@ chugabud_get_spawnpoint()
 	{
 		match_string = "";
 		location = level.scr_zm_map_start_location;
-		if ( location != "default" && location == "" && isDefined( level.default_start_location ) )
+		if ( (location == "default" || location == "" ) && isdefined( level.default_start_location ) ) 
 		{
 			location = level.default_start_location;
 		}
-		match_string = ( level.scr_zm_ui_gametype + "_" ) + location;
+		match_string = level.scr_zm_ui_gametype + "_" + location;
 		spawnpoints = [];
 		structs = getstructarray( "initial_spawn", "script_noteworthy" );
-		while ( isDefined( structs ) )
+		if ( isdefined( structs ) )
 		{
-			_a744 = structs;
-			_k744 = getFirstArrayKey( _a744 );
-			while ( isDefined( _k744 ) )
+			foreach ( struct in structs )
 			{
-				struct = _a744[ _k744 ];
-				while ( isDefined( struct.script_string ) )
+				if ( isdefined( struct.script_string ) )
 				{
 					tokens = strtok( struct.script_string, " " );
-					_a750 = tokens;
-					_k750 = getFirstArrayKey( _a750 );
-					while ( isDefined( _k750 ) )
+					i = 0;
+					while ( i < tokens.size )
 					{
-						token = _a750[ _k750 ];
-						if ( token == match_string )
+						if ( tokens[ i ] == match_string )
 						{
 							spawnpoints[ spawnpoints.size ] = struct;
 						}
-						_k750 = getNextArrayKey( _a750, _k750 );
+						i++;
 					}
 				}
-				_k744 = getNextArrayKey( _a744, _k744 );
 			}
 		}
 		if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
@@ -521,7 +496,7 @@ chugabud_get_spawnpoint()
 	return spawnpoint;
 }
 
-get_chugabug_spawn_point_from_nodes( v_origin, min_radius, max_radius, max_height, ignore_targetted_nodes )
+get_chugabug_spawn_point_from_nodes( v_origin, min_radius, max_radius, max_height, ignore_targetted_nodes ) //checked partially changed to match cerberus output changed at own discretion
 {
 	if ( !isDefined( level.chugabud_spawn_struct ) )
 	{
@@ -529,7 +504,7 @@ get_chugabug_spawn_point_from_nodes( v_origin, min_radius, max_radius, max_heigh
 	}
 	found_node = undefined;
 	a_nodes = getnodesinradiussorted( v_origin, max_radius, min_radius, max_height, "pathnodes" );
-	while ( isDefined( a_nodes ) && a_nodes.size > 0 )
+	if ( isDefined( a_nodes ) && a_nodes.size > 0 )
 	{
 		a_player_volumes = getentarray( "player_volume", "script_noteworthy" );
 		index = a_nodes.size - 1;
@@ -545,7 +520,7 @@ get_chugabug_spawn_point_from_nodes( v_origin, min_radius, max_radius, max_heigh
 					continue;
 				}
 			}
-			else if ( !positionwouldtelefrag( n_node.origin ) )
+			if ( !positionwouldtelefrag( n_node.origin ) )
 			{
 				if ( maps/mp/zombies/_zm_utility::check_point_in_enabled_zone( n_node.origin, 1, a_player_volumes ) )
 				{
@@ -567,11 +542,7 @@ get_chugabug_spawn_point_from_nodes( v_origin, min_radius, max_radius, max_heigh
 					}
 				}
 			}
-			else
-			{
-				i--;
-
-			}
+			i--;
 		}
 	}
 	if ( isDefined( found_node ) )
@@ -584,28 +555,26 @@ get_chugabug_spawn_point_from_nodes( v_origin, min_radius, max_radius, max_heigh
 	return 0;
 }
 
-force_corpse_respawn_position( forced_corpse_position )
+force_corpse_respawn_position( forced_corpse_position ) //checked matches cerberus output
 {
 	level.chugabud_force_corpse_position = forced_corpse_position;
 }
 
-force_player_respawn_position( forced_player_position )
+force_player_respawn_position( forced_player_position ) //checked matches cerberus output
 {
 	level.chugabud_force_player_position = forced_player_position;
 }
 
-save_weapons_for_chugabud( player )
+save_weapons_for_chugabud( player ) //checked changed to match cerberus output
 {
 	self.chugabud_melee_weapons = [];
-	i = 0;
-	while ( i < level._melee_weapons.size )
+	for ( i = 0; i < level._melee_weapons.size; i++ )
 	{
 		self save_weapon_for_chugabud( player, level._melee_weapons[ i ].weapon_name );
-		i++;
 	}
 }
 
-save_weapon_for_chugabud( player, weapon_name )
+save_weapon_for_chugabud( player, weapon_name ) //checked matches cerberus output
 {
 	if ( player hasweapon( weapon_name ) )
 	{
@@ -613,20 +582,18 @@ save_weapon_for_chugabud( player, weapon_name )
 	}
 }
 
-restore_weapons_for_chugabud( player )
+restore_weapons_for_chugabud( player ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < level._melee_weapons.size )
+	for ( i = 0; i < level._melee_weapons.size; i++ )
 	{
 		self restore_weapon_for_chugabud( player, level._melee_weapons[ i ].weapon_name );
-		i++;
 	}
 	self.chugabud_melee_weapons = undefined;
 }
 
-restore_weapon_for_chugabud( player, weapon_name )
+restore_weapon_for_chugabud( player, weapon_name ) //checked changed to match cerberus output
 {
-	if ( isDefined( weapon_name ) || !isDefined( self.chugabud_melee_weapons ) && !isDefined( self.chugabud_melee_weapons[ weapon_name ] ) )
+	if ( isDefined( weapon_name ) || !isDefined( self.chugabud_melee_weapons ) || !isDefined( self.chugabud_melee_weapons[ weapon_name ] ) )
 	{
 		return;
 	}
@@ -638,21 +605,17 @@ restore_weapon_for_chugabud( player, weapon_name )
 	}
 }
 
-chugabud_save_perks( ent )
+chugabud_save_perks( ent ) //checked changed to match cerberus output
 {
 	perk_array = ent get_perk_array( 1 );
-	_a941 = perk_array;
-	_k941 = getFirstArrayKey( _a941 );
-	while ( isDefined( _k941 ) )
+	foreach ( perk in perk_array )
 	{
-		perk = _a941[ _k941 ];
 		ent unsetperk( perk );
-		_k941 = getNextArrayKey( _a941, _k941 );
 	}
 	return perk_array;
 }
 
-playchugabudtimeraudio()
+playchugabudtimeraudio() //checked matches cerberus output
 {
 	self endon( "chugabud_grabbed" );
 	self endon( "chugabud_timedout" );
@@ -665,14 +628,14 @@ playchugabudtimeraudio()
 	}
 }
 
-playchugabudtimerout( player )
+playchugabudtimerout( player ) //checked matches cerberus output
 {
 	self endon( "chugabud_grabbed" );
 	self waittill( "chugabud_timedout" );
 	player playsoundtoplayer( "zmb_chugabud_timer_out", player );
 }
 
-chugabud_hostmigration()
+chugabud_hostmigration() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	level notify( "chugabud_hostmigration" );
@@ -681,22 +644,18 @@ chugabud_hostmigration()
 	{
 		level waittill( "host_migration_end" );
 		chugabuds = getentarray( "player_chugabud_model", "script_noteworthy" );
-		_a1000 = chugabuds;
-		_k1000 = getFirstArrayKey( _a1000 );
-		while ( isDefined( _k1000 ) )
+		foreach ( model in chugabuds )
 		{
-			model = _a1000[ _k1000 ];
 			playfxontag( level._effect[ "powerup_on" ], model, "tag_origin" );
-			_k1000 = getNextArrayKey( _a1000, _k1000 );
 		}
 	}
 }
 
-player_revived_cleanup_chugabud_corpse()
+player_revived_cleanup_chugabud_corpse() //checked matches cerberus output
 {
 }
 
-player_has_chugabud_corpse()
+player_has_chugabud_corpse() //checked matches cerberus output 
 {
 	if ( isDefined( self.e_chugabud_corpse ) )
 	{
@@ -705,7 +664,7 @@ player_has_chugabud_corpse()
 	return 0;
 }
 
-is_weapon_available_in_chugabud_corpse( weapon, player_to_check )
+is_weapon_available_in_chugabud_corpse( weapon, player_to_check ) //checked partially changed to match cerberus output
 {
 	count = 0;
 	upgradedweapon = weapon;
@@ -714,7 +673,7 @@ is_weapon_available_in_chugabud_corpse( weapon, player_to_check )
 		upgradedweapon = level.zombie_weapons[ weapon ].upgrade_name;
 	}
 	players = getplayers();
-	while ( isDefined( players ) )
+	if ( isDefined( players ) )
 	{
 		player_index = 0;
 		while ( player_index < players.size )
@@ -725,21 +684,16 @@ is_weapon_available_in_chugabud_corpse( weapon, player_to_check )
 				player_index++;
 				continue;
 			}
-			else
+			if ( player player_has_chugabud_corpse() )
 			{
-				while ( player player_has_chugabud_corpse() )
+				if ( isDefined( player.loadout ) && isDefined( player.loadout.weapons ) )
 				{
-					while ( isDefined( player.loadout ) && isDefined( player.loadout.weapons ) )
+					for ( i = 0; i < player.loadout.weapons.size; i++ )
 					{
-						i = 0;
-						while ( i < player.loadout.weapons.size )
+						chugabud_weapon = player.loadout.weapons[ i ];
+						if ( isDefined( chugabud_weapon ) && chugabud_weapon[ "name" ] == weapon || chugabud_weapon[ "name" ] == upgradedweapon )
 						{
-							chugabud_weapon = player.loadout.weapons[ i ];
-							if ( isDefined( chugabud_weapon ) || chugabud_weapon[ "name" ] == weapon && chugabud_weapon[ "name" ] == upgradedweapon )
-							{
-								count++;
-							}
-							i++;
+							count++;
 						}
 					}
 				}
@@ -750,7 +704,7 @@ is_weapon_available_in_chugabud_corpse( weapon, player_to_check )
 	return count;
 }
 
-chugabud_corpse_cleanup_on_spectator( player )
+chugabud_corpse_cleanup_on_spectator( player ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	player endon( "disconnect" );
@@ -760,15 +714,12 @@ chugabud_corpse_cleanup_on_spectator( player )
 		{
 			break;
 		}
-		else
-		{
-			wait 0.01;
-		}
+		wait 0.01;
 	}
 	player chugabud_corpse_cleanup( self, 0 );
 }
 
-chugabud_corpse_revive_icon( player )
+chugabud_corpse_revive_icon( player ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	height_offset = 30;
@@ -788,19 +739,16 @@ chugabud_corpse_revive_icon( player )
 	{
 		if ( !isDefined( self.revive_hud_elem ) )
 		{
-			return;
+			break;
 		}
-		else
-		{
-			hud_elem.x = self.origin[ 0 ];
-			hud_elem.y = self.origin[ 1 ];
-			hud_elem.z = self.origin[ 2 ] + height_offset;
-			wait 0.01;
-		}
+		hud_elem.x = self.origin[ 0 ];
+		hud_elem.y = self.origin[ 1 ];
+		hud_elem.z = self.origin[ 2 ] + height_offset;
+		wait 0.01;
 	}
 }
 
-activate_chugabud_effects_and_audio()
+activate_chugabud_effects_and_audio() //checked matches cerberus output
 {
 	if ( isDefined( level.whos_who_client_setup ) )
 	{
@@ -822,7 +770,7 @@ activate_chugabud_effects_and_audio()
 	}
 }
 
-deactivate_chugabud_effects_and_audio()
+deactivate_chugabud_effects_and_audio() //checked matches cerberus output
 {
 	self waittill_any( "death", "chugabud_effects_cleanup" );
 	if ( isDefined( level.whos_who_client_setup ) )
@@ -843,5 +791,6 @@ deactivate_chugabud_effects_and_audio()
 		self.whos_who_effects_active = undefined;
 	}
 }
+
 
 

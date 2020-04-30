@@ -2,7 +2,7 @@
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/_utility;
 
-init()
+init() //checked changed to match cerberus output
 {
 	precachestring( &"open_ingame_menu" );
 	game[ "menu_team" ] = "team_marinesopfor";
@@ -16,13 +16,9 @@ init()
 	game[ "menu_changeclass_wager" ] = "changeclass_wager";
 	game[ "menu_changeclass_custom" ] = "changeclass_custom";
 	game[ "menu_changeclass_barebones" ] = "changeclass_barebones";
-	_a18 = level.teams;
-	_k18 = getFirstArrayKey( _a18 );
-	while ( isDefined( _k18 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a18[ _k18 ];
 		game[ "menu_changeclass_" + team ] = "changeclass";
-		_k18 = getNextArrayKey( _a18, _k18 );
 	}
 	game[ "menu_controls" ] = "ingame_controls";
 	game[ "menu_options" ] = "ingame_options";
@@ -50,7 +46,7 @@ init()
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -59,7 +55,7 @@ onplayerconnect()
 	}
 }
 
-onmenuresponse()
+onmenuresponse() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -71,7 +67,7 @@ onmenuresponse()
 			self closeingamemenu();
 			if ( level.console )
 			{
-				if ( game[ "menu_changeclass" ] != menu && game[ "menu_changeclass_offline" ] != menu || menu == game[ "menu_team" ] && menu == game[ "menu_controls" ] )
+				if ( menu == game[ "menu_changeclass" ] || menu == game[ "menu_changeclass_offline" ] || menu == game[ "menu_team" ] || menu == game[ "menu_controls" ] )
 				{
 					if ( isDefined( level.teams[ self.pers[ "team" ] ] ) )
 					{
@@ -81,7 +77,7 @@ onmenuresponse()
 			}
 			continue;
 		}
-		else if ( response == "changeteam" && level.allow_teamchange == "1" )
+		if ( response == "changeteam" && level.allow_teamchange == "1" )
 		{
 			self closemenu();
 			self closeingamemenu();
@@ -107,12 +103,12 @@ onmenuresponse()
 			}
 			continue;
 		}
-		else if ( response == "killserverpc" )
+		if ( response == "killserverpc" )
 		{
 			level thread maps/mp/gametypes/_globallogic::killserverpc();
 			continue;
 		}
-		else if ( response == "endround" )
+		if ( response == "endround" )
 		{
 			if ( !level.gameended )
 			{
@@ -127,7 +123,7 @@ onmenuresponse()
 			}
 			continue;
 		}
-		else if ( menu == game[ "menu_team" ] && level.allow_teamchange == "1" )
+		if ( menu == game[ "menu_team" ] && level.allow_teamchange == "1" )
 		{
 			switch( response )
 			{
@@ -143,34 +139,29 @@ onmenuresponse()
 			}
 			continue;
 		}
-		else
+		if ( menu == game[ "menu_changeclass" ] || menu == game[ "menu_changeclass_offline" ] || menu == game[ "menu_changeclass_wager" ] || menu == game[ "menu_changeclass_custom" ] || menu == game[ "menu_changeclass_barebones" ] )
 		{
-			if ( game[ "menu_changeclass" ] != menu && game[ "menu_changeclass_offline" ] != menu && game[ "menu_changeclass_wager" ] != menu || menu == game[ "menu_changeclass_custom" ] && menu == game[ "menu_changeclass_barebones" ] )
+			self closemenu();
+			self closeingamemenu();
+			if ( level.rankedmatch && issubstr( response, "custom" ) )
 			{
-				self closemenu();
-				self closeingamemenu();
-				if ( level.rankedmatch && issubstr( response, "custom" ) )
+				if ( self isitemlocked( maps/mp/gametypes/_rank::getitemindex( "feature_cac" ) ) )
 				{
-					if ( self isitemlocked( maps/mp/gametypes/_rank::getitemindex( "feature_cac" ) ) )
-					{
-						kick( self getentitynumber() );
-					}
+					kick( self getentitynumber() );
 				}
-				self.selectedclass = 1;
-				self [[ level.class ]]( response );
-				break;
 			}
-			else
+			self.selectedclass = 1;
+			self [[ level.class ]]( response );
+			continue;
+		}
+		if ( menu == "spectate" )
+		{
+			player = getplayerfromclientnum( int( response ) );
+			if ( isDefined( player ) )
 			{
-				if ( menu == "spectate" )
-				{
-					player = getplayerfromclientnum( int( response ) );
-					if ( isDefined( player ) )
-					{
-						self setcurrentspectatorclient( player );
-					}
-				}
+				self setcurrentspectatorclient( player );
 			}
 		}
 	}
 }
+

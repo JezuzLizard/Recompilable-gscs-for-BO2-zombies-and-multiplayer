@@ -3,8 +3,9 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-debug_script_structs()
+debug_script_structs() //dev call did not check
 {
+	/*
 /#
 	if ( isDefined( level.struct ) )
 	{
@@ -29,9 +30,10 @@ debug_script_structs()
 	}
 	else println( "*** No structs defined." );
 #/
+	*/
 }
 
-updatetimerpausedness()
+updatetimerpausedness() //checked matches cerberus output
 {
 	shouldbestopped = isDefined( level.hostmigrationtimer );
 	if ( !level.timerstopped && shouldbestopped )
@@ -39,38 +41,35 @@ updatetimerpausedness()
 		level.timerstopped = 1;
 		level.timerpausetime = getTime();
 	}
-	else
+	else if ( level.timerstopped && !shouldbestopped )
 	{
-		if ( level.timerstopped && !shouldbestopped )
-		{
-			level.timerstopped = 0;
-			level.discardtime += getTime() - level.timerpausetime;
-		}
+		level.timerstopped = 0;
+		level.discardtime += getTime() - level.timerpausetime;
 	}
 }
 
-callback_hostmigrationsave()
+callback_hostmigrationsave() //checked matches cerberus output
 {
 }
 
-pausetimer()
+pausetimer() //checked matches cerberus output
 {
 	level.migrationtimerpausetime = getTime();
 }
 
-resumetimer()
+resumetimer() //checked matches cerberus output
 {
 	level.discardtime += getTime() - level.migrationtimerpausetime;
 }
 
-locktimer()
+locktimer() //checked matches cerberus output
 {
 	level endon( "host_migration_begin" );
 	level endon( "host_migration_end" );
 	for ( ;; )
 	{
 		currtime = getTime();
-		wait 0,05;
+		wait 0.05;
 		if ( !level.timerstopped && isDefined( level.discardtime ) )
 		{
 			level.discardtime += getTime() - currtime;
@@ -78,7 +77,7 @@ locktimer()
 	}
 }
 
-callback_hostmigration()
+callback_hostmigration() //checked changed to match cerberus output
 {
 	setslowmotion( 1, 1, 0 );
 	makedvarserverinfo( "ui_guncycle", 0 );
@@ -89,38 +88,42 @@ callback_hostmigration()
 	}
 	if ( level.gameended )
 	{
+		/*
 /#
 		println( "Migration starting at time " + getTime() + ", but game has ended, so no countdown." );
 #/
+		*/
 		return;
 	}
+	/*
 /#
 	println( "Migration starting at time " + getTime() );
 #/
+	*/
 	level.hostmigrationtimer = 1;
 	sethostmigrationstatus( 1 );
 	level notify( "host_migration_begin" );
 	thread locktimer();
 	players = level.players;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		player = players[ i ];
 		player thread hostmigrationtimerthink();
-		i++;
 	}
 	level endon( "host_migration_begin" );
 	hostmigrationwait();
 	level.hostmigrationtimer = undefined;
 	sethostmigrationstatus( 0 );
+	/*
 /#
 	println( "Migration finished at time " + getTime() );
 #/
+	*/
 	recordmatchbegin();
 	level notify( "host_migration_end" );
 }
 
-matchstarttimerconsole_internal( counttime, matchstarttimer )
+matchstarttimerconsole_internal( counttime, matchstarttimer ) //checked matches cerberus output
 {
 	waittillframeend;
 	visionsetnaked( "mpIntro", 0 );
@@ -128,7 +131,7 @@ matchstarttimerconsole_internal( counttime, matchstarttimer )
 	while ( counttime > 0 && !level.gameended )
 	{
 		matchstarttimer thread maps/mp/gametypes/_hud::fontpulse( level );
-		wait ( matchstarttimer.inframes * 0,05 );
+		wait ( matchstarttimer.inframes * 0.05 );
 		matchstarttimer setvalue( counttime );
 		if ( counttime == 2 )
 		{
@@ -136,22 +139,22 @@ matchstarttimerconsole_internal( counttime, matchstarttimer )
 		}
 		counttime--;
 
-		wait ( 1 - ( matchstarttimer.inframes * 0,05 ) );
+		wait ( 1 - ( matchstarttimer.inframes * 0.05 ) );
 	}
 }
 
-matchstarttimerconsole( type, duration )
+matchstarttimerconsole( type, duration ) //checked matches cerberus output
 {
 	level notify( "match_start_timer_beginning" );
 	wait 0,05;
-	matchstarttext = createserverfontstring( "objective", 1,5 );
+	matchstarttext = createserverfontstring( "objective", 1.5 );
 	matchstarttext setpoint( "CENTER", "CENTER", 0, -40 );
 	matchstarttext.sort = 1001;
 	matchstarttext settext( game[ "strings" ][ "waiting_for_teams" ] );
 	matchstarttext.foreground = 0;
 	matchstarttext.hidewheninmenu = 1;
 	matchstarttext settext( game[ "strings" ][ type ] );
-	matchstarttimer = createserverfontstring( "objective", 2,2 );
+	matchstarttimer = createserverfontstring( "objective", 2.2 );
 	matchstarttimer setpoint( "CENTER", "CENTER", 0, 0 );
 	matchstarttimer.sort = 1001;
 	matchstarttimer.color = ( 1, 1, 0 );
@@ -173,7 +176,7 @@ matchstarttimerconsole( type, duration )
 	matchstarttext destroyelem();
 }
 
-hostmigrationwait()
+hostmigrationwait() //checked matches cerberus output may need to check order of operations
 {
 	level endon( "game_ended" );
 	if ( level.hostmigrationreturnedplayercount < ( ( level.players.size * 2 ) / 3 ) )
@@ -186,7 +189,7 @@ hostmigrationwait()
 	wait 5;
 }
 
-waittillhostmigrationcountdown()
+waittillhostmigrationcountdown() //checked matches cerberus output
 {
 	level endon( "host_migration_end" );
 	if ( !isDefined( level.hostmigrationtimer ) )
@@ -196,13 +199,13 @@ waittillhostmigrationcountdown()
 	level waittill( "host_migration_countdown_begin" );
 }
 
-hostmigrationwaitforplayers()
+hostmigrationwaitforplayers() //checked matches cerberus output
 {
 	level endon( "hostmigration_enoughplayers" );
 	wait 15;
 }
 
-hostmigrationtimerthink_internal()
+hostmigrationtimerthink_internal() //checked matches cerberus output
 {
 	level endon( "host_migration_begin" );
 	level endon( "host_migration_end" );
@@ -216,7 +219,7 @@ hostmigrationtimerthink_internal()
 	level waittill( "host_migration_end" );
 }
 
-hostmigrationtimerthink()
+hostmigrationtimerthink() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "host_migration_begin" );
@@ -227,7 +230,7 @@ hostmigrationtimerthink()
 	}
 }
 
-waittillhostmigrationdone()
+waittillhostmigrationdone() //checked matches cerberus output
 {
 	if ( !isDefined( level.hostmigrationtimer ) )
 	{
@@ -238,7 +241,7 @@ waittillhostmigrationdone()
 	return getTime() - starttime;
 }
 
-waittillhostmigrationstarts( duration )
+waittillhostmigrationstarts( duration ) //checked matches cerberus output
 {
 	if ( isDefined( level.hostmigrationtimer ) )
 	{
@@ -248,15 +251,17 @@ waittillhostmigrationstarts( duration )
 	wait duration;
 }
 
-waitlongdurationwithhostmigrationpause( duration )
+waitlongdurationwithhostmigrationpause( duration ) //checked matches cerberus output may need to check order of operations
 {
 	if ( duration == 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( duration > 0 );
 #/
+	*/
 	starttime = getTime();
 	endtime = getTime() + ( duration * 1000 );
 	while ( getTime() < endtime )
@@ -268,25 +273,29 @@ waitlongdurationwithhostmigrationpause( duration )
 			endtime += timepassed;
 		}
 	}
+	/*
 /#
 	if ( getTime() != endtime )
 	{
 		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO endtime = " + endtime );
 #/
 	}
+	*/
 	waittillhostmigrationdone();
 	return getTime() - starttime;
 }
 
-waitlongdurationwithhostmigrationpauseemp( duration )
+waitlongdurationwithhostmigrationpauseemp( duration ) //checked matches cerberus output may need to check order of operations
 {
 	if ( duration == 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( duration > 0 );
 #/
+	*/
 	starttime = getTime();
 	empendtime = getTime() + ( duration * 1000 );
 	level.empendtime = empendtime;
@@ -302,26 +311,30 @@ waitlongdurationwithhostmigrationpauseemp( duration )
 			}
 		}
 	}
+	/*
 /#
 	if ( getTime() != empendtime )
 	{
 		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO empendtime = " + empendtime );
 #/
 	}
+	*/
 	waittillhostmigrationdone();
 	level.empendtime = undefined;
 	return getTime() - starttime;
 }
 
-waitlongdurationwithgameendtimeupdate( duration )
+waitlongdurationwithgameendtimeupdate( duration ) //checked matches cerberus output may need to check order of operations
 {
 	if ( duration == 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( duration > 0 );
 #/
+	*/
 	starttime = getTime();
 	endtime = getTime() + ( duration * 1000 );
 	while ( getTime() < endtime )
@@ -334,12 +347,14 @@ waitlongdurationwithgameendtimeupdate( duration )
 			wait 1;
 		}
 	}
+	/*
 /#
 	if ( getTime() != endtime )
 	{
 		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO endtime = " + endtime );
 #/
 	}
+	*/
 	while ( isDefined( level.hostmigrationtimer ) )
 	{
 		endtime += 1000;
@@ -348,3 +363,4 @@ waitlongdurationwithgameendtimeupdate( duration )
 	}
 	return getTime() - starttime;
 }
+

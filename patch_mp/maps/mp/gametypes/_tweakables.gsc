@@ -1,6 +1,6 @@
 #include maps/mp/_utility;
 
-gettweakabledvarvalue( category, name )
+gettweakabledvarvalue( category, name ) //checked matches cerberus output
 {
 	switch( category )
 	{
@@ -32,14 +32,16 @@ gettweakabledvarvalue( category, name )
 			dvar = undefined;
 			break;
 	}
+	/*
 /#
 	assert( isDefined( dvar ) );
 #/
+	*/
 	value = getDvarInt( dvar );
 	return value;
 }
 
-gettweakabledvar( category, name )
+gettweakabledvar( category, name ) //checked matches cerberus output
 {
 	switch( category )
 	{
@@ -71,13 +73,15 @@ gettweakabledvar( category, name )
 			value = undefined;
 			break;
 	}
+	/*
 /#
 	assert( isDefined( value ) );
 #/
+	*/
 	return value;
 }
 
-gettweakablevalue( category, name )
+gettweakablevalue( category, name ) //checked matches cerberus output
 {
 	switch( category )
 	{
@@ -114,13 +118,15 @@ gettweakablevalue( category, name )
 	{
 		return getDvarInt( overridedvar );
 	}
+	/*
 /#
 	assert( isDefined( value ) );
 #/
+	*/
 	return value;
 }
 
-gettweakablelastvalue( category, name )
+gettweakablelastvalue( category, name ) //checked matches cerberus output
 {
 	switch( category )
 	{
@@ -152,13 +158,15 @@ gettweakablelastvalue( category, name )
 			value = undefined;
 			break;
 	}
+	/*
 /#
 	assert( isDefined( value ) );
 #/
+	*/
 	return value;
 }
 
-settweakablevalue( category, name, value )
+settweakablevalue( category, name, value ) //checked matches cerberus output
 {
 	switch( category )
 	{
@@ -193,7 +201,7 @@ settweakablevalue( category, name, value )
 	setdvar( dvar, value );
 }
 
-settweakablelastvalue( category, name, value )
+settweakablelastvalue( category, name, value ) //checked changed to match cerberus output
 {
 	switch( category )
 	{
@@ -222,11 +230,11 @@ settweakablelastvalue( category, name, value )
 			level.hudtweaks[ name ].lastvalue = value;
 			break;
 		default:
-		}
+			break;
 	}
 }
 
-registertweakable( category, name, dvar, value )
+registertweakable( category, name, dvar, value ) //checked matches cerberus output
 {
 	if ( isstring( value ) )
 	{
@@ -324,7 +332,7 @@ registertweakable( category, name, dvar, value )
 	}
 }
 
-init()
+init() //checked matches cerberus output
 {
 	level.clienttweakables = [];
 	level.tweakablesinitialized = 1;
@@ -362,17 +370,16 @@ init()
 	level thread updateuitweakables();
 }
 
-setclienttweakable( category, name )
+setclienttweakable( category, name ) //checked matches cerberus output
 {
 	level.clienttweakables[ level.clienttweakables.size ] = name;
 }
 
-updateuitweakables()
+updateuitweakables() //checked changed to match cerberus output
 {
 	for ( ;; )
 	{
-		index = 0;
-		while ( index < level.clienttweakables.size )
+		for ( index = 0; index < level.clienttweakables.size; index++ )
 		{
 			clienttweakable = level.clienttweakables[ index ];
 			curvalue = gettweakabledvarvalue( "hud", clienttweakable );
@@ -382,13 +389,13 @@ updateuitweakables()
 				updateserverdvar( gettweakabledvar( "hud", clienttweakable ), curvalue );
 				settweakablelastvalue( "hud", clienttweakable, curvalue );
 			}
-			index++;
 		}
 		wait 1;
 	}
 }
 
-updateserverdvar( dvar, value )
+updateserverdvar( dvar, value ) //checked matches cerberus output
 {
 	makedvarserverinfo( dvar, value );
 }
+

@@ -1,4 +1,4 @@
-### The following gscs compile and run successfully with no known errors:
+### The following scripts compile and run successfully with no known errors:
 ```
 patch_zm/maps/mp/gametypes_zm/_clientids.gsc
 patch_zm/maps/mp/gametypes_zm/_globalentities.gsc
@@ -50,12 +50,18 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 patch_zm/maps/mp/gametypes_zm/_callbacksetup.gsc
 patch_zm/maps/mp/gametypes_zm/_damagefeedback.gsc
+patch_zm/maps/mp/gametypes_zm/_healthoverlay.gsc
+patch_zm/maps/mp/gametypes_zm/_hostmigration.gsc
 patch_zm/maps/mp/gametypes_zm/_hud.gsc
+patch_zm/maps/mp/gametypes_zm/_menus.gsc
 patch_zm/maps/mp/gametypes_zm/_perplayer.gsc
 patch_zm/maps/mp/gametypes_zm/_serversettings.gsc
+patch_zm/maps/mp/gametypes_zm/_tweakables.gsc
 patch_zm/maps/mp/gametypes_zm/_weapon_utils.gsc
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
 patch_zm/maps/mp/zombies/_zm_buildables.gsc
+patch_zm/maps/mp/zombies/_zm_chugabud.gsc
+patch_zm/maps/mp/zombies/_zm_equipment.gsc
 patch_zm/maps/mp/zombies/_zm_equip_turbine.gsc
 patch_zm/maps/mp/zombies/_zm_game_module.gsc
 patch_zm/maps/mp/zombies/_zm_laststand.gsc
@@ -71,7 +77,6 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
-patch_zm/maps/mp/gametypes_zm/_dev.gsc
 patch_zm/maps/mp/gametypes_zm/_gameobjects.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_actor.gsc
@@ -84,15 +89,11 @@ patch_zm/maps/mp/gametypes_zm/_globallogic_ui.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_utils.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_vehicle.gsc
 patch_zm/maps/mp/gametypes_zm/_gv_actions.gsc
-patch_zm/maps/mp/gametypes_zm/_healthoverlay.gsc
-patch_zm/maps/mp/gametypes_zm/_hostmigration.gsc
 patch_zm/maps/mp/gametypes_zm/_hud_message.gsc
 patch_zm/maps/mp/gametypes_zm/_hud_util.gsc
-patch_zm/maps/mp/gametypes_zm/_menus.gsc
 patch_zm/maps/mp/gametypes_zm/_spawning.gsc
 patch_zm/maps/mp/gametypes_zm/_spawnlogic.gsc
 patch_zm/maps/mp/gametypes_zm/_spectating.gsc
-patch_zm/maps/mp/gametypes_zm/_tweakables.gsc
 patch_zm/maps/mp/gametypes_zm/_weaponobjects.gsc
 patch_zm/maps/mp/gametypes_zm/_weapons.gsc
 ```
@@ -100,9 +101,8 @@ patch_zm/maps/mp/gametypes_zm/_weapons.gsc
 ```
 //I will put these off to towards much later since the hacker and gas mask are parts of the game that do not exist inside the game in any capacity whatsoever.
 //Therefore, whether or not they work is irrelevant.
+patch_zm/maps/mp/gametypes_zm/_dev.gsc
 patch_zm/maps/mp/zombies/_zm_devgui.gsc
-patch_zm/maps/mp/zombies/_zm_chugabud.gsc
-patch_zm/maps/mp/zombies/_zm_equipment.gsc
 patch_zm/maps/mp/zombies/_zm_equip_hacker.gsc
 patch_zm/maps/mp/zombies/_zm_equip_gasmask.gsc
 patch_zm/maps/mp/zombies/_zm_hackables_boards.gsc
