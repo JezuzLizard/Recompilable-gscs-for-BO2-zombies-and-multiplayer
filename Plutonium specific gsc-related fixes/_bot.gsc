@@ -38,7 +38,6 @@ init() //checked matches cerberus output
 	{
 		return;
 	}
-	bot_wait_for_host();
 	bot_set_difficulty();
 	if ( is_bot_comp_stomp() )
 	{
@@ -1494,26 +1493,22 @@ bot_gametype_allowed() //checked matches cerberus output
 
 bot_get_difficulty() //checked matches cerberus output
 {
-	if ( !isDefined( level.bot_difficulty ) )
+	difficulty = getdvarintdefault( "bot_difficulty", 3 );
+	if ( difficulty == 0 )
+	{
+		level.bot_difficulty = "easy";
+	}
+	else if ( difficulty == 1 )
 	{
 		level.bot_difficulty = "normal";
-		difficulty = getdvarintdefault( "bot_difficulty", 1 );
-		if ( difficulty == 0 )
-		{
-			level.bot_difficulty = "easy";
-		}
-		else if ( difficulty == 1 )
-		{
-			level.bot_difficulty = "normal";
-		}
-		else if ( difficulty == 2 )
-		{
-			level.bot_difficulty = "hard";
-		}
-		else if ( difficulty == 3 )
-		{
-			level.bot_difficulty = "fu";
-		}
+	}
+	else if ( difficulty == 2 )
+	{
+		level.bot_difficulty = "hard";
+	}
+	else if ( difficulty == 3 )
+	{
+		level.bot_difficulty = "fu";
 	}
 	return level.bot_difficulty;
 }

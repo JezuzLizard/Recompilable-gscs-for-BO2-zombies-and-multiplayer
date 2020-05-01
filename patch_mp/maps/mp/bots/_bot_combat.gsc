@@ -1017,7 +1017,7 @@ bot_weapon_ammo_frac() //checked matches cerberus output
 
 bot_select_weapon() //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
-	if ( !self isthrowinggrenade() || self isswitchingweapons() && self isreloading() )
+	if ( !self isthrowinggrenade() || self isswitchingweapons() || self isreloading() )
 	{
 		return;
 	}

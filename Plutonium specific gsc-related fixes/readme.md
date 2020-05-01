@@ -11,3 +11,9 @@ This will fix the announcer not having any dialog on all maps and gamemodes.
 Compile zm_transit_utility.gsc and place it in maps/mp.
 
 This will allow tombstone to spawn in on dedicated servers.
+
+### Bots
+
+Compile _bot.gsc and place it maps/mp/bots
+
+This should fix the bots difficulty on dedicated servers.
