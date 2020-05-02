@@ -253,14 +253,11 @@ bot_construct_class( class, items, allocation_max ) //checked partially changed 
 					allocation += 2;
 				}
 			}
-			else
+			else if ( remaining >= 1 && !claimed_count[ "specialgrenade" ] )
 			{
-				if ( remaining >= 1 && !claimed_count[ "specialgrenade" ] )
-				{
-					bot_choose_weapon( class, items[ "specialgrenade" ] );
-					claimed_count[ "specialgrenade" ]++;
-					allocation++;
-				}
+				bot_choose_weapon( class, items[ "specialgrenade" ] );
+				claimed_count[ "specialgrenade" ]++;
+				allocation++;
 			}
 		}
 	}

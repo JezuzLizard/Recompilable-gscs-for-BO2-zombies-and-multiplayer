@@ -79,40 +79,42 @@ getenemyteamwithlowestplayercount( player_team ) //checked partially changed to 
 		counts[ team ] = 0;
 	}
 	i = 0;
-	while ( i < level.players.size )
+	players = get_players;
+	while ( i < players.size )
 	{
-		if ( !isDefined( level.players[ i ].team ) )
+		if ( !isDefined( players[ i ].team ) )
 		{
 			i++;
 			continue;
 		}
-		if ( !isDefined( counts[ level.players[ i ].team ] ) )
+		if ( !isDefined( counts[ players[ i ].team ] ) )
 		{
 			i++;
 			continue;
 		}
-		counts[ level.players[ i ].team ]++;
+		counts[ players[ i ].team ]++;
 		i++;
 	}
 	count = 999999;
 	enemy_team = player_team;
 	i = 0;
-	while ( i < level.teams.size )
+	teams = getArrayKeys( level.teams );
+	while ( i < teams.size )
 	{
-		if ( level.teams[ i ] == player_team )
+		if ( teams[ i ] == player_team )
 		{
 			i++;
 			continue;
 		}
-		if ( level.teams[ i ] == "spectator" )
+		if ( teams[ i ] == "spectator" )
 		{
 			i++;
 			continue;
 		}
-		if ( counts[ level.teams[ i ] ] < count )
+		if ( counts[ teams[ i ] ] < count )
 		{
-			enemy_team = level.teams[ i ];
-			count = counts[ level.teams[ i ] ];
+			enemy_team = teams[ i ];
+			count = counts[ teams[ i ] ];
 		}
 		i++;
 	}
@@ -127,45 +129,47 @@ getenemyteamwithgreatestbotcount( player_team ) //checked partially changed to m
 		counts[ team ] = 0;
 	}
 	i = 0;
-	while ( i < level.players.size )
+	players = get_players();
+	while ( i < players.size )
 	{
-		if ( !isDefined( level.players[ i ].team ) )
+		if ( !isDefined( players[ i ].team ) )
 		{
 			i++;
 			continue;
 		}
-		if ( !isDefined( counts[ level.players[ i ].team ] ) )
+		if ( !isDefined( counts[ players[ i ].team ] ) )
 		{
 			i++;
 			continue;
 		}
-		if ( !level.players[ i ] is_bot() )
+		if ( !players[ i ] is_bot() )
 		{
 			i++;
 			continue;
 		}
-		counts[ level.players[ i ].team ]++;
+		counts[ players[ i ].team ]++;
 		i++;
 	}
 	count = -1;
 	enemy_team = undefined;
 	i = 0;
-	while ( i < level.teams.size )
+	teams = getArrayKeys( level.teams );
+	while ( i < teams.size )
 	{
-		if ( level.teams[ i ] == player_team )
+		if ( teams[ i ] == player_team )
 		{
 			i++;
 			continue;
 		}
-		if ( level.teams[ i ] == "spectator" )
+		if ( teams[ i ] == "spectator" )
 		{
 			i++;
 			continue;
 		}
-		if ( counts[ level.teams[ i ] ] > count )
+		if ( counts[ teams[ i ] ] > count )
 		{
-			enemy_team = level.teams[ i ];
-			count = counts[ level.teams[ i ] ];
+			enemy_team = teams[ i ];
+			count = counts[ teams[ i ] ];
 		}
 		i++;
 	}
@@ -248,14 +252,15 @@ bot_count_enemy_bots( friend_team ) //checked partially changed to match cerberu
 	}
 	enemies = 0;
 	i = 0;
-	while ( i < level.teams.size )
+	teams = getArrayKeys( level.teams );
+	while ( i < teams.size )
 	{
-		if ( level.teams[ i ] == friend_team )
+		if ( teams[ i ] == friend_team )
 		{
 			i++;
 			continue;
 		}
-		enemies += bot_count_bots( level.teams[ i ] );
+		enemies += bot_count_bots( teams[ i ] );
 		i++;
 	}
 	return enemies;
@@ -1494,26 +1499,23 @@ bot_gametype_allowed() //checked matches cerberus output
 
 bot_get_difficulty() //checked matches cerberus output
 {
-	if ( !isDefined( level.bot_difficulty ) )
+	level.bot_difficulty = "normal";
+	difficulty = getdvarintdefault( "bot_difficulty", 1 );
+	if ( difficulty == 0 )
+	{
+		level.bot_difficulty = "easy";
+	}
+	else if ( difficulty == 1 )
 	{
 		level.bot_difficulty = "normal";
-		difficulty = getdvarintdefault( "bot_difficulty", 1 );
-		if ( difficulty == 0 )
-		{
-			level.bot_difficulty = "easy";
-		}
-		else if ( difficulty == 1 )
-		{
-			level.bot_difficulty = "normal";
-		}
-		else if ( difficulty == 2 )
-		{
-			level.bot_difficulty = "hard";
-		}
-		else if ( difficulty == 3 )
-		{
-			level.bot_difficulty = "fu";
-		}
+	}
+	else if ( difficulty == 2 )
+	{
+		level.bot_difficulty = "hard";
+	}
+	else if ( difficulty == 3 )
+	{
+		level.bot_difficulty = "fu";
 	}
 	return level.bot_difficulty;
 }
@@ -1658,7 +1660,7 @@ bot_update_c4()
 	if ( watcher.objectarray.size )
 	{
 		i = 0;
-		while ( i < watcher.objectarray.size ) 
+		while ( i < watcherArray.objectarray.size ) 
 		{
 			if ( !isDefined( watcher.objectarray[ i ] ) )
 			{
@@ -1712,7 +1714,7 @@ bot_update_launcher() //checked partially changed to match cerberus output //con
 			continue;
 		}
 		origin = self getplayercamerapos();
-		angles = vectorToAngle( enemies[ i ].origin - origin );
+		angles = vectorToAngles( enemies[ i ].origin - origin );
 		if ( angles[ 0 ] < 290 )
 		{
 			i++;
@@ -1759,8 +1761,9 @@ bot_update_weapon()
 	{
 		return;
 	}
-	primaries = self getweaponslistprimaries();
+	primariesArray = self getweaponslistprimaries();
 	i = 0;
+	primaries = getArrayKeys( primariesArray );
 	while ( i < primaries.size )
 	{
 		if ( primaries[ i ] == "knife_held_mp" )
@@ -1773,7 +1776,6 @@ bot_update_weapon()
 			self switchtoweapon( primaries[ i ] );
 			return;
 		}
-		i++;
 	}
 }
 
@@ -1908,6 +1910,7 @@ bot_update_killstreak() //checked partially changed to match cerberus output see
 	ks_weapon = undefined;
 	inventoryweapon = self getinventoryweapon();
 	i = 0;
+	
 	while ( i < weapons.size )
 	{
 		if ( self getweaponammoclip( weapons[ i ] ) <= 0 && !isDefined( inventoryweapon ) || weapons[ i ] != inventoryweapon )
@@ -2553,7 +2556,7 @@ devgui_bot_spawn( team ) //didn't check dev call
 	direction_vec = ( direction_vec[ 0 ] * scale, direction_vec[ 1 ] * scale, direction_vec[ 2 ] * scale );
 	trace = bullettrace( eye, eye + direction_vec, 0, undefined );
 	direction_vec = player.origin - trace[ "position" ];
-	direction = vectorToAngle( direction_vec );
+	direction = vectorToAngles( direction_vec );
 	bot = addtestclient();
 	if ( !isDefined( bot ) )
 	{
@@ -2583,5 +2586,10 @@ devgui_bot_spawn_think( origin, yaw ) //didn't check dev call
 	}
 	*/
 }
+
+
+
+
+
 
 

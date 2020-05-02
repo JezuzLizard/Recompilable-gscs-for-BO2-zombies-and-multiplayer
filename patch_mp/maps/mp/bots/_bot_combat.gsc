@@ -1017,7 +1017,7 @@ bot_weapon_ammo_frac() //checked matches cerberus output
 
 bot_select_weapon() //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
-	if ( !self isthrowinggrenade() || self isswitchingweapons() || self isreloading() )
+	if ( self isthrowinggrenade() || self isswitchingweapons() || self isreloading() )
 	{
 		return;
 	}
@@ -1457,19 +1457,20 @@ bot_combat_throw_smoke( origin ) //checked partially changed to match cerberus o
 	}
 	time = getTime();
 	i = 0;
-	while ( i < level.players.size )
+	players = get_players();
+	while ( i < players.size )
 	{
-		if ( !isDefined( level.players[ i ].smokegrenadetime ) )
+		if ( !isDefined( players[ i ].smokegrenadetime ) )
 		{
 			i++;
 			continue;
 		}
-		if ( ( time - level.players[ i ].smokegrenadetime ) > 12000 )
+		if ( ( time - players[ i ].smokegrenadetime ) > 12000 )
 		{
 			i++;
 			continue;
 		}
-		if ( distancesquared( origin, level.players[ i ].smokegrenadeposition ) < 65536 )
+		if ( distancesquared( origin, players[ i ].smokegrenadeposition ) < 65536 )
 		{
 			return 0;
 		}
@@ -1603,9 +1604,10 @@ bot_shotgun_think() //checked partially changed to match cerberus output did not
 	{
 		return;
 	}
-	primaries = self getweaponslistprimaries();
+	primariesArray = self getweaponslistprimaries();
 	weapon = self getcurrentweapon();
 	i = 0;
+	primaries = getArrayKeys( primariesArray );
 	while ( i < primaries.size )
 	{
 		if ( primaries[ i ] == weapon )
@@ -1724,14 +1726,15 @@ bot_turret_nearest_node( turret ) //checked changed to match cerberus output
 turret_mark_node_dangerous( node ) //checked partially changed to match cerberus output did not change while loop to foreach see github for more info
 {
 	i = 0;
+	teams = getArrayKeys( level.teams );
 	while ( i < level.teams.size )
 	{
-		if ( level.teams[ i ] == self.owner.team )
+		if ( teams[ i ] == self.owner.team )
 		{
 			i++;
 			continue;
 		}
-		node setdangerous( level.teams[ i ], 1 );
+		node setdangerous( teams[ i ], 1 );
 		i++;
 	}
 	self.dangerous_nodes[ self.dangerous_nodes.size ] = node;
@@ -1860,5 +1863,7 @@ bot_riotshield_dangerous_think( enemy, goal ) //checked partially changed to mat
 		node setdangerous( self.team, 0 );
 	}
 }
+
+
 
 
