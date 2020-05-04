@@ -3,12 +3,16 @@
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_spawnlogic;
 #include maps/mp/gametypes/_spawning;
+#include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/_wager;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
@@ -38,16 +42,16 @@ main()
 	setscoreboardcolumns( "pointstowin", "kills", "deaths", "stabs", "survived" );
 }
 
-onplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+onplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked changed to match cerberus output
 {
-	if ( smeansofdeath != "MOD_PISTOL_BULLET" || smeansofdeath == "MOD_RIFLE_BULLET" && smeansofdeath == "MOD_HEAD_SHOT" )
+	if ( smeansofdeath != "MOD_PISTOL_BULLET" || smeansofdeath == "MOD_RIFLE_BULLET" || smeansofdeath == "MOD_HEAD_SHOT" )
 	{
 		idamage = self.maxhealth + 1;
 	}
 	return idamage;
 }
 
-givecustomloadout()
+givecustomloadout() //checked matches cerberus output
 {
 	weapon = "kard_wager_mp";
 	self maps/mp/gametypes/_wager::setupblankrandomplayer( 1, 1, weapon );
@@ -72,7 +76,7 @@ givecustomloadout()
 	return weapon;
 }
 
-onstartgametype()
+onstartgametype() //checked matches cerberus output
 {
 	setclientnamemode( "auto_change" );
 	setobjectivetext( "allies", &"OBJECTIVES_DM" );
@@ -121,7 +125,7 @@ onstartgametype()
 	setobjectivehinttext( "axis", &"OBJECTIVES_OIC_HINT" );
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked changed to match cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 	livesleft = self.pers[ "lives" ];
@@ -129,16 +133,13 @@ onspawnplayerunified()
 	{
 		self maps/mp/gametypes/_wager::wagerannouncer( "wm_2_lives" );
 	}
-	else
+	else if ( livesleft == 1 )
 	{
-		if ( livesleft == 1 )
-		{
-			self maps/mp/gametypes/_wager::wagerannouncer( "wm_final_life" );
-		}
+		self maps/mp/gametypes/_wager::wagerannouncer( "wm_final_life" );
 	}
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( self.pers[ "team" ] );
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_dm( spawnpoints );
@@ -152,7 +153,7 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-onendgame( winningplayer )
+onendgame( winningplayer ) //checked matches cerberus output
 {
 	if ( isDefined( winningplayer ) && isplayer( winningplayer ) )
 	{
@@ -160,12 +161,12 @@ onendgame( winningplayer )
 	}
 }
 
-onstartwagersidebets()
+onstartwagersidebets() //checked matches cerberus output
 {
 	thread saveoffallplayersammo();
 }
 
-saveoffallplayersammo()
+saveoffallplayersammo() //checked partially changed to match cerberus output //did not change while loop to for loop see github for more info
 {
 	wait 1;
 	playerindex = 0;
@@ -177,30 +178,28 @@ saveoffallplayersammo()
 			playerindex++;
 			continue;
 		}
-		else if ( player.pers[ "lives" ] == 0 )
+		if ( player.pers[ "lives" ] == 0 )
 		{
 			playerindex++;
 			continue;
 		}
-		else
-		{
-			currentweapon = player getcurrentweapon();
-			player.pers[ "clip_ammo" ] = player getweaponammoclip( currentweapon );
-			player.pers[ "stock_ammo" ] = player getweaponammostock( currentweapon );
-		}
+		currentweapon = player getcurrentweapon();
+		player.pers[ "clip_ammo" ] = player getweaponammoclip( currentweapon );
+		player.pers[ "stock_ammo" ] = player getweaponammostock( currentweapon );
 		playerindex++;
 	}
 }
 
-isplayereliminated( player )
+isplayereliminated( player ) //checked changed at own discretion
 {
-	if ( isDefined( player.pers[ "eliminated" ] ) )
+	if ( isDefined( player.pers[ "eliminated" ] ) && player.pers[ "eliminated" ] )
 	{
-		return player.pers[ "eliminated" ];
+		return 1;
 	}
+	return 0;
 }
 
-getplayersleft()
+getplayersleft() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	playersremaining = [];
 	playerindex = 0;
@@ -212,27 +211,23 @@ getplayersleft()
 			playerindex++;
 			continue;
 		}
-		else
+		if ( !isplayereliminated( player ) )
 		{
-			if ( !isplayereliminated( player ) )
-			{
-				playersremaining[ playersremaining.size ] = player;
-			}
+			playersremaining[ playersremaining.size ] = player;
 		}
 		playerindex++;
 	}
 	return playersremaining;
 }
 
-onwagerfinalizeround()
+onwagerfinalizeround() //checked changed to match cerberus output
 {
 	playersleft = getplayersleft();
 	lastmanstanding = playersleft[ 0 ];
 	sidebetpool = 0;
 	sidebetwinners = [];
 	players = level.players;
-	playerindex = 0;
-	while ( playerindex < players.size )
+	for ( playerindex = 0; playerindex < players.size; playerindex++ ) 
 	{
 		if ( isDefined( players[ playerindex ].pers[ "sideBetMade" ] ) )
 		{
@@ -242,23 +237,20 @@ onwagerfinalizeround()
 				sidebetwinners[ sidebetwinners.size ] = players[ playerindex ];
 			}
 		}
-		playerindex++;
 	}
 	if ( sidebetwinners.size == 0 )
 	{
 		return;
 	}
 	sidebetpayout = int( sidebetpool / sidebetwinners.size );
-	index = 0;
-	while ( index < sidebetwinners.size )
+	for ( index = 0; index < sidebetwinners.size; index++ )
 	{
 		player = sidebetwinners[ index ];
 		player.pers[ "wager_sideBetWinnings" ] += sidebetpayout;
-		index++;
 	}
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output
 {
 	if ( isDefined( attacker ) && isplayer( attacker ) && self != attacker )
 	{
@@ -294,14 +286,14 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	}
 }
 
-giveammo( amount )
+giveammo( amount ) //checked matches cerberus output
 {
 	currentweapon = self getcurrentweapon();
 	clipammo = self getweaponammoclip( currentweapon );
 	self setweaponammoclip( currentweapon, clipammo + amount );
 }
 
-shouldreceivesurvivorbonus()
+shouldreceivesurvivorbonus() //checked matches cerberus output
 {
 	if ( isalive( self ) )
 	{
@@ -314,15 +306,14 @@ shouldreceivesurvivorbonus()
 	return 0;
 }
 
-watchelimination()
+watchelimination() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	for ( ;; )
 	{
 		level waittill( "player_eliminated" );
 		players = level.players;
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			if ( isDefined( players[ i ] ) && players[ i ] shouldreceivesurvivorbonus() )
 			{
@@ -333,12 +324,11 @@ watchelimination()
 				maps/mp/_scoreevents::processscoreevent( "survivor", players[ i ] );
 				players[ i ] maps/mp/gametypes/_globallogic_score::givepointstowin( level.pointsforsurvivalbonus );
 			}
-			i++;
 		}
 	}
 }
 
-onwagerawards()
+onwagerawards() //checked matches cerberus output
 {
 	stabs = self maps/mp/gametypes/_globallogic_score::getpersstat( "stabs" );
 	if ( !isDefined( stabs ) )
@@ -359,3 +349,4 @@ onwagerawards()
 	}
 	self maps/mp/gametypes/_persistence::setafteractionreportstat( "wagerAwards", bestkillstreak, 2 );
 }
+

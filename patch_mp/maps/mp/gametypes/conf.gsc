@@ -5,11 +5,13 @@
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_spawning;
 #include maps/mp/gametypes/_spawnlogic;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include common_scripts/utility;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
@@ -53,7 +55,7 @@ main()
 	}
 }
 
-onprecachegametype()
+onprecachegametype() //checked matches cerberus output
 {
 	precachemodel( "p6_dogtags" );
 	precachemodel( "p6_dogtags_friend" );
@@ -61,7 +63,7 @@ onprecachegametype()
 	precachestring( &"MP_KILL_DENIED" );
 }
 
-onstartgametype()
+onstartgametype() //checked changed to match cerberus output
 {
 	setclientnamemode( "auto_change" );
 	if ( !isDefined( game[ "switchedsides" ] ) )
@@ -79,11 +81,8 @@ onstartgametype()
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	level.spawnmins = ( 0, 0, 1 );
 	level.spawnmaxs = ( 0, 0, 1 );
-	_a109 = level.teams;
-	_k109 = getFirstArrayKey( _a109 );
-	while ( isDefined( _k109 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a109[ _k109 ];
 		setobjectivetext( team, &"OBJECTIVES_CONF" );
 		setobjectivehinttext( team, &"OBJECTIVES_CONF_HINT" );
 		if ( level.splitscreen )
@@ -96,17 +95,12 @@ onstartgametype()
 		}
 		maps/mp/gametypes/_spawnlogic::placespawnpoints( maps/mp/gametypes/_spawning::gettdmstartspawnname( team ) );
 		maps/mp/gametypes/_spawnlogic::addspawnpoints( team, "mp_tdm_spawn" );
-		_k109 = getNextArrayKey( _a109, _k109 );
 	}
 	maps/mp/gametypes/_spawning::updateallspawnpoints();
 	level.spawn_start = [];
-	_a131 = level.teams;
-	_k131 = getFirstArrayKey( _a131 );
-	while ( isDefined( _k131 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a131[ _k131 ];
 		level.spawn_start[ team ] = maps/mp/gametypes/_spawnlogic::getspawnpointarray( maps/mp/gametypes/_spawning::gettdmstartspawnname( team ) );
-		_k131 = getNextArrayKey( _a131, _k131 );
 	}
 	level.mapcenter = maps/mp/gametypes/_spawnlogic::findboxcenter( level.spawnmins, level.spawnmaxs );
 	setmapcenter( level.mapcenter );
@@ -123,7 +117,7 @@ onstartgametype()
 	}
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output
 {
 	if ( !isplayer( attacker ) || attacker.team == self.team )
 	{
@@ -133,7 +127,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	attacker maps/mp/gametypes/_globallogic_score::giveteamscoreforobjective( attacker.team, level.teamscoreperkill );
 }
 
-spawndogtags( victim, attacker )
+spawndogtags( victim, attacker ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.dogtags[ victim.entnum ] ) )
 	{
@@ -142,28 +136,24 @@ spawndogtags( victim, attacker )
 	}
 	else
 	{
-		visuals[ 0 ] = spawn( "script_model", ( 0, 0, 1 ) );
+		visuals[ 0 ] = spawn( "script_model", ( 0, 0, 0 ) );
 		visuals[ 0 ] setmodel( "p6_dogtags" );
-		visuals[ 1 ] = spawn( "script_model", ( 0, 0, 1 ) );
+		visuals[ 1 ] = spawn( "script_model", ( 0, 0, 0 ) );
 		visuals[ 1 ] setmodel( "p6_dogtags_friend" );
-		trigger = spawn( "trigger_radius", ( 0, 0, 1 ), 0, 32, 32 );
+		trigger = spawn( "trigger_radius", ( 0, 0, 0 ), 0, 32, 32 );
 		level.dogtags[ victim.entnum ] = maps/mp/gametypes/_gameobjects::createuseobject( "any", trigger, visuals, vectorScale( ( 0, 0, 1 ), 16 ) );
-		_a189 = level.teams;
-		_k189 = getFirstArrayKey( _a189 );
-		while ( isDefined( _k189 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a189[ _k189 ];
 			objective_delete( level.dogtags[ victim.entnum ].objid[ team ] );
 			maps/mp/gametypes/_gameobjects::releaseobjid( level.dogtags[ victim.entnum ].objid[ team ] );
 			maps/mp/gametypes/_objpoints::deleteobjpoint( level.dogtags[ victim.entnum ].objpoints[ team ] );
-			_k189 = getNextArrayKey( _a189, _k189 );
 		}
 		level.dogtags[ victim.entnum ] maps/mp/gametypes/_gameobjects::setusetime( 0 );
 		level.dogtags[ victim.entnum ].onuse = ::onuse;
 		level.dogtags[ victim.entnum ].victim = victim;
 		level.dogtags[ victim.entnum ].victimteam = victim.team;
 		level.dogtags[ victim.entnum ].objid = maps/mp/gametypes/_gameobjects::getnextobjid();
-		objective_add( level.dogtags[ victim.entnum ].objid, "invisible", ( 0, 0, 1 ) );
+		objective_add( level.dogtags[ victim.entnum ].objid, "invisible", ( 0, 0, 0 ) );
 		objective_icon( level.dogtags[ victim.entnum ].objid, "waypoint_dogtags" );
 		level thread clearonvictimdisconnect( victim );
 		victim thread tagteamupdater( level.dogtags[ victim.entnum ] );
@@ -188,31 +178,24 @@ spawndogtags( victim, attacker )
 	level notify( "dogtag_spawned" );
 }
 
-showtoteam( gameobject, team )
+showtoteam( gameobject, team ) //checked changed to match cerberus output
 {
 	gameobject endon( "death" );
 	gameobject endon( "reset" );
 	self hide();
-	_a245 = level.players;
-	_k245 = getFirstArrayKey( _a245 );
-	while ( isDefined( _k245 ) )
+	foreach ( player in level.players )
 	{
-		player = _a245[ _k245 ];
 		if ( player.team == team )
 		{
 			self showtoplayer( player );
 		}
-		_k245 = getNextArrayKey( _a245, _k245 );
 	}
 	for ( ;; )
 	{
 		level waittill( "joined_team" );
 		self hide();
-		_a256 = level.players;
-		_k256 = getFirstArrayKey( _a256 );
-		while ( isDefined( _k256 ) )
+		foreach ( player in level.players )
 		{
-			player = _a256[ _k256 ];
 			if ( player.team == team )
 			{
 				self showtoplayer( player );
@@ -221,36 +204,28 @@ showtoteam( gameobject, team )
 			{
 				objective_state( gameobject.objid, "invisible" );
 			}
-			_k256 = getNextArrayKey( _a256, _k256 );
 		}
 	}
 }
 
-showtoenemyteams( gameobject, friend_team )
+showtoenemyteams( gameobject, friend_team ) //checked changed to match cerberus output
 {
 	gameobject endon( "death" );
 	gameobject endon( "reset" );
 	self hide();
-	_a274 = level.players;
-	_k274 = getFirstArrayKey( _a274 );
-	while ( isDefined( _k274 ) )
+	foreach ( player in level.players )
 	{
-		player = _a274[ _k274 ];
 		if ( player.team != friend_team )
 		{
 			self showtoplayer( player );
 		}
-		_k274 = getNextArrayKey( _a274, _k274 );
 	}
 	for ( ;; )
 	{
 		level waittill( "joined_team" );
 		self hide();
-		_a285 = level.players;
-		_k285 = getFirstArrayKey( _a285 );
-		while ( isDefined( _k285 ) )
+		foreach ( player in level.players )
 		{
-			player = _a285[ _k285 ];
 			if ( player.team != friend_team )
 			{
 				self showtoplayer( player );
@@ -259,12 +234,11 @@ showtoenemyteams( gameobject, friend_team )
 			{
 				objective_state( gameobject.objid, "invisible" );
 			}
-			_k285 = getNextArrayKey( _a285, _k285 );
 		}
 	}
 }
 
-onuse( player )
+onuse( player ) //checked matches cerberus output
 {
 	tacinsertboost = 0;
 	if ( player.team != self.attackerteam )
@@ -309,10 +283,12 @@ onuse( player )
 		splash = &"SPLASHES_KILL_CONFIRMED";
 		player addplayerstat( "KILLSCONFIRMED", 1 );
 		player recordgameevent( "capture" );
+		/*
 /#
 		assert( isDefined( player.lastkillconfirmedtime ) );
 		assert( isDefined( player.lastkillconfirmedcount ) );
 #/
+		*/
 		if ( self.attacker != player )
 		{
 			self.attacker thread onpickup( "teammate_kill_confirmed", splash );
@@ -344,18 +320,18 @@ onuse( player )
 	self resettags();
 }
 
-onpickup( event, splash )
+onpickup( event, splash ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "disconnect" );
 	while ( !isDefined( self.pers ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	maps/mp/_scoreevents::processscoreevent( event, self );
 }
 
-resettags()
+resettags() //checked matches cerberus output
 {
 	self.attacker = undefined;
 	self.unreachable = undefined;
@@ -371,7 +347,7 @@ resettags()
 	objective_state( self.objid, "invisible" );
 }
 
-bounce()
+bounce() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "reset" );
@@ -379,20 +355,20 @@ bounce()
 	toppos = self.curorigin + vectorScale( ( 0, 0, 1 ), 12 );
 	while ( 1 )
 	{
-		self.visuals[ 0 ] moveto( toppos, 0,5, 0,15, 0,15 );
-		self.visuals[ 0 ] rotateyaw( 180, 0,5 );
-		self.visuals[ 1 ] moveto( toppos, 0,5, 0,15, 0,15 );
-		self.visuals[ 1 ] rotateyaw( 180, 0,5 );
-		wait 0,5;
-		self.visuals[ 0 ] moveto( bottompos, 0,5, 0,15, 0,15 );
-		self.visuals[ 0 ] rotateyaw( 180, 0,5 );
-		self.visuals[ 1 ] moveto( bottompos, 0,5, 0,15, 0,15 );
-		self.visuals[ 1 ] rotateyaw( 180, 0,5 );
-		wait 0,5;
+		self.visuals[ 0 ] moveto( toppos, 0.5, 0.15, 0.15 );
+		self.visuals[ 0 ] rotateyaw( 180, 0.5 );
+		self.visuals[ 1 ] moveto( toppos, 0.5, 0.15, 0.15 );
+		self.visuals[ 1 ] rotateyaw( 180, 0.5 );
+		wait 0.5;
+		self.visuals[ 0 ] moveto( bottompos, 0.5, 0.15, 0.15 );
+		self.visuals[ 0 ] rotateyaw( 180, 0.5 );
+		self.visuals[ 1 ] moveto( bottompos, 0.5, 0.15, 0.15 );
+		self.visuals[ 1 ] rotateyaw( 180, 0.5 );
+		wait 0.5;
 	}
 }
 
-timeout( victim )
+timeout( victim ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	victim endon( "disconnect" );
@@ -409,7 +385,7 @@ timeout( victim )
 	self maps/mp/gametypes/_gameobjects::allowuse( "none" );
 }
 
-tagteamupdater( tags )
+tagteamupdater( tags ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "disconnect" );
@@ -421,7 +397,7 @@ tagteamupdater( tags )
 	}
 }
 
-clearonvictimdisconnect( victim )
+clearonvictimdisconnect( victim ) //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	guid = victim.entnum;
@@ -431,23 +407,21 @@ clearonvictimdisconnect( victim )
 		level.dogtags[ guid ] maps/mp/gametypes/_gameobjects::allowuse( "none" );
 		playfx( level.conf_fx[ "vanish" ], level.dogtags[ guid ].curorigin );
 		level.dogtags[ guid ] notify( "reset" );
-		wait 0,05;
+		wait 0.05;
 		if ( isDefined( level.dogtags[ guid ] ) )
 		{
 			objective_delete( level.dogtags[ guid ].objid );
 			level.dogtags[ guid ].trigger delete();
-			i = 0;
-			while ( i < level.dogtags[ guid ].visuals.size )
+			for ( i = 0; i < level.dogtags[guid].visuals.size; i++ )
 			{
 				level.dogtags[ guid ].visuals[ i ] delete();
-				i++;
 			}
 			level.dogtags[ guid ] notify( "deleted" );
 		}
 	}
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked nmatches cerberus output
 {
 	self.usingobj = undefined;
 	if ( level.usestartspawns && !level.ingraceperiod )
@@ -472,7 +446,7 @@ onspawnplayerunified()
 	}
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	pixbeginevent( "TDM:onSpawnPlayer" );
 	self.usingobj = undefined;
@@ -510,12 +484,13 @@ onspawnplayer( predictedspawn )
 	pixendevent();
 }
 
-onroundswitch()
+onroundswitch() //checked matches cerberus output
 {
 	game[ "switchedsides" ] = !game[ "switchedsides" ];
 }
 
-onroundendgame( roundwinner )
+onroundendgame( roundwinner ) //checked matches cerberus output
 {
 	return maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "roundswon" );
 }
+

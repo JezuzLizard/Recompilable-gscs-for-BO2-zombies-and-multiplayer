@@ -9,7 +9,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+main() //checked matches cerberus output may need to review order of operations
 {
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
@@ -52,7 +52,7 @@ main()
 	setscoreboardcolumns( "pointstowin", "kills", "deaths", "stabs", "x2score" );
 }
 
-onstartgametype()
+onstartgametype() //checked matches cerberus output
 {
 	setdvar( "scr_disable_weapondrop", 1 );
 	setdvar( "scr_xpscale", 0 );
@@ -117,12 +117,11 @@ onstartgametype()
 	level thread clearpowerupsongameend();
 }
 
-attach_compatibility_init()
+attach_compatibility_init() //checked changed to match cerberus output
 {
 	level.attach_compatible = [];
 	set_attachtable_id();
-	i = 0;
-	while ( i < 33 )
+	for ( i = 0; i < 33; i++ )
 	{
 		itemrow = tablelookuprownum( level.attachtableid, 9, i );
 		if ( itemrow > -1 )
@@ -132,11 +131,10 @@ attach_compatibility_init()
 			compatible = tablelookupcolumnforrow( level.attachtableid, itemrow, 11 );
 			level.attach_compatible[ name ] = strtok( compatible, " " );
 		}
-		i++;
 	}
 }
 
-set_attachtable_id()
+set_attachtable_id() //checked matches cerberus output
 {
 	if ( !isDefined( level.attachtableid ) )
 	{
@@ -144,7 +142,7 @@ set_attachtable_id()
 	}
 }
 
-addguntoprogression( gunname, altname )
+addguntoprogression( gunname, altname ) //checked matches cerberus output
 {
 	if ( !isDefined( level.gunprogression ) )
 	{
@@ -160,7 +158,7 @@ addguntoprogression( gunname, altname )
 	level.gunprogression[ level.gunprogression.size ] = newweapon;
 }
 
-getrandomgunfromprogression()
+getrandomgunfromprogression() //checked changed to match cerberus output
 {
 	weaponidkeys = getarraykeys( level.tbl_weaponids );
 	numweaponidkeys = weaponidkeys.size;
@@ -169,24 +167,19 @@ getrandomgunfromprogression()
 	{
 		size = level.gunprogression.size;
 	}
+	/*
 /#
 	debug_weapon = getDvar( #"1C6DE858" );
 #/
+	*/
 	allowproneblock = 1;
 	players = get_players();
-	_a256 = players;
-	_k256 = getFirstArrayKey( _a256 );
-	while ( isDefined( _k256 ) )
+	foreach ( player in players )
 	{
-		player = _a256[ _k256 ];
 		if ( player getstance() == "prone" )
 		{
 			allowproneblock = 0;
 			break;
-		}
-		else
-		{
-			_k256 = getNextArrayKey( _a256, _k256 );
 		}
 	}
 	while ( 1 )
@@ -197,13 +190,13 @@ getrandomgunfromprogression()
 		if ( randomindex < numweaponidkeys )
 		{
 			id = random( level.tbl_weaponids );
-			while ( id[ "group" ] != "weapon_launcher" && id[ "group" ] != "weapon_sniper" && id[ "group" ] != "weapon_lmg" && id[ "group" ] != "weapon_assault" && id[ "group" ] != "weapon_smg" && id[ "group" ] != "weapon_pistol" && id[ "group" ] != "weapon_cqb" && id[ "group" ] != "weapon_special" )
+			if ( id[ "group" ] != "weapon_launcher" && id[ "group" ] != "weapon_sniper" && id[ "group" ] != "weapon_lmg" && id[ "group" ] != "weapon_assault" && id[ "group" ] != "weapon_smg" && id[ "group" ] != "weapon_pistol" && id[ "group" ] != "weapon_cqb" && id[ "group" ] != "weapon_special" )
 			{
-				continue;
+				break;
 			}
-			while ( id[ "reference" ] == "weapon_null" )
+			if ( id[ "reference" ] == "weapon_null" )
 			{
-				continue;
+				break;
 			}
 			baseweaponname = id[ "reference" ];
 			attachmentlist = id[ "attachment" ];
@@ -215,57 +208,57 @@ getrandomgunfromprogression()
 			{
 				baseweaponname = "minigun_wager";
 			}
-			while ( baseweaponname == "riotshield" )
+			if ( baseweaponname == "riotshield" )
 			{
-				continue;
+				break;
 			}
-			if ( getDvarInt( #"97A055DA" ) == 0 && baseweaponname == "peacekeeper" )
+			if ( baseweaponname == "peacekeeper" )
 			{
-				continue;
+				break;
 			}
 			weaponname = addrandomattachmenttoweaponname( baseweaponname, attachmentlist );
 			if ( !allowproneblock && weaponblocksprone( weaponname ) )
 			{
-				continue;
+				break;
 			}
 		}
-		else baseweaponname = level.gunprogression[ randomindex - numweaponidkeys ].names[ 0 ];
-		weaponname = level.gunprogression[ randomindex - numweaponidkeys ].names[ 0 ];
+		else 
+		{
+			baseweaponname = level.gunprogression[ randomindex - numweaponidkeys ].names[ 0 ];
+			weaponname = level.gunprogression[ randomindex - numweaponidkeys ].names[ 0 ];
+		}
 		if ( !isDefined( level.usedbaseweapons ) )
 		{
 			level.usedbaseweapons = [];
 			level.usedbaseweapons[ 0 ] = "fhj18";
 		}
 		skipweapon = 0;
-		i = 0;
-		while ( i < level.usedbaseweapons.size )
+		for ( i = 0; i < level.usedbaseweapons.size; i++ )
 		{
 			if ( level.usedbaseweapons[ i ] == baseweaponname )
 			{
 				skipweapon = 1;
 				break;
 			}
-			else
-			{
-				i++;
-			}
 		}
-		while ( skipweapon )
+		if ( skipweapon )
 		{
 			continue;
 		}
 		level.usedbaseweapons[ level.usedbaseweapons.size ] = baseweaponname;
+		/*
 /#
 		if ( debug_weapon != "" )
 		{
 			weaponname = debug_weapon;
 #/
 		}
+		*/
 		return weaponname;
 	}
 }
 
-addrandomattachmenttoweaponname( baseweaponname, attachmentlist )
+addrandomattachmenttoweaponname( baseweaponname, attachmentlist ) //checked changed to match cerberus output
 {
 	if ( !isDefined( attachmentlist ) )
 	{
@@ -291,17 +284,12 @@ addrandomattachmenttoweaponname( baseweaponname, attachmentlist )
 	{
 		attachment2 = level.attach_compatible[ attachment ][ randomint( level.attach_compatible[ attachment ].size ) ];
 		contains = 0;
-		i = 0;
-		while ( i < attachments.size )
+		for ( i = 0; i < attachments.size; i++ )
 		{
 			if ( isDefined( attachment2 ) && attachments[ i ] == attachment2 )
 			{
 				contains = 1;
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 		if ( contains )
@@ -316,7 +304,7 @@ addrandomattachmenttoweaponname( baseweaponname, attachmentlist )
 	return ( baseweaponname + "_mp+" ) + attachment;
 }
 
-waitlongdurationwithhostmigrationpause( nextguncycletime, duration )
+waitlongdurationwithhostmigrationpause( nextguncycletime, duration ) //checked matches cerberus output may need to review order of operations
 {
 	endtime = getTime() + ( duration * 1000 );
 	totaltimepassed = 0;
@@ -329,11 +317,13 @@ waitlongdurationwithhostmigrationpause( nextguncycletime, duration )
 			timepassed = maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 			totaltimepassed += timepassed;
 			endtime += timepassed;
+			/*
 /#
 			println( "[SHRP] timePassed = " + timepassed );
 			println( "[SHRP] totatTimePassed = " + totaltimepassed );
 			println( "[SHRP] level.discardTime = " + level.discardtime );
 #/
+			*/
 			setdvar( "ui_guncycle", nextguncycletime + totaltimepassed );
 		}
 	}
@@ -341,7 +331,7 @@ waitlongdurationwithhostmigrationpause( nextguncycletime, duration )
 	return totaltimepassed;
 }
 
-guncyclewaiter( nextguncycletime, waittime )
+guncyclewaiter( nextguncycletime, waittime ) //checked changed to match cerberus output may need to review order of operations
 {
 	continuecycling = 1;
 	setdvar( "ui_guncycle", nextguncycletime );
@@ -349,42 +339,33 @@ guncyclewaiter( nextguncycletime, waittime )
 	level.guncycletimer.alpha = 1;
 	timepassed = waitlongdurationwithhostmigrationpause( nextguncycletime, ( ( nextguncycletime - getTime() ) / 1000 ) - 6 );
 	nextguncycletime += timepassed;
-	i = 6;
-	while ( i > 1 )
+	for ( i = 6; i > 1; i-- )
 	{
-		j = 0;
-		while ( j < level.players.size )
+		for ( j = 0; j < level.players.size; j++ )
 		{
 			level.players[ j ] playlocalsound( "uin_timer_wager_beep" );
-			j++;
 		}
 		timepassed = waitlongdurationwithhostmigrationpause( nextguncycletime, ( nextguncycletime - getTime() ) / 1000 / i );
 		nextguncycletime += timepassed;
-		i--;
-
 	}
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		level.players[ i ] playlocalsound( "uin_timer_wager_last_beep" );
-		i++;
 	}
 	if ( ( nextguncycletime - getTime() ) > 0 )
 	{
 		wait ( ( nextguncycletime - getTime() ) / 1000 );
 	}
 	level.shrprandomweapon = getrandomgunfromprogression();
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		level.players[ i ] notify( "remove_planted_weapons" );
 		level.players[ i ] givecustomloadout( 0, 1 );
-		i++;
 	}
 	return continuecycling;
 }
 
-chooserandomguns()
+chooserandomguns() //checked changed to match cerberus output may need to review order of operations
 {
 	level endon( "game_ended" );
 	level thread awardmostpointsmedalgameend();
@@ -396,22 +377,19 @@ chooserandomguns()
 		level waittill( "prematch_over" );
 	}
 	guncycle = 1;
-	numguncycles = int( ( ( level.timelimit * 60 ) / waittime ) + 0,5 );
+	numguncycles = int( ( ( level.timelimit * 60 ) / waittime ) + 0.5 );
 	while ( 1 )
 	{
 		nextguncycletime = getTime() + ( waittime * 1000 );
 		ispenultimateround = 0;
 		issharpshooterround = guncycle == ( numguncycles - 1 );
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			level.players[ i ].currentguncyclepoints = 0;
-			i++;
 		}
 		level.currentguncyclemaxpoints = 0;
 		guncyclewaiter( nextguncycletime, waittime );
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			player = level.players[ i ];
 			if ( ( guncycle + 1 ) == numguncycles )
@@ -423,16 +401,13 @@ chooserandomguns()
 				player maps/mp/gametypes/_wager::wagerannouncer( "wm_weapons_cycled" );
 			}
 			player checkawardmostpointsthiscycle();
-			i++;
 		}
 		if ( ispenultimateround )
 		{
 			level.sharpshootermultiplier = 2;
-			i = 0;
-			while ( i < level.players.size )
+			for ( i = 0; i < level.players.size; i++ )
 			{
 				level.players[ i ] thread maps/mp/gametypes/_wager::queuewagerpopup( &"MP_SHRP_PENULTIMATE_RND", 0, &"MP_SHRP_PENULTIMATE_MULTIPLIER", "wm_bonus_rnd" );
-				i++;
 			}
 		}
 		else if ( issharpshooterround )
@@ -445,19 +420,20 @@ chooserandomguns()
 			level.sharpshootermultiplier = 2;
 			setdvar( "ui_guncycle", 0 );
 			level.guncycletimer.alpha = 0;
-			i = 0;
-			while ( i < level.players.size )
+			for ( i = 0; i < level.players.size; i++ )
 			{
 				level.players[ i ] thread maps/mp/gametypes/_wager::queuewagerpopup( &"MP_SHRP_RND", 0, &"MP_SHRP_FINAL_MULTIPLIER", "wm_shrp_rnd" );
-				i++;
 			}
 		}
-		else level.sharpshootermultiplier = 1;
+		else 
+		{
+			level.sharpshootermultiplier = 1;
+		}
 		guncycle++;
 	}
 }
 
-checkawardmostpointsthiscycle()
+checkawardmostpointsthiscycle() //checked matches cerberus output
 {
 	if ( isDefined( self.currentguncyclepoints ) && self.currentguncyclepoints > 0 )
 	{
@@ -468,18 +444,16 @@ checkawardmostpointsthiscycle()
 	}
 }
 
-awardmostpointsmedalgameend()
+awardmostpointsmedalgameend() //checked changed to match cerberus output
 {
 	level waittill( "game_end" );
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		level.players[ i ] checkawardmostpointsthiscycle();
-		i++;
 	}
 }
 
-givecustomloadout( takeallweapons, alreadyspawned )
+givecustomloadout( takeallweapons, alreadyspawned ) //checked matches cerberus output
 {
 	chooserandombody = 0;
 	if ( !isDefined( alreadyspawned ) || !alreadyspawned )
@@ -506,7 +480,7 @@ givecustomloadout( takeallweapons, alreadyspawned )
 	return level.shrprandomweapon;
 }
 
-takeoldweapons()
+takeoldweapons() //checked changed at own discretion
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -517,24 +491,19 @@ takeoldweapons()
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	weaponslist = self getweaponslist();
-	i = 0;
-	while ( i < weaponslist.size )
+	for ( i = 0; i < weaponslist.size; i++ )
 	{
 		if ( weaponslist[ i ] != level.shrprandomweapon && weaponslist[ i ] != "knife_mp" )
 		{
 			self takeweapon( weaponslist[ i ] );
 		}
-		i++;
 	}
 	self enableweaponcycling();
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked partially changed to match cerberus output did not changed while loop to for loop see githb for more info
 {
 	if ( isDefined( attacker ) && isplayer( attacker ) && attacker != self )
 	{
@@ -550,20 +519,17 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 			}
 			attacker.x2kills = attacker.pers[ "x2kills" ];
 		}
-		else
+		else if ( isDefined( level.sharpshootermultiplier ) && level.sharpshootermultiplier == 3 )
 		{
-			if ( isDefined( level.sharpshootermultiplier ) && level.sharpshootermultiplier == 3 )
+			if ( !isDefined( attacker.pers[ "x3kills" ] ) )
 			{
-				if ( !isDefined( attacker.pers[ "x3kills" ] ) )
-				{
-					attacker.pers[ "x3kills" ] = 1;
-				}
-				else
-				{
-					attacker.pers[ "x3kills" ]++;
-				}
-				attacker.x2kills = attacker.pers[ "x3kills" ];
+				attacker.pers[ "x3kills" ] = 1;
 			}
+			else
+			{
+				attacker.pers[ "x3kills" ]++;
+			}
+			attacker.x2kills = attacker.pers[ "x3kills" ];
 		}
 		if ( isDefined( self.scoremultiplier ) && self.scoremultiplier >= 2 )
 		{
@@ -616,22 +582,19 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				i++;
 				continue;
 			}
-			else
+			attacker maps/mp/gametypes/_globallogic_score::givepointstowin( level.pointsperweaponkill );
+			if ( !isDefined( attacker.currentguncyclepoints ) )
 			{
-				attacker maps/mp/gametypes/_globallogic_score::givepointstowin( level.pointsperweaponkill );
-				if ( !isDefined( attacker.currentguncyclepoints ) )
-				{
-					attacker.currentguncyclepoints = 0;
-				}
-				attacker.currentguncyclepoints += level.pointsperweaponkill;
-				if ( level.currentguncyclemaxpoints < attacker.currentguncyclepoints )
-				{
-					level.currentguncyclemaxpoints = attacker.currentguncyclepoints;
-				}
-				if ( i != 1 )
-				{
-					maps/mp/_scoreevents::processscoreevent( "kill", attacker, self, sweapon );
-				}
+				attacker.currentguncyclepoints = 0;
+			}
+			attacker.currentguncyclepoints += level.pointsperweaponkill;
+			if ( level.currentguncyclemaxpoints < attacker.currentguncyclepoints )
+			{
+				level.currentguncyclemaxpoints = attacker.currentguncyclepoints;
+			}
+			if ( i != 1 )
+			{
+				maps/mp/_scoreevents::processscoreevent( "kill", attacker, self, sweapon );
 			}
 			i++;
 		}
@@ -648,13 +611,13 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	self maps/mp/gametypes/_wager::clearpowerups();
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 	self thread infiniteammo();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( self.pers[ "team" ] );
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_dm( spawnpoints );
@@ -669,19 +632,19 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-infiniteammo()
+infiniteammo() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	for ( ;; )
 	{
-		wait 0,1;
+		wait 0.1;
 		weapon = self getcurrentweapon();
 		self givemaxammo( weapon );
 	}
 }
 
-onwagerawards()
+onwagerawards() //checked matches cerberus output
 {
 	x2kills = self maps/mp/gametypes/_globallogic_score::getpersstat( "x2kills" );
 	if ( !isDefined( x2kills ) )
@@ -703,14 +666,13 @@ onwagerawards()
 	self maps/mp/gametypes/_persistence::setafteractionreportstat( "wagerAwards", bestkillstreak, 2 );
 }
 
-clearpowerupsongameend()
+clearpowerupsongameend() //checked changed to match cerberus output
 {
 	level waittill( "game_ended" );
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
 		player maps/mp/gametypes/_wager::clearpowerups();
-		i++;
 	}
 }
+

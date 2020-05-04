@@ -5,19 +5,21 @@
 #include maps/mp/_scoreevents;
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_wager;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
 	maps/mp/gametypes/_globallogic::setupcallbacks();
-	registertimelimit( 0, 1440 );
-	registerscorelimit( 0, 5000 );
-	registerroundlimit( 0, 10 );
-	registerroundwinlimit( 0, 10 );
-	registernumlives( 0, 100 );
+	maps/mp/_utility::registertimelimit( 0, 1440 );
+	maps/mp/_utility::registerscorelimit( 0, 5000 );
+	maps/mp/_utility::registerroundlimit( 0, 10 );
+	maps/mp/_utility::registerroundwinlimit( 0, 10 );
+	maps/mp/_utility::registernumlives( 0, 100 );
 	level.onstartgametype = ::onstartgametype;
 	level.onspawnplayer = ::onspawnplayer;
 	level.onspawnplayerunified = ::onspawnplayerunified;
@@ -44,9 +46,11 @@ main()
 			level.setbackweapon = getreffromitemindex( getbaseweaponitemindex( "knife_ballistic_mp" ) ) + "_mp";
 			break;
 		default:
+			/*
 /#
 			assert( 1, "Invalid setting for gunSelection" );
 #/
+			*/
 			break;
 	}
 	game[ "dialog" ][ "gametype" ] = "sns_start";
@@ -62,7 +66,7 @@ main()
 	setscoreboardcolumns( "pointstowin", "kills", "deaths", "tomahawks", "humiliated" );
 }
 
-givecustomloadout()
+givecustomloadout() //checked matches cerberus output
 {
 	self notify( "sas_spectator_hud" );
 	defaultweapon = "crossbow_mp";
@@ -87,7 +91,7 @@ givecustomloadout()
 	return defaultweapon;
 }
 
-onplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime )
+onplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked matches cerberus output
 {
 	if ( sweapon == "crossbow_mp" && smeansofdeath == "MOD_IMPACT" )
 	{
@@ -107,7 +111,7 @@ onplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon,
 	return idamage;
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
 	if ( isDefined( attacker ) && isplayer( attacker ) && attacker != self )
 	{
@@ -138,19 +142,16 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 			}
 			attacker maps/mp/gametypes/_globallogic_score::givepointstowin( level.pointsperprimarygrenadekill );
 		}
-		else
+		else if ( baseweaponname == "knife_ballistic_mp" )
 		{
-			if ( baseweaponname == "knife_ballistic_mp" )
+			attacker.killswithsecondary++;
+			if ( attacker.killswithbothawarded == 0 && attacker.killswithprimary > 0 )
 			{
-				attacker.killswithsecondary++;
-				if ( attacker.killswithbothawarded == 0 && attacker.killswithprimary > 0 )
-				{
-					attacker.killswithbothawarded = 1;
-					maps/mp/_scoreevents::processscoreevent( "kill_with_crossbow_and_ballistic_sas", attacker, self, sweapon );
-				}
+				attacker.killswithbothawarded = 1;
+				maps/mp/_scoreevents::processscoreevent( "kill_with_crossbow_and_ballistic_sas", attacker, self, sweapon );
 			}
-			attacker maps/mp/gametypes/_globallogic_score::givepointstowin( level.pointspersecondarykill );
 		}
+		attacker maps/mp/gametypes/_globallogic_score::givepointstowin( level.pointspersecondarykill );
 		if ( isDefined( level.setbackweapon ) && baseweaponname == level.setbackweapon )
 		{
 			self.pers[ "humiliated" ]++;
@@ -185,24 +186,24 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	}
 }
 
-onstartgametype()
+onstartgametype() //checked changed to match cerberus output
 {
 	setdvar( "scr_xpscale", 0 );
 	setclientnamemode( "auto_change" );
-	setobjectivetext( "allies", &"OBJECTIVES_SAS" );
-	setobjectivetext( "axis", &"OBJECTIVES_SAS" );
+	maps/mp/_utility::setobjectivetext( "allies", &"OBJECTIVES_SAS" );
+	maps/mp/_utility::setobjectivetext( "axis", &"OBJECTIVES_SAS" );
 	if ( level.splitscreen )
 	{
-		setobjectivescoretext( "allies", &"OBJECTIVES_SAS" );
-		setobjectivescoretext( "axis", &"OBJECTIVES_SAS" );
+		maps/mp/_utility::setobjectivescoretext( "allies", &"OBJECTIVES_SAS" );
+		maps/mp/_utility::setobjectivescoretext( "axis", &"OBJECTIVES_SAS" );
 	}
 	else
 	{
-		setobjectivescoretext( "allies", &"OBJECTIVES_SAS_SCORE" );
-		setobjectivescoretext( "axis", &"OBJECTIVES_SAS_SCORE" );
+		maps/mp/_utility::setobjectivescoretext( "allies", &"OBJECTIVES_SAS_SCORE" );
+		maps/mp/_utility::setobjectivescoretext( "axis", &"OBJECTIVES_SAS_SCORE" );
 	}
-	setobjectivehinttext( "allies", &"OBJECTIVES_SAS_HINT" );
-	setobjectivehinttext( "axis", &"OBJECTIVES_SAS_HINT" );
+	maps/mp/_utility::setobjectivehinttext( "allies", &"OBJECTIVES_SAS_HINT" );
+	maps/mp/_utility::setobjectivehinttext( "axis", &"OBJECTIVES_SAS_HINT" );
 	allowed[ 0 ] = "sas";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -228,15 +229,18 @@ onstartgametype()
 	level.displayroundendtext = 0;
 	if ( isDefined( game[ "roundsplayed" ] ) && game[ "roundsplayed" ] > 0 )
 	{
+		game["dialog"]["gametype"] = undefined;
+		game["dialog"]["offense_obj"] = undefined;
+		game["dialog"]["defense_obj"] = undefined;
 	}
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( self.pers[ "team" ] );
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_dm( spawnpoints );
@@ -250,7 +254,7 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-onwagerawards()
+onwagerawards() //checked matches cerberus output
 {
 	tomahawks = self maps/mp/gametypes/_globallogic_score::getpersstat( "tomahawks" );
 	if ( !isDefined( tomahawks ) )
@@ -271,3 +275,4 @@ onwagerawards()
 	}
 	self maps/mp/gametypes/_persistence::setafteractionreportstat( "wagerAwards", bestkillstreak, 2 );
 }
+

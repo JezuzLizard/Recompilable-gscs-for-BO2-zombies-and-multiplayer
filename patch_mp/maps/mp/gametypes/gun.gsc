@@ -6,10 +6,12 @@
 #include maps/mp/_scoreevents;
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_wager;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
@@ -115,7 +117,7 @@ main()
 	setscoreboardcolumns( "pointstowin", "kills", "deaths", "stabs", "humiliated" );
 }
 
-addguntoprogression( gunname, altname )
+addguntoprogression( gunname, altname ) //checked matches cerberus output
 {
 	if ( !isDefined( level.gunprogression ) )
 	{
@@ -131,7 +133,7 @@ addguntoprogression( gunname, altname )
 	level.gunprogression[ level.gunprogression.size ] = newweapon;
 }
 
-givecustomloadout( takeallweapons, alreadyspawned )
+givecustomloadout( takeallweapons, alreadyspawned ) //checked matches cerberus output
 {
 	chooserandombody = 0;
 	if ( !isDefined( alreadyspawned ) || !alreadyspawned )
@@ -163,7 +165,7 @@ givecustomloadout( takeallweapons, alreadyspawned )
 	return currentweapon;
 }
 
-takeoldweapons( currentweapon )
+takeoldweapons( currentweapon ) //checked changed at own discretion
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -174,31 +176,25 @@ takeoldweapons( currentweapon )
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	weaponslist = self getweaponslist();
-	i = 0;
-	while ( i < weaponslist.size )
+	for ( i = 0; i < weaponslist.size; i++ )
 	{
 		if ( weaponslist[ i ] != currentweapon && weaponslist[ i ] != "knife_mp" )
 		{
 			self takeweapon( weaponslist[ i ] );
 		}
-		i++;
 	}
 	self enableweaponcycling();
 }
 
-promoteplayer( weaponused )
+promoteplayer( weaponused ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "cancel_promotion" );
 	level endon( "game_ended" );
-	wait 0,05;
-	i = 0;
-	while ( i < level.gunprogression[ self.gunprogress ].names.size )
+	wait 0.05;
+	for ( i = 0; i < level.gunprogression[self.gunprogress].names.size; i++ )
 	{
 		if ( weaponused == level.gunprogression[ self.gunprogress ].names[ i ] || weaponused == "explosive_bolt_mp" && level.gunprogression[ self.gunprogress ].names[ i ] != "crossbow_mp" || level.gunprogression[ self.gunprogress ].names[ i ] == "crossbow_mp+reflex" && level.gunprogression[ self.gunprogress ].names[ i ] == "crossbow_mp+acog" )
 		{
@@ -220,29 +216,22 @@ promoteplayer( weaponused )
 			self.lastpromotiontime = getTime();
 			return;
 		}
-		i++;
 	}
 }
 
-demoteplayer()
+demoteplayer() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "cancel_promotion" );
 	startinggunprogress = self.gunprogress;
-	i = 0;
-	while ( i < level.setbacksperdemotion )
+	for ( i = 0; i < level.setbacksperdemotion; i++ )
 	{
 		if ( self.gunprogress <= 0 )
 		{
 			break;
 		}
-		else
-		{
-			self maps/mp/gametypes/_globallogic_score::givepointstowin( level.gungamekillscore * -1 );
-			self.gunprogress--;
-
-			i++;
-		}
+		self maps/mp/gametypes/_globallogic_score::givepointstowin( level.gungamekillscore * -1 );
+		self.gunprogress--;
 	}
 	if ( startinggunprogress != self.gunprogress && isalive( self ) )
 	{
@@ -255,7 +244,7 @@ demoteplayer()
 	self maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "wm_humiliated" );
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
 	if ( smeansofdeath == "MOD_SUICIDE" || smeansofdeath == "MOD_TRIGGER_HURT" )
 	{
@@ -285,7 +274,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 			}
 			attacker playlocalsound( game[ "dialog" ][ "wm_humiliation" ] );
 			self thread demoteplayer();
-			return;
 		}
 		else
 		{
@@ -294,7 +282,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	}
 }
 
-onstartgametype()
+onstartgametype() //checked matches cerberus output
 {
 	level.gungamekillscore = maps/mp/gametypes/_rank::getscoreinfovalue( "kill_gun" );
 	registerscorelimit( level.gunprogression.size * level.gungamekillscore, level.gunprogression.size * level.gungamekillscore );
@@ -342,13 +330,13 @@ onstartgametype()
 	level.quickmessagetoall = 1;
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 	self thread infiniteammo();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( self.pers[ "team" ] );
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_dm( spawnpoints );
@@ -363,19 +351,19 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-infiniteammo()
+infiniteammo() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	for ( ;; )
 	{
-		wait 0,1;
+		wait 0.1;
 		weapon = self getcurrentweapon();
 		self givemaxammo( weapon );
 	}
 }
 
-onwagerawards()
+onwagerawards() //checked matches cerberus output
 {
 	stabs = self maps/mp/gametypes/_globallogic_score::getpersstat( "stabs" );
 	if ( !isDefined( stabs ) )
@@ -397,10 +385,11 @@ onwagerawards()
 	self maps/mp/gametypes/_persistence::setafteractionreportstat( "wagerAwards", bestkillstreak, 2 );
 }
 
-onendgame( winningplayer )
+onendgame( winningplayer ) //checked matches cerberus output
 {
 	if ( isDefined( winningplayer ) && isplayer( winningplayer ) )
 	{
 		[[ level._setplayerscore ]]( winningplayer, [[ level._getplayerscore ]]( winningplayer ) + level.gungamekillscore );
 	}
 }
+

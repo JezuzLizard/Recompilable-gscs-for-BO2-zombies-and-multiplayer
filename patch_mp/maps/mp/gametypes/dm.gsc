@@ -1,3 +1,6 @@
+#include maps/mp/gametypes/_callbacksetup
+#include maps/mp/gametypes/_gameobjects;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_globallogic_audio;
 #include maps/mp/gametypes/_spawnlogic;
@@ -5,16 +8,16 @@
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
 	maps/mp/gametypes/_globallogic::setupcallbacks();
-	registertimelimit( 0, 1440 );
-	registerscorelimit( 0, 50000 );
-	registerroundlimit( 0, 10 );
-	registerroundwinlimit( 0, 10 );
-	registernumlives( 0, 100 );
+	maps/mp/_utility::registertimelimit( 0, 1440 );
+	maps/mp/_utility::registerscorelimit( 0, 50000 );
+	maps/mp/_utility::registerroundlimit( 0, 10 );
+	maps/mp/_utility::registerroundwinlimit( 0, 10 );
+	maps/mp/_utility::registernumlives( 0, 100 );
 	maps/mp/gametypes/_globallogic::registerfriendlyfiredelay( level.gametype, 0, 0, 1440 );
 	level.scoreroundbased = getgametypesetting( "roundscorecarry" ) == 0;
 	level.teamscoreperkill = getgametypesetting( "teamScorePerKill" );
@@ -31,7 +34,7 @@ main()
 	setscoreboardcolumns( "pointstowin", "kills", "deaths", "headshots", "score" );
 }
 
-onstartgametype()
+onstartgametype() //checked matches cerberus output
 {
 	setclientnamemode( "auto_change" );
 	setobjectivetext( "allies", &"OBJECTIVES_DM" );
@@ -69,12 +72,12 @@ onstartgametype()
 	}
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( self.pers[ "team" ] );
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_dm( spawnpoints );
@@ -88,7 +91,7 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-onendgame( winningplayer )
+onendgame( winningplayer ) //checked matches cerberus output
 {
 	if ( isDefined( winningplayer ) && isplayer( winningplayer ) )
 	{
@@ -96,14 +99,13 @@ onendgame( winningplayer )
 	}
 }
 
-onscoreclosemusic()
+onscoreclosemusic() //checked changed to match cerberus output
 {
 	while ( !level.gameended )
 	{
 		scorelimit = level.scorelimit;
 		scorethreshold = scorelimit * 0,9;
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			scorecheck = [[ level._getplayerscore ]]( level.players[ i ] );
 			if ( scorecheck >= scorethreshold )
@@ -112,13 +114,12 @@ onscoreclosemusic()
 				thread maps/mp/gametypes/_globallogic_audio::actionmusicset();
 				return;
 			}
-			i++;
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output
 {
 	if ( !isplayer( attacker ) || self == attacker )
 	{
@@ -131,3 +132,4 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 		attacker maps/mp/gametypes/_globallogic_score::givepointstowin( level.teamscoreperheadshot );
 	}
 }
+
