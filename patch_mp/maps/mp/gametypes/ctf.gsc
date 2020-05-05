@@ -5,15 +5,19 @@
 #include maps/mp/_scoreevents;
 #include maps/mp/_popups;
 #include maps/mp/gametypes/_globallogic_utils;
+#include maps/mp/gametypes/_hud_message;
 #include maps/mp/gametypes/_spawnlogic;
 #include maps/mp/gametypes/_spawning;
+#include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/teams/_teams;
 #include maps/mp/gametypes/_globallogic_audio;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	if ( getDvar( "mapname" ) == "mp_background" )
 	{
@@ -80,7 +84,7 @@ main()
 	maps/mp/gametypes/_globallogic_audio::registerdialoggroup( "ctf_flag_enemy", 0 );
 }
 
-onprecachegametype()
+onprecachegametype() //checked matches cerberus output
 {
 	game[ "flag_dropped_sound" ] = "mp_war_objective_lost";
 	game[ "flag_recovered_sound" ] = "mp_war_objective_taken";
@@ -122,15 +126,17 @@ onprecachegametype()
 	game[ "strings" ][ "score_limit_reached" ] = &"MP_CAP_LIMIT_REACHED";
 }
 
-onstartgametype()
+onstartgametype() //checked changed to match cerberus output
 {
 	if ( !isDefined( game[ "switchedsides" ] ) )
 	{
 		game[ "switchedsides" ] = 0;
 	}
+	/*
 /#
 	setdebugsideswitch( game[ "switchedsides" ] );
 #/
+	*/
 	setclientnamemode( "auto_change" );
 	maps/mp/gametypes/_globallogic_score::resetteamscores();
 	setobjectivetext( "allies", &"OBJECTIVES_CTF" );
@@ -189,19 +195,15 @@ onstartgametype()
 	level.spawn_axis = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_ctf_spawn_axis" );
 	level.spawn_allies = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_ctf_spawn_allies" );
 	level.spawn_start = [];
-	_a256 = level.teams;
-	_k256 = getFirstArrayKey( _a256 );
-	while ( isDefined( _k256 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a256[ _k256 ];
 		level.spawn_start[ team ] = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_ctf_spawn_" + team + "_start" );
-		_k256 = getNextArrayKey( _a256, _k256 );
 	}
 	thread updategametypedvars();
 	thread ctf();
 }
 
-shouldplayovertimeround()
+shouldplayovertimeround() //checked matches cerberus output
 {
 	if ( isDefined( game[ "overtime_round" ] ) )
 	{
@@ -234,7 +236,7 @@ shouldplayovertimeround()
 	return 0;
 }
 
-minutesandsecondsstring( milliseconds )
+minutesandsecondsstring( milliseconds ) //checked matches cerberus output
 {
 	minutes = floor( milliseconds / 60000 );
 	milliseconds -= minutes * 60000;
@@ -249,7 +251,7 @@ minutesandsecondsstring( milliseconds )
 	}
 }
 
-setmatchscorehudelemforteam( team )
+setmatchscorehudelemforteam( team ) //checked changed to match cerberus output
 {
 	if ( !isDefined( game[ "overtime_round" ] ) )
 	{
@@ -259,21 +261,18 @@ setmatchscorehudelemforteam( team )
 	{
 		self settext( minutesandsecondsstring( game[ "ctf_overtime_best_time" ] ) );
 	}
+	else if ( isDefined( game[ "ctf_overtime_first_winner" ] ) && game[ "ctf_overtime_first_winner" ] == team )
+	{
+		self settext( minutesandsecondsstring( game[ "ctf_overtime_time_to_beat" ] ) );
+		return;
+	}
 	else
 	{
-		if ( isDefined( game[ "ctf_overtime_first_winner" ] ) && game[ "ctf_overtime_first_winner" ] == team )
-		{
-			self settext( minutesandsecondsstring( game[ "ctf_overtime_time_to_beat" ] ) );
-			return;
-		}
-		else
-		{
-			self settext( &"" );
-		}
+		self settext( &"" );
 	}
 }
 
-onroundswitch()
+onroundswitch() //checked matches cerberus output
 {
 	if ( !isDefined( game[ "switchedsides" ] ) )
 	{
@@ -283,7 +282,7 @@ onroundswitch()
 	game[ "switchedsides" ] = !game[ "switchedsides" ];
 }
 
-onendgame( winningteam )
+onendgame( winningteam ) //checked changed to match cerberus output
 {
 	if ( isDefined( game[ "overtime_round" ] ) )
 	{
@@ -294,7 +293,6 @@ onendgame( winningteam )
 				game[ "ctf_overtime_first_winner" ] = winningteam;
 				game[ "ctf_overtime_time_to_beat" ] = maps/mp/gametypes/_globallogic_utils::gettimepassed();
 			}
-			return;
 		}
 		else
 		{
@@ -304,7 +302,7 @@ onendgame( winningteam )
 	}
 }
 
-onroundendgame( winningteam )
+onroundendgame( winningteam ) //checked changed to match cerberus output
 {
 	if ( isDefined( game[ "overtime_round" ] ) )
 	{
@@ -325,24 +323,17 @@ onroundendgame( winningteam )
 				level.enddefeatreasontext = &"MPUI_CTF_OVERTIME_DEFEAT_DID_NOT_DEFEND";
 			}
 		}
-		else
+		else if ( !isDefined( winningteam ) || winningteam == "tie" )
 		{
-			if ( !isDefined( winningteam ) || winningteam == "tie" )
-			{
-				return "tie";
-			}
+			return "tie";
 		}
 		return winningteam;
 	}
 	if ( level.roundscorecarry == 0 )
 	{
-		_a402 = level.teams;
-		_k402 = getFirstArrayKey( _a402 );
-		while ( isDefined( _k402 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a402[ _k402 ];
 			[[ level._setteamscore ]]( team, game[ "roundswon" ][ team ] );
-			_k402 = getNextArrayKey( _a402, _k402 );
 		}
 		winner = maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "roundswon" );
 	}
@@ -353,7 +344,7 @@ onroundendgame( winningteam )
 	return winner;
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	self.isflagcarrier = 0;
 	self.flagcarried = undefined;
@@ -361,7 +352,7 @@ onspawnplayerunified()
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	self.isflagcarrier = 0;
 	self.flagcarried = undefined;
@@ -383,9 +374,11 @@ onspawnplayer( predictedspawn )
 	{
 		spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_nearteam( level.spawn_allies );
 	}
+	/*
 /#
 	assert( isDefined( spawnpoint ) );
 #/
+	*/
 	if ( predictedspawn )
 	{
 		self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
@@ -396,7 +389,7 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-updategametypedvars()
+updategametypedvars() //checked matches cerberus output
 {
 	level.flagcapturetime = getgametypesetting( "captureTime" );
 	level.flagtouchreturntime = getgametypesetting( "defuseTime" );
@@ -417,7 +410,7 @@ updategametypedvars()
 	}
 }
 
-createflag( trigger )
+createflag( trigger ) //checked matches cerberus output
 {
 	if ( isDefined( trigger.target ) )
 	{
@@ -466,7 +459,7 @@ createflag( trigger )
 	return flag;
 }
 
-createflagzone( trigger )
+createflagzone( trigger ) //checked changed to match cerberus output
 {
 	visuals = [];
 	entityteam = trigger.script_team;
@@ -474,7 +467,7 @@ createflagzone( trigger )
 	{
 		entityteam = getotherteam( entityteam );
 	}
-	flagzone = maps/mp/gametypes/_gameobjects::createuseobject( entityteam, trigger, visuals, ( 0, 0, -1 ), istring( entityteam + "_base" ) );
+	flagzone = maps/mp/gametypes/_gameobjects::createuseobject( entityteam, trigger, visuals, ( 0, 0, 0 ), istring( entityteam + "_base" ) );
 	flagzone maps/mp/gametypes/_gameobjects::allowuse( "friendly" );
 	flagzone maps/mp/gametypes/_gameobjects::setusetime( 0 );
 	flagzone maps/mp/gametypes/_gameobjects::setusetext( &"MP_CAPTURING_FLAG" );
@@ -485,7 +478,7 @@ createflagzone( trigger )
 	flag = level.teamflags[ entityteam ];
 	flag.flagbase = flagzone;
 	flagzone.flag = flag;
-	tracestart = trigger.origin + vectorScale( ( 0, 0, -1 ), 32 );
+	tracestart = trigger.origin + vectorScale( ( 0, 0, 1 ), 32 );
 	traceend = trigger.origin + vectorScale( ( 0, 0, -1 ), 32 );
 	trace = bullettrace( tracestart, traceend, 0, undefined );
 	upangles = vectorToAngle( trace[ "normal" ] );
@@ -497,7 +490,7 @@ createflagzone( trigger )
 	return flagzone;
 }
 
-createflaghint( team, origin )
+createflaghint( team, origin ) //checked matches cerberus output
 {
 	radius = 128;
 	height = 64;
@@ -509,7 +502,7 @@ createflaghint( team, origin )
 	return trigger;
 }
 
-ctf()
+ctf() //checked changed to match cerberus output
 {
 	level.flags = [];
 	level.teamflags = [];
@@ -549,31 +542,32 @@ ctf()
 	flag_triggers = getentarray( "ctf_flag_pickup_trig", "targetname" );
 	if ( !isDefined( flag_triggers ) || flag_triggers.size != 2 )
 	{
+		/*
 /#
 		maps/mp/_utility::error( "Not enough ctf_flag_pickup_trig triggers found in map.  Need two." );
 #/
+		*/
 		return;
 	}
-	index = 0;
-	while ( index < flag_triggers.size )
+	for ( index = 0; index < flag_triggers.size; index++ )
 	{
 		trigger = flag_triggers[ index ];
 		flag = createflag( trigger );
 		team = flag maps/mp/gametypes/_gameobjects::getownerteam();
 		level.flags[ level.flags.size ] = flag;
 		level.teamflags[ team ] = flag;
-		index++;
 	}
 	flag_zones = getentarray( "ctf_flag_zone_trig", "targetname" );
 	if ( !isDefined( flag_zones ) || flag_zones.size != 2 )
 	{
+		/*
 /#
 		maps/mp/_utility::error( "Not enough ctf_flag_zone_trig triggers found in map.  Need two." );
 #/
+		*/
 		return;
 	}
-	index = 0;
-	while ( index < flag_zones.size )
+	for ( index = 0; index < flag_zones.size; index++ )
 	{
 		trigger = flag_zones[ index ];
 		flagzone = createflagzone( trigger );
@@ -583,19 +577,18 @@ ctf()
 		level.flaghints[ team ] = createflaghint( team, trigger.origin );
 		facing_angle = getDvarInt( "scr_ctf_spawnPointFacingAngle" );
 		setspawnpointsbaseweight( getotherteamsmask( team ), trigger.origin, facing_angle, level.spawnsystem.objective_facing_bonus );
-		index++;
 	}
 	createreturnmessageelems();
 }
 
-ctf_icon_hide()
+ctf_icon_hide() //checked matches cerberus output
 {
 	level waittill( "game_ended" );
 	level.teamflags[ "allies" ] maps/mp/gametypes/_gameobjects::setvisibleteam( "none" );
 	level.teamflags[ "axis" ] maps/mp/gametypes/_gameobjects::setvisibleteam( "none" );
 }
 
-removeinfluencers()
+removeinfluencers() //checked matches cerberus output
 {
 	if ( isDefined( self.spawn_influencer_enemy_carrier ) )
 	{
@@ -614,7 +607,7 @@ removeinfluencers()
 	}
 }
 
-ondrop( player )
+ondrop( player ) //checked matches cerberus output
 {
 	if ( isDefined( player ) )
 	{
@@ -693,7 +686,7 @@ ondrop( player )
 	self.spawn_influencer_dropped = addsphereinfluencer( level.spawnsystem.einfluencer_type_game_mode, flag_origin, ss.ctf_dropped_influencer_radius, ss.ctf_dropped_influencer_score, player_team_mask | enemy_team_mask, "ctf_flag_dropped,r,s", maps/mp/gametypes/_spawning::get_score_curve_index( ss.ctf_dropped_influencer_score_curve ), level.idleflagreturntime, self.trigger );
 }
 
-onpickup( player )
+onpickup( player ) //checked matches cerberus output
 {
 	carrierkilledby = self.carrierkilledby;
 	self.carrierkilledby = undefined;
@@ -792,17 +785,19 @@ onpickup( player )
 	}
 }
 
-onpickupmusicstate( player )
+onpickupmusicstate( player ) //checked changed at own discretion
 {
 	self endon( "disconnect" );
 	self endon( "death" );
 	wait 6;
-	if ( player.isflagcarrier )
+	if (player.isFlagCarrier)
 	{
+		//imported from bo1 ctf.gsc
+		player thread maps\mp\gametypes\_globallogic_audio::set_music_on_player( "SUSPENSE", false, false);	
 	}
 }
 
-ishome()
+ishome() //checked matches cerberus output
 {
 	if ( isDefined( self.carrier ) )
 	{
@@ -815,7 +810,7 @@ ishome()
 	return 1;
 }
 
-returnflag()
+returnflag() //checked matches cerberus output
 {
 	team = self maps/mp/gametypes/_gameobjects::getownerteam();
 	otherteam = getotherteam( team );
@@ -838,7 +833,7 @@ returnflag()
 	maps/mp/gametypes/_globallogic_audio::leaderdialog( "theyreturn_flag", otherteam, "ctf_flag" );
 }
 
-oncapture( player )
+oncapture( player ) //checked matches cerberus output
 {
 	team = player.pers[ "team" ];
 	enemyteam = getotherteam( team );
@@ -883,13 +878,13 @@ oncapture( player )
 	flag removeinfluencers();
 }
 
-giveflagcapturexp( player )
+giveflagcapturexp( player ) //checked matches cerberus output
 {
 	maps/mp/_scoreevents::processscoreevent( "flag_capture", player );
 	player recordgameevent( "capture" );
 }
 
-onreset()
+onreset() //checked matches cerberus output
 {
 	update_hints();
 	team = self maps/mp/gametypes/_gameobjects::getownerteam();
@@ -908,7 +903,7 @@ onreset()
 	self clearreturnflaghudelems();
 }
 
-getotherflag( flag )
+getotherflag( flag ) //checked matches cerberus output
 {
 	if ( flag == level.flags[ 0 ] )
 	{
@@ -917,12 +912,11 @@ getotherflag( flag )
 	return level.flags[ 0 ];
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
-	while ( isDefined( attacker ) && isplayer( attacker ) )
+	if ( isDefined( attacker ) && isplayer( attacker ) )
 	{
-		index = 0;
-		while ( index < level.flags.size )
+		for ( index = 0; index < level.flags.size; index++ )
 		{
 			flagteam = "invalidTeam";
 			inflagzone = 0;
@@ -959,7 +953,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				if ( level.flags[ index ].ownerteam == attacker.pers[ "team" ] )
 				{
 					defendedflag = 1;
-					break;
 				}
 				else
 				{
@@ -973,7 +966,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				if ( level.flags[ index ].ownerteam == attacker.pers[ "team" ] )
 				{
 					defendedflag = 1;
-					break;
 				}
 				else
 				{
@@ -1016,19 +1008,17 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 					self recordkillmodifier( "defending" );
 				}
 			}
-			index++;
 		}
 	}
-	if ( !isDefined( self.isflagcarrier ) || !self.isflagcarrier )
+	else if ( !isDefined( self.isflagcarrier ) || !self.isflagcarrier )
 	{
 		return;
 	}
 	if ( isDefined( attacker ) && isplayer( attacker ) && attacker.pers[ "team" ] != self.pers[ "team" ] )
 	{
-		while ( isDefined( self.flagcarried ) )
+		if ( isDefined( self.flagcarried ) )
 		{
-			index = 0;
-			while ( index < level.flags.size )
+			for ( index = 0; index < level.flags.size; index++ )
 			{
 				currentflag = level.flags[ index ];
 				if ( currentflag.ownerteam == self.team )
@@ -1043,10 +1033,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 						}
 					}
 				}
-				else
-				{
-					index++;
-				}
 			}
 		}
 		attacker recordgameevent( "kill_carrier" );
@@ -1054,7 +1040,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	}
 }
 
-createreturnmessageelems()
+createreturnmessageelems() //checked matches cerberus output
 {
 	level.returnmessageelems = [];
 	level.returnmessageelems[ "allies" ][ "axis" ] = createservertimer( "objective", 1,4, "allies" );
@@ -1079,7 +1065,7 @@ createreturnmessageelems()
 	level.returnmessageelems[ "axis" ][ "axis" ].archived = 0;
 }
 
-returnflagaftertimemsg( time )
+returnflagaftertimemsg( time ) //checked matches cerberus output
 {
 	if ( level.touchreturn || level.idleflagreturntime == 0 )
 	{
@@ -1096,19 +1082,23 @@ returnflagaftertimemsg( time )
 	}
 }
 
-returnflaghudelems( time )
+returnflaghudelems( time ) //checked matches cerberus output
 {
 	self endon( "picked_up" );
 	level endon( "game_ended" );
 	ownerteam = self maps/mp/gametypes/_gameobjects::getownerteam();
+	/*
 /#
 	assert( !level.returnmessageelems[ "axis" ][ ownerteam ].alpha );
 #/
+	*/
 	level.returnmessageelems[ "axis" ][ ownerteam ].alpha = 1;
 	level.returnmessageelems[ "axis" ][ ownerteam ] settimer( time );
+	/*
 /#
 	assert( !level.returnmessageelems[ "allies" ][ ownerteam ].alpha );
 #/
+	*/
 	level.returnmessageelems[ "allies" ][ ownerteam ].alpha = 1;
 	level.returnmessageelems[ "allies" ][ ownerteam ] settimer( time );
 	if ( time <= 0 )
@@ -1122,16 +1112,16 @@ returnflaghudelems( time )
 	return 1;
 }
 
-clearreturnflaghudelems()
+clearreturnflaghudelems() //checked matches cerberus output
 {
 	ownerteam = self maps/mp/gametypes/_gameobjects::getownerteam();
 	level.returnmessageelems[ "allies" ][ ownerteam ].alpha = 0;
 	level.returnmessageelems[ "axis" ][ ownerteam ].alpha = 0;
 }
 
-resetflagbaseeffect()
+resetflagbaseeffect() //checked matches cerberus output
 {
-	wait 0,1;
+	wait 0.1;
 	if ( isDefined( self.baseeffect ) )
 	{
 		self.baseeffect delete();
@@ -1146,7 +1136,7 @@ resetflagbaseeffect()
 	triggerfx( self.baseeffect );
 }
 
-turn_on()
+turn_on() //checked matches cerberus output 
 {
 	if ( level.hardcoremode )
 	{
@@ -1155,12 +1145,12 @@ turn_on()
 	self.origin = self.original_origin;
 }
 
-turn_off()
+turn_off() //checked matches cerberus output
 {
 	self.origin = ( self.original_origin[ 0 ], self.original_origin[ 1 ], self.original_origin[ 2 ] - 10000 );
 }
 
-update_hints()
+update_hints() //checked matches cerberus output
 {
 	allied_flag = level.teamflags[ "allies" ];
 	axis_flag = level.teamflags[ "axis" ];
@@ -1186,7 +1176,7 @@ update_hints()
 	}
 }
 
-claim_trigger( trigger )
+claim_trigger( trigger ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self clientclaimtrigger( trigger );
@@ -1194,7 +1184,7 @@ claim_trigger( trigger )
 	self clientreleasetrigger( trigger );
 }
 
-createflagspawninfluencer( entityteam )
+createflagspawninfluencer( entityteam ) //checked matches cerberus output
 {
 	ctf_friendly_base_influencer_score = level.spawnsystem.ctf_friendly_base_influencer_score;
 	ctf_friendly_base_influencer_score_curve = level.spawnsystem.ctf_friendly_base_influencer_score_curve;
@@ -1209,7 +1199,7 @@ createflagspawninfluencer( entityteam )
 	self.spawn_influencer_enemy = addsphereinfluencer( level.spawnsystem.einfluencer_type_game_mode, self.trigger.origin, ctf_enemy_base_influencer_radius, ctf_enemy_base_influencer_score, other_team_mask, "ctf_enemy_base,r,s", maps/mp/gametypes/_spawning::get_score_curve_index( ctf_enemy_base_influencer_score_curve ) );
 }
 
-ctf_gamemodespawndvars( reset_dvars )
+ctf_gamemodespawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.ctf_friendly_base_influencer_score = set_dvar_float_if_unset( "scr_spawn_ctf_friendly_base_influencer_score", "0", reset_dvars );
@@ -1229,7 +1219,7 @@ ctf_gamemodespawndvars( reset_dvars )
 	ss.ctf_dropped_influencer_radius = set_dvar_float_if_unset( "scr_spawn_ctf_dropped_influencer_radius", "" + ( 10 * get_player_height() ), reset_dvars );
 }
 
-ctf_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon )
+ctf_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked matches cerberus output
 {
 	teamkill_penalty = maps/mp/gametypes/_globallogic_defaults::default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon );
 	if ( isDefined( self.isflagcarrier ) && self.isflagcarrier )
@@ -1239,7 +1229,7 @@ ctf_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon )
 	return teamkill_penalty;
 }
 
-ctf_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon )
+ctf_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon ) //checked matches cerberus output
 {
 	teamkill_score = maps/mp/gametypes/_rank::getscoreinfovalue( "kill" );
 	if ( isDefined( self.isflagcarrier ) && self.isflagcarrier )
@@ -1248,3 +1238,5 @@ ctf_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon )
 	}
 	return int( teamkill_score );
 }
+
+

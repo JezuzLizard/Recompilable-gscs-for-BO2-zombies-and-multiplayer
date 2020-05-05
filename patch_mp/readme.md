@@ -23,13 +23,6 @@ patch_mp/maps/mp/bots/_bot.gsc
 patch_mp/maps/mp/bots/_bot_combat.gsc
 patch_mp/maps/mp/bots/_bot_loadout.gsc
 
-patch_mp/maps/mp/gametypes/conf.gsc
-patch_mp/maps/mp/gametypes/dm.gsc
-patch_mp/maps/mp/gametypes/gun.gsc
-patch_mp/maps/mp/gametypes/oic.gsc
-patch_mp/maps/mp/gametypes/sas.gsc
-patch_mp/maps/mp/gametypes/shrp.gsc
-patch_mp/maps/mp/gametypes/tdm.gsc
 patch_mp/maps/mp/gametypes/_callbacksetup.gsc
 patch_mp/maps/mp/gametypes/_damagefeedback.gsc
 patch_mp/maps/mp/gametypes/_healthoverlay.gsc
@@ -40,6 +33,20 @@ patch_mp/maps/mp/gametypes/_perplayer.gsc
 patch_mp/maps/mp/gametypes/_serversettings.gsc
 patch_mp/maps/mp/gametypes/_tweakables.gsc
 patch_mp/maps/mp/gametypes/_weapon_utils.gsc
+patch_mp/maps/mp/gametypes/conf.gsc
+patch_mp/maps/mp/gametypes/ctf.gsc
+patch_mp/maps/mp/gametypes/dem.gsc
+patch_mp/maps/mp/gametypes/dm.gsc
+patch_mp/maps/mp/gametypes/dom.gsc
+patch_mp/maps/mp/gametypes/gun.gsc
+patch_mp/maps/mp/gametypes/hq.gsc
+patch_mp/maps/mp/gametypes/koth.gsc
+patch_mp/maps/mp/gametypes/oic.gsc
+patch_mp/maps/mp/gametypes/oneflag.gsc
+patch_mp/maps/mp/gametypes/sas.gsc
+patch_mp/maps/mp/gametypes/sd.gsc
+patch_mp/maps/mp/gametypes/shrp.gsc
+patch_mp/maps/mp/gametypes/tdm.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
@@ -81,13 +88,6 @@ patch_mp/maps/mp/gametypes/_spectating.gsc
 patch_mp/maps/mp/gametypes/_wager.gsc
 patch_mp/maps/mp/gametypes/_weaponobjects.gsc
 patch_mp/maps/mp/gametypes/_weapons.gsc
-patch_mp/maps/mp/gametypes/ctf.gsc
-patch_mp/maps/mp/gametypes/dem.gsc
-patch_mp/maps/mp/gametypes/dom.gsc
-patch_mp/maps/mp/gametypes/hq.gsc
-patch_mp/maps/mp/gametypes/koth.gsc
-patch_mp/maps/mp/gametypes/oneflag.gsc
-patch_mp/maps/mp/gametypes/sd.gsc
 ```
 ### The following scipts are dev scripts filled with dev calls making them useless to modify for now
 ```

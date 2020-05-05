@@ -4,15 +4,19 @@
 #include maps/mp/_scoreevents;
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/teams/_teams;
+#include maps/mp/_challenges;
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_spawnlogic;
 #include maps/mp/gametypes/_spawning;
+#include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/_globallogic_audio;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+main() //checked matches cerberus output
 {
 	if ( getDvar( "mapname" ) == "mp_background" )
 	{
@@ -62,11 +66,11 @@ main()
 	maps/mp/gametypes/_globallogic_audio::registerdialoggroup( "gamemode_changing_c", 0 );
 }
 
-onprecachegametype()
+onprecachegametype() //checked matches cerberus output
 {
 }
 
-onstartgametype()
+onstartgametype() //checked changed to match cerberus output
 {
 	setobjectivetext( "allies", &"OBJECTIVES_DOM" );
 	setobjectivetext( "axis", &"OBJECTIVES_DOM" );
@@ -110,13 +114,9 @@ onstartgametype()
 	setdemointermissionpoint( spawnpoint.origin, spawnpoint.angles );
 	level.spawn_all = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_dom_spawn" );
 	level.spawn_start = [];
-	_a194 = level.teams;
-	_k194 = getFirstArrayKey( _a194 );
-	while ( isDefined( _k194 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a194[ _k194 ];
 		level.spawn_start[ team ] = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_dom_spawn_" + team + "_start" );
-		_k194 = getNextArrayKey( _a194, _k194 );
 	}
 	flagspawns = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_dom_spawn_flag_a" );
 	level.startpos[ "allies" ] = level.spawn_start[ "allies" ][ 0 ].origin;
@@ -133,12 +133,12 @@ onstartgametype()
 	level change_dom_spawns();
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked partially changed to match cerberus output did change while loop to for loop see github for more info
 {
 	spawnpoint = undefined;
 	spawnteam = self.pers[ "team" ];
@@ -161,12 +161,9 @@ onspawnplayer( predictedspawn )
 				i++;
 				continue;
 			}
-			else
+			if ( team == enemyteam )
 			{
-				if ( team == enemyteam )
-				{
-					enemyflagsowned++;
-				}
+				enemyflagsowned++;
 			}
 			i++;
 		}
@@ -199,9 +196,11 @@ onspawnplayer( predictedspawn )
 	{
 		spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_random( level.spawn_start[ spawnteam ] );
 	}
+	/*
 /#
 	assert( isDefined( spawnpoint ) );
 #/
+	*/
 	if ( predictedspawn )
 	{
 		self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
@@ -212,10 +211,9 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-onendgame( winningteam )
+onendgame( winningteam ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < level.domflags.size )
+	for ( i = 0; i < level.domflags.size; i++ )
 	{
 		domflag = level.domflags[ i ];
 		domflag maps/mp/gametypes/_gameobjects::allowuse( "none" );
@@ -225,21 +223,16 @@ onendgame( winningteam )
 			label = domflag maps/mp/gametypes/_gameobjects::getlabel();
 			maps/mp/_challenges::holdflagentirematch( team, label );
 		}
-		i++;
 	}
 }
 
-onroundendgame( roundwinner )
+onroundendgame( roundwinner ) //checked changed to match cerberus output
 {
 	if ( level.roundscorecarry == 0 )
 	{
-		_a318 = level.teams;
-		_k318 = getFirstArrayKey( _a318 );
-		while ( isDefined( _k318 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a318[ _k318 ];
 			[[ level._setteamscore ]]( team, game[ "roundswon" ][ team ] );
-			_k318 = getNextArrayKey( _a318, _k318 );
 		}
 		winner = maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "roundswon" );
 	}
@@ -250,7 +243,7 @@ onroundendgame( roundwinner )
 	return winner;
 }
 
-updategametypedvars()
+updategametypedvars() //checked matches cerberus output
 {
 	level.flagcapturetime = getgametypesetting( "captureTime" );
 	level.playercapturelpm = getgametypesetting( "maxPlayerEventsPerMinute" );
@@ -259,7 +252,7 @@ updategametypedvars()
 	level.playerdefensivemax = getgametypesetting( "maxPlayerDefensive" );
 }
 
-domflags()
+domflags() //checked changed to match cerberus output
 {
 	level.laststatus[ "allies" ] = 0;
 	level.laststatus[ "axis" ] = 0;
@@ -286,28 +279,25 @@ domflags()
 	secondaryflags = getentarray( "flag_secondary", "targetname" );
 	if ( ( primaryflags.size + secondaryflags.size ) < 2 )
 	{
+		/*
 /#
 		println( "^1Not enough domination flags found in level!" );
 #/
+		*/
 		maps/mp/gametypes/_callbacksetup::abortlevel();
 		return;
 	}
 	level.flags = [];
-	index = 0;
-	while ( index < primaryflags.size )
+	for ( index = 0; index < primaryflags.size; index++ )
 	{
 		level.flags[ level.flags.size ] = primaryflags[ index ];
-		index++;
 	}
-	index = 0;
-	while ( index < secondaryflags.size )
+	for ( index = 0; index < secondaryflags.size; index++ )
 	{
 		level.flags[ level.flags.size ] = secondaryflags[ index ];
-		index++;
 	}
 	level.domflags = [];
-	index = 0;
-	while ( index < level.flags.size )
+	for ( index = 0; index < level.flags.size; index++ )
 	{
 		trigger = level.flags[ index ];
 		if ( isDefined( trigger.target ) )
@@ -322,7 +312,7 @@ domflags()
 		visuals[ 0 ] setmodel( level.flagmodel[ "neutral" ] );
 		name = istring( trigger.script_label );
 		precachestring( name );
-		domflag = maps/mp/gametypes/_gameobjects::createuseobject( "neutral", trigger, visuals, ( 1, 1, 1 ), name );
+		domflag = maps/mp/gametypes/_gameobjects::createuseobject( "neutral", trigger, visuals, ( 0, 0, 0 ), name );
 		domflag maps/mp/gametypes/_gameobjects::allowuse( "enemy" );
 		domflag maps/mp/gametypes/_gameobjects::setusetime( level.flagcapturetime );
 		domflag maps/mp/gametypes/_gameobjects::setusetext( &"MP_CAPTURING_FLAG" );
@@ -335,8 +325,8 @@ domflags()
 		domflag.onuseupdate = ::onuseupdate;
 		domflag.onenduse = ::onenduse;
 		domflag.onupdateuserate = ::onupdateuserate;
-		tracestart = visuals[ 0 ].origin + vectorScale( ( 1, 1, 1 ), 32 );
-		traceend = visuals[ 0 ].origin + vectorScale( ( 1, 1, 1 ), 32 );
+		tracestart = visuals[ 0 ].origin + vectorScale( ( 0, 0, 1 ), 32 );
+		traceend = visuals[ 0 ].origin + vectorScale( ( 0, 0, -1 ), 32 );
 		trace = bullettrace( tracestart, traceend, 0, undefined );
 		upangles = vectorToAngle( trace[ "normal" ] );
 		domflag.baseeffectforward = anglesToForward( upangles );
@@ -347,24 +337,23 @@ domflags()
 		level.flags[ index ].nearbyspawns = [];
 		domflag.levelflag = level.flags[ index ];
 		level.domflags[ level.domflags.size ] = domflag;
-		index++;
 	}
 	level.bestspawnflag = [];
 	level.bestspawnflag[ "allies" ] = getunownedflagneareststart( "allies", undefined );
 	level.bestspawnflag[ "axis" ] = getunownedflagneareststart( "axis", level.bestspawnflag[ "allies" ] );
-	index = 0;
-	while ( index < level.domflags.size )
+	for ( index = 0; index < level.domflags.size; index++ )
 	{
 		level.domflags[ index ] createflagspawninfluencers();
-		index++;
 	}
 	flagsetup();
+	/*
 /#
 	thread domdebug();
 #/
+	*/
 }
 
-getunownedflagneareststart( team, excludeflag )
+getunownedflagneareststart( team, excludeflag ) //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	best = undefined;
 	bestdistsq = undefined;
@@ -377,22 +366,20 @@ getunownedflagneareststart( team, excludeflag )
 			i++;
 			continue;
 		}
-		else
+		distsq = distancesquared( flag.origin, level.startpos[ team ] );
+		if ( isDefined( excludeflag ) && flag != excludeflag || !isDefined( best ) && distsq < bestdistsq )
 		{
-			distsq = distancesquared( flag.origin, level.startpos[ team ] );
-			if ( isDefined( excludeflag ) && flag != excludeflag || !isDefined( best ) && distsq < bestdistsq )
-			{
-				bestdistsq = distsq;
-				best = flag;
-			}
+			bestdistsq = distsq;
+			best = flag;
 		}
 		i++;
 	}
 	return best;
 }
 
-domdebug()
+domdebug() //dev call did not check
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -438,9 +425,10 @@ domdebug()
 		}
 #/
 	}
+	*/
 }
 
-onbeginuse( player )
+onbeginuse( player ) //checked matches cerberus output
 {
 	ownerteam = self maps/mp/gametypes/_gameobjects::getownerteam();
 	self.didstatusnotify = 0;
@@ -460,9 +448,9 @@ onbeginuse( player )
 	}
 }
 
-onuseupdate( team, progress, change )
+onuseupdate( team, progress, change ) //checked matches cerberus output
 {
-	if ( progress > 0,05 && change && !self.didstatusnotify )
+	if ( progress > 0.05 && change && !self.didstatusnotify )
 	{
 		ownerteam = self maps/mp/gametypes/_gameobjects::getownerteam();
 		if ( ownerteam == "neutral" )
@@ -479,7 +467,7 @@ onuseupdate( team, progress, change )
 	}
 }
 
-flushalldialog()
+flushalldialog() //checked matches cerberus output
 {
 	maps/mp/gametypes/_globallogic_audio::flushgroupdialog( "gamemode_objective_a" );
 	maps/mp/gametypes/_globallogic_audio::flushgroupdialog( "gamemode_objective_b" );
@@ -489,7 +477,7 @@ flushalldialog()
 	maps/mp/gametypes/_globallogic_audio::flushgroupdialog( "gamemode_changing_c" );
 }
 
-statusdialog( dialog, team, group, flushgroup )
+statusdialog( dialog, team, group, flushgroup ) //checked matches cerberus output
 {
 	if ( isDefined( flushgroup ) )
 	{
@@ -498,7 +486,7 @@ statusdialog( dialog, team, group, flushgroup )
 	maps/mp/gametypes/_globallogic_audio::leaderdialog( dialog, team, group );
 }
 
-onenduse( team, player, success )
+onenduse( team, player, success ) //checked matches cerberus output
 {
 	if ( !success )
 	{
@@ -506,7 +494,7 @@ onenduse( team, player, success )
 	}
 }
 
-resetflagbaseeffect()
+resetflagbaseeffect() //checked matches cerberus output
 {
 	if ( isDefined( self.baseeffect ) )
 	{
@@ -522,7 +510,7 @@ resetflagbaseeffect()
 	triggerfx( self.baseeffect );
 }
 
-onuse( player )
+onuse( player ) //checked changed to match cerberus output
 {
 	level notify( "flag_captured" );
 	team = player.pers[ "team" ];
@@ -534,9 +522,11 @@ onuse( player )
 	setdvar( "scr_obj" + self maps/mp/gametypes/_gameobjects::getlabel(), team );
 	self resetflagbaseeffect();
 	level.usestartspawns = 0;
+	/*
 /#
 	assert( team != "neutral" );
 #/
+	*/
 	isbflag = 0;
 	string = &"";
 	switch( label )
@@ -558,73 +548,77 @@ onuse( player )
 			string = &"MP_DOM_FLAG_E_CAPTURED_BY";
 			break;
 		default:
-		}
+			break;
+	}
+	/*
 /#
-		assert( string != &"" );
+	assert( string != &"" );
 #/
-		touchlist = [];
-		touchkeys = getarraykeys( self.touchlist[ team ] );
-		i = 0;
-		while ( i < touchkeys.size )
+	*/
+	touchlist = [];
+	touchkeys = getarraykeys( self.touchlist[ team ] );
+	for ( i = 0; i < touchkeys.size; i++ )
+	{
+		touchlist[ touchkeys[ i ] ] = self.touchlist[ team ][ touchkeys[ i ] ];
+	}
+	thread give_capture_credit( touchlist, string, oldteam, isbflag );
+	bbprint( "mpobjective", "gametime %d objtype %s label %s team %s", getTime(), "dom_capture", label, team );
+	if ( oldteam == "neutral" )
+	{
+		self.singleowner = 1;
+		otherteam = getotherteam( team );
+		thread printandsoundoneveryone( team, undefined, &"", undefined, "mp_war_objective_taken" );
+		thread playsoundonplayers( "mus_dom_captured" + "_" + level.teampostfix[ team ] );
+		if ( getteamflagcount( team ) == level.flags.size )
 		{
-			touchlist[ touchkeys[ i ] ] = self.touchlist[ team ][ touchkeys[ i ] ];
-			i++;
+			statusdialog( "secure_all", team, "gamemode_objective" );
+			statusdialog( "lost_all", otherteam, "gamemode_objective" );
+			flushalldialog();
 		}
-		thread give_capture_credit( touchlist, string, oldteam, isbflag );
-		bbprint( "mpobjective", "gametime %d objtype %s label %s team %s", getTime(), "dom_capture", label, team );
-		if ( oldteam == "neutral" )
+		else 
 		{
-			self.singleowner = 1;
-			otherteam = getotherteam( team );
-			thread printandsoundoneveryone( team, undefined, &"", undefined, "mp_war_objective_taken" );
-			thread playsoundonplayers( "mus_dom_captured" + "_" + level.teampostfix[ team ] );
-			if ( getteamflagcount( team ) == level.flags.size )
-			{
-				statusdialog( "secure_all", team, "gamemode_objective" );
-				statusdialog( "lost_all", otherteam, "gamemode_objective" );
-				flushalldialog();
-			}
-			else statusdialog( "secured" + self.label, team, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
+			statusdialog( "secured" + self.label, team, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
 			statusdialog( "enemy" + self.label, otherteam, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
 			maps/mp/gametypes/_globallogic_audio::play_2d_on_team( "mpl_flagcapture_sting_enemy", otherteam );
 			maps/mp/gametypes/_globallogic_audio::play_2d_on_team( "mpl_flagcapture_sting_friend", team );
 		}
+	}
+	else
+	{
+		self.singleowner = 0;
+		thread printandsoundoneveryone( team, oldteam, &"", &"", "mp_war_objective_taken", "mp_war_objective_lost", "" );
+		if ( getteamflagcount( team ) == level.flags.size )
+		{
+			statusdialog( "secure_all", team, "gamemode_objective" );
+			statusdialog( "lost_all", oldteam, "gamemode_objective" );
+			flushalldialog();
+		}
 		else
 		{
-			self.singleowner = 0;
-			thread printandsoundoneveryone( team, oldteam, &"", &"", "mp_war_objective_taken", "mp_war_objective_lost", "" );
-			if ( getteamflagcount( team ) == level.flags.size )
+			statusdialog( "secured" + self.label, team, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
+			if ( randomint( 2 ) )
 			{
-				statusdialog( "secure_all", team, "gamemode_objective" );
-				statusdialog( "lost_all", oldteam, "gamemode_objective" );
-				flushalldialog();
+				statusdialog( "lost" + self.label, oldteam, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
 			}
 			else
 			{
-				statusdialog( "secured" + self.label, team, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
-				if ( randomint( 2 ) )
-				{
-					statusdialog( "lost" + self.label, oldteam, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
-				}
-				else
-				{
-					statusdialog( "enemy" + self.label, oldteam, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
-				}
-				maps/mp/gametypes/_globallogic_audio::play_2d_on_team( "mpl_flagcapture_sting_enemy", oldteam );
-				maps/mp/gametypes/_globallogic_audio::play_2d_on_team( "mpl_flagcapture_sting_friend", team );
+				statusdialog( "enemy" + self.label, oldteam, "gamemode_objective" + self.label, "gamemode_changing" + self.label );
 			}
-			level.bestspawnflag[ oldteam ] = self.levelflag;
+			maps/mp/gametypes/_globallogic_audio::play_2d_on_team( "mpl_flagcapture_sting_enemy", oldteam );
+			maps/mp/gametypes/_globallogic_audio::play_2d_on_team( "mpl_flagcapture_sting_friend", team );
 		}
-		if ( dominated_challenge_check() )
-		{
-			level thread totaldomination( team );
-		}
-		self update_spawn_influencers( team );
-		level change_dom_spawns();
+		level.bestspawnflag[ oldteam ] = self.levelflag;
+	}
+	if ( dominated_challenge_check() )
+	{
+		level thread totaldomination( team );
+	}
+	self update_spawn_influencers( team );
+	level change_dom_spawns();
 	}
 }
 
-totaldomination( team )
+totaldomination( team ) //checked matches cerberus output
 {
 	level endon( "flag_captured" );
 	level endon( "game_ended" );
@@ -632,7 +626,7 @@ totaldomination( team )
 	maps/mp/_challenges::totaldomination( team );
 }
 
-watchforbflagcap()
+watchforbflagcap() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	level endon( "endWatchForBFlagCapAfterTime" );
@@ -644,22 +638,21 @@ watchforbflagcap()
 	}
 }
 
-endwatchforbflagcapaftertime( time )
+endwatchforbflagcapaftertime( time ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	wait 60;
 	level notify( "endWatchForBFlagCapAfterTime" );
 }
 
-give_capture_credit( touchlist, string, lastownerteam, isbflag )
+give_capture_credit( touchlist, string, lastownerteam, isbflag ) //checked changed to match cerberus output
 {
 	time = getTime();
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_globallogic_utils::waittillslowprocessallowed();
 	self updatecapsperminute( lastownerteam );
 	players = getarraykeys( touchlist );
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		player_from_touchlist = touchlist[ players[ i ] ].player;
 		player_from_touchlist updatecapsperminute( lastownerteam );
@@ -695,19 +688,20 @@ give_capture_credit( touchlist, string, lastownerteam, isbflag )
 			player_from_touchlist addplayerstatwithgametype( "CAPTURES", 1 );
 		}
 		else
-		{
+		{	
+			/*
 /#
 			player_from_touchlist iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU CAPTURE CREDIT AS BOOSTING PREVENTION" );
 #/
+			*/
 		}
 		level thread maps/mp/_popups::displayteammessagetoall( string, player_from_touchlist );
-		i++;
 	}
 }
 
-delayedleaderdialog( sound, team, label )
+delayedleaderdialog( sound, team, label ) //checked matches cerberus output
 {
-	wait 0,1;
+	wait 0.1;
 	maps/mp/gametypes/_globallogic_utils::waittillslowprocessallowed();
 	if ( !isDefined( label ) )
 	{
@@ -716,7 +710,7 @@ delayedleaderdialog( sound, team, label )
 	maps/mp/gametypes/_globallogic_audio::leaderdialog( sound, team, "gamemode_objective" + label );
 }
 
-updatedomscores()
+updatedomscores() //checked matches cerberus output
 {
 	while ( !level.gameended )
 	{
@@ -752,12 +746,12 @@ updatedomscores()
 	}
 }
 
-onscoreclosemusic()
+onscoreclosemusic() //checked matches cerberus output
 {
 	axisscore = [[ level._getteamscore ]]( "axis" );
 	alliedscore = [[ level._getteamscore ]]( "allies" );
 	scorelimit = level.scorelimit;
-	scorethreshold = scorelimit * 0,1;
+	scorethreshold = scorelimit * 0.1;
 	scoredif = abs( axisscore - alliedscore );
 	scorethresholdstart = abs( scorelimit - scorethreshold );
 	scorelimitcheck = scorelimit - 10;
@@ -773,6 +767,7 @@ onscoreclosemusic()
 	{
 		currentscore = axisscore;
 	}
+	/*
 /#
 	if ( getDvarInt( #"0BC4784C" ) > 0 )
 	{
@@ -786,6 +781,7 @@ onscoreclosemusic()
 		println( "Music System Domination - scoreThresholdStart " + scorethresholdstart );
 #/
 	}
+	*/
 	if ( scoredif <= scorethreshold && scorethresholdstart <= currentscore && level.playingactionmusic != 1 )
 	{
 		thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "TIME_OUT", "both" );
@@ -797,7 +793,7 @@ onscoreclosemusic()
 	}
 }
 
-onroundswitch()
+onroundswitch() //checked matches cerberus output
 {
 	if ( !isDefined( game[ "switchedsides" ] ) )
 	{
@@ -811,7 +807,7 @@ onroundswitch()
 	}
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
 	if ( isDefined( attacker ) && isplayer( attacker ) )
 	{
@@ -827,8 +823,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				scoreeventprocessed = 1;
 			}
 		}
-		index = 0;
-		while ( index < level.flags.size )
+		for ( index = 0; index < level.flags.size; index++ )
 		{
 			flagteam = "invalidTeam";
 			inflagzone = 0;
@@ -843,7 +838,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				if ( level.flags[ index ] getflagteam() == attacker.pers[ "team" ] || level.flags[ index ] getflagteam() == "neutral" )
 				{
 					defendedflag = 1;
-					break;
 				}
 				else
 				{
@@ -857,7 +851,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				if ( level.flags[ index ] getflagteam() == attacker.pers[ "team" ] || level.flags[ index ] getflagteam() == "neutral" )
 				{
 					defendedflag = 1;
-					break;
 				}
 				else
 				{
@@ -883,9 +876,14 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 						self recordkillmodifier( "defending" );
 						break;
 					}
-					else /#
-					attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU DEFENSIVE CREDIT AS BOOSTING PREVENTION" );
-#/
+					else
+					{	
+							/*
+						/#
+							attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU DEFENSIVE CREDIT AS BOOSTING PREVENTION" );
+						#/
+							*/
+					}
 				}
 				if ( defendedflag )
 				{
@@ -909,12 +907,13 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 						self recordkillmodifier( "assaulting" );
 						break;
 					}
-					else /#
-					attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU OFFENSIVE CREDIT AS BOOSTING PREVENTION" );
-#/
+						/*
+					/#
+						attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU OFFENSIVE CREDIT AS BOOSTING PREVENTION" );
+					#/
+						*/
 				}
 			}
-			index++;
 		}
 		if ( self.touchtriggers.size && attacker.pers[ "team" ] != self.pers[ "team" ] )
 		{
@@ -933,7 +932,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	}
 }
 
-killwhilecontesting( flag )
+killwhilecontesting( flag ) //checked matches cerberus output
 {
 	self notify( "killWhileContesting" );
 	self endon( "killWhileContesting" );
@@ -963,7 +962,7 @@ killwhilecontesting( flag )
 	self.clearenemycount = 0;
 }
 
-updateattackermultikills()
+updateattackermultikills() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -982,177 +981,134 @@ updateattackermultikills()
 	self.recentdomattackerkillcount = 0;
 }
 
-getteamflagcount( team )
+getteamflagcount( team ) //checked changed to match cerberus output
 {
 	score = 0;
-	i = 0;
-	while ( i < level.flags.size )
+	for ( i = 0; i < level.flags.size; i++ )
 	{
 		if ( level.domflags[ i ] maps/mp/gametypes/_gameobjects::getownerteam() == team )
 		{
 			score++;
 		}
-		i++;
 	}
 	return score;
 }
 
-getflagteam()
+getflagteam() //checked matches cerberus output
 {
 	return self.useobj maps/mp/gametypes/_gameobjects::getownerteam();
 }
 
-getboundaryflags()
+getboundaryflags() //checked changed to match cerberus output
 {
 	bflags = [];
-	i = 0;
-	while ( i < level.flags.size )
+	for ( i = 0; i < level.flags.size; i++ ) 
 	{
-		j = 0;
-		while ( j < level.flags[ i ].adjflags.size )
+		for ( j = 0; j < level.flags[i].adjflags.size; j++ )
 		{
 			if ( level.flags[ i ].useobj maps/mp/gametypes/_gameobjects::getownerteam() != level.flags[ i ].adjflags[ j ].useobj maps/mp/gametypes/_gameobjects::getownerteam() )
 			{
 				bflags[ bflags.size ] = level.flags[ i ];
-				i++;
-				continue;
-			}
-			else
-			{
-				j++;
+				break;
 			}
 		}
-		i++;
 	}
 	return bflags;
 }
 
-getboundaryflagspawns( team )
+getboundaryflagspawns( team ) //checked changed to match cerberus output
 {
 	spawns = [];
 	bflags = getboundaryflags();
-	i = 0;
-	while ( i < bflags.size )
+	for ( i = 0; i < bflags.size; i++ )
 	{
 		if ( isDefined( team ) && bflags[ i ] getflagteam() != team )
 		{
-			i++;
-			continue;
+			break;
 		}
-		else
+		for ( j = 0; j < bflags[i].nearbyspawns.size; j++ )
 		{
-			j = 0;
-			while ( j < bflags[ i ].nearbyspawns.size )
-			{
-				spawns[ spawns.size ] = bflags[ i ].nearbyspawns[ j ];
-				j++;
-			}
+			spawns[ spawns.size ] = bflags[ i ].nearbyspawns[ j ];
 		}
-		i++;
 	}
 	return spawns;
 }
 
-getspawnsboundingflag( avoidflag )
+getspawnsboundingflag( avoidflag ) //checked changed to match cerberus output
 {
 	spawns = [];
-	i = 0;
-	while ( i < level.flags.size )
+	for ( i = 0; i < level.flags.size; i++ )
 	{
 		flag = level.flags[ i ];
 		if ( flag == avoidflag )
 		{
-			i++;
-			continue;
+			break;
 		}
-		else isbounding = 0;
-		j = 0;
-		while ( j < flag.adjflags.size )
+		isbounding = 0;
+		for ( j = 0; j < flag.adjflags.size; j++ )
 		{
 			if ( flag.adjflags[ j ] == avoidflag )
 			{
 				isbounding = 1;
 				break;
 			}
-			else
-			{
-				j++;
-			}
 		}
 		if ( !isbounding )
 		{
-			i++;
-			continue;
+			break;
 		}
-		else
+		for ( j = 0; j < flag.nearbyspawns.size; j++ )
 		{
-			j = 0;
-			while ( j < flag.nearbyspawns.size )
-			{
-				spawns[ spawns.size ] = flag.nearbyspawns[ j ];
-				j++;
-			}
+			spawns[ spawns.size ] = flag.nearbyspawns[ j ];
 		}
-		i++;
 	}
 	return spawns;
 }
 
-getownedandboundingflagspawns( team )
+getownedandboundingflagspawns( team ) //checked changed to match cerberus output
 {
 	spawns = [];
-	i = 0;
-	while ( i < level.flags.size )
+	for ( i = 0; i < level.flags.size; i++ )
 	{
 		if ( level.flags[ i ] getflagteam() == team )
 		{
-			s = 0;
-			while ( s < level.flags[ i ].nearbyspawns.size )
+			for ( s = 0; s < level.flags[i].nearbyspawns.size; s++ )
 			{
 				spawns[ spawns.size ] = level.flags[ i ].nearbyspawns[ s ];
-				s++;
 			}
 		}
-		else j = 0;
-		while ( j < level.flags[ i ].adjflags.size )
+
+		for ( j = 0; j < level.flags[i].adjflags.size; j++ )
 		{
 			if ( level.flags[ i ].adjflags[ j ] getflagteam() == team )
 			{
-				s = 0;
-				while ( s < level.flags[ i ].nearbyspawns.size )
+				for ( s = 0; s < level.flags[i].nearbyspawns.size; s++ )
 				{
 					spawns[ spawns.size ] = level.flags[ i ].nearbyspawns[ s ];
-					s++;
 				}
 			}
-			else j++;
 		}
-		i++;
 	}
 	return spawns;
 }
 
-getownedflagspawns( team )
+getownedflagspawns( team ) //checked changed to match cerberus output
 {
 	spawns = [];
-	i = 0;
-	while ( i < level.flags.size )
+	for ( i = 0; i < level.flags.size; i++ ) 
 	{
-		while ( level.flags[ i ] getflagteam() == team )
+		if ( level.flags[ i ] getflagteam() == team )
 		{
-			s = 0;
-			while ( s < level.flags[ i ].nearbyspawns.size )
+			for ( s = 0; s < level.flags[i].nearbyspawns.size; s++ )
 			{
 				spawns[ spawns.size ] = level.flags[ i ].nearbyspawns[ s ];
-				s++;
 			}
 		}
-		i++;
 	}
 	return spawns;
 }
 
-flagsetup()
+flagsetup() //checked partially changed to match cerberus output did not change while loops to for loops see github for more info
 {
 	maperrors = [];
 	descriptorsbylinkname = [];
@@ -1163,8 +1119,7 @@ flagsetup()
 	{
 		closestdist = undefined;
 		closestdesc = undefined;
-		j = 0;
-		while ( j < descriptors.size )
+		for ( j = 0; j < descriptors.size; j++ )
 		{
 			dist = distance( flags[ i ].origin, descriptors[ j ].origin );
 			if ( !isDefined( closestdist ) || dist < closestdist )
@@ -1172,34 +1127,26 @@ flagsetup()
 				closestdist = dist;
 				closestdesc = descriptors[ j ];
 			}
-			j++;
 		}
 		if ( !isDefined( closestdesc ) )
 		{
 			maperrors[ maperrors.size ] = "there is no flag_descriptor in the map! see explanation in dom.gsc";
 			break;
 		}
-		else
+		if ( isDefined( closestdesc.flag ) )
 		{
-			if ( isDefined( closestdesc.flag ) )
-			{
-				maperrors[ maperrors.size ] = "flag_descriptor with script_linkname "" + closestdesc.script_linkname + "" is nearby more than one flag; is there a unique descriptor near each flag?";
-				i++;
-				continue;
-			}
-			else
-			{
-				flags[ i ].descriptor = closestdesc;
-				closestdesc.flag = flags[ i ];
-				descriptorsbylinkname[ closestdesc.script_linkname ] = closestdesc;
-			}
+			maperrors[ maperrors.size ] = "flag_descriptor with script_linkname " + closestdesc.script_linkname + " is nearby more than one flag; is there a unique descriptor near each flag?";
 			i++;
+			continue;
 		}
+		flags[ i ].descriptor = closestdesc;
+		closestdesc.flag = flags[ i ];
+		descriptorsbylinkname[ closestdesc.script_linkname ] = closestdesc;
+		i++;
 	}
-	while ( maperrors.size == 0 )
+	if ( maperrors.size == 0 )
 	{
-		i = 0;
-		while ( i < flags.size )
+		for ( i = 0; i < flags.size; i++ )
 		{
 			if ( isDefined( flags[ i ].descriptor.script_linkto ) )
 			{
@@ -1219,23 +1166,16 @@ flagsetup()
 					j++;
 					continue;
 				}
-				else
+				adjflag = otherdesc.flag;
+				if ( adjflag == flags[ i ] )
 				{
-					adjflag = otherdesc.flag;
-					if ( adjflag == flags[ i ] )
-					{
-						maperrors[ maperrors.size ] = "flag_descriptor with script_linkname "" + flags[ i ].descriptor.script_linkname + "" linked to itself";
-						j++;
-						continue;
-					}
-					else
-					{
-						flags[ i ].adjflags[ flags[ i ].adjflags.size ] = adjflag;
-					}
+					maperrors[ maperrors.size ] = "flag_descriptor with script_linkname "" + flags[ i ].descriptor.script_linkname + "" linked to itself";
+					j++;
+					continue;
 				}
+				flags[ i ].adjflags[ flags[ i ].adjflags.size ] = adjflag;
 				j++;
 			}
-			i++;
 		}
 	}
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getspawnpointarray( "mp_dom_spawn" );
@@ -1247,36 +1187,30 @@ flagsetup()
 			desc = descriptorsbylinkname[ spawnpoints[ i ].script_linkto ];
 			if ( !isDefined( desc ) || desc.targetname != "flag_descriptor" )
 			{
-				maperrors[ maperrors.size ] = "Spawnpoint at " + spawnpoints[ i ].origin + "" linked to "" + spawnpoints[ i ].script_linkto + "" which does not exist as a script_linkname of any entity with a targetname of flag_descriptor (or, if it does, that flag_descriptor has not been assigned to a flag)";
+				maperrors[ maperrors.size ] = "Spawnpoint at " + spawnpoints[ i ].origin + " linked to " + spawnpoints[ i ].script_linkto + " which does not exist as a script_linkname of any entity with a targetname of flag_descriptor (or, if it does, that flag_descriptor has not been assigned to a flag)";
 				i++;
 				continue;
 			}
-			else
-			{
-				nearestflag = desc.flag;
-			}
-			else
-			{
-				nearestflag = undefined;
-				nearestdist = undefined;
-				j = 0;
-				while ( j < flags.size )
-				{
-					dist = distancesquared( flags[ j ].origin, spawnpoints[ i ].origin );
-					if ( !isDefined( nearestflag ) || dist < nearestdist )
-					{
-						nearestflag = flags[ j ];
-						nearestdist = dist;
-					}
-					j++;
-				}
-			}
-			nearestflag.nearbyspawns[ nearestflag.nearbyspawns.size ] = spawnpoints[ i ];
+			nearestflag = desc.flag;
+			break;
 		}
+		nearestflag = undefined;
+		nearestdist = undefined;
+		for ( j = 0; j < flags.size; j++ )
+		{
+			dist = distancesquared( flags[ j ].origin, spawnpoints[ i ].origin );
+			if ( !isDefined( nearestflag ) || dist < nearestdist )
+			{
+				nearestflag = flags[ j ];
+				nearestdist = dist;
+			}
+		}
+		nearestflag.nearbyspawns[ nearestflag.nearbyspawns.size ] = spawnpoints[ i ];
 		i++;
 	}
 	if ( maperrors.size > 0 )
 	{
+		/*
 /#
 		println( "^1------------ Map Errors ------------" );
 		i = 0;
@@ -1288,24 +1222,20 @@ flagsetup()
 		println( "^1------------------------------------" );
 		maps/mp/_utility::error( "Map errors. See above" );
 #/
+		*/
 		maps/mp/gametypes/_callbacksetup::abortlevel();
 		return;
 	}
 }
 
-createflagspawninfluencers()
+createflagspawninfluencers() //checked changed to match cerberus output
 {
 	ss = level.spawnsystem;
-	flag_index = 0;
-	while ( flag_index < level.flags.size )
+	for ( flag_index = 0; flag_index < level.flags.size; flag_index++ )
 	{
 		if ( level.domflags[ flag_index ] == self )
 		{
 			break;
-		}
-		else
-		{
-			flag_index++;
 		}
 	}
 	abc = [];
@@ -1318,8 +1248,9 @@ createflagspawninfluencers()
 	self update_spawn_influencers( "neutral" );
 }
 
-update_spawn_influencers( team )
+update_spawn_influencers( team ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( self.neutral_flag_influencer ) );
 #/
@@ -1329,6 +1260,7 @@ update_spawn_influencers( team )
 /#
 	assert( isDefined( self.enemy_flag_influencer ) );
 #/
+	*/
 	if ( team == "neutral" )
 	{
 		enableinfluencer( self.neutral_flag_influencer, 1 );
@@ -1345,7 +1277,7 @@ update_spawn_influencers( team )
 	}
 }
 
-dom_gamemodespawndvars( reset_dvars )
+dom_gamemodespawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.dom_owned_flag_influencer_score = [];
@@ -1371,7 +1303,7 @@ dom_gamemodespawndvars( reset_dvars )
 	ss.dom_unowned_flag_influencer_radius = set_dvar_float_if_unset( "scr_spawn_dom_unowned_flag_influencer_radius", "" + ( 15 * get_player_height() ), reset_dvars );
 }
 
-addspawnpointsforflag( team, flag_team, flagspawnname )
+addspawnpointsforflag( team, flag_team, flagspawnname ) //checked matches cerberus output
 {
 	if ( game[ "switchedsides" ] )
 	{
@@ -1384,7 +1316,7 @@ addspawnpointsforflag( team, flag_team, flagspawnname )
 	}
 }
 
-change_dom_spawns()
+change_dom_spawns() //checked changed to match cerberus output
 {
 	maps/mp/gametypes/_spawnlogic::clearspawnpoints();
 	maps/mp/gametypes/_spawnlogic::addspawnpoints( "allies", "mp_dom_spawn" );
@@ -1392,36 +1324,31 @@ change_dom_spawns()
 	flag_number = level.flags.size;
 	if ( dominated_check() )
 	{
-		i = 0;
-		while ( i < flag_number )
+		for ( i = 0; i < flag_number; i++ )
 		{
 			label = level.flags[ i ].useobj maps/mp/gametypes/_gameobjects::getlabel();
 			flagspawnname = "mp_dom_spawn_flag" + label;
 			maps/mp/gametypes/_spawnlogic::addspawnpoints( "allies", flagspawnname );
 			maps/mp/gametypes/_spawnlogic::addspawnpoints( "axis", flagspawnname );
-			i++;
 		}
 	}
-	else i = 0;
-	while ( i < flag_number )
+	for ( i = 0; i < flag_number; i++ )
 	{
 		label = level.flags[ i ].useobj maps/mp/gametypes/_gameobjects::getlabel();
 		flagspawnname = "mp_dom_spawn_flag" + label;
 		flag_team = level.flags[ i ] getflagteam();
 		addspawnpointsforflag( "allies", flag_team, flagspawnname );
 		addspawnpointsforflag( "axis", flag_team, flagspawnname );
-		i++;
 	}
 	maps/mp/gametypes/_spawning::updateallspawnpoints();
 }
 
-dominated_challenge_check()
+dominated_challenge_check() //checked changed to match cerberus output
 {
 	num_flags = level.flags.size;
 	allied_flags = 0;
 	axis_flags = 0;
-	i = 0;
-	while ( i < num_flags )
+	for ( i = 0; i < num_flags; i++ )
 	{
 		flag_team = level.flags[ i ] getflagteam();
 		if ( flag_team == "allies" )
@@ -1440,41 +1367,35 @@ dominated_challenge_check()
 		{
 			return 0;
 		}
-		i++;
 	}
 	return 1;
 }
 
-dominated_check()
+dominated_check() //checked changed to match cerberus output
 {
 	num_flags = level.flags.size;
 	allied_flags = 0;
 	axis_flags = 0;
-	i = 0;
-	while ( i < num_flags )
+	for ( i = 0; i < num_flags; i++ )
 	{
 		flag_team = level.flags[ i ] getflagteam();
 		if ( flag_team == "allies" )
 		{
 			allied_flags++;
 		}
-		else
+		else if ( flag_team == "axis" )
 		{
-			if ( flag_team == "axis" )
-			{
-				axis_flags++;
-			}
+			axis_flags++;
 		}
 		if ( allied_flags > 0 && axis_flags > 0 )
 		{
 			return 0;
 		}
-		i++;
 	}
 	return 1;
 }
 
-updatecapsperminute( lastownerteam )
+updatecapsperminute( lastownerteam ) //checked matches cerberus output
 {
 	if ( !isDefined( self.capsperminute ) )
 	{
@@ -1498,7 +1419,7 @@ updatecapsperminute( lastownerteam )
 	}
 }
 
-isscoreboosting( player, flag )
+isscoreboosting( player, flag ) //checked matches cerberus output
 {
 	if ( !level.rankedmatch )
 	{
@@ -1515,7 +1436,7 @@ isscoreboosting( player, flag )
 	return 0;
 }
 
-onupdateuserate()
+onupdateuserate() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.contested ) )
 	{
@@ -1528,12 +1449,10 @@ onupdateuserate()
 	{
 		self.contested = 1;
 	}
-	else
+	else if ( previousstate == 1 )
 	{
-		if ( previousstate == 1 )
-		{
-			self notify( "contest_over" );
-		}
-		self.contested = 0;
+		self notify( "contest_over" );
 	}
+	self.contested = 0;
 }
+

@@ -11,12 +11,17 @@
 #include maps/mp/_medals;
 #include maps/mp/gametypes/_spawnlogic;
 #include maps/mp/gametypes/_spawning;
+#include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/_rank;
 #include maps/mp/gametypes/_globallogic_defaults;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
+#include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+
+main() //checked matches cerberus output
 {
 	if ( getDvar( "mapname" ) == "mp_background" )
 	{
@@ -68,7 +73,7 @@ main()
 	}
 }
 
-onprecachegametype()
+onprecachegametype() //checked matches cerberus output
 {
 	game[ "bombmodelname" ] = "t5_weapon_briefcase_bomb_world";
 	game[ "bombmodelnameobj" ] = "t5_weapon_briefcase_bomb_world";
@@ -107,27 +112,27 @@ onprecachegametype()
 	precachestring( &"MP_TIME_EXTENDED" );
 }
 
-dem_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon )
+dem_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked changed to match cerberus output
 {
 	teamkill_penalty = maps/mp/gametypes/_globallogic_defaults::default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon );
-	if ( isDefined( self.isdefusing ) || self.isdefusing && isDefined( self.isplanting ) && self.isplanting )
+	if ( isDefined( self.isdefusing ) && self.isdefusing || isDefined( self.isplanting ) && self.isplanting )
 	{
 		teamkill_penalty *= level.teamkillpenaltymultiplier;
 	}
 	return teamkill_penalty;
 }
 
-dem_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon )
+dem_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon ) //checked changed to match cerberus output
 {
 	teamkill_score = maps/mp/gametypes/_rank::getscoreinfovalue( "team_kill" );
-	if ( isDefined( self.isdefusing ) || self.isdefusing && isDefined( self.isplanting ) && self.isplanting )
+	if ( isDefined( self.isdefusing ) && self.isdefusing || isDefined( self.isplanting ) && self.isplanting )
 	{
 		teamkill_score *= level.teamkillscoremultiplier;
 	}
 	return int( teamkill_score );
 }
 
-onroundswitch()
+onroundswitch() //checked matches cerberus output
 {
 	if ( !isDefined( game[ "switchedsides" ] ) )
 	{
@@ -149,14 +154,13 @@ onroundswitch()
 	}
 }
 
-getbetterteam()
+getbetterteam() //checked changed to match cerberus output
 {
 	kills[ "allies" ] = 0;
 	kills[ "axis" ] = 0;
 	deaths[ "allies" ] = 0;
 	deaths[ "axis" ] = 0;
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
 		team = player.pers[ "team" ];
@@ -165,29 +169,22 @@ getbetterteam()
 			kills[ team ] += player.kills;
 			deaths[ team ] += player.deaths;
 		}
-		i++;
 	}
 	if ( kills[ "allies" ] > kills[ "axis" ] )
 	{
 		return "allies";
 	}
-	else
+	else if ( kills[ "axis" ] > kills[ "allies" ] )
 	{
-		if ( kills[ "axis" ] > kills[ "allies" ] )
-		{
-			return "axis";
-		}
+		return "axis";
 	}
 	if ( deaths[ "allies" ] < deaths[ "axis" ] )
 	{
 		return "allies";
 	}
-	else
+	else if ( deaths[ "axis" ] < deaths[ "allies" ] )
 	{
-		if ( deaths[ "axis" ] < deaths[ "allies" ] )
-		{
-			return "axis";
-		}
+		return "axis";
 	}
 	if ( randomint( 2 ) == 0 )
 	{
@@ -196,7 +193,7 @@ getbetterteam()
 	return "axis";
 }
 
-gamemodespawndvars( reset_dvars )
+gamemodespawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.dem_enemy_base_influencer_score = set_dvar_float_if_unset( "scr_spawn_dem_enemy_base_influencer_score", "-500", reset_dvars );
@@ -204,7 +201,7 @@ gamemodespawndvars( reset_dvars )
 	ss.dem_enemy_base_influencer_radius = set_dvar_float_if_unset( "scr_spawn_dem_enemy_base_influencer_radius", "" + ( 15 * get_player_height() ), reset_dvars );
 }
 
-onstartgametype()
+onstartgametype() //checked changed to match cerberus output
 {
 	setbombtimer( "A", 0 );
 	setmatchflag( "bomb_timer_a", 0 );
@@ -275,8 +272,8 @@ onstartgametype()
 	allowed[ 3 ] = "dem";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
-	level.spawnmins = ( 0, 0, 1 );
-	level.spawnmaxs = ( 0, 0, 1 );
+	level.spawnmins = ( 0, 0, 0 );
+	level.spawnmaxs = ( 0, 0, 0 );
 	maps/mp/gametypes/_spawnlogic::dropspawnpoints( "mp_dem_spawn_attacker_a" );
 	maps/mp/gametypes/_spawnlogic::dropspawnpoints( "mp_dem_spawn_attacker_b" );
 	maps/mp/gametypes/_spawnlogic::dropspawnpoints( "mp_dem_spawn_defender_a" );
@@ -318,7 +315,7 @@ onstartgametype()
 	thread bombs();
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	self.isplanting = 0;
 	self.isdefusing = 0;
@@ -326,7 +323,7 @@ onspawnplayerunified()
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	if ( !predictedspawn )
 	{
@@ -362,9 +359,11 @@ onspawnplayer( predictedspawn )
 		}
 	}
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getspawnpointarray( spawnpointname );
+	/*
 /#
 	assert( spawnpoints.size );
 #/
+	*/
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_random( spawnpoints );
 	if ( predictedspawn )
 	{
@@ -376,17 +375,16 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-dem_playerspawnedcb()
+dem_playerspawnedcb() //checked matches cerberus output
 {
 	level notify( "spawned_player" );
 }
 
-onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration )
+onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
 	thread checkallowspectating();
 	bombzone = undefined;
-	index = 0;
-	while ( index < level.bombzones.size )
+	for ( index = 0; index < level.bombzones.size; index++ )
 	{
 		if ( !isDefined( level.bombzones[ index ].bombexploded ) || !level.bombzones[ index ].bombexploded )
 		{
@@ -402,10 +400,6 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				inbombzone = 1;
 				break;
 			}
-		}
-		else
-		{
-			index++;
 		}
 	}
 	if ( isDefined( bombzone ) && isplayer( attacker ) && attacker.pers[ "team" ] != self.pers[ "team" ] )
@@ -426,9 +420,11 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 			}
 			else
 			{
+				/*
 /#
 				attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU OFFENSIVE CREDIT AS BOOSTING PREVENTION" );
 #/
+				*/
 			}
 		}
 		else if ( !isDefined( attacker.dem_defends ) )
@@ -450,9 +446,11 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 		}
 		else
 		{
+			/*
 /#
 			attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU DEFENSIVE CREDIT AS BOOSTING PREVENTION" );
 #/
+			*/
 		}
 	}
 	if ( self.isplanting == 1 )
@@ -465,13 +463,13 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 	}
 }
 
-checkallowspectating()
+checkallowspectating() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	wait 0,05;
 	update = 0;
-	if ( level.numliveslivesleft = self.pers[ "lives" ];
-	 && !level.alivecount[ game[ "attackers" ] ] && !livesleft )
+	livesleft = !level.numlives && !self.pers["lives"];
+	if ( !level.alivecount[ game[ "attackers" ] ] && !livesleft )
 	{
 		level.spectateoverride[ game[ "attackers" ] ].allowenemyspectate = 1;
 		update = 1;
@@ -487,7 +485,7 @@ checkallowspectating()
 	}
 }
 
-dem_endgame( winningteam, endreasontext )
+dem_endgame( winningteam, endreasontext ) //checked matches cerberus output
 {
 	if ( isDefined( winningteam ) && winningteam != "tie" )
 	{
@@ -496,7 +494,7 @@ dem_endgame( winningteam, endreasontext )
 	thread maps/mp/gametypes/_globallogic::endgame( winningteam, endreasontext );
 }
 
-ondeadevent( team )
+ondeadevent( team ) //checked changed to match cerberus output
 {
 	if ( level.bombexploded || level.bombdefused )
 	{
@@ -521,16 +519,13 @@ ondeadevent( team )
 		}
 		dem_endgame( game[ "defenders" ], game[ "strings" ][ game[ "attackers" ] + "_eliminated" ] );
 	}
-	else
+	else if ( team == game[ "defenders" ] )
 	{
-		if ( team == game[ "defenders" ] )
-		{
-			dem_endgame( game[ "attackers" ], game[ "strings" ][ game[ "defenders" ] + "_eliminated" ] );
-		}
+		dem_endgame( game[ "attackers" ], game[ "strings" ][ game[ "defenders" ] + "_eliminated" ] );
 	}
 }
 
-ononeleftevent( team )
+ononeleftevent( team ) //checked matches cerberus output
 {
 	if ( level.bombexploded || level.bombdefused )
 	{
@@ -539,7 +534,7 @@ ononeleftevent( team )
 	warnlastplayer( team );
 }
 
-ontimelimit()
+ontimelimit() //checked changed to match cerberus output
 {
 	if ( isDefined( game[ "overtime_round" ] ) )
 	{
@@ -548,14 +543,12 @@ ontimelimit()
 	else if ( level.teambased )
 	{
 		bombzonesleft = 0;
-		index = 0;
-		while ( index < level.bombzones.size )
+		for ( index = 0; index < level.bombzones.size; index++ )
 		{
 			if ( !isDefined( level.bombzones[ index ].bombexploded ) || !level.bombzones[ index ].bombexploded )
 			{
 				bombzonesleft++;
 			}
-			index++;
 		}
 		if ( bombzonesleft == 0 )
 		{
@@ -572,7 +565,7 @@ ontimelimit()
 	}
 }
 
-warnlastplayer( team )
+warnlastplayer( team ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.warnedlastplayer ) )
 	{
@@ -584,8 +577,7 @@ warnlastplayer( team )
 	}
 	level.warnedlastplayer[ team ] = 1;
 	players = level.players;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		player = players[ i ];
 		if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team && isDefined( player.pers[ "class" ] ) )
@@ -595,10 +587,6 @@ warnlastplayer( team )
 				break;
 			}
 		}
-		else
-		{
-			i++;
-		}
 	}
 	if ( i == players.size )
 	{
@@ -607,12 +595,12 @@ warnlastplayer( team )
 	players[ i ] thread givelastattackerwarning();
 }
 
-givelastattackerwarning()
+givelastattackerwarning() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	fullhealthtime = 0;
-	interval = 0,05;
+	interval = 0.05;
 	while ( 1 )
 	{
 		if ( self.health != self.maxhealth )
@@ -628,14 +616,11 @@ givelastattackerwarning()
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	self maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "sudden_death" );
 }
 
-updategametypedvars()
+updategametypedvars() //checked matches cerberus output
 {
 	level.planttime = getgametypesetting( "plantTime" );
 	level.defusetime = getgametypesetting( "defuseTime" );
@@ -650,7 +635,7 @@ updategametypedvars()
 	level.playerdefensivemax = getgametypesetting( "maxPlayerDefensive" );
 }
 
-resetbombzone()
+resetbombzone() //checked matches cerberus output
 {
 	if ( isDefined( game[ "overtime_round" ] ) )
 	{
@@ -673,7 +658,7 @@ resetbombzone()
 	self.useweapon = "briefcase_bomb_mp";
 }
 
-setupfordefusing()
+setupfordefusing() //checked matches cerberus output
 {
 	self maps/mp/gametypes/_gameobjects::allowuse( "friendly" );
 	self maps/mp/gametypes/_gameobjects::setusetime( level.defusetime );
@@ -687,7 +672,7 @@ setupfordefusing()
 	self maps/mp/gametypes/_gameobjects::setvisibleteam( "any" );
 }
 
-bombs()
+bombs() //checked changed to match cerberus output
 {
 	level.bombaplanted = 0;
 	level.bombbplanted = 0;
@@ -719,39 +704,32 @@ bombs()
 				trigger delete();
 				defusetrig delete();
 				visuals[ 0 ] delete();
-				_a831 = clipbrushes;
-				_k831 = getFirstArrayKey( _a831 );
-				while ( isDefined( _k831 ) )
+				foreach ( clip in clipbrushes )
 				{
-					clip = _a831[ _k831 ];
 					clip delete();
-					_k831 = getNextArrayKey( _a831, _k831 );
 				}
+				index++;
+				continue;
 			}
-			else bombsiteteamowner = "neutral";
+			bombsiteteamowner = "neutral";
 			bombsiteallowuse = "any";
 			scriptlabel = "_a";
 		}
-		else
+		else if ( scriptlabel == "_overtime" )
 		{
-			if ( scriptlabel == "_overtime" )
+			trigger delete();
+			defusetrig delete();
+			visuals[ 0 ] delete();
+			foreach ( clip in clipbrushes )
 			{
-				trigger delete();
-				defusetrig delete();
-				visuals[ 0 ] delete();
-				_a846 = clipbrushes;
-				_k846 = getFirstArrayKey( _a846 );
-				while ( isDefined( _k846 ) )
-				{
-					clip = _a846[ _k846 ];
-					clip delete();
-					_k846 = getNextArrayKey( _a846, _k846 );
-				}
+				clip delete();
 			}
+			index++;
+			continue;
 		}
-		else name = istring( scriptlabel );
+		name = istring( scriptlabel );
 		precachestring( name );
-		bombzone = maps/mp/gametypes/_gameobjects::createuseobject( bombsiteteamowner, trigger, visuals, ( 0, 0, 1 ), name );
+		bombzone = maps/mp/gametypes/_gameobjects::createuseobject( bombsiteteamowner, trigger, visuals, ( 0, 0, 0 ), name );
 		bombzone maps/mp/gametypes/_gameobjects::allowuse( bombsiteallowuse );
 		bombzone maps/mp/gametypes/_gameobjects::setusetime( level.planttime );
 		bombzone maps/mp/gametypes/_gameobjects::setusetext( &"MP_PLANTING_EXPLOSIVE" );
@@ -770,25 +748,22 @@ bombs()
 		bombzone.oncantuse = ::oncantuse;
 		bombzone.useweapon = "briefcase_bomb_mp";
 		bombzone.visuals[ 0 ].killcament = spawn( "script_model", bombzone.visuals[ 0 ].origin + vectorScale( ( 0, 0, 1 ), 128 ) );
-		i = 0;
-		while ( i < visuals.size )
+		for ( i = 0; i < visuals.size; i++ )
 		{
 			if ( isDefined( visuals[ i ].script_exploder ) )
 			{
 				bombzone.exploderindex = visuals[ i ].script_exploder;
 				break;
 			}
-			else
-			{
-				i++;
-			}
 		}
 		level.bombzones[ level.bombzones.size ] = bombzone;
 		bombzone.bombdefusetrig = defusetrig;
+		/*
 /#
 		assert( isDefined( bombzone.bombdefusetrig ) );
 #/
-		bombzone.bombdefusetrig.origin += vectorScale( ( 0, 0, 1 ), 10000 );
+		*/
+		bombzone.bombdefusetrig.origin += vectorScale( ( 0, 0, -1 ), 10000 );
 		bombzone.bombdefusetrig.label = scriptlabel;
 		dem_enemy_base_influencer_score = level.spawnsystem.dem_enemy_base_influencer_score;
 		dem_enemy_base_influencer_score_curve = level.spawnsystem.dem_enemy_base_influencer_score_curve;
@@ -797,25 +772,21 @@ bombs()
 		bombzone.spawninfluencer = addsphereinfluencer( level.spawnsystem.einfluencer_type_game_mode, trigger.origin, dem_enemy_base_influencer_radius, dem_enemy_base_influencer_score, team_mask, "dem_enemy_base,r,s", maps/mp/gametypes/_spawning::get_score_curve_index( dem_enemy_base_influencer_score_curve ) );
 		index++;
 	}
-	index = 0;
-	while ( index < level.bombzones.size )
+	for ( index = 0; index < level.bombzones.size; index++ )
 	{
 		array = [];
-		otherindex = 0;
-		while ( otherindex < level.bombzones.size )
+		for ( otherindex = 0; otherindex < level.bombzones.size; otherindex++ )
 		{
 			if ( otherindex != index )
 			{
 				array[ array.size ] = level.bombzones[ otherindex ];
 			}
-			otherindex++;
 		}
 		level.bombzones[ index ].otherbombzones = array;
-		index++;
 	}
 }
 
-onbeginuse( player )
+onbeginuse( player ) //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	timeremaining = maps/mp/gametypes/_globallogic_utils::gettimeremaining();
 	if ( timeremaining <= ( level.planttime * 1000 ) )
@@ -842,20 +813,19 @@ onbeginuse( player )
 					bomblabel++;
 					continue;
 				}
-				else
+				dist = distancesquared( player.origin, bomb.origin );
+				if ( dist < bestdistance )
 				{
-					dist = distancesquared( player.origin, bomb.origin );
-					if ( dist < bestdistance )
-					{
-						bestdistance = dist;
-						closestbomb = bomb;
-					}
+					bestdistance = dist;
+					closestbomb = bomb;
 				}
 				bomblabel++;
 			}
+			/*
 /#
 			assert( isDefined( closestbomb ) );
 #/
+			*/
 			player.defusing = closestbomb;
 			closestbomb hide();
 		}
@@ -868,7 +838,7 @@ onbeginuse( player )
 	player playsound( "fly_bomb_raise_plr" );
 }
 
-onenduse( team, player, result )
+onenduse( team, player, result ) //checked matches cerberus output
 {
 	if ( !isDefined( player ) )
 	{
@@ -891,12 +861,12 @@ onenduse( team, player, result )
 	}
 }
 
-oncantuse( player )
+oncantuse( player ) //checked matches cerberus output
 {
 	player iprintlnbold( &"MP_CANT_PLANT_WITHOUT_BOMB" );
 }
 
-onuseobject( player )
+onuseobject( player ) //checked matches cerberus output
 {
 	team = player.team;
 	enemyteam = getotherteam( team );
@@ -925,9 +895,11 @@ onuseobject( player )
 		}
 		else
 		{
+			/*
 /#
 			player iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU PLANT CREDIT AS BOOSTING PREVENTION" );
-#/
+#/	
+			*/
 		}
 		level thread maps/mp/_popups::displayteammessagetoall( &"MP_EXPLOSIVES_PLANTED_BY", player );
 		maps/mp/gametypes/_globallogic_audio::leaderdialog( "bomb_planted" );
@@ -954,9 +926,11 @@ onuseobject( player )
 		}
 		else
 		{
+			/*
 /#
 			player iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU DEFUSE CREDIT AS BOOSTING PREVENTION" );
 #/
+			*/
 		}
 		level thread maps/mp/_popups::displayteammessagetoall( &"MP_EXPLOSIVES_DEFUSED_BY", player );
 		thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "DEM_WE_DEFUSE", team, 0, 0, 5 );
@@ -965,7 +939,7 @@ onuseobject( player )
 	}
 }
 
-ondrop( player )
+ondrop( player ) //checked matches cerberus output
 {
 	if ( !level.bombplanted )
 	{
@@ -983,7 +957,7 @@ ondrop( player )
 	maps/mp/_utility::playsoundonplayers( game[ "bomb_dropped_sound" ], game[ "attackers" ] );
 }
 
-onpickup( player )
+onpickup( player ) //checked matches cerberus output
 {
 	player.isbombcarrier = 1;
 	self maps/mp/gametypes/_gameobjects::set3dicon( "friendly", "waypoint_defend" );
@@ -996,11 +970,11 @@ onpickup( player )
 	maps/mp/_utility::playsoundonplayers( game[ "bomb_recovered_sound" ], game[ "attackers" ] );
 }
 
-onreset()
+onreset() //checked matches cerberus output
 {
 }
 
-bombreset( label, reason )
+bombreset( label, reason ) //checked matches cerberus output
 {
 	if ( label == "_a" )
 	{
@@ -1020,13 +994,13 @@ bombreset( label, reason )
 	self.visuals[ 0 ] maps/mp/gametypes/_globallogic_utils::stoptickingsound();
 }
 
-dropbombmodel( player, site )
+dropbombmodel( player, site ) //checked matches cerberus output
 {
 	trace = bullettrace( player.origin + vectorScale( ( 0, 0, 1 ), 20 ), player.origin - vectorScale( ( 0, 0, 1 ), 2000 ), 0, player );
 	tempangle = randomfloat( 360 );
 	forward = ( cos( tempangle ), sin( tempangle ), 0 );
 	forward = vectornormalize( forward - vectorScale( trace[ "normal" ], vectordot( forward, trace[ "normal" ] ) ) );
-	dropangles = vectorToAngle( forward );
+	dropangles = vectorToAngles( forward );
 	if ( isDefined( trace[ "surfacetype" ] ) && trace[ "surfacetype" ] == "water" )
 	{
 		phystrace = playerphysicstrace( player.origin + vectorScale( ( 0, 0, 1 ), 20 ), player.origin - vectorScale( ( 0, 0, 1 ), 2000 ) );
@@ -1093,18 +1067,16 @@ bombplanted( destroyedobj, player )
 		destroyedobj.visuals[ 0 ] radiusdamage( explosionorigin, 512, 200, 20, undefined, "MOD_EXPLOSIVE", "briefcase_bomb_mp" );
 	}
 	currenttime = getTime();
-	while ( isDefined( level.lastbombexplodetime ) && level.lastbombexplodebyteam == player.team )
+	if ( isDefined( level.lastbombexplodetime ) && level.lastbombexplodebyteam == player.team )
 	{
-		while ( ( level.lastbombexplodetime + 10000 ) > currenttime )
+		if ( ( level.lastbombexplodetime + 10000 ) > currenttime )
 		{
-			i = 0;
-			while ( i < level.players.size )
+			for ( i = 0; i < level.players.size; i++ )
 			{
 				if ( level.players[ i ].team == player.team )
 				{
 					level.players[ i ] maps/mp/_challenges::bothbombsdetonatewithintime();
 				}
-				i++;
 			}
 		}
 	}
@@ -1119,14 +1091,12 @@ bombplanted( destroyedobj, player )
 		exploder( destroyedobj.exploderindex );
 	}
 	bombzonesleft = 0;
-	index = 0;
-	while ( index < level.bombzones.size )
+	for ( index = 0; index < level.bombzones.size; index++ )
 	{
 		if ( !isDefined( level.bombzones[ index ].bombexploded ) || !level.bombzones[ index ].bombexploded )
 		{
 			bombzonesleft++;
 		}
-		index++;
 	}
 	destroyedobj maps/mp/gametypes/_gameobjects::disableobject();
 	if ( bombzonesleft == 0 )
@@ -1165,7 +1135,7 @@ bombplanted( destroyedobj, player )
 	}
 }
 
-gettimelimit()
+gettimelimit() //checked matches cerberus output
 {
 	timelimit = maps/mp/gametypes/_globallogic_defaults::default_gettimelimit();
 	if ( isDefined( game[ "overtime_round" ] ) )
@@ -1179,7 +1149,7 @@ gettimelimit()
 	return timelimit;
 }
 
-shouldplayovertimeround()
+shouldplayovertimeround() //checked matches cerberus output
 {
 	if ( isDefined( game[ "overtime_round" ] ) )
 	{
@@ -1192,15 +1162,17 @@ shouldplayovertimeround()
 	return 0;
 }
 
-waitlongdurationwithbombtimeupdate( whichbomb, duration )
+waitlongdurationwithbombtimeupdate( whichbomb, duration ) //checked matches cerberus output
 {
 	if ( duration == 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( duration > 0 );
 #/
+	*/
 	starttime = getTime();
 	endtime = getTime() + ( duration * 1000 );
 	while ( getTime() < endtime )
@@ -1210,25 +1182,27 @@ waitlongdurationwithbombtimeupdate( whichbomb, duration )
 		{
 			endtime += 250;
 			updatebombtimers( whichbomb, endtime );
-			wait 0,25;
+			wait 0.25;
 		}
 	}
+	/*
 /#
 	if ( getTime() != endtime )
 	{
 		println( "SCRIPT WARNING: gettime() = " + getTime() + " NOT EQUAL TO endtime = " + endtime );
 #/
 	}
+	*/
 	while ( isDefined( level.hostmigrationtimer ) )
 	{
 		endtime += 250;
 		updatebombtimers( whichbomb, endtime );
-		wait 0,25;
+		wait 0.25;
 	}
 	return getTime() - starttime;
 }
 
-updatebombtimers( whichbomb, detonatetime )
+updatebombtimers( whichbomb, detonatetime ) //checked matches cerberus output
 {
 	if ( whichbomb == "_a" )
 	{
@@ -1243,7 +1217,7 @@ updatebombtimers( whichbomb, detonatetime )
 	setmatchflag( "bomb_timer" + whichbomb, int( detonatetime ) );
 }
 
-bombdefused()
+bombdefused() //checked matches cerberus output
 {
 	self.tickingobject maps/mp/gametypes/_globallogic_utils::stoptickingsound();
 	self maps/mp/gametypes/_gameobjects::allowuse( "none" );
@@ -1254,7 +1228,7 @@ bombdefused()
 	self bombreset( self.label, "bomb_defused" );
 }
 
-play_one_left_underscore( team, enemyteam )
+play_one_left_underscore( team, enemyteam ) //checked matches cerberus output
 {
 	wait 3;
 	if ( !isDefined( team ) || !isDefined( enemyteam ) )
@@ -1265,7 +1239,7 @@ play_one_left_underscore( team, enemyteam )
 	thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "DEM_ONE_LEFT_UNDERSCORE", enemyteam, 0, 0 );
 }
 
-updateeventsperminute()
+updateeventsperminute() //checked matches cerberus output
 {
 	if ( !isDefined( self.eventsperminute ) )
 	{
@@ -1285,7 +1259,7 @@ updateeventsperminute()
 	}
 }
 
-isscoreboosting( player, flag )
+isscoreboosting( player, flag ) //checked matches cerberus output
 {
 	if ( !level.rankedmatch )
 	{
@@ -1301,3 +1275,5 @@ isscoreboosting( player, flag )
 	}
 	return 0;
 }
+
+
