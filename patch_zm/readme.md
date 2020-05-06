@@ -2,6 +2,7 @@
 ```
 patch_zm/maps/mp/gametypes_zm/_clientids.gsc
 patch_zm/maps/mp/gametypes_zm/_globalentities.gsc
+patch_zm/maps/mp/gametypes_zm/_globallogic.gsc
 patch_zm/maps/mp/gametypes_zm/_scoreboard.gsc
 patch_zm/maps/mp/gametypes_zm/_shellshock.gsc
 patch_zm/maps/mp/gametypes_zm/zclassic.gsc
@@ -78,7 +79,6 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
 patch_zm/maps/mp/gametypes_zm/_gameobjects.gsc
-patch_zm/maps/mp/gametypes_zm/_globallogic.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_actor.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_audio.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_defaults.gsc
