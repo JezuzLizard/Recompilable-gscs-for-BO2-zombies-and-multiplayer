@@ -25,6 +25,7 @@ patch_mp/maps/mp/bots/_bot_loadout.gsc
 
 patch_mp/maps/mp/gametypes/_callbacksetup.gsc
 patch_mp/maps/mp/gametypes/_damagefeedback.gsc
+patch_mp/maps/mp/gametypes/_globallogic.gsc
 patch_mp/maps/mp/gametypes/_healthoverlay.gsc
 patch_mp/maps/mp/gametypes/_hostmigration.gsc
 patch_mp/maps/mp/gametypes/_hud.gsc
@@ -65,7 +66,6 @@ patch_mp/maps/mp/gametypes/_copter.gsc
 patch_mp/maps/mp/gametypes/_deathicons.gsc
 patch_mp/maps/mp/gametypes/_friendicons.gsc
 patch_mp/maps/mp/gametypes/_gameobjects.gsc
-patch_mp/maps/mp/gametypes/_globallogic.gsc
 patch_mp/maps/mp/gametypes/_globallogic_actor.gsc
 patch_mp/maps/mp/gametypes/_globallogic_audio.gsc
 patch_mp/maps/mp/gametypes/_globallogic_defaults.gsc

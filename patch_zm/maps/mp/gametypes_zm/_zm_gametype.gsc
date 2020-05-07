@@ -243,19 +243,20 @@ setup_standard_objects( location ) //checked partially used cerberus output
 		{
 			keep = 0;
 			tokens = strtok( structs[ i ].script_string, " " );
-			i = 0;
-			while ( i < tokens.size )
+			j = 0;
+			while ( j < tokens.size )
 			{
-				if ( tokens[ i ] == level.scr_zm_ui_gametype && tokens[ i ] != "zstandard" )
+				if ( tokens[ j ] == level.scr_zm_ui_gametype && tokens[ j ] != "zstandard" )
 				{
 					keep = 1;
-					i++;
+					j++;
 					continue;
 				}
-				if ( tokens[ i ] == "zstandard" )
+				if ( tokens[ j ] == "zstandard" )
 				{
 					keep = 1;
 				}
+				j++;
 			}
 			if ( !keep )
 			{
@@ -266,6 +267,7 @@ setup_standard_objects( location ) //checked partially used cerberus output
 		barricade = spawn( "script_model", structs[ i ].origin );
 		barricade.angles = structs[ i ].angles;
 		barricade setmodel( structs[ i ].script_parameters );
+		i++;
 	}
 	objects = getentarray();
 	i = 0;
@@ -1259,7 +1261,7 @@ startnextzmround( winner ) //checked matches cerberus output
 	return 0;
 }
 
-start_round() //checked matches cerberus output
+start_round() //checked changed to match cerberus output
 {
 	flag_clear( "start_encounters_match_logic" );
 	if ( !isDefined( level._module_round_hud ) )
@@ -1277,11 +1279,9 @@ start_round() //checked matches cerberus output
 		level._module_round_hud.sort = 0;
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] freeze_player_controls( 1 );
-		i++;
 	}
 	level._module_round_hud.alpha = 1;
 	label = &"Next Round Starting In  ^2";
@@ -1297,12 +1297,10 @@ start_round() //checked matches cerberus output
 	wait 1;
 	level thread play_sound_2d( "zmb_air_horn" );
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	while ( i = 0; i < players.size; i++; )
 	{
 		players[ i ] freeze_player_controls( 0 );
 		players[ i ] sprintuprequired();
-		i++;
 	}
 	flag_set( "start_encounters_match_logic" );
 	flag_clear( "pregame" );
@@ -1410,61 +1408,55 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 	}
 	else
 	{
-
-	}
-
-	if ( flag( "begin_spawning" ) )
-	{
-		spawnpoint = maps/mp/zombies/_zm::check_for_valid_spawn_near_team( self, 1 );
-	}
-	if ( !isDefined( spawnpoint ) )
-	{
-		match_string = "";
-		location = level.scr_zm_map_start_location;
-		
-		if ( ( location == "default" || location == "" ) && isDefined( level.default_start_location ) )
+		if ( flag( "begin_spawning" ) )
 		{
-			location = level.default_start_location;
+			spawnpoint = maps/mp/zombies/_zm::check_for_valid_spawn_near_team( self, 1 );
 		}
-		match_string = level.scr_zm_ui_gametype + "_" + location;
-
-		spawnpoints = [];
-		structs = getstructarray( "initial_spawn", "script_noteworthy" );
-		if ( isdefined( structs ) )
+		if ( !isDefined( spawnpoint ) )
 		{
-			i = 0;
-			while ( i < structs.size )
+			match_string = "";
+			location = level.scr_zm_map_start_location;
+			if ( ( location == "default" || location == "" ) && isDefined( level.default_start_location ) )
 			{
-				if ( isdefined( structs[ i ].script_string ) )
+				location = level.default_start_location;
+			}
+			match_string = level.scr_zm_ui_gametype + "_" + location;
+			spawnpoints = [];
+			structs = getstructarray( "initial_spawn", "script_noteworthy" );
+			if ( isdefined( structs ) )
+			{
+				i = 0;
+				while ( i < structs.size )
 				{
-					tokens = strtok( structs[ i ].script_string, " " );
-					foreach ( token in tokens )
+					if ( isdefined( structs[ i ].script_string ) )
 					{
-						if ( token == match_string )
+						tokens = strtok( structs[ i ].script_string, " " );
+						foreach ( token in tokens )
 						{
-							spawnpoints[ spawnpoints.size ] = structs[ i ];
+							if ( token == match_string )
+							{
+								spawnpoints[ spawnpoints.size ] = structs[ i ];
+							}
 						}
 					}
+					i++;
 				}
-				i++;
+			}
+			if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
+			{
+				spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
+			}	
+			spawnpoint = maps/mp/zombies/_zm::getfreespawnpoint( spawnpoints, self );
+			if ( predictedspawn )
+			{
+				self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
+				return;
+			}
+			else
+			{
+				self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
 			}
 		}
-		if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )
-		{
-			spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
-		}
-
-		
-		spawnpoint = maps/mp/zombies/_zm::getfreespawnpoint( spawnpoints, self );
-	}
-	if ( predictedspawn )
-	{
-		self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
-		return;
-	}
-	else
-	{
-		self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
 	}
 	self.entity_num = self getentitynumber();
 	self thread maps/mp/zombies/_zm::onplayerspawned();
@@ -1521,11 +1513,10 @@ get_player_spawns_for_gametype() //fixed checked partially changed to match cerb
 					player_spawns[ player_spawns.size ] = structs[ i ];
 				}
 			}
+			i++;
+			continue;
 		}
-		else 
-		{
-			player_spawns[ player_spawns.size ] = structs[ i ];
-		}
+		player_spawns[ player_spawns.size ] = structs[ i ];
 		i++;
 	}
 	return player_spawns;
@@ -1991,6 +1982,7 @@ blank()
 {
 	//empty function
 }
+
 
 
 
