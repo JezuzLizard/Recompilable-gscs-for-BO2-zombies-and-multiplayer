@@ -1,9 +1,11 @@
+//checked includes changed to match cerberus output
+#include maps/mp/bots/_bot;
 #include maps/mp/bots/_bot_combat;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 #include maps/mp/gametypes/koth;
 
-bot_hq_think()
+bot_hq_think() //checked changed to match cerberus output
 {
 	time = getTime();
 	if ( time < self.bot.update_objective )
@@ -15,12 +17,9 @@ bot_hq_think()
 	{
 		self bot_patrol_hq();
 	}
-	else
+	else if ( !bot_has_hq_goal() )
 	{
-		if ( !bot_has_hq_goal() )
-		{
-			self bot_move_to_hq();
-		}
+		self bot_move_to_hq();
 	}
 	if ( self bot_is_capturing_hq() )
 	{
@@ -39,32 +38,28 @@ bot_hq_think()
 	}
 }
 
-bot_has_hq_goal()
+bot_has_hq_goal() //checked changed to match cerberus output
 {
 	origin = self getgoal( "hq_radio" );
-	while ( isDefined( origin ) )
+	if ( isDefined( origin ) )
 	{
-		_a53 = level.radio.nodes;
-		_k53 = getFirstArrayKey( _a53 );
-		while ( isDefined( _k53 ) )
+		foreach ( node in level.radio.nodes )
 		{
-			node = _a53[ _k53 ];
 			if ( distancesquared( origin, node.origin ) < 4096 )
 			{
 				return 1;
 			}
-			_k53 = getNextArrayKey( _a53, _k53 );
 		}
 	}
 	return 0;
 }
 
-bot_is_capturing_hq()
+bot_is_capturing_hq() //checked matches cerberus output
 {
 	return self atgoal( "hq_radio" );
 }
 
-bot_should_patrol_hq()
+bot_should_patrol_hq() //checked matches cerberus output
 {
 	if ( level.radio.gameobject.ownerteam == "neutral" )
 	{
@@ -81,7 +76,7 @@ bot_should_patrol_hq()
 	return 1;
 }
 
-bot_patrol_hq()
+bot_patrol_hq() //checked changed to match cerberus output
 {
 	self cancelgoal( "hq_radio" );
 	if ( self atgoal( "hq_patrol" ) )
@@ -150,11 +145,12 @@ bot_patrol_hq()
 		return;
 	}
 	nodes = getvisiblenodes( nearest );
+	/*
 /#
 	assert( nodes.size );
 #/
-	i = randomint( nodes.size );
-	while ( i < nodes.size )
+	*/
+	for ( i = randomint( nodes.size ); i < nodes.size; i++ )
 	{
 		if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "hq_radio", nodes[ i ].origin, 128 ) == 0 )
 		{
@@ -164,11 +160,10 @@ bot_patrol_hq()
 				return;
 			}
 		}
-		i++;
 	}
 }
 
-bot_move_to_hq()
+bot_move_to_hq() //checked changed to match cerberus output
 {
 	self clearlookat();
 	self cancelgoal( "hq_radio" );
@@ -176,30 +171,26 @@ bot_move_to_hq()
 	if ( self getstance() == "prone" )
 	{
 		self setstance( "crouch" );
-		wait 0,25;
+		wait 0.25;
 	}
 	if ( self getstance() == "crouch" )
 	{
 		self setstance( "stand" );
-		wait 0,25;
+		wait 0.25;
 	}
 	nodes = array_randomize( level.radio.nodes );
-	_a219 = nodes;
-	_k219 = getFirstArrayKey( _a219 );
-	while ( isDefined( _k219 ) )
+	foreach ( node in nodes )
 	{
-		node = _a219[ _k219 ];
 		if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "hq_radio", node.origin, 64 ) == 0 )
 		{
 			self addgoal( node, 24, 3, "hq_radio" );
 			return;
 		}
-		_k219 = getNextArrayKey( _a219, _k219 );
 	}
 	self addgoal( random( nodes ), 24, 3, "hq_radio" );
 }
 
-bot_get_look_at()
+bot_get_look_at() //checked matches cerberus output
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( self.origin, 1 );
 	if ( isDefined( enemy ) )
@@ -232,7 +223,7 @@ bot_get_look_at()
 	return level.radio.baseorigin;
 }
 
-bot_capture_hq()
+bot_capture_hq() //checked matches cerberus output
 {
 	self addgoal( self.origin, 24, 3, "hq_radio" );
 	self setstance( "crouch" );
@@ -256,13 +247,10 @@ bot_capture_hq()
 	}
 }
 
-any_other_team_touching( skip_team )
+any_other_team_touching( skip_team ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
-	_a307 = level.teams;
-	_k307 = getFirstArrayKey( _a307 );
-	while ( isDefined( _k307 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a307[ _k307 ];
 		if ( team == skip_team )
 		{
 		}
@@ -273,12 +261,11 @@ any_other_team_touching( skip_team )
 				return 1;
 			}
 		}
-		_k307 = getNextArrayKey( _a307, _k307 );
 	}
 	return 0;
 }
 
-is_hq_contested( skip_team )
+is_hq_contested( skip_team ) //checked matches cerberus output
 {
 	if ( any_other_team_touching( skip_team ) )
 	{
@@ -292,7 +279,7 @@ is_hq_contested( skip_team )
 	return 0;
 }
 
-bot_hq_grenade()
+bot_hq_grenade() //checked matches cerberus output
 {
 	enemies = bot_get_enemies();
 	if ( !enemies.size )
@@ -333,7 +320,7 @@ bot_hq_grenade()
 	}
 }
 
-bot_hq_tactical_insertion()
+bot_hq_tactical_insertion() //checked matches cerberus output
 {
 	if ( !self hasweapon( "tactical_insertion_mp" ) )
 	{
@@ -358,16 +345,18 @@ bot_hq_tactical_insertion()
 	}
 }
 
-hq_nearest_node()
+hq_nearest_node() //checked matches cerberus output
 {
 	return random( level.radio.nodes );
 }
 
-hq_is_contested()
+hq_is_contested() //checked changed at own discretion
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( level.radio.baseorigin, 0 );
-	if ( isDefined( enemy ) )
+	if ( isDefined( enemy ) && distancesquared( enemy.origin, level.radio.baseorigin ) < ( level.radio.node_radius * level.radio.node_radius ) )
 	{
-		return distancesquared( enemy.origin, level.radio.baseorigin ) < ( level.radio.node_radius * level.radio.node_radius );
+		return 1;
 	}
+	return 0;
 }
+

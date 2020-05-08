@@ -1,25 +1,25 @@
+//changed includes to match cerberus output
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/bots/_bot_combat;
+#include maps/mp/bots/_bot;
 #include maps/mp/gametypes/_gameobjects;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-bot_sd_think()
+bot_sd_think() //checked changed to match cerberus output
 {
-	_a8 = level.bombzones;
-	_k8 = getFirstArrayKey( _a8 );
-	while ( isDefined( _k8 ) )
+	foreach ( zone in level.bombzones )
 	{
-		zone = _a8[ _k8 ];
 		if ( !isDefined( zone.nearest_node ) )
 		{
 			nodes = getnodesinradiussorted( zone.trigger.origin, 256, 0 );
+			/*
 /#
 			assert( nodes.size );
 #/
+			*/
 			zone.nearest_node = nodes[ 0 ];
 		}
-		_k8 = getNextArrayKey( _a8, _k8 );
 	}
 	zone = sd_get_planted_zone();
 	if ( isDefined( zone ) )
@@ -41,7 +41,7 @@ bot_sd_think()
 	}
 }
 
-bot_sd_attacker()
+bot_sd_attacker() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	if ( !level.multibomb && !isDefined( level.sdbomb.carrier ) && !level.bombplanted )
@@ -73,97 +73,87 @@ bot_sd_attacker()
 			if ( distancesquared( self.origin, goal ) < 2304 )
 			{
 				self setstance( "prone" );
-				wait 0,5;
+				wait 0.5;
 				self pressusebutton( level.planttime + 1 );
-				wait 0,5;
+				wait 0.5;
 				if ( is_true( self.isplanting ) )
 				{
 					wait ( level.planttime + 1 );
 				}
 				self pressusebutton( 0 );
 				self setstance( "crouch" );
-				wait 0,25;
+				wait 0.25;
 				self cancelgoal( "sd_plant" );
 				self setstance( "stand" );
 			}
 			return;
 		}
-		else
+		else if ( getTime() > self.bot[ "patrol_update" ] )
 		{
-			if ( getTime() > self.bot[ "patrol_update" ] )
+			frac = sd_get_time_frac();
+			if ( randomint( 100 ) < ( frac * 100 ) || frac > 0.85 )
 			{
-				frac = sd_get_time_frac();
-				if ( randomint( 100 ) < ( frac * 100 ) || frac > 0,85 )
-				{
-					zone = sd_get_closest_bomb();
-					goal = sd_get_bomb_goal( zone.visuals[ 0 ] );
-					if ( isDefined( goal ) )
-					{
-						if ( frac > 0,85 )
-						{
-							self addgoal( goal, 24, 4, "sd_plant" );
-						}
-						else
-						{
-							self addgoal( goal, 24, 3, "sd_plant" );
-						}
-					}
-				}
-				self.bot[ "patrol_update" ] = getTime() + randomintrange( 2500, 5000 );
-			}
-		}
-	}
-	else
-	{
-		if ( isDefined( level.sdbomb.carrier ) && !isplayer( level.sdbomb.carrier ) )
-		{
-			if ( !isDefined( self.protectcarrier ) )
-			{
-				if ( randomint( 100 ) > 70 )
-				{
-					self.protectcarrier = 1;
-				}
-				else
-				{
-					self.protectcarrier = 0;
-				}
-			}
-			if ( self.protectcarrier )
-			{
-				goal = level.sdbomb.carrier getgoal( "sd_plant" );
+				zone = sd_get_closest_bomb();
+				goal = sd_get_bomb_goal( zone.visuals[ 0 ] );
 				if ( isDefined( goal ) )
 				{
-					nodes = getnodesinradiussorted( goal, 256, 0 );
-					if ( isDefined( nodes ) && nodes.size > 0 && !isDefined( self getgoal( "sd_protect_carrier" ) ) )
+					if ( frac > 0.85 )
 					{
-						self addgoal( nodes[ randomint( nodes.size ) ], 24, 3, "sd_protect_carrier" );
+						self addgoal( goal, 24, 4, "sd_plant" );
 					}
+					else
+					{
+						self addgoal( goal, 24, 3, "sd_plant" );
+					}
+				}
+			}
+			self.bot[ "patrol_update" ] = getTime() + randomintrange( 2500, 5000 );
+		}
+	}
+	else if ( isDefined( level.sdbomb.carrier ) && !isplayer( level.sdbomb.carrier ) )
+	{
+		if ( !isDefined( self.protectcarrier ) )
+		{
+			if ( randomint( 100 ) > 70 )
+			{
+				self.protectcarrier = 1;
+			}
+			else
+			{
+				self.protectcarrier = 0;
+			}
+		}
+		if ( self.protectcarrier )
+		{
+			goal = level.sdbomb.carrier getgoal( "sd_plant" );
+			if ( isDefined( goal ) )
+			{
+				nodes = getnodesinradiussorted( goal, 256, 0 );
+				if ( isDefined( nodes ) && nodes.size > 0 && !isDefined( self getgoal( "sd_protect_carrier" ) ) )
+				{
+					self addgoal( nodes[ randomint( nodes.size ) ], 24, 3, "sd_protect_carrier" );
 				}
 			}
 		}
 	}
 }
 
-bot_sd_defender( zone, isplanted )
+bot_sd_defender( zone, isplanted ) //checked partially changed to match cerberus output did not use foreach see github for more info
 {
 	bot_sd_grenade();
-	while ( isDefined( isplanted ) && isplanted && self hasgoal( "sd_defend" ) )
+	if ( isDefined( isplanted ) && isplanted && self hasgoal( "sd_defend" ) )
 	{
 		goal = self getgoal( "sd_defend" );
 		planted = sd_get_planted_zone();
-		_a159 = level.bombzones;
-		_k159 = getFirstArrayKey( _a159 );
-		while ( isDefined( _k159 ) )
+		foreach ( zone in level.bombzones )
 		{
-			zone = _a159[ _k159 ];
 			if ( planted != zone && distance2d( goal, zone.nearest_node.origin ) < distance2d( goal, planted.nearest_node.origin ) )
 			{
 				self cancelgoal( "sd_defend" );
 			}
-			_k159 = getNextArrayKey( _a159, _k159 );
 		}
 	}
-	if ( self atgoal( "sd_defend" ) || self bot_need_to_defuse() )
+	else if ( self atgoal( "sd_defend" ) || self bot_need_to_defuse() )
 	{
 		bot_sd_defender_think( zone );
 		if ( self hasgoal( "sd_defend" ) )
@@ -194,42 +184,45 @@ bot_sd_defender( zone, isplanted )
 	nodes = getvisiblenodes( zone.nearest_node );
 	best = undefined;
 	highest = -100;
-	_a208 = nodes;
-	_k208 = getFirstArrayKey( _a208 );
-	while ( isDefined( _k208 ) )
+	i = 0;
+	while ( i < nodes.size )
 	{
-		node = _a208[ _k208 ];
-		if ( node.type == "BAD NODE" )
+		if ( node[ i ].type == "BAD NODE" )
 		{
+			i++;
+			continue;
 		}
-		else if ( !canclaimnode( node, self.team ) )
+		if ( !canclaimnode( node[ i ], self.team ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( distancesquared( node.origin, self.origin ) < 65536 )
+		if ( distancesquared( node[ i ].origin, self.origin ) < 65536 )
 		{
+			i++;
+			continue;
 		}
-		else if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "sd_defend", node.origin, 256 ) > 0 )
+		if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "sd_defend", node[ i ].origin, 256 ) > 0 )
 		{
+			i++;
+			continue;
+		}
+		height = node[ i ].origin[ 2 ] - zone.nearest_node.origin[ 2 ];
+		if ( isDefined( isplanted ) && isplanted )
+		{
+			dist = distance2d( node[ i ].origin, zone.nearest_node.origin );
+			score = ( 10000 - dist ) + height;
 		}
 		else
 		{
-			height = node.origin[ 2 ] - zone.nearest_node.origin[ 2 ];
-			if ( isDefined( isplanted ) && isplanted )
-			{
-				dist = distance2d( node.origin, zone.nearest_node.origin );
-				score = ( 10000 - dist ) + height;
-			}
-			else
-			{
-				score = height;
-			}
-			if ( score > highest )
-			{
-				highest = score;
-				best = node;
-			}
+			score = height;
 		}
-		_k208 = getNextArrayKey( _a208, _k208 );
+		if ( score > highest )
+		{
+			highest = score;
+			best = node;
+		}
+		i++;
 	}
 	if ( !isDefined( best ) )
 	{
@@ -238,7 +231,7 @@ bot_sd_defender( zone, isplanted )
 	self addgoal( best, 24, 3, "sd_defend" );
 }
 
-bot_get_look_at()
+bot_get_look_at() //checked matches cebrerus output
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( self.origin, 1 );
 	if ( isDefined( enemy ) )
@@ -273,7 +266,7 @@ bot_get_look_at()
 	return origin;
 }
 
-bot_sd_defender_think( zone )
+bot_sd_defender_think( zone ) //checked matches cerberus output
 {
 	if ( self bot_need_to_defuse() )
 	{
@@ -286,16 +279,16 @@ bot_sd_defender_think( zone )
 		if ( isDefined( goal ) && distancesquared( self.origin, goal ) < 2304 )
 		{
 			self setstance( "prone" );
-			wait 0,5;
+			wait 0.5;
 			self pressusebutton( level.defusetime + 1 );
-			wait 0,5;
+			wait 0.5;
 			if ( is_true( self.isdefusing ) )
 			{
 				wait ( level.defusetime + 1 );
 			}
 			self pressusebutton( 0 );
 			self setstance( "crouch" );
-			wait 0,25;
+			wait 0.25;
 			self cancelgoal( "sd_defuse" );
 			self setstance( "stand" );
 			return;
@@ -347,15 +340,16 @@ bot_sd_defender_think( zone )
 	}
 }
 
-bot_need_to_defuse()
+bot_need_to_defuse() //checked changed at own discretion
 {
-	if ( level.bombplanted )
+	if ( level.bombplanted && self.team == game[ "defenders" ] )
 	{
-		return self.team == game[ "defenders" ];
+		return 1;
 	}
+	return 0;
 }
 
-sd_get_bomb_goal( ent )
+sd_get_bomb_goal( ent ) //checked changed to match cerberus output
 {
 	goals = [];
 	dir = anglesToForward( ent.angles );
@@ -367,21 +361,17 @@ sd_get_bomb_goal( ent )
 	goals[ 2 ] = ent.origin + dir;
 	goals[ 3 ] = ent.origin - dir;
 	goals = array_randomize( goals );
-	_a419 = goals;
-	_k419 = getFirstArrayKey( _a419 );
-	while ( isDefined( _k419 ) )
+	foreach ( goal in goals )
 	{
-		goal = _a419[ _k419 ];
 		if ( findpath( self.origin, goal, 0 ) )
 		{
 			return goal;
 		}
-		_k419 = getNextArrayKey( _a419, _k419 );
 	}
 	return undefined;
 }
 
-sd_get_time_frac()
+sd_get_time_frac() //checked matches cerberus output
 {
 	remaining = maps/mp/gametypes/_globallogic_utils::gettimeremaining();
 	end = ( level.timelimit * 60 ) * 1000;
@@ -393,54 +383,43 @@ sd_get_time_frac()
 	return 1 - ( remaining / end );
 }
 
-sd_get_closest_bomb()
+sd_get_closest_bomb() //checked partially changed to match cerberus output did not use continue see github for more info
 {
 	best = undefined;
 	distsq = 9999999;
-	_a450 = level.bombzones;
-	_k450 = getFirstArrayKey( _a450 );
-	while ( isDefined( _k450 ) )
+	foreach ( zone in level.bombzones )
 	{
-		zone = _a450[ _k450 ];
 		d = distancesquared( self.origin, zone.curorigin );
 		if ( !isDefined( best ) )
 		{
 			best = zone;
 			distsq = d;
 		}
-		else
+		else if ( d < distsq )
 		{
-			if ( d < distsq )
-			{
-				best = zone;
-				distsq = d;
-			}
+			best = zone;
+			distsq = d;
 		}
-		_k450 = getNextArrayKey( _a450, _k450 );
 	}
 	return best;
 }
 
-sd_get_planted_zone()
+sd_get_planted_zone() //checked changed to match cerberus output
 {
-	while ( level.bombplanted )
+	if ( level.bombplanted )
 	{
-		_a475 = level.bombzones;
-		_k475 = getFirstArrayKey( _a475 );
-		while ( isDefined( _k475 ) )
+		foreach ( zone in level.bombzones )
 		{
-			zone = _a475[ _k475 ];
 			if ( zone.interactteam == "none" )
 			{
 				return zone;
 			}
-			_k475 = getNextArrayKey( _a475, _k475 );
 		}
 	}
 	return undefined;
 }
 
-bot_sd_grenade()
+bot_sd_grenade() //checked changed to match cerberus output
 {
 	enemies = bot_get_enemies();
 	if ( !enemies.size )
@@ -448,11 +427,8 @@ bot_sd_grenade()
 		return;
 	}
 	zone = sd_get_closest_bomb();
-	_a498 = enemies;
-	_k498 = getFirstArrayKey( _a498 );
-	while ( isDefined( _k498 ) )
+	foreach ( enemy in enemies )
 	{
-		enemy = _a498[ _k498 ];
 		if ( distancesquared( enemy.origin, zone.nearest_node.origin ) < 147456 )
 		{
 			if ( !self maps/mp/bots/_bot_combat::bot_combat_throw_lethal( enemy.origin ) )
@@ -461,6 +437,6 @@ bot_sd_grenade()
 			}
 			return;
 		}
-		_k498 = getNextArrayKey( _a498, _k498 );
 	}
 }
+

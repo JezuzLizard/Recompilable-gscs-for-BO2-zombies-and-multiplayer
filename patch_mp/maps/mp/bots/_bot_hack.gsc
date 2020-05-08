@@ -3,14 +3,11 @@
 #include common_scripts/utility;
 #include maps/mp/gametypes/ctf;
 
-bot_hack_tank_get_goal_origin( tank )
+bot_hack_tank_get_goal_origin( tank ) //checked changed to match cerberus output
 {
 	nodes = getnodesinradiussorted( tank.origin, 256, 0, 64, "Path" );
-	_a11 = nodes;
-	_k11 = getFirstArrayKey( _a11 );
-	while ( isDefined( _k11 ) )
+	foreach ( node in nodes )
 	{
-		node = _a11[ _k11 ];
 		dir = vectornormalize( node.origin - tank.origin );
 		dir = vectorScale( dir, 32 );
 		goal = tank.origin + dir;
@@ -18,12 +15,11 @@ bot_hack_tank_get_goal_origin( tank )
 		{
 			return goal;
 		}
-		_k11 = getNextArrayKey( _a11, _k11 );
 	}
 	return undefined;
 }
 
-bot_hack_has_goal( tank )
+bot_hack_has_goal( tank ) //checked matches cerberus output
 {
 	goal = self getgoal( "hack" );
 	if ( isDefined( goal ) )
@@ -36,22 +32,19 @@ bot_hack_has_goal( tank )
 	return 0;
 }
 
-bot_hack_at_goal()
+bot_hack_at_goal() //checked changed to match cerberus output
 {
 	if ( self atgoal( "hack" ) )
 	{
 		return 1;
 	}
 	goal = self getgoal( "hack" );
-	while ( isDefined( goal ) )
+	if ( isDefined( goal ) )
 	{
 		tanks = getentarray( "talon", "targetname" );
 		tanks = arraysort( tanks, self.origin );
-		_a56 = tanks;
-		_k56 = getFirstArrayKey( _a56 );
-		while ( isDefined( _k56 ) )
+		foreach ( tank in tanks )
 		{
-			tank = _a56[ _k56 ];
 			if ( distancesquared( goal, tank.origin ) < 16384 )
 			{
 				if ( isDefined( tank.trigger ) && self istouching( tank.trigger ) )
@@ -59,47 +52,45 @@ bot_hack_at_goal()
 					return 1;
 				}
 			}
-			_k56 = getNextArrayKey( _a56, _k56 );
 		}
 	}
 	return 0;
 }
 
-bot_hack_goal_pregame( tanks )
+bot_hack_goal_pregame( tanks ) //checked partially changed to match cerberus output did not use foreach see github for more info
 {
-	_a73 = tanks;
-	_k73 = getFirstArrayKey( _a73 );
-	while ( isDefined( _k73 ) )
+	i = 0;
+	while ( i < tanks.size )
 	{
-		tank = _a73[ _k73 ];
-		if ( isDefined( tank.owner ) )
+		if ( isDefined( tanks[ i ].owner ) )
 		{
+			i++;
+			continue;
 		}
-		else if ( isDefined( tank.team ) && tank.team == self.team )
+		if ( isDefined( tanks[ i ].team ) && tanks[ i ].team == self.team )
 		{
+			i++;
+			continue;
 		}
-		else
+		goal = self bot_hack_tank_get_goal_origin( tanks[ i ] );
+		if ( isDefined( goal ) )
 		{
-			goal = self bot_hack_tank_get_goal_origin( tank );
-			if ( isDefined( goal ) )
+			if ( self addgoal( goal, 24, 2, "hack" ) )
 			{
-				if ( self addgoal( goal, 24, 2, "hack" ) )
-				{
-					self.goal_flag = tank;
-					return;
-				}
+				self.goal_flag = tanks[ i ];
+				return;
 			}
 		}
-		_k73 = getNextArrayKey( _a73, _k73 );
+		i++;
 	}
 }
 
-bot_hack_think()
+bot_hack_think() //checked partially changed to match cerberus output did not us foreach see github for more info
 {
 	if ( bot_hack_at_goal() )
 	{
 		self setstance( "crouch" );
-		wait 0,25;
+		wait 0.25;
 		self addgoal( self.origin, 24, 4, "hack" );
 		self pressusebutton( level.drone_hack_time + 1 );
 		wait ( level.drone_hack_time + 1 );
@@ -112,91 +103,77 @@ bot_hack_think()
 	{
 		self bot_hack_goal_pregame( tanks );
 	}
-	else
+	i = 0;
+	while ( i < tanks.size )
 	{
-		_a122 = tanks;
-		_k122 = getFirstArrayKey( _a122 );
-		while ( isDefined( _k122 ) )
+		if ( isDefined( tanks[ i ].owner ) && tanks[ i ].owner == self )
 		{
-			tank = _a122[ _k122 ];
-			if ( isDefined( tank.owner ) && tank.owner == self )
-			{
-			}
-			else
-			{
-				if ( !isDefined( tank.owner ) )
-				{
-					if ( self bot_hack_has_goal( tank ) )
-					{
-						return;
-					}
-					goal = self bot_hack_tank_get_goal_origin( tank );
-					if ( isDefined( goal ) )
-					{
-						self addgoal( goal, 24, 2, "hack" );
-						return;
-					}
-				}
-				if ( tank.isstunned && distancesquared( self.origin, tank.origin ) < 262144 )
-				{
-					goal = self bot_hack_tank_get_goal_origin( tank );
-					if ( isDefined( goal ) )
-					{
-						self addgoal( goal, 24, 3, "hack" );
-						return;
-					}
-				}
-			}
-			_k122 = getNextArrayKey( _a122, _k122 );
+			i++;
+			continue;
 		}
-		if ( !maps/mp/bots/_bot::bot_vehicle_weapon_ammo( "emp_grenade_mp" ) )
+		if ( !isDefined( tanks[ i ].owner ) )
 		{
-			ammo = getentarray( "weapon_scavenger_item_hack_mp", "classname" );
-			ammo = arraysort( ammo, self.origin );
-			_a162 = ammo;
-			_k162 = getFirstArrayKey( _a162 );
-			while ( isDefined( _k162 ) )
+			if ( self bot_hack_has_goal( tanks[ i ] ) )
 			{
-				bag = _a162[ _k162 ];
-				if ( findpath( self.origin, bag.origin, 0 ) )
-				{
-					self addgoal( bag.origin, 24, 2, "hack" );
-					return;
-				}
-				_k162 = getNextArrayKey( _a162, _k162 );
+				return;
 			}
-			return;
+			goal = self bot_hack_tank_get_goal_origin( tanks[ i ] );
+			if ( isDefined( goal ) )
+			{
+				self addgoal( goal, 24, 2, "hack" );
+				return;
+			}
 		}
-		_a174 = tanks;
-		_k174 = getFirstArrayKey( _a174 );
-		while ( isDefined( _k174 ) )
+		if ( tanks[ i ].isstunned && distancesquared( self.origin, tanks[ i ].origin ) < 262144 )
 		{
-			tank = _a174[ _k174 ];
-			if ( isDefined( tank.owner ) && tank.owner == self )
+			goal = self bot_hack_tank_get_goal_origin( tanks[ i ] );
+			if ( isDefined( goal ) )
 			{
+				self addgoal( goal, 24, 3, "hack" );
+				return;
 			}
-			else
-			{
-				if ( tank.isstunned )
-				{
-					break;
-				}
-				else
-				{
-					if ( self throwgrenade( "emp_grenade_mp", tank.origin ) )
-					{
-						self waittill( "grenade_fire" );
-						goal = self bot_hack_tank_get_goal_origin( tank );
-						if ( isDefined( goal ) )
-						{
-							self addgoal( goal, 24, 3, "hack" );
-							wait 0,5;
-							return;
-						}
-					}
-				}
-			}
-			_k174 = getNextArrayKey( _a174, _k174 );
 		}
+		i++;
+	}
+	if ( !maps/mp/bots/_bot::bot_vehicle_weapon_ammo( "emp_grenade_mp" ) )
+	{
+		ammo = getentarray( "weapon_scavenger_item_hack_mp", "classname" );
+		ammo = arraysort( ammo, self.origin );
+		foreach ( bag in ammo )
+		{
+			if ( findpath( self.origin, bag.origin, 0 ) )
+			{
+				self addgoal( bag.origin, 24, 2, "hack" );
+				return;
+			}
+		}
+		return;
+	}
+	i = 0;
+	while ( i < tanks.size )
+	{
+		if ( isDefined( tanks[ i ].owner ) && tanks[ i ].owner == self )
+		{
+			i++;
+			continue;
+		}
+		if ( tanks[ i ].isstunned )
+		{
+			i++;
+			continue;
+		}
+		if ( self throwgrenade( "emp_grenade_mp", tanks[ i ].origin ) )
+		{
+			self waittill( "grenade_fire" );
+			goal = self bot_hack_tank_get_goal_origin( tanks[ i ] );
+			if ( isDefined( goal ) )
+			{
+				self addgoal( goal, 24, 3, "hack" );
+				wait 0.5;
+				return;
+			}
+		}
+		i++;
 	}
 }
+

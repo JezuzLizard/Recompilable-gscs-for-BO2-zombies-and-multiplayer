@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_gameobjects;
 #include maps/mp/bots/_bot_combat;
 #include maps/mp/bots/_bot;
@@ -5,7 +6,7 @@
 #include common_scripts/utility;
 #include maps/mp/gametypes/ctf;
 
-bot_ctf_think()
+bot_ctf_think() //checked changed to match cerberus output changed at own discretion
 {
 	time = getTime();
 	if ( time < self.bot.update_objective )
@@ -22,25 +23,16 @@ bot_ctf_think()
 			node = random( nodes );
 			if ( cointoss() )
 			{
+				self maps/mp/bots/_bot_combat::bot_combat_throw_proximity( node.origin, flag_mine.curorigin );
 			}
-			else
-			{
-			}
-			self maps/mp/bots/_bot_combat::bot_combat_throw_proximity( node.origin, flag_mine.curorigin );
 			if ( cointoss() )
 			{
+				self maps/mp/bots/_bot_combat::bot_combat_toss_frag( node.origin, flag_mine.curorigin );
 			}
-			else
-			{
-			}
-			self maps/mp/bots/_bot_combat::bot_combat_toss_frag( node.origin, flag_mine.curorigin );
 			if ( cointoss() )
 			{
+				self maps/mp/bots/_bot_combat::bot_combat_toss_flash( node.origin, flag_mine.curorigin );
 			}
-			else
-			{
-			}
-			self maps/mp/bots/_bot_combat::bot_combat_toss_flash( node.origin, flag_mine.curorigin );
 		}
 	}
 	if ( bot_should_patrol_flag() )
@@ -58,27 +50,24 @@ bot_ctf_think()
 	home_mine = flag_mine ctf_flag_get_home();
 	if ( ctf_has_flag( flag_enemy ) && self issprinting() && distancesquared( self.origin, home_mine ) < 36864 )
 	{
-		if ( bot_dot_product( home_mine ) > 0,9 )
+		if ( bot_dot_product( home_mine ) > 0.9 )
 		{
 			self bot_dive_to_prone( "stand" );
 		}
 	}
-	else
+	else if ( !flag_mine ishome() && !isDefined( flag_mine.carrier ) )
 	{
-		if ( !flag_mine ishome() && !isDefined( flag_mine.carrier ) )
+		if ( self issprinting() && distancesquared( self.origin, flag_mine.curorigin ) < 36864 )
 		{
-			if ( self issprinting() && distancesquared( self.origin, flag_mine.curorigin ) < 36864 )
+			if ( bot_dot_product( flag_mine.curorigin ) > 0.9 )
 			{
-				if ( bot_dot_product( flag_mine.curorigin ) > 0,9 )
-				{
-					self bot_dive_to_prone( "stand" );
-				}
+				self bot_dive_to_prone( "stand" );
 			}
 		}
 	}
 }
 
-bot_should_patrol_flag()
+bot_should_patrol_flag() //checked matches cerberus output
 {
 	flag_mine = ctf_get_flag( self.team );
 	flag_enemy = ctf_get_flag( getotherteam( self.team ) );
@@ -113,36 +102,33 @@ bot_should_patrol_flag()
 	return 0;
 }
 
-ctf_get_flag( team )
+ctf_get_flag( team ) //checked changed to match cerberus output
 {
-	_a115 = level.flags;
-	_k115 = getFirstArrayKey( _a115 );
-	while ( isDefined( _k115 ) )
+	foreach ( f in level.flags )
 	{
-		f = _a115[ _k115 ];
 		if ( f maps/mp/gametypes/_gameobjects::getownerteam() == team )
 		{
 			return f;
 		}
-		_k115 = getNextArrayKey( _a115, _k115 );
 	}
 	return undefined;
 }
 
-ctf_flag_get_home()
+ctf_flag_get_home() //checked matches cerberus output
 {
 	return self.trigger.baseorigin;
 }
 
-ctf_has_flag( flag )
+ctf_has_flag( flag ) //checked changed at own discretion
 {
-	if ( isDefined( flag.carrier ) )
+	if ( isDefined( flag.carrier ) && flag.carrier == self )
 	{
-		return flag.carrier == self;
+		return 1;
 	}
+	return 0;
 }
 
-bot_ctf_capture()
+bot_ctf_capture() //checked changed to match cerberus output
 {
 	flag_enemy = ctf_get_flag( getotherteam( self.team ) );
 	flag_mine = ctf_get_flag( self.team );
@@ -173,16 +159,13 @@ bot_ctf_capture()
 			self addgoal( flag_enemy.carrier.origin, 16, 3, "ctf_flag" );
 		}
 	}
-	else
+	else if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "ctf_flag", flag_enemy.curorigin, 16 ) <= 1 )
 	{
-		if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "ctf_flag", flag_enemy.curorigin, 16 ) <= 1 )
-		{
-			self addgoal( flag_enemy.curorigin, 16, 3, "ctf_flag" );
-		}
+		self addgoal( flag_enemy.curorigin, 16, 3, "ctf_flag" );
 	}
 }
 
-bot_ctf_defend()
+bot_ctf_defend() //checked changed to match cerberus output
 {
 	flag_enemy = ctf_get_flag( getotherteam( self.team ) );
 	flag_mine = ctf_get_flag( self.team );
@@ -203,24 +186,18 @@ bot_ctf_defend()
 			return self bot_ctf_add_goal( flag_mine.curorigin, 4, "ctf_flag" );
 		}
 	}
-	else
+	else if ( !flag_enemy ishome() || distance2dsquared( self.origin, home_enemy ) > 250000 )
 	{
-		if ( !flag_enemy ishome() || distance2dsquared( self.origin, home_enemy ) > 250000 )
-		{
-			return self bot_ctf_add_goal( flag_mine.curorigin, 4, "ctf_flag" );
-		}
-		else
-		{
-			if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "ctf_flag", home_enemy, 16 ) <= 1 )
-			{
-				self addgoal( home_enemy, 16, 4, "ctf_flag" );
-			}
-		}
+		return self bot_ctf_add_goal( flag_mine.curorigin, 4, "ctf_flag" );
+	}
+	else if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "ctf_flag", home_enemy, 16 ) <= 1 )
+	{
+		self addgoal( home_enemy, 16, 4, "ctf_flag" );
 	}
 	return 1;
 }
 
-bot_ctf_add_goal( origin, goal_priority, goal_name )
+bot_ctf_add_goal( origin, goal_priority, goal_name ) //checked matches cerberus output
 {
 	goal = undefined;
 	if ( findpath( self.origin, origin, undefined, 0, 1 ) )
@@ -247,7 +224,7 @@ bot_ctf_add_goal( origin, goal_priority, goal_name )
 	return 0;
 }
 
-bot_get_look_at()
+bot_get_look_at() //checked matches cerberus output
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( self.origin, 1 );
 	if ( isDefined( enemy ) )
@@ -276,7 +253,7 @@ bot_get_look_at()
 	return home_mine;
 }
 
-bot_patrol_flag()
+bot_patrol_flag() //checked changed to match cerberus output
 {
 	self cancelgoal( "ctf_flag" );
 	flag_mine = ctf_get_flag( self.team );
@@ -356,11 +333,12 @@ bot_patrol_flag()
 		return;
 	}
 	nodes = getvisiblenodes( nearest );
+	/*
 /#
 	assert( nodes.size );
 #/
-	i = randomint( nodes.size );
-	while ( i < nodes.size )
+	*/
+	for ( i = randomint(nodes.size); i < nodes.size; i++ )
 	{
 		if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "ctf_flag_patrol", nodes[ i ].origin, 256 ) == 0 )
 		{
@@ -368,37 +346,37 @@ bot_patrol_flag()
 			self.bot.update_objective_patrol = getTime() + randomintrange( 3000, 6000 );
 			return;
 		}
-		i++;
 	}
 }
 
-base_nearest_node( flag )
+base_nearest_node( flag ) //checked matches cerberus output
 {
 	home = flag ctf_flag_get_home();
 	nodes = getnodesinradiussorted( home, 256, 0 );
+	/*
 /#
 	assert( nodes.size );
 #/
+	*/
 	return nodes[ 0 ];
 }
 
-bot_ctf_random_visible_node( origin )
+bot_ctf_random_visible_node( origin ) //checked changed to match cerberus output
 {
 	nodes = getnodesinradius( origin, 384, 0, 256 );
 	nearest = maps/mp/bots/_bot_combat::bot_nearest_node( origin );
-	while ( isDefined( nearest ) && nodes.size )
+	if ( isDefined( nearest ) && nodes.size )
 	{
 		current = randomintrange( 0, nodes.size );
-		i = 0;
-		while ( i < nodes.size )
+		for ( i = 0; i < nodes.size; i++ )
 		{
 			current = ( current + 1 ) % nodes.size;
 			if ( nodesvisible( nodes[ current ], nearest ) )
 			{
 				return nodes[ current ];
 			}
-			i++;
 		}
 	}
 	return undefined;
 }
+

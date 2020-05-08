@@ -1,20 +1,18 @@
+//checked changed includes to match cerberus output
+#include maps/mp/bots/_bot;
 #include maps/mp/bots/_bot_combat;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 #include maps/mp/gametypes/dem;
 
-bot_dem_think()
+bot_dem_think() //checked changed to match cerberus output
 {
-	while ( !isDefined( level.bombzones[ 0 ].dem_nodes ) )
+	if ( !isDefined( level.bombzones[ 0 ].dem_nodes ) )
 	{
-		_a11 = level.bombzones;
-		_k11 = getFirstArrayKey( _a11 );
-		while ( isDefined( _k11 ) )
+		foreach ( zone in level.bombzones )
 		{
-			zone = _a11[ _k11 ];
 			zone.dem_nodes = [];
 			zone.dem_nodes = getnodesinradius( zone.trigger.origin, 1024, 64, 128, "Path" );
-			_k11 = getNextArrayKey( _a11, _k11 );
 		}
 	}
 	if ( self.team == game[ "attackers" ] )
@@ -27,55 +25,45 @@ bot_dem_think()
 	}
 }
 
-bot_dem_attack_think()
+bot_dem_attack_think() //checked partially changed to match cerberus output changed at own discretion
 {
 	zones = dem_get_alive_zones();
 	if ( !zones.size )
 	{
 		return;
 	}
-	while ( !isDefined( self.goal_flag ) )
+	if ( !isDefined( self.goal_flag ) )
 	{
 		zones = array_randomize( zones );
-		_a42 = zones;
-		_k42 = getFirstArrayKey( _a42 );
-		while ( isDefined( _k42 ) )
+		foreach ( zone in zones )
 		{
-			zone = _a42[ _k42 ];
 			if ( zones.size == 1 || is_true( zone.bombplanted ) && !is_true( zone.bombexploded ) )
 			{
 				self.goal_flag = zone;
 				break;
 			}
-			else if ( randomint( 100 ) < 50 )
+			if ( randomint( 100 ) < 50 )
 			{
 				self.goal_flag = zone;
 				break;
 			}
-			else
-			{
-				_k42 = getNextArrayKey( _a42, _k42 );
-			}
 		}
 	}
-	if ( isDefined( self.goal_flag ) )
+	else if ( isDefined( self.goal_flag ) )
 	{
 		if ( is_true( self.goal_flag.bombexploded ) )
 		{
 			self.goal_flag = undefined;
 			self cancelgoal( "dem_guard" );
 			self cancelgoal( "bomb" );
-			return;
 		}
 		else if ( is_true( self.goal_flag.bombplanted ) )
 		{
 			self bot_dem_guard( self.goal_flag, self.goal_flag.dem_nodes, self.goal_flag.trigger.origin );
-			return;
 		}
 		else if ( self bot_dem_friend_interacting( self.goal_flag.trigger.origin ) )
 		{
 			self bot_dem_guard( self.goal_flag, self.goal_flag.dem_nodes, self.goal_flag.trigger.origin );
-			return;
 		}
 		else
 		{
@@ -84,50 +72,41 @@ bot_dem_attack_think()
 	}
 }
 
-bot_dem_defend_think()
+bot_dem_defend_think() //checked partially changed to match cerberus output changed at own discretion
 {
 	zones = dem_get_alive_zones();
 	if ( !zones.size )
 	{
 		return;
 	}
-	while ( !isDefined( self.goal_flag ) )
+	if ( !isDefined( self.goal_flag ) )
 	{
 		zones = array_randomize( zones );
-		_a95 = zones;
-		_k95 = getFirstArrayKey( _a95 );
-		while ( isDefined( _k95 ) )
+		foreach ( zone in zones )
 		{
-			zone = _a95[ _k95 ];
 			if ( zones.size == 1 || is_true( zone.bombplanted ) && !is_true( zone.bombexploded ) )
 			{
 				self.goal_flag = zone;
 				break;
 			}
-			else if ( randomint( 100 ) < 50 )
+			if ( randomint( 100 ) < 50 )
 			{
 				self.goal_flag = zone;
 				break;
 			}
-			else
-			{
-				_k95 = getNextArrayKey( _a95, _k95 );
-			}
 		}
 	}
-	if ( isDefined( self.goal_flag ) )
+	else if ( isDefined( self.goal_flag ) )
 	{
 		if ( is_true( self.goal_flag.bombexploded ) )
 		{
 			self.goal_flag = undefined;
 			self cancelgoal( "dem_guard" );
 			self cancelgoal( "bomb" );
-			return;
 		}
 		else if ( is_true( self.goal_flag.bombplanted ) && !self bot_dem_friend_interacting( self.goal_flag.trigger.origin ) )
 		{
 			self bot_dem_defuse( self.goal_flag );
-			return;
 		}
 		else
 		{
@@ -136,7 +115,7 @@ bot_dem_defend_think()
 	}
 }
 
-bot_dem_attack( zone )
+bot_dem_attack( zone ) //checked changed to match cerberus output
 {
 	self cancelgoal( "dem_guard" );
 	if ( !self hasgoal( "bomb" ) )
@@ -162,31 +141,27 @@ bot_dem_attack( zone )
 	self addgoal( self.bomb_goal, 48, 4, "bomb" );
 	self setstance( "prone" );
 	self pressusebutton( level.planttime + 1 );
-	wait 0,5;
+	wait 0.5;
 	if ( is_true( self.isplanting ) )
 	{
 		wait ( level.planttime + 1 );
 	}
 	self pressusebutton( 0 );
 	defenders = self bot_get_enemies();
-	_a172 = defenders;
-	_k172 = getFirstArrayKey( _a172 );
-	while ( isDefined( _k172 ) )
+	foreach ( defender in defenders )
 	{
-		defender = _a172[ _k172 ];
 		if ( defender is_bot() )
 		{
 			defender.goal_flag = undefined;
 		}
-		_k172 = getNextArrayKey( _a172, _k172 );
 	}
 	self setstance( "crouch" );
-	wait 0,25;
+	wait 0.25;
 	self cancelgoal( "bomb" );
 	self setstance( "stand" );
 }
 
-bot_dem_guard( zone, nodes, origin )
+bot_dem_guard( zone, nodes, origin ) //checked matches cerberus output
 {
 	self cancelgoal( "bomb" );
 	enemy = self bot_dem_enemy_interacting( origin );
@@ -212,7 +187,7 @@ bot_dem_guard( zone, nodes, origin )
 	self addgoal( node, 24, 2, "dem_guard" );
 }
 
-bot_dem_defuse( zone )
+bot_dem_defuse( zone ) //checked matches cerberus output
 {
 	self cancelgoal( "dem_guard" );
 	if ( !self hasgoal( "bomb" ) )
@@ -249,65 +224,51 @@ bot_dem_defuse( zone )
 		self setstance( "prone" );
 	}
 	self pressusebutton( level.defusetime + 1 );
-	wait 0,5;
+	wait 0.5;
 	if ( is_true( self.isdefusing ) )
 	{
 		wait ( level.defusetime + 1 );
 	}
 	self pressusebutton( 0 );
 	self setstance( "crouch" );
-	wait 0,25;
+	wait 0.25;
 	self cancelgoal( "bomb" );
 	self setstance( "stand" );
 }
 
-bot_dem_enemy_interacting( origin )
+bot_dem_enemy_interacting( origin ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
 	enemies = maps/mp/bots/_bot::bot_get_enemies();
-	_a288 = enemies;
-	_k288 = getFirstArrayKey( _a288 );
-	while ( isDefined( _k288 ) )
+	foreach ( enemy in enemies )
 	{
-		enemy = _a288[ _k288 ];
 		if ( distancesquared( enemy.origin, origin ) > 65536 )
 		{
 		}
-		else
+		else if ( is_true( enemy.isdefusing ) || is_true( enemy.isplanting ) )
 		{
-			if ( is_true( enemy.isdefusing ) || is_true( enemy.isplanting ) )
-			{
-				return enemy;
-			}
+			return enemy;
 		}
-		_k288 = getNextArrayKey( _a288, _k288 );
 	}
 	return undefined;
 }
 
-bot_dem_friend_interacting( origin )
+bot_dem_friend_interacting( origin ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
 	friends = maps/mp/bots/_bot::bot_get_friends();
-	_a308 = friends;
-	_k308 = getFirstArrayKey( _a308 );
-	while ( isDefined( _k308 ) )
+	foreach ( friend in friends )
 	{
-		friend = _a308[ _k308 ];
 		if ( distancesquared( friend.origin, origin ) > 65536 )
 		{
 		}
-		else
+		else if ( is_true( friend.isdefusing ) || is_true( friend.isplanting ) )
 		{
-			if ( is_true( friend.isdefusing ) || is_true( friend.isplanting ) )
-			{
-				return 1;
-			}
+			return 1;
 		}
-		_k308 = getNextArrayKey( _a308, _k308 );
 	}
 	return 0;
 }
 
-bot_dem_enemy_nearby( origin )
+bot_dem_enemy_nearby( origin ) //checked matches cerberus output
 {
 	enemy = maps/mp/bots/_bot::bot_get_closest_enemy( origin, 1 );
 	if ( isDefined( enemy ) )
@@ -320,14 +281,11 @@ bot_dem_enemy_nearby( origin )
 	return undefined;
 }
 
-dem_get_alive_zones()
+dem_get_alive_zones() //checked partially changed to match cerberus output did not use continue see github for more info
 {
 	zones = [];
-	_a343 = level.bombzones;
-	_k343 = getFirstArrayKey( _a343 );
-	while ( isDefined( _k343 ) )
+	foreach ( zone in level.bombzones )
 	{
-		zone = _a343[ _k343 ];
 		if ( is_true( zone.bombexploded ) )
 		{
 		}
@@ -335,14 +293,13 @@ dem_get_alive_zones()
 		{
 			zones[ zones.size ] = zone;
 		}
-		_k343 = getNextArrayKey( _a343, _k343 );
 	}
 	return zones;
 }
 
-dem_get_bomb_goal( ent )
+dem_get_bomb_goal( ent ) //checked changed to match cerberus output
 {
-	while ( !isDefined( ent.bot_goals ) )
+	if ( !isDefined( ent.bot_goals ) )
 	{
 		goals = [];
 		ent.bot_goals = [];
@@ -354,28 +311,21 @@ dem_get_bomb_goal( ent )
 		dir = vectorScale( dir, 48 );
 		goals[ 2 ] = ent.origin + dir;
 		goals[ 3 ] = ent.origin - dir;
-		_a375 = goals;
-		_k375 = getFirstArrayKey( _a375 );
-		while ( isDefined( _k375 ) )
+		foreach ( goal in goals )
 		{
-			goal = _a375[ _k375 ];
 			start = goal + vectorScale( ( 0, 0, 1 ), 128 );
 			trace = bullettrace( start, goal, 0, undefined );
 			ent.bot_goals[ ent.bot_goals.size ] = trace[ "position" ];
-			_k375 = getNextArrayKey( _a375, _k375 );
 		}
 	}
 	goals = array_randomize( ent.bot_goals );
-	_a386 = goals;
-	_k386 = getFirstArrayKey( _a386 );
-	while ( isDefined( _k386 ) )
+	foreach ( goal in goals )
 	{
-		goal = _a386[ _k386 ];
 		if ( findpath( self.origin, goal, 0 ) )
 		{
 			return goal;
 		}
-		_k386 = getNextArrayKey( _a386, _k386 );
 	}
 	return undefined;
 }
+

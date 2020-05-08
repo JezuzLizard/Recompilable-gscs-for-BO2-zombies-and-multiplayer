@@ -1,10 +1,11 @@
+//checked includes match cerberus output
 #include maps/mp/bots/_bot;
 #include maps/mp/bots/_bot_combat;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 #include maps/mp/gametypes/dom;
 
-bot_dom_think()
+bot_dom_think() //checked changed to match cerberus output
 {
 	time = getTime();
 	if ( time < self.bot.update_objective )
@@ -41,20 +42,17 @@ bot_dom_think()
 	{
 		self bot_move_to_flag( flag );
 	}
-	else
+	else if ( !dom_is_game_start() )
 	{
-		if ( !dom_is_game_start() )
-		{
-			self bot_flag_grenade( flag );
-		}
-		if ( distancesquared( self.origin, flag.origin ) < ( flag.radius * flag.radius ) && self istouching( flag.useobj.trigger ) )
-		{
-			self bot_capture_flag( flag );
-		}
+		self bot_flag_grenade( flag );
+	}
+	if ( distancesquared( self.origin, flag.origin ) < ( flag.radius * flag.radius ) && self istouching( flag.useobj.trigger ) )
+	{
+		self bot_capture_flag( flag );
 	}
 }
 
-bot_move_to_flag( flag )
+bot_move_to_flag( flag ) //checked matches cerberus output
 {
 	if ( level.script == "mp_frostbite" )
 	{
@@ -64,19 +62,21 @@ bot_move_to_flag( flag )
 	{
 		nodes = getnodesinradius( flag.origin, flag.radius, 0 );
 	}
+	/*
 /#
 	assert( nodes.size );
 #/
+	*/
 	node = random( nodes );
 	self addgoal( node, 24, 3, "dom_flag" );
 }
 
-bot_is_capturing_flag()
+bot_is_capturing_flag() //checked matches cerberus output
 {
 	return self atgoal( "dom_flag" );
 }
 
-bot_has_flag_goal( flag )
+bot_has_flag_goal( flag ) //checked matches cerberus output
 {
 	origin = self getgoal( "dom_flag" );
 	if ( isDefined( origin ) )
@@ -89,7 +89,7 @@ bot_has_flag_goal( flag )
 	return 0;
 }
 
-bot_has_no_goal()
+bot_has_no_goal() //checked matches cerberus output
 {
 	origin = self getgoal( "dom_flag" );
 	if ( isDefined( origin ) )
@@ -99,16 +99,13 @@ bot_has_no_goal()
 	return 1;
 }
 
-bot_goal_is_enemy_flag()
+bot_goal_is_enemy_flag() //checked changed to match cerberus output
 {
 	origin = self getgoal( "dom_flag" );
-	while ( isDefined( origin ) )
+	if ( isDefined( origin ) )
 	{
-		_a130 = level.flags;
-		_k130 = getFirstArrayKey( _a130 );
-		while ( isDefined( _k130 ) )
+		foreach(flag in level.flags)
 		{
-			flag = _a130[ _k130 ];
 			if ( distancesquared( flag.origin, origin ) < ( flag.radius * flag.radius ) )
 			{
 				if ( flag getflagteam() != self.team || dom_is_flag_contested( flag ) )
@@ -116,13 +113,12 @@ bot_goal_is_enemy_flag()
 					return 1;
 				}
 			}
-			_k130 = getNextArrayKey( _a130, _k130 );
 		}
 	}
 	return 0;
 }
 
-bot_flag_grenade( flag )
+bot_flag_grenade( flag ) //checked matches cerberus output
 {
 	if ( flag getflagteam() != self.team )
 	{
@@ -145,7 +141,7 @@ bot_flag_grenade( flag )
 	}
 }
 
-bot_get_look_at( flag )
+bot_get_look_at( flag ) //checked matches cerberus output
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( self.origin, 0 );
 	if ( isDefined( enemy ) )
@@ -165,7 +161,7 @@ bot_get_look_at( flag )
 	return flag.origin;
 }
 
-bot_capture_flag( flag )
+bot_capture_flag( flag ) //checked changed to match cerberus output
 {
 	time = getTime();
 	if ( flag getflagteam() != self.team )
@@ -208,86 +204,77 @@ bot_capture_flag( flag )
 						self setstance( "crouch" );
 					}
 				}
-				else
+				else if ( cointoss() && !bot_friend_in_radius( self.origin, 384 ) )
 				{
-					if ( cointoss() && !bot_friend_in_radius( self.origin, 384 ) )
-					{
-						self addgoal( self.origin, 24, 4, "dom_flag" );
-						wait randomfloatrange( 0,5, 1 );
-						self setstance( "prone" );
-						self.bot.update_lookat += 5000;
-					}
+					self addgoal( self.origin, 24, 4, "dom_flag" );
+					wait randomfloatrange( 0.5, 1 );
+					self setstance( "prone" );
+					self.bot.update_lookat += 5000;
 				}
 			}
 		}
-		else
+		else if ( !dom_is_game_start() )
 		{
-			if ( !dom_is_game_start() )
+			if ( self getstance() == "stand" )
 			{
-				if ( self getstance() == "stand" )
-				{
-					wait randomfloatrange( 0,5, 1 );
-					self setstance( "crouch" );
-				}
+				wait randomfloatrange( 0.5, 1 );
+				self setstance( "crouch" );
 			}
 		}
 	}
-	else self clearlookat();
-	self cancelgoal( "dom_flag" );
-	if ( self getstance() == "crouch" )
+	else 
 	{
-		self setstance( "stand" );
-		wait 0,25;
-	}
-	else
-	{
-		if ( self getstance() == "prone" )
+		self clearlookat();
+		self cancelgoal( "dom_flag" );
+		if ( self getstance() == "crouch" )
+		{
+			self setstance( "stand" );
+			wait 0.25;
+		}
+		else if ( self getstance() == "prone" )
 		{
 			self setstance( "crouch" );
-			wait 0,25;
+			wait 0.25;
 			self setstance( "stand" );
-			wait 0,25;
+			wait 0.25;
 		}
 	}
 }
 
-dom_is_game_start()
+dom_is_game_start() //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.flags ) );
 #/
-	_a289 = level.flags;
-	_k289 = getFirstArrayKey( _a289 );
-	while ( isDefined( _k289 ) )
+	*/
+	foreach ( flag in level.flags )
 	{
-		flag = _a289[ _k289 ];
 		if ( flag getflagteam() != "neutral" )
 		{
 			return 0;
 		}
-		_k289 = getNextArrayKey( _a289, _k289 );
 	}
 	return 1;
 }
 
-dom_get_closest_flag()
+dom_get_closest_flag() //checked matches cerberus output
 {
 	flags = arraysort( level.flags, self.origin );
 	return flags[ 0 ];
 }
 
-dom_get_weighted_flag( owner )
+dom_get_weighted_flag( owner ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
+	/*
 /#
 	assert( isDefined( level.flags ) );
 #/
+	*/
 	best = undefined;
 	distsq = 9999999;
-	_a313 = level.flags;
-	_k313 = getFirstArrayKey( _a313 );
-	while ( isDefined( _k313 ) )
+	foreach ( flag in level.flags )
 	{
-		flag = _a313[ _k313 ];
 		if ( isDefined( owner ) && flag getflagteam() != owner )
 		{
 		}
@@ -300,23 +287,21 @@ dom_get_weighted_flag( owner )
 				distsq = d;
 			}
 		}
-		_k313 = getNextArrayKey( _a313, _k313 );
 	}
 	return best;
 }
 
-dom_get_weighted_enemy_flag( team )
+dom_get_weighted_enemy_flag( team ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
+	/*
 /#
 	assert( isDefined( level.flags ) );
 #/
+	*/
 	best = undefined;
 	distsq = 9999999;
-	_a339 = level.flags;
-	_k339 = getFirstArrayKey( _a339 );
-	while ( isDefined( _k339 ) )
+	foreach ( flag in level.flags )
 	{
-		flag = _a339[ _k339 ];
 		if ( flag getflagteam() == team )
 		{
 		}
@@ -329,28 +314,25 @@ dom_get_weighted_enemy_flag( team )
 				distsq = d;
 			}
 		}
-		_k339 = getNextArrayKey( _a339, _k339 );
 	}
 	return best;
 }
 
-dom_is_flag_contested( flag )
+dom_is_flag_contested( flag ) //checked changed at own discretion
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( flag.origin, 0 );
-	if ( isDefined( enemy ) )
+	if ( isDefined( enemy ) && distancesquared( enemy.origin, flag.origin ) < 147456 )
 	{
-		return distancesquared( enemy.origin, flag.origin ) < 147456;
+		return 1;
 	}
+	return 0;
 }
 
-dom_has_two_flags( team )
+dom_has_two_flags( team ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
 	count = 0;
-	_a368 = level.flags;
-	_k368 = getFirstArrayKey( _a368 );
-	while ( isDefined( _k368 ) )
+	foreach ( flag in level.flags )
 	{
-		flag = _a368[ _k368 ];
 		if ( dom_is_flag_contested( flag ) )
 		{
 		}
@@ -361,23 +343,21 @@ dom_has_two_flags( team )
 				count++;
 			}
 		}
-		_k368 = getNextArrayKey( _a368, _k368 );
 	}
 	return count >= 2;
 }
 
-dom_get_weighted_contested_flag( team )
+dom_get_weighted_contested_flag( team ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
+	/*
 /#
 	assert( isDefined( level.flags ) );
 #/
+	*/
 	best = undefined;
 	distsq = 9999999;
-	_a391 = level.flags;
-	_k391 = getFirstArrayKey( _a391 );
-	while ( isDefined( _k391 ) )
+	foreach ( flag in level.flags )
 	{
-		flag = _a391[ _k391 ];
 		if ( !dom_is_flag_contested( flag ) )
 		{
 		}
@@ -390,35 +370,34 @@ dom_get_weighted_contested_flag( team )
 				distsq = d;
 			}
 		}
-		_k391 = getNextArrayKey( _a391, _k391 );
 	}
 	return best;
 }
 
-dom_get_random_flag( owner )
+dom_get_random_flag( owner ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.flags ) );
 #/
+	*/
 	flagindex = randomintrange( 0, level.flags.size );
 	if ( !isDefined( owner ) )
 	{
 		return level.flags[ flagindex ];
 	}
-	i = 0;
-	while ( i < level.flags.size )
+	for ( i = 0; i < level.flags.size; i++ )
 	{
 		if ( level.flags[ flagindex ] getflagteam() == owner )
 		{
 			return level.flags[ flagindex ];
 		}
 		flagindex = ( flagindex + 1 ) % level.flags.size;
-		i++;
 	}
 	return undefined;
 }
 
-dom_get_best_flag( team )
+dom_get_best_flag( team ) //checked matches cerberus output
 {
 	flag1 = dom_get_weighted_enemy_flag( team );
 	flag2 = dom_get_weighted_contested_flag( team );
@@ -452,7 +431,7 @@ dom_get_best_flag( team )
 	}
 }
 
-bot_tactical_insertion( flag )
+bot_tactical_insertion( flag ) //checked matches cerberus output
 {
 	if ( self getweaponammostock( "tactical_insertion_mp" ) <= 0 )
 	{
@@ -481,3 +460,4 @@ bot_tactical_insertion( flag )
 	}
 	return 0;
 }
+

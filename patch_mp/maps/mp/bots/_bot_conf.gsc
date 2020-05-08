@@ -1,7 +1,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-bot_conf_think()
+bot_conf_think() //checked matches cerberus output
 {
 	time = getTime();
 	if ( time < self.bot.update_objective )
@@ -20,65 +20,64 @@ bot_conf_think()
 	conf_get_tag_in_sight();
 }
 
-conf_get_tag_in_sight()
+conf_get_tag_in_sight() //checked partially changed to match cerberus output did not use foreach see github for more info
 {
 	angles = self getplayerangles();
 	forward = anglesToForward( angles );
 	forward = vectornormalize( forward );
 	closest = 999999;
-	_a41 = level.dogtags;
-	_k41 = getFirstArrayKey( _a41 );
-	while ( isDefined( _k41 ) )
+	tags = level.dogtags;
+	i = 0;
+	while ( i < tags.size )
 	{
-		tag = _a41[ _k41 ];
-		if ( is_true( tag.unreachable ) )
+		if ( is_true( tags[ i ].unreachable ) )
 		{
+			i++;
+			continue;
 		}
-		else distsq = distancesquared( tag.curorigin, self.origin );
+		distsq = distancesquared( tags[ i ].curorigin, self.origin );
 		if ( distsq > closest )
 		{
+			i++;
+			continue;
 		}
-		else delta = tag.curorigin - self.origin;
+		delta = tags[ i ].curorigin - self.origin;
 		delta = vectornormalize( delta );
 		dot = vectordot( forward, delta );
 		if ( dot < self.bot.fov && distsq > 40000 )
+		{ 
+			i++;
+			continue;
+		}
+		if ( dot > self.bot.fov && distsq > 1440000 )
 		{
+			i++;
+			continue;
+		}
+		nearest = getnearestnode( tags[ i ].curorigin );
+		if ( !isDefined( nearest ) )
+		{
+			tags[ i ].unreachable = 1;
+			i++;
+			continue;
+		}
+		if ( ( tags[ i ].curorigin[ 2 ] - nearest.origin[ 2 ] ) > 18 )
+		{
+			tags[ i ].unreachable = 1;
+			i++;
+			continue;
+		}
+		if ( !isDefined( tags[ i ].unreachable ) && !findpath( self.origin, tags[ i ].curorigin, tags[ i ], 0, 1 ) )
+		{
+			tags[ i ].unreachable = 1;
 		}
 		else
 		{
-			if ( dot > self.bot.fov && distsq > 1440000 )
-			{
-				break;
-			}
-			else
-			{
-				nearest = getnearestnode( tag.curorigin );
-				if ( !isDefined( nearest ) )
-				{
-					tag.unreachable = 1;
-					break;
-				}
-				else if ( ( tag.curorigin[ 2 ] - nearest.origin[ 2 ] ) > 18 )
-				{
-					tag.unreachable = 1;
-					break;
-				}
-				else
-				{
-					if ( !isDefined( tag.unreachable ) && !findpath( self.origin, tag.curorigin, tag, 0, 1 ) )
-					{
-						tag.unreachable = 1;
-					}
-					else
-					{
-						tag.unreachable = 0;
-					}
-					closest = distsq;
-					closetag = tag;
-				}
-			}
+			tags[ i ].unreachable = 0;
 		}
-		_k41 = getNextArrayKey( _a41, _k41 );
+		closest = distsq;
+		closetag = tags[ i ];
+		i++;
 	}
 	if ( isDefined( closetag ) )
 	{
@@ -86,18 +85,16 @@ conf_get_tag_in_sight()
 	}
 }
 
-conf_tag_in_radius( origin, radius )
+conf_tag_in_radius( origin, radius ) //checked changed to match cerberus output
 {
-	_a106 = level.dogtags;
-	_k106 = getFirstArrayKey( _a106 );
-	while ( isDefined( _k106 ) )
+	foreach ( tag in level.dogtags )
 	{
-		tag = _a106[ _k106 ];
-		if ( distancesquared( origin, tag.curorigin ) < ( radius * radius ) )
+		if ( distancesquared( origin, tag.curorigin ) < radius * radius )
 		{
 			return 1;
 		}
-		_k106 = getNextArrayKey( _a106, _k106 );
 	}
 	return 0;
 }
+
+

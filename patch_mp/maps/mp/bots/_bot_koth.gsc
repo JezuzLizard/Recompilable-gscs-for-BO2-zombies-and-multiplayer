@@ -1,18 +1,21 @@
 #include maps/mp/bots/_bot_combat;
+#include maps/mp/bots/_bot;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 #include maps/mp/gametypes/koth;
 
-bot_koth_think()
+bot_koth_think() //checked matches cerberus output
 {
 	if ( !isDefined( level.zone.trig.goal_radius ) )
 	{
 		maxs = level.zone.trig getmaxs();
 		maxs = level.zone.trig.origin + maxs;
 		level.zone.trig.goal_radius = distance( level.zone.trig.origin, maxs );
+		/*
 /#
 		println( "distance: " + level.zone.trig.goal_radius );
 #/
+		*/
 		ground = bullettrace( level.zone.gameobject.curorigin, level.zone.gameobject.curorigin - vectorScale( ( 0, 0, 1 ), 1024 ), 0, undefined );
 		level.zone.trig.goal = ground[ "position" ] + vectorScale( ( 0, 0, 1 ), 8 );
 	}
@@ -28,12 +31,12 @@ bot_koth_think()
 	bot_hill_grenade();
 }
 
-bot_has_hill_goal()
+bot_has_hill_goal() //checked matches cerberus output
 {
 	origin = self getgoal( "koth_hill" );
 	if ( isDefined( origin ) )
 	{
-		if ( distance2dsquared( level.zone.gameobject.curorigin, origin ) < ( level.zone.trig.goal_radius * level.zone.trig.goal_radius ) )
+		if ( distance2dsquared( level.zone.gameobject.curorigin, origin ) < level.zone.trig.goal_radius * level.zone.trig.goal_radius )
 		{
 			return 1;
 		}
@@ -41,12 +44,12 @@ bot_has_hill_goal()
 	return 0;
 }
 
-bot_is_at_hill()
+bot_is_at_hill() //checked matches cerberus output
 {
 	return self atgoal( "koth_hill" );
 }
 
-bot_move_to_hill()
+bot_move_to_hill() //checked changed to match cerberus output
 {
 	if ( getTime() < ( self.bot.update_objective + 4000 ) )
 	{
@@ -57,19 +60,16 @@ bot_move_to_hill()
 	if ( self getstance() == "prone" )
 	{
 		self setstance( "crouch" );
-		wait 0,25;
+		wait 0.25;
 	}
 	if ( self getstance() == "crouch" )
 	{
 		self setstance( "stand" );
-		wait 0,25;
+		wait 0.25;
 	}
 	nodes = getnodesinradiussorted( level.zone.trig.goal, level.zone.trig.goal_radius, 0, 128 );
-	_a80 = nodes;
-	_k80 = getFirstArrayKey( _a80 );
-	while ( isDefined( _k80 ) )
+	foreach ( node in nodes )
 	{
-		node = _a80[ _k80 ];
 		if ( self maps/mp/bots/_bot::bot_friend_goal_in_radius( "koth_hill", node.origin, 64 ) == 0 )
 		{
 			if ( findpath( self.origin, node.origin, self, 0, 1 ) )
@@ -79,11 +79,10 @@ bot_move_to_hill()
 				return;
 			}
 		}
-		_k80 = getNextArrayKey( _a80, _k80 );
 	}
 }
 
-bot_get_look_at()
+bot_get_look_at() //checked matches cerberus output
 {
 	enemy = self maps/mp/bots/_bot::bot_get_closest_enemy( self.origin, 1 );
 	if ( isDefined( enemy ) )
@@ -116,7 +115,7 @@ bot_get_look_at()
 	return level.zone.gameobject.curorigin;
 }
 
-bot_capture_hill()
+bot_capture_hill() //checked changed to match cerberus output
 {
 	self addgoal( self.origin, 24, 3, "koth_hill" );
 	self setstance( "crouch" );
@@ -136,11 +135,10 @@ bot_capture_hill()
 			origin += dir;
 		}
 		self maps/mp/bots/_bot_combat::bot_combat_throw_proximity( origin );
-		while ( cointoss() && lengthsquared( self getvelocity() ) < 2 )
+		if ( cointoss() && lengthsquared( self getvelocity() ) < 2 )
 		{
 			nodes = getnodesinradius( level.zone.trig.goal, level.zone.trig.goal_radius + 128, 0, 128 );
-			i = randomintrange( 0, nodes.size );
-			while ( i < nodes.size )
+			for ( i = randomintrange( 0, nodes.size ); i < nodes.size; i++ )
 			{
 				node = nodes[ i ];
 				if ( distancesquared( node.origin, self.origin ) > 1024 )
@@ -155,39 +153,30 @@ bot_capture_hill()
 						}
 					}
 				}
-				else
-				{
-					i++;
-				}
 			}
 		}
 		self.bot.update_lookat = getTime() + randomintrange( 1500, 3000 );
 	}
 }
 
-any_other_team_touching( skip_team )
+any_other_team_touching( skip_team ) //checked partially changed to match cerberus output did not use foreach see github for more info
 {
-	_a194 = level.teams;
-	_k194 = getFirstArrayKey( _a194 );
-	while ( isDefined( _k194 ) )
+	teams = getArrayKeys( level.teams );
+	while ( i < teams.size )
 	{
-		team = _a194[ _k194 ];
-		if ( team == skip_team )
+		if ( teams[ i ] == skip_team )
 		{
+			continue;
 		}
-		else
+		if ( level.zone.gameobject.numtouching[ teams[ i ] ] )
 		{
-			if ( level.zone.gameobject.numtouching[ team ] )
-			{
-				return 1;
-			}
+			return 1;
 		}
-		_k194 = getNextArrayKey( _a194, _k194 );
 	}
 	return 0;
 }
 
-is_hill_contested( skip_team )
+is_hill_contested( skip_team ) //checked matches cerberus output
 {
 	if ( any_other_team_touching( skip_team ) )
 	{
@@ -201,7 +190,7 @@ is_hill_contested( skip_team )
 	return 0;
 }
 
-bot_hill_grenade()
+bot_hill_grenade() //checked changed to match cerberus output
 {
 	enemies = bot_get_enemies();
 	if ( !enemies.size )
@@ -264,16 +253,13 @@ bot_hill_grenade()
 			}
 		}
 	}
-	else
+	else if ( !self maps/mp/bots/_bot_combat::bot_combat_throw_lethal( origin ) )
 	{
-		if ( !self maps/mp/bots/_bot_combat::bot_combat_throw_lethal( origin ) )
-		{
-			self maps/mp/bots/_bot_combat::bot_combat_throw_tactical( origin );
-		}
+		self maps/mp/bots/_bot_combat::bot_combat_throw_tactical( origin );
 	}
 }
 
-bot_hill_tactical_insertion()
+bot_hill_tactical_insertion() //checked matches cerberus output
 {
 	if ( !self hasweapon( "tactical_insertion_mp" ) )
 	{
@@ -298,11 +284,15 @@ bot_hill_tactical_insertion()
 	}
 }
 
-hill_nearest_node()
+hill_nearest_node() //checked matches cerberus output
 {
 	nodes = getnodesinradiussorted( level.zone.gameobject.curorigin, 256, 0 );
+	/*
 /#
 	assert( nodes.size );
 #/
+	*/
 	return nodes[ 0 ];
 }
+
+
