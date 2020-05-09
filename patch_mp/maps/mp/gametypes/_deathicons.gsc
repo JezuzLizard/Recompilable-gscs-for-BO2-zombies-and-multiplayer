@@ -1,7 +1,8 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_deathicons;
 #include maps/mp/gametypes/_globallogic_utils;
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !isDefined( level.ragdoll_override ) )
 	{
@@ -15,7 +16,7 @@ init()
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -24,11 +25,11 @@ onplayerconnect()
 	}
 }
 
-updatedeathiconsenabled()
+updatedeathiconsenabled() //checked matches cerberus output
 {
 }
 
-adddeathicon( entity, dyingplayer, team, timeout )
+adddeathicon( entity, dyingplayer, team, timeout ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -37,11 +38,13 @@ adddeathicon( entity, dyingplayer, team, timeout )
 	iconorg = entity.origin;
 	dyingplayer endon( "spawned_player" );
 	dyingplayer endon( "disconnect" );
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_globallogic_utils::waittillslowprocessallowed();
+	/*
 /#
 	assert( isDefined( level.teams[ team ] ) );
 #/
+	*/
 	if ( getDvar( "ui_hud_showdeathicons" ) == "0" )
 	{
 		return;
@@ -58,7 +61,7 @@ adddeathicon( entity, dyingplayer, team, timeout )
 	newdeathicon.x = iconorg[ 0 ];
 	newdeathicon.y = iconorg[ 1 ];
 	newdeathicon.z = iconorg[ 2 ] + 54;
-	newdeathicon.alpha = 0,61;
+	newdeathicon.alpha = 0.61;
 	newdeathicon.archived = 1;
 	if ( level.splitscreen )
 	{
@@ -73,7 +76,7 @@ adddeathicon( entity, dyingplayer, team, timeout )
 	newdeathicon thread destroyslowly( timeout );
 }
 
-destroyslowly( timeout )
+destroyslowly( timeout ) //checked matches cerberus output
 {
 	self endon( "death" );
 	wait timeout;
@@ -83,7 +86,7 @@ destroyslowly( timeout )
 	self destroy();
 }
 
-ragdoll_override( idamage, smeansofdeath, sweapon, shitloc, vdir, vattackerorigin, deathanimduration, einflictor, ragdoll_jib, body )
+ragdoll_override( idamage, smeansofdeath, sweapon, shitloc, vdir, vattackerorigin, deathanimduration, einflictor, ragdoll_jib, body ) //checked matches cerberus output
 {
 	if ( smeansofdeath == "MOD_FALLING" && self isonground() == 1 )
 	{
@@ -96,3 +99,4 @@ ragdoll_override( idamage, smeansofdeath, sweapon, shitloc, vdir, vattackerorigi
 	}
 	return 0;
 }
+

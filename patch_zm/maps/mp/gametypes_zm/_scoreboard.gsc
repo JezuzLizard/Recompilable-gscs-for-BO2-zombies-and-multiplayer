@@ -1,5 +1,5 @@
 
-init()
+init() //checked matches cerberus output
 {
 	setdvar( "g_ScoresColor_Spectator", ".25 .25 .25" );
 	setdvar( "g_ScoresColor_Free", ".76 .78 .10" );

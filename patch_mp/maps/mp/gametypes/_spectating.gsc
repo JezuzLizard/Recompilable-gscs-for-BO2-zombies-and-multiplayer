@@ -1,18 +1,14 @@
 
-init()
+init() //checked changed to match cerberus output
 {
-	_a3 = level.teams;
-	_k3 = getFirstArrayKey( _a3 );
-	while ( isDefined( _k3 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a3[ _k3 ];
 		level.spectateoverride[ team ] = spawnstruct();
-		_k3 = getNextArrayKey( _a3, _k3 );
 	}
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -23,7 +19,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -33,7 +29,7 @@ onplayerspawned()
 	}
 }
 
-onjoinedteam()
+onjoinedteam() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -43,7 +39,7 @@ onjoinedteam()
 	}
 }
 
-onjoinedspectators()
+onjoinedspectators() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -53,18 +49,16 @@ onjoinedspectators()
 	}
 }
 
-updatespectatesettings()
+updatespectatesettings() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
-	index = 0;
-	while ( index < level.players.size )
+	for ( index = 0; index < level.players.size; index++ )
 	{
 		level.players[ index ] setspectatepermissions();
-		index++;
 	}
 }
 
-getsplitscreenteam()
+getsplitscreenteam() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	index = 0;
 	while ( index < level.players.size )
@@ -74,30 +68,27 @@ getsplitscreenteam()
 			index++;
 			continue;
 		}
-		else if ( level.players[ index ] == self )
+		if ( level.players[ index ] == self )
 		{
 			index++;
 			continue;
 		}
-		else if ( !self isplayeronsamemachine( level.players[ index ] ) )
+		if ( !self isplayeronsamemachine( level.players[ index ] ) )
 		{
 			index++;
 			continue;
 		}
-		else
+		team = level.players[ index ].sessionteam;
+		if ( team != "spectator" )
 		{
-			team = level.players[ index ].sessionteam;
-			if ( team != "spectator" )
-			{
-				return team;
-			}
+			return team;
 		}
 		index++;
 	}
 	return self.sessionteam;
 }
 
-otherlocalplayerstillalive()
+otherlocalplayerstillalive() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	index = 0;
 	while ( index < level.players.size )
@@ -107,47 +98,37 @@ otherlocalplayerstillalive()
 			index++;
 			continue;
 		}
-		else if ( level.players[ index ] == self )
+		if ( level.players[ index ] == self )
 		{
 			index++;
 			continue;
 		}
-		else if ( !self isplayeronsamemachine( level.players[ index ] ) )
+		if ( !self isplayeronsamemachine( level.players[ index ] ) )
 		{
 			index++;
 			continue;
 		}
-		else
+		if ( isalive( level.players[ index ] ) )
 		{
-			if ( isalive( level.players[ index ] ) )
-			{
-				return 1;
-			}
+			return 1;
 		}
 		index++;
 	}
 	return 0;
 }
 
-allowspectateallteams( allow )
+allowspectateallteams( allow ) //checked changed to match cerberus output
 {
-	_a114 = level.teams;
-	_k114 = getFirstArrayKey( _a114 );
-	while ( isDefined( _k114 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a114[ _k114 ];
 		self allowspectateteam( team, allow );
-		_k114 = getNextArrayKey( _a114, _k114 );
 	}
 }
 
-allowspectateallteamsexceptteam( skip_team, allow )
+allowspectateallteamsexceptteam( skip_team, allow ) //checked partially changed to match cerberus output did not use continue in foreach see github for more info
 {
-	_a122 = level.teams;
-	_k122 = getFirstArrayKey( _a122 );
-	while ( isDefined( _k122 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a122[ _k122 ];
 		if ( team == skip_team )
 		{
 		}
@@ -155,11 +136,10 @@ allowspectateallteamsexceptteam( skip_team, allow )
 		{
 			self allowspectateteam( team, allow );
 		}
-		_k122 = getNextArrayKey( _a122, _k122 );
 	}
 }
 
-setspectatepermissions()
+setspectatepermissions() //checked changed to match cerberus output
 {
 	team = self.sessionteam;
 	if ( team == "spectator" )
@@ -194,40 +174,37 @@ setspectatepermissions()
 				self allowspectateteam( "freelook", 0 );
 				self allowspectateteam( "localplayers", 1 );
 				break;
-		}
-		else
-		{
-			case 1:
-				if ( !level.teambased )
-				{
-					self allowspectateallteams( 1 );
-					self allowspectateteam( "none", 1 );
-					self allowspectateteam( "freelook", 0 );
-					self allowspectateteam( "localplayers", 1 );
-				}
-				else if ( isDefined( team ) && isDefined( level.teams[ team ] ) )
-				{
-					self allowspectateteam( team, 1 );
-					self allowspectateallteamsexceptteam( team, 0 );
-					self allowspectateteam( "freelook", 0 );
-					self allowspectateteam( "none", 0 );
-					self allowspectateteam( "localplayers", 1 );
-				}
-				else
-				{
-					self allowspectateallteams( 0 );
-					self allowspectateteam( "freelook", 0 );
-					self allowspectateteam( "none", 0 );
-					self allowspectateteam( "localplayers", 1 );
-				}
-				break;
-			case 2:
+			}
+		case 1:
+			if ( !level.teambased )
+			{
 				self allowspectateallteams( 1 );
-				self allowspectateteam( "freelook", 1 );
 				self allowspectateteam( "none", 1 );
+				self allowspectateteam( "freelook", 0 );
 				self allowspectateteam( "localplayers", 1 );
-				break;
-		}
+			}
+			else if ( isDefined( team ) && isDefined( level.teams[ team ] ) )
+			{
+				self allowspectateteam( team, 1 );
+				self allowspectateallteamsexceptteam( team, 0 );
+				self allowspectateteam( "freelook", 0 );
+				self allowspectateteam( "none", 0 );
+				self allowspectateteam( "localplayers", 1 );
+			}
+			else
+			{
+				self allowspectateallteams( 0 );
+				self allowspectateteam( "freelook", 0 );
+				self allowspectateteam( "none", 0 );
+				self allowspectateteam( "localplayers", 1 );
+			}
+			break;
+		case 2:
+			self allowspectateallteams( 1 );
+			self allowspectateteam( "freelook", 1 );
+			self allowspectateteam( "none", 1 );
+			self allowspectateteam( "localplayers", 1 );
+			break;
 	}
 	if ( isDefined( team ) && isDefined( level.teams[ team ] ) )
 	{
@@ -242,7 +219,7 @@ setspectatepermissions()
 	}
 }
 
-setspectatepermissionsformachine()
+setspectatepermissionsformachine() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	self setspectatepermissions();
 	if ( !self issplitscreen() )
@@ -267,10 +244,8 @@ setspectatepermissionsformachine()
 			index++;
 			continue;
 		}
-		else
-		{
-			level.players[ index ] setspectatepermissions();
-		}
+		level.players[ index ] setspectatepermissions();
 		index++;
 	}
 }
+

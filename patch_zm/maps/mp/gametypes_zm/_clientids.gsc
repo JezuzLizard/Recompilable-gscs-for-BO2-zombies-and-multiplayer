@@ -1,11 +1,11 @@
 
-init()
+init() //checked matches cerberus output
 {
 	level.clientid = 0;
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{

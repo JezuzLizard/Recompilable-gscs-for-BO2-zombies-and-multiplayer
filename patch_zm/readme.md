@@ -57,6 +57,7 @@ patch_zm/maps/mp/gametypes_zm/_hud.gsc
 patch_zm/maps/mp/gametypes_zm/_menus.gsc
 patch_zm/maps/mp/gametypes_zm/_perplayer.gsc
 patch_zm/maps/mp/gametypes_zm/_serversettings.gsc
+patch_zm/maps/mp/gametypes_zm/_spectating.gsc
 patch_zm/maps/mp/gametypes_zm/_tweakables.gsc
 patch_zm/maps/mp/gametypes_zm/_weapon_utils.gsc
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
@@ -93,7 +94,6 @@ patch_zm/maps/mp/gametypes_zm/_hud_message.gsc
 patch_zm/maps/mp/gametypes_zm/_hud_util.gsc
 patch_zm/maps/mp/gametypes_zm/_spawning.gsc
 patch_zm/maps/mp/gametypes_zm/_spawnlogic.gsc
-patch_zm/maps/mp/gametypes_zm/_spectating.gsc
 patch_zm/maps/mp/gametypes_zm/_weaponobjects.gsc
 patch_zm/maps/mp/gametypes_zm/_weapons.gsc
 ```

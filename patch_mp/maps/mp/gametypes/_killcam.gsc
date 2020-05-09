@@ -6,7 +6,7 @@
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachestring( &"PLATFORM_PRESS_TO_SKIP" );
 	precachestring( &"PLATFORM_PRESS_TO_RESPAWN" );
@@ -16,28 +16,24 @@ init()
 	initfinalkillcam();
 }
 
-initfinalkillcam()
+initfinalkillcam() //checked changed to match cerberus output
 {
 	level.finalkillcamsettings = [];
 	initfinalkillcamteam( "none" );
-	_a23 = level.teams;
-	_k23 = getFirstArrayKey( _a23 );
-	while ( isDefined( _k23 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a23[ _k23 ];
 		initfinalkillcamteam( team );
-		_k23 = getNextArrayKey( _a23, _k23 );
 	}
 	level.finalkillcam_winner = undefined;
 }
 
-initfinalkillcamteam( team )
+initfinalkillcamteam( team ) //checked matches cerberus output
 {
 	level.finalkillcamsettings[ team ] = spawnstruct();
 	clearfinalkillcamteam( team );
 }
 
-clearfinalkillcamteam( team )
+clearfinalkillcamteam( team ) //checked matches cerberus output
 {
 	level.finalkillcamsettings[ team ].spectatorclient = undefined;
 	level.finalkillcamsettings[ team ].weapon = undefined;
@@ -52,7 +48,7 @@ clearfinalkillcamteam( team )
 	level.finalkillcamsettings[ team ].attacker = undefined;
 }
 
-recordkillcamsettings( spectatorclient, targetentityindex, sweapon, deathtime, deathtimeoffset, offsettime, entityindex, entitystarttime, perks, killstreaks, attacker )
+recordkillcamsettings( spectatorclient, targetentityindex, sweapon, deathtime, deathtimeoffset, offsettime, entityindex, entitystarttime, perks, killstreaks, attacker ) //checked matches cerberus output
 {
 	if ( level.teambased && isDefined( attacker.team ) && isDefined( level.teams[ attacker.team ] ) )
 	{
@@ -82,21 +78,17 @@ recordkillcamsettings( spectatorclient, targetentityindex, sweapon, deathtime, d
 	level.finalkillcamsettings[ "none" ].attacker = attacker;
 }
 
-erasefinalkillcam()
+erasefinalkillcam() //checked changed to match cerberus output
 {
 	clearfinalkillcamteam( "none" );
-	_a89 = level.teams;
-	_k89 = getFirstArrayKey( _a89 );
-	while ( isDefined( _k89 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a89[ _k89 ];
 		clearfinalkillcamteam( team );
-		_k89 = getNextArrayKey( _a89, _k89 );
 	}
 	level.finalkillcam_winner = undefined;
 }
 
-finalkillcamwaiter()
+finalkillcamwaiter() //checked matches cerberus output
 {
 	if ( !isDefined( level.finalkillcam_winner ) )
 	{
@@ -106,7 +98,7 @@ finalkillcamwaiter()
 	return 1;
 }
 
-postroundfinalkillcam()
+postroundfinalkillcam() //checked matches cerberus output
 {
 	if ( isDefined( level.sidebet ) && level.sidebet )
 	{
@@ -117,7 +109,7 @@ postroundfinalkillcam()
 	finalkillcamwaiter();
 }
 
-dofinalkillcam()
+dofinalkillcam() //checked changed to match cerberus output
 {
 	level waittill( "play_final_killcam" );
 	level.infinalkillcam = 1;
@@ -138,45 +130,41 @@ dofinalkillcam()
 	}
 	visionsetnaked( getDvar( "mapname" ), 0 );
 	players = level.players;
-	index = 0;
-	while ( index < players.size )
+	for ( index = 0; index < players.size; index++ )
 	{
 		player = players[ index ];
 		player closemenu();
 		player closeingamemenu();
 		player thread finalkillcam( winner );
-		index++;
 	}
-	wait 0,1;
+	wait 0.1;
 	while ( areanyplayerswatchingthekillcam() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	level notify( "final_killcam_done" );
 	level.infinalkillcam = 0;
 }
 
-startlastkillcam()
+startlastkillcam() //checked matches cerberus output
 {
 }
 
-areanyplayerswatchingthekillcam()
+areanyplayerswatchingthekillcam() //checked changed to match cerberus output
 {
 	players = level.players;
-	index = 0;
-	while ( index < players.size )
+	for ( index = 0; index < players.size; index++ )
 	{
 		player = players[ index ];
 		if ( isDefined( player.killcam ) )
 		{
 			return 1;
 		}
-		index++;
 	}
 	return 0;
 }
 
-killcam( attackernum, targetnum, killcamentity, killcamentityindex, killcamentitystarttime, sweapon, deathtime, deathtimeoffset, offsettime, respawn, maxtime, perks, killstreaks, attacker )
+killcam( attackernum, targetnum, killcamentity, killcamentityindex, killcamentitystarttime, sweapon, deathtime, deathtimeoffset, offsettime, respawn, maxtime, perks, killstreaks, attacker ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned" );
@@ -222,18 +210,14 @@ killcam( attackernum, targetnum, killcamentity, killcamentityindex, killcamentit
 	self.killcamlength = killcamlength;
 	self.psoffsettime = offsettime;
 	recordkillcamsettings( attackernum, targetnum, sweapon, deathtime, deathtimeoffset, offsettime, killcamentityindex, killcamentitystarttime, perks, killstreaks, attacker );
-	_a268 = level.teams;
-	_k268 = getFirstArrayKey( _a268 );
-	while ( isDefined( _k268 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a268[ _k268 ];
 		self allowspectateteam( team, 1 );
-		_k268 = getNextArrayKey( _a268, _k268 );
 	}
 	self allowspectateteam( "freelook", 1 );
 	self allowspectateteam( "none", 1 );
 	self thread endedkillcamcleanup();
-	wait 0,05;
+	wait 0.05;
 	if ( self.archivetime <= predelay )
 	{
 		self.sessionstate = "dead";
@@ -266,7 +250,7 @@ killcam( attackernum, targetnum, killcamentity, killcamentityindex, killcamentit
 	self.psoffsettime = 0;
 }
 
-setkillcamentity( killcamentityindex, delayms )
+setkillcamentity( killcamentityindex, delayms ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
@@ -278,15 +262,15 @@ setkillcamentity( killcamentityindex, delayms )
 	self.killcamentity = killcamentityindex;
 }
 
-waitkillcamtime()
+waitkillcamtime() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
-	wait ( self.killcamlength - 0,05 );
+	wait ( self.killcamlength - 0.05 );
 	self notify( "end_killcam" );
 }
 
-waitfinalkillcamslowdown( deathtime, starttime )
+waitfinalkillcamslowdown( deathtime, starttime ) //checked matches cerberus output 
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
@@ -295,30 +279,30 @@ waitfinalkillcamslowdown( deathtime, starttime )
 	waitbeforedeath = 2;
 	maps/mp/_utility::setclientsysstate( "levelNotify", "fkcb" );
 	wait max( 0, secondsuntildeath - waitbeforedeath );
-	setslowmotion( 1, 0,25, waitbeforedeath );
-	wait ( waitbeforedeath + 0,5 );
-	setslowmotion( 0,25, 1, 1 );
-	wait 0,5;
+	setslowmotion( 1, 0.25, waitbeforedeath );
+	wait ( waitbeforedeath + 0.5 );
+	setslowmotion( 0.25, 1, 1 );
+	wait 0.5;
 	maps/mp/_utility::setclientsysstate( "levelNotify", "fkce" );
 }
 
-waitskipkillcambutton()
+waitskipkillcambutton() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
 	while ( self usebuttonpressed() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	while ( !self usebuttonpressed() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self notify( "end_killcam" );
 	self clientnotify( "fkce" );
 }
 
-waitteamchangeendkillcam()
+waitteamchangeendkillcam() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
@@ -326,23 +310,23 @@ waitteamchangeendkillcam()
 	endkillcam( 0 );
 }
 
-waitskipkillcamsafespawnbutton()
+waitskipkillcamsafespawnbutton() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
 	while ( self fragbuttonpressed() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	while ( !self fragbuttonpressed() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self.wantsafespawn = 1;
 	self notify( "end_killcam" );
 }
 
-endkillcam( final )
+endkillcam( final ) //checked matches cerberus output
 {
 	if ( isDefined( self.kc_skiptext ) )
 	{
@@ -360,7 +344,7 @@ endkillcam( final )
 	self thread maps/mp/gametypes/_spectating::setspectatepermissions();
 }
 
-checkforabruptkillcamend()
+checkforabruptkillcamend() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_killcam" );
@@ -370,15 +354,12 @@ checkforabruptkillcamend()
 		{
 			break;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 	self notify( "end_killcam" );
 }
 
-spawnedkillcamcleanup()
+spawnedkillcamcleanup() //checked matches cerberus output 
 {
 	self endon( "end_killcam" );
 	self endon( "disconnect" );
@@ -386,7 +367,7 @@ spawnedkillcamcleanup()
 	self endkillcam( 0 );
 }
 
-spectatorkillcamcleanup( attacker )
+spectatorkillcamcleanup( attacker ) //checked matches cerberus output
 {
 	self endon( "end_killcam" );
 	self endon( "disconnect" );
@@ -397,7 +378,7 @@ spectatorkillcamcleanup( attacker )
 	self endkillcam( 0 );
 }
 
-endedkillcamcleanup()
+endedkillcamcleanup() //checked matches cerberus output
 {
 	self endon( "end_killcam" );
 	self endon( "disconnect" );
@@ -405,7 +386,7 @@ endedkillcamcleanup()
 	self endkillcam( 0 );
 }
 
-endedfinalkillcamcleanup()
+endedfinalkillcamcleanup() //checked matches cerberus output
 {
 	self endon( "end_killcam" );
 	self endon( "disconnect" );
@@ -413,61 +394,61 @@ endedfinalkillcamcleanup()
 	self endkillcam( 1 );
 }
 
-cancelkillcamusebutton()
+cancelkillcamusebutton() //checked matches cerberus output
 {
 	return self usebuttonpressed();
 }
 
-cancelkillcamsafespawnbutton()
+cancelkillcamsafespawnbutton() //checked matches cerberus output
 {
 	return self fragbuttonpressed();
 }
 
-cancelkillcamcallback()
+cancelkillcamcallback() //checked matches cerberus output
 {
 	self.cancelkillcam = 1;
 }
 
-cancelkillcamsafespawncallback()
+cancelkillcamsafespawncallback() //checked matches cerberus output
 {
 	self.cancelkillcam = 1;
 	self.wantsafespawn = 1;
 }
 
-cancelkillcamonuse()
+cancelkillcamonuse() //checked matches cerberus output
 {
 	self thread cancelkillcamonuse_specificbutton( ::cancelkillcamusebutton, ::cancelkillcamcallback );
 }
 
-cancelkillcamonuse_specificbutton( pressingbuttonfunc, finishedfunc )
+cancelkillcamonuse_specificbutton( pressingbuttonfunc, finishedfunc ) //checked changed at own discretion
 {
 	self endon( "death_delay_finished" );
 	self endon( "disconnect" );
 	level endon( "game_ended" );
 	for ( ;; )
 	{
-		if ( !( self [[ pressingbuttonfunc ]]() ) )
+		if ( !self [[ pressingbuttonfunc ]]() )
 		{
-			wait 0,05;
+			wait 0.05;
 			continue;
 		}
-		else buttontime = 0;
+		buttontime = 0;
 		while ( self [[ pressingbuttonfunc ]]() )
 		{
-			buttontime += 0,05;
-			wait 0,05;
+			buttontime += 0.05;
+			wait 0.05;
 		}
-		if ( buttontime >= 0,5 )
+		if ( buttontime >= 0.5 )
 		{
 			continue;
 		}
-		else buttontime = 0;
-		while ( !( self [[ pressingbuttonfunc ]]() ) && buttontime < 0,5 )
+		buttontime = 0;
+		while ( !( self [[ pressingbuttonfunc ]]() ) && buttontime < 0.5 )
 		{
-			buttontime += 0,05;
-			wait 0,05;
+			buttontime += 0.05;
+			wait 0.05;
 		}
-		if ( buttontime >= 0,5 )
+		if ( buttontime >= 0.5 )
 		{
 			continue;
 		}
@@ -476,10 +457,11 @@ cancelkillcamonuse_specificbutton( pressingbuttonfunc, finishedfunc )
 			self [[ finishedfunc ]]();
 			return;
 		}
+		wait 0.05;
 	}
 }
 
-finalkillcam( winner )
+finalkillcam( winner ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -493,6 +475,7 @@ finalkillcam( winner )
 		setmatchflag( "final_killcam", 0 );
 		setmatchflag( "round_end_killcam", 1 );
 	}
+	/*
 /#
 	if ( getDvarInt( "scr_force_finalkillcam" ) == 1 )
 	{
@@ -500,6 +483,7 @@ finalkillcam( winner )
 		setmatchflag( "round_end_killcam", 0 );
 #/
 	}
+	*/
 	if ( level.console )
 	{
 		self maps/mp/gametypes/_globallogic_spawn::setthirdperson( 0 );
@@ -510,7 +494,7 @@ finalkillcam( winner )
 	camtime = calckillcamtime( killcamsettings.weapon, killcamsettings.entitystarttime, predelay, 0, undefined );
 	postdelay = calcpostdelay();
 	killcamoffset = camtime + predelay;
-	killcamlength = ( camtime + postdelay ) - 0,05;
+	killcamlength = ( camtime + postdelay ) - 0.05;
 	killcamstarttime = getTime() - ( killcamoffset * 1000 );
 	self notify( "begin_killcam" );
 	self.sessionstate = "spectator";
@@ -524,18 +508,14 @@ finalkillcam( winner )
 	self.archivetime = killcamoffset;
 	self.killcamlength = killcamlength;
 	self.psoffsettime = killcamsettings.offsettime;
-	_a613 = level.teams;
-	_k613 = getFirstArrayKey( _a613 );
-	while ( isDefined( _k613 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a613[ _k613 ];
 		self allowspectateteam( team, 1 );
-		_k613 = getNextArrayKey( _a613, _k613 );
 	}
 	self allowspectateteam( "freelook", 1 );
 	self allowspectateteam( "none", 1 );
 	self thread endedfinalkillcamcleanup();
-	wait 0,05;
+	wait 0.05;
 	if ( self.archivetime <= predelay )
 	{
 		self.sessionstate = "dead";
@@ -561,13 +541,13 @@ finalkillcam( winner )
 	self spawnendoffinalkillcam();
 }
 
-spawnendoffinalkillcam()
+spawnendoffinalkillcam() //checked matches cerberus output
 {
 	[[ level.spawnspectator ]]();
 	self freezecontrols( 1 );
 }
 
-iskillcamentityweapon( sweapon )
+iskillcamentityweapon( sweapon ) //checked matches cerberus output
 {
 	if ( sweapon == "planemortar_mp" )
 	{
@@ -576,44 +556,35 @@ iskillcamentityweapon( sweapon )
 	return 0;
 }
 
-iskillcamgrenadeweapon( sweapon )
+iskillcamgrenadeweapon( sweapon ) //checked changed to match cerberus output
 {
 	if ( sweapon == "frag_grenade_mp" )
 	{
 		return 1;
 	}
-	else
+	else if ( sweapon == "frag_grenade_short_mp" )
 	{
-		if ( sweapon == "frag_grenade_short_mp" )
-		{
-			return 1;
-		}
-		else
-		{
-			if ( sweapon == "sticky_grenade_mp" )
-			{
-				return 1;
-			}
-			else
-			{
-				if ( sweapon == "tabun_gas_mp" )
-				{
-					return 1;
-				}
-			}
-		}
+		return 1;
+	}
+	else if ( sweapon == "sticky_grenade_mp" )
+	{
+		return 1;
+	}
+	else if ( sweapon == "tabun_gas_mp" )
+	{
+		return 1;
 	}
 	return 0;
 }
 
-calckillcamtime( sweapon, entitystarttime, predelay, respawn, maxtime )
+calckillcamtime( sweapon, entitystarttime, predelay, respawn, maxtime ) //checked matches cerberus output dvars found in another dump
 {
 	camtime = 0;
-	if ( getDvar( #"C45D9077" ) == "" )
+	if ( getDvar( "scr_killcam_time" ) == "" )
 	{
 		if ( iskillcamentityweapon( sweapon ) )
 		{
-			camtime = ( ( getTime() - entitystarttime ) / 1000 ) - predelay - 0,1;
+			camtime = ( ( getTime() - entitystarttime ) / 1000 ) - predelay - 0.1;
 		}
 		else if ( !respawn )
 		{
@@ -621,16 +592,16 @@ calckillcamtime( sweapon, entitystarttime, predelay, respawn, maxtime )
 		}
 		else if ( iskillcamgrenadeweapon( sweapon ) )
 		{
-			camtime = 4,25;
+			camtime = 4.25;
 		}
 		else
 		{
-			camtime = 2,5;
+			camtime = 2.5;
 		}
 	}
 	else
-	{
-		camtime = getDvarFloat( #"C45D9077" );
+	{	
+		camtime = getDvarFloat( "scr_killcam_time" );
 	}
 	if ( isDefined( maxtime ) )
 	{
@@ -638,33 +609,33 @@ calckillcamtime( sweapon, entitystarttime, predelay, respawn, maxtime )
 		{
 			camtime = maxtime;
 		}
-		if ( camtime < 0,05 )
+		if ( camtime < 0.05 )
 		{
-			camtime = 0,05;
+			camtime = 0.05;
 		}
 	}
 	return camtime;
 }
 
-calcpostdelay()
+calcpostdelay() //checked matches cerberus output dvars found in another dump
 {
 	postdelay = 0;
-	if ( getDvar( #"0D34D95D" ) == "" )
+	if ( getDvar( "scr_killcam_posttime" ) == "" )
 	{
 		postdelay = 2;
 	}
 	else
 	{
-		postdelay = getDvarFloat( #"0D34D95D" );
-		if ( postdelay < 0,05 )
+		postdelay = getDvarFloat( "scr_killcam_posttime" );
+		if ( postdelay < 0.05 )
 		{
-			postdelay = 0,05;
+			postdelay = 0.05;
 		}
 	}
 	return postdelay;
 }
 
-addkillcamskiptext( respawn )
+addkillcamskiptext( respawn ) //checked matches cerberus output
 {
 	if ( !isDefined( self.kc_skiptext ) )
 	{
@@ -681,7 +652,7 @@ addkillcamskiptext( respawn )
 	if ( self issplitscreen() )
 	{
 		self.kc_skiptext.y = -100;
-		self.kc_skiptext.fontscale = 1,4;
+		self.kc_skiptext.fontscale = 1.4;
 	}
 	else
 	{
@@ -699,11 +670,11 @@ addkillcamskiptext( respawn )
 	self.kc_skiptext.alpha = 1;
 }
 
-addkillcamtimer( camtime )
+addkillcamtimer( camtime ) //checked matches cerberus output
 {
 }
 
-initkcelements()
+initkcelements() //checked matches cerberus output
 {
 	if ( !isDefined( self.kc_skiptext ) )
 	{
@@ -721,12 +692,12 @@ initkcelements()
 		if ( self issplitscreen() )
 		{
 			self.kc_skiptext.y = 20;
-			self.kc_skiptext.fontscale = 1,2;
+			self.kc_skiptext.fontscale = 1.2;
 		}
 		else
 		{
 			self.kc_skiptext.y = 32;
-			self.kc_skiptext.fontscale = 1,8;
+			self.kc_skiptext.fontscale = 1.8;
 		}
 	}
 	if ( !isDefined( self.kc_othertext ) )
@@ -745,12 +716,12 @@ initkcelements()
 		if ( self issplitscreen() )
 		{
 			self.kc_othertext.x = 16;
-			self.kc_othertext.fontscale = 1,2;
+			self.kc_othertext.fontscale = 1.2;
 		}
 		else
 		{
 			self.kc_othertext.x = 32;
-			self.kc_othertext.fontscale = 1,6;
+			self.kc_othertext.fontscale = 1.6;
 		}
 	}
 	if ( !isDefined( self.kc_icon ) )
@@ -782,8 +753,9 @@ initkcelements()
 			self.kc_timer.sort = 1;
 			self.kc_timer.font = "hudbig";
 			self.kc_timer.foreground = 1;
-			self.kc_timer.color = vectorScale( ( 1, 1, 1 ), 0,85 );
+			self.kc_timer.color = vectorScale( ( 1, 1, 1 ), 0.85 );
 			self.kc_timer.hidewheninmenu = 1;
 		}
 	}
 }
+

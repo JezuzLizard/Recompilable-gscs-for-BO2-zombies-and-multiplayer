@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud;
 #include maps/mp/gametypes/_hud_util;
@@ -5,7 +6,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked partially changed to match cerberus output changed at own discretion
 {
 	level.scoreinfo = [];
 	level.xpscale = getDvarFloat( "scr_xpscale" );
@@ -18,9 +19,9 @@ init()
 	level.usingscorestreaks = getDvarInt( "scr_scorestreaks" ) != 0;
 	level.scorestreaksmaxstacking = getDvarInt( "scr_scorestreaks_maxstacking" );
 	level.maxinventoryscorestreaks = getdvarintdefault( "scr_maxinventory_scorestreaks", 3 );
-	if ( isDefined( level.usingscorestreaks ) )
+	if ( !isDefined( level.usingscorestreaks ) || !level.usingscorestreaks )
 	{
-		level.usingrampage = !level.usingscorestreaks;
+		level.usingrampage = 1;
 	}
 	level.rampagebonusscale = getDvarFloat( "scr_rampagebonusscale" );
 	level.ranktable = [];
@@ -38,27 +39,23 @@ init()
 	}
 	level.maxrank = int( tablelookup( "mp/rankTable.csv", 0, "maxrank", 1 ) );
 	level.maxprestige = int( tablelookup( "mp/rankIconTable.csv", 0, "maxprestige", 1 ) );
-	pid = 0;
-	rid = 0;
-	pid = 0;
-	while ( pid <= level.maxprestige )
+	for ( pid = 0; pid <= level.maxprestige; pid++ )
 	{
-		rid = 0;
-		while ( rid <= level.maxrank )
+		for ( rid = 0; rid <= level.maxrank; rid++ )
 		{
 			precacheshader( tablelookup( "mp/rankIconTable.csv", 0, rid, pid + 1 ) );
-			rid++;
 		}
-		pid++;
 	}
 	rankid = 0;
 	rankname = tablelookup( "mp/ranktable.csv", 0, rankid, 1 );
+	/*
 /#
 	if ( isDefined( rankname ) )
 	{
 		assert( rankname != "" );
 	}
 #/
+	*/
 	while ( isDefined( rankname ) && rankname != "" )
 	{
 		level.ranktable[ rankid ][ 1 ] = tablelookup( "mp/ranktable.csv", 0, rankid, 1 );
@@ -73,34 +70,39 @@ init()
 	level thread onplayerconnect();
 }
 
-initscoreinfo()
+initscoreinfo() //checked changed to match cerberus output
 {
 	scoreinfotableid = getscoreeventtableid();
+	/*
 /#
 	assert( isDefined( scoreinfotableid ) );
 #/
+	*/
 	if ( !isDefined( scoreinfotableid ) )
 	{
 		return;
 	}
 	scorecolumn = getscoreeventcolumn( level.gametype );
 	xpcolumn = getxpeventcolumn( level.gametype );
+	/*
 /#
 	assert( scorecolumn >= 0 );
 #/
+	*/
 	if ( scorecolumn < 0 )
 	{
 		return;
 	}
+	/*
 /#
 	assert( xpcolumn >= 0 );
 #/
+	*/
 	if ( xpcolumn < 0 )
 	{
 		return;
 	}
-	row = 1;
-	while ( row < 512 )
+	for ( row = 1; row < 512; row++ )
 	{
 		type = tablelookupcolumnforrow( scoreinfotableid, row, 0 );
 		if ( type != "" )
@@ -141,11 +143,10 @@ initscoreinfo()
 				level.scoreinfo[ type ][ "allowKillstreakWeapons" ] = 1;
 			}
 		}
-		row++;
 	}
 }
 
-getrankxpcapped( inrankxp )
+getrankxpcapped( inrankxp ) //checked matches cerberus output
 {
 	if ( isDefined( level.rankxpcap ) && level.rankxpcap && level.rankxpcap <= inrankxp )
 	{
@@ -154,7 +155,7 @@ getrankxpcapped( inrankxp )
 	return inrankxp;
 }
 
-getcodpointscapped( incodpoints )
+getcodpointscapped( incodpoints ) //checked matches cerberus output
 {
 	if ( isDefined( level.codpointscap ) && level.codpointscap && level.codpointscap <= incodpoints )
 	{
@@ -163,7 +164,7 @@ getcodpointscapped( incodpoints )
 	return incodpoints;
 }
 
-registerscoreinfo( type, value, label )
+registerscoreinfo( type, value, label ) //checked matches cerberus output
 {
 	overridedvar = "scr_" + level.gametype + "_score_" + type;
 	if ( getDvar( overridedvar ) != "" )
@@ -186,7 +187,7 @@ registerscoreinfo( type, value, label )
 	}
 }
 
-getscoreinfovalue( type )
+getscoreinfovalue( type ) //checked matches cerberus output
 {
 	if ( isDefined( level.scoreinfo[ type ] ) )
 	{
@@ -194,12 +195,12 @@ getscoreinfovalue( type )
 	}
 }
 
-getscoreinfolabel( type )
+getscoreinfolabel( type ) //checked matches cerberus output
 {
 	return level.scoreinfo[ type ][ "label" ];
 }
 
-killstreakweaponsallowedscore( type )
+killstreakweaponsallowedscore( type ) //checked matches cerberus output
 {
 	if ( isDefined( level.scoreinfo[ type ][ "allowKillstreakWeapons" ] ) && level.scoreinfo[ type ][ "allowKillstreakWeapons" ] == 1 )
 	{
@@ -211,50 +212,51 @@ killstreakweaponsallowedscore( type )
 	}
 }
 
-doesscoreinfocounttowardrampage( type )
+doesscoreinfocounttowardrampage( type ) //checked changed at own discretion
 {
-	if ( isDefined( level.scoreinfo[ type ][ "rampage" ] ) )
+	if ( isDefined( level.scoreinfo[ type ][ "rampage" ] ) && level.scoreinfo[ type ][ "rampage" ] )
 	{
-		return level.scoreinfo[ type ][ "rampage" ];
+		return 1;
 	}
+	return 0;
 }
 
-getrankinfominxp( rankid )
+getrankinfominxp( rankid ) //checked matches cerberus output
 {
 	return int( level.ranktable[ rankid ][ 2 ] );
 }
 
-getrankinfoxpamt( rankid )
+getrankinfoxpamt( rankid ) //checked matches cerberus output
 {
 	return int( level.ranktable[ rankid ][ 3 ] );
 }
 
-getrankinfomaxxp( rankid )
+getrankinfomaxxp( rankid ) //checked matches cerberus output
 {
 	return int( level.ranktable[ rankid ][ 7 ] );
 }
 
-getrankinfofull( rankid )
+getrankinfofull( rankid ) //checked matches cerberus output
 {
 	return tablelookupistring( "mp/ranktable.csv", 0, rankid, 16 );
 }
 
-getrankinfoicon( rankid, prestigeid )
+getrankinfoicon( rankid, prestigeid ) //checked matches cerberus output
 {
 	return tablelookup( "mp/rankIconTable.csv", 0, rankid, prestigeid + 1 );
 }
 
-getrankinfolevel( rankid )
+getrankinfolevel( rankid ) //checked matches cerberus output
 {
 	return int( tablelookup( "mp/ranktable.csv", 0, rankid, 13 ) );
 }
 
-getrankinfocodpointsearned( rankid )
+getrankinfocodpointsearned( rankid ) //checked matches cerberus output
 {
 	return int( tablelookup( "mp/ranktable.csv", 0, rankid, 17 ) );
 }
 
-shouldkickbyrank()
+shouldkickbyrank() //checked matches cerberus output
 {
 	if ( self ishost() )
 	{
@@ -275,7 +277,7 @@ shouldkickbyrank()
 	return 0;
 }
 
-getcodpointsstat()
+getcodpointsstat() //checked matches cerberus output
 {
 	codpoints = self getdstat( "playerstatslist", "CODPOINTS", "StatValue" );
 	codpointscapped = getcodpointscapped( codpoints );
@@ -286,12 +288,12 @@ getcodpointsstat()
 	return codpointscapped;
 }
 
-setcodpointsstat( codpoints )
+setcodpointsstat( codpoints ) //checked matches cerberus output
 {
 	self setdstat( "PlayerStatsList", "CODPOINTS", "StatValue", getcodpointscapped( codpoints ) );
 }
 
-getrankxpstat()
+getrankxpstat() //checked matches cerberus output
 {
 	rankxp = self getdstat( "playerstatslist", "RANKXP", "StatValue" );
 	rankxpcapped = getrankxpcapped( rankxp );
@@ -302,7 +304,7 @@ getrankxpstat()
 	return rankxpcapped;
 }
 
-onplayerconnect()
+onplayerconnect() //checked changed to match cerberus output
 {
 	for ( ;; )
 	{
@@ -318,50 +320,49 @@ onplayerconnect()
 			kick( player getentitynumber() );
 			continue;
 		}
-		else
+		if ( !isDefined( player.pers[ "participation" ] ) || level.gametype == "twar" && game[ "roundsplayed" ] >= 0 && player.pers[ "participation" ] >= 0 )
 		{
-			if ( !isDefined( player.pers[ "participation" ] ) || level.gametype == "twar" && game[ "roundsplayed" ] >= 0 && player.pers[ "participation" ] >= 0 )
-			{
-				player.pers[ "participation" ] = 0;
-			}
-			player.rankupdatetotal = 0;
-			player.cur_ranknum = rankid;
-/#
-			assert( isDefined( player.cur_ranknum ), "rank: " + rankid + " does not have an index, check mp/ranktable.csv" );
-#/
-			prestige = player getdstat( "playerstatslist", "plevel", "StatValue" );
-			player setrank( rankid, prestige );
-			player.pers[ "prestige" ] = prestige;
-			if ( !isDefined( player.pers[ "summary" ] ) )
-			{
-				player.pers[ "summary" ] = [];
-				player.pers[ "summary" ][ "xp" ] = 0;
-				player.pers[ "summary" ][ "score" ] = 0;
-				player.pers[ "summary" ][ "challenge" ] = 0;
-				player.pers[ "summary" ][ "match" ] = 0;
-				player.pers[ "summary" ][ "misc" ] = 0;
-				player.pers[ "summary" ][ "codpoints" ] = 0;
-			}
-			if ( !level.rankedmatch || level.wagermatch && level.leaguematch )
-			{
-				player setdstat( "AfterActionReportStats", "lobbyPopup", "none" );
-			}
-			if ( level.rankedmatch )
-			{
-				player setdstat( "playerstatslist", "rank", "StatValue", rankid );
-				player setdstat( "playerstatslist", "minxp", "StatValue", getrankinfominxp( rankid ) );
-				player setdstat( "playerstatslist", "maxxp", "StatValue", getrankinfomaxxp( rankid ) );
-				player setdstat( "playerstatslist", "lastxp", "StatValue", getrankxpcapped( player.pers[ "rankxp" ] ) );
-			}
-			player.explosivekills[ 0 ] = 0;
-			player thread onplayerspawned();
-			player thread onjoinedteam();
-			player thread onjoinedspectators();
+			player.pers[ "participation" ] = 0;
 		}
+		player.rankupdatetotal = 0;
+		player.cur_ranknum = rankid;
+		/*
+/#
+		assert( isDefined( player.cur_ranknum ), "rank: " + rankid + " does not have an index, check mp/ranktable.csv" );
+#/
+		*/
+		prestige = player getdstat( "playerstatslist", "plevel", "StatValue" );
+		player setrank( rankid, prestige );
+		player.pers[ "prestige" ] = prestige;
+		if ( !isDefined( player.pers[ "summary" ] ) )
+		{
+			player.pers[ "summary" ] = [];
+			player.pers[ "summary" ][ "xp" ] = 0;
+			player.pers[ "summary" ][ "score" ] = 0;
+			player.pers[ "summary" ][ "challenge" ] = 0;
+			player.pers[ "summary" ][ "match" ] = 0;
+			player.pers[ "summary" ][ "misc" ] = 0;
+			player.pers[ "summary" ][ "codpoints" ] = 0;
+		}
+		if ( !level.rankedmatch || level.wagermatch && level.leaguematch )
+		{
+			player setdstat( "AfterActionReportStats", "lobbyPopup", "none" );
+		}
+		if ( level.rankedmatch )
+		{
+			player setdstat( "playerstatslist", "rank", "StatValue", rankid );
+			player setdstat( "playerstatslist", "minxp", "StatValue", getrankinfominxp( rankid ) );
+			player setdstat( "playerstatslist", "maxxp", "StatValue", getrankinfomaxxp( rankid ) );
+			player setdstat( "playerstatslist", "lastxp", "StatValue", getrankxpcapped( player.pers[ "rankxp" ] ) );
+		}
+		player.explosivekills[ 0 ] = 0;
+		player thread onplayerspawned();
+		player thread onjoinedteam();
+		player thread onjoinedspectators();
 	}
 }
 
-onjoinedteam()
+onjoinedteam() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -371,7 +372,7 @@ onjoinedteam()
 	}
 }
 
-onjoinedspectators()
+onjoinedspectators() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -381,7 +382,7 @@ onjoinedspectators()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -406,7 +407,7 @@ onplayerspawned()
 			self.hud_rankscroreupdate.font = "default";
 			self.hud_rankscroreupdate.fontscale = 2;
 			self.hud_rankscroreupdate.archived = 0;
-			self.hud_rankscroreupdate.color = ( 1, 1, 0,5 );
+			self.hud_rankscroreupdate.color = ( 1, 1, 0.5 );
 			self.hud_rankscroreupdate.alpha = 0;
 			self.hud_rankscroreupdate.sort = 50;
 			self.hud_rankscroreupdate maps/mp/gametypes/_hud::fontpulseinit();
@@ -414,7 +415,7 @@ onplayerspawned()
 	}
 }
 
-inccodpoints( amount )
+inccodpoints( amount ) //checked matches cerberus output
 {
 	if ( !isrankenabled() )
 	{
@@ -433,23 +434,19 @@ inccodpoints( amount )
 	setcodpointsstat( int( newcodpoints ) );
 }
 
-atleastoneplayeroneachteam()
+atleastoneplayeroneachteam() //checked changed to match cerberus output
 {
-	_a507 = level.teams;
-	_k507 = getFirstArrayKey( _a507 );
-	while ( isDefined( _k507 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a507[ _k507 ];
 		if ( !level.playercount[ team ] )
 		{
 			return 0;
 		}
-		_k507 = getNextArrayKey( _a507, _k507 );
 	}
 	return 1;
 }
 
-giverankxp( type, value, devadd )
+giverankxp( type, value, devadd ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	if ( sessionmodeiszombiesgame() )
@@ -460,12 +457,9 @@ giverankxp( type, value, devadd )
 	{
 		return;
 	}
-	else
+	else if ( !level.teambased && maps/mp/gametypes/_globallogic::totalplayercount() < 2 && !isDefined( devadd ) )
 	{
-		if ( !level.teambased && maps/mp/gametypes/_globallogic::totalplayercount() < 2 && !isDefined( devadd ) )
-		{
-			return;
-		}
+		return;
 	}
 	if ( !isrankenabled() )
 	{
@@ -582,13 +576,13 @@ giverankxp( type, value, devadd )
 	pixendevent();
 }
 
-round_this_number( value )
+round_this_number( value ) //checked matches cerberus output
 {
-	value = int( value + 0,5 );
+	value = int( value + 0.5 );
 	return value;
 }
 
-updaterank()
+updaterank() //checked matches cerberus output
 {
 	newrankid = self getrank();
 	if ( newrankid == self.pers[ "rank" ] )
@@ -625,7 +619,7 @@ updaterank()
 	return 1;
 }
 
-codecallback_rankup( rank, prestige, unlocktokensadded )
+codecallback_rankup( rank, prestige, unlocktokensadded ) //checked matches cerberus output
 {
 	if ( rank > 8 )
 	{
@@ -635,21 +629,23 @@ codecallback_rankup( rank, prestige, unlocktokensadded )
 	self luinotifyeventtospectators( &"rank_up", 3, rank, prestige, unlocktokensadded );
 }
 
-getitemindex( refstring )
+getitemindex( refstring ) //checked matches cerberus output
 {
 	itemindex = int( tablelookup( "mp/statstable.csv", 4, refstring, 0 ) );
+	/*
 /#
 	assert( itemindex > 0, "statsTable refstring " + refstring + " has invalid index: " + itemindex );
 #/
+	*/
 	return itemindex;
 }
 
-endgameupdate()
+endgameupdate() //checked matches cerberus output
 {
 	player = self;
 }
 
-updaterankscorehud( amount )
+updaterankscorehud( amount ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "joined_team" );
@@ -665,30 +661,30 @@ updaterankscorehud( amount )
 	self notify( "update_score" );
 	self endon( "update_score" );
 	self.rankupdatetotal += amount;
-	wait 0,05;
+	wait 0.05;
 	if ( isDefined( self.hud_rankscroreupdate ) )
 	{
 		if ( self.rankupdatetotal < 0 )
 		{
 			self.hud_rankscroreupdate.label = &"";
-			self.hud_rankscroreupdate.color = ( 0,73, 0,19, 0,19 );
+			self.hud_rankscroreupdate.color = ( 0.73, 0.19, 0.19 );
 		}
 		else
 		{
 			self.hud_rankscroreupdate.label = &"MP_PLUS";
-			self.hud_rankscroreupdate.color = ( 1, 1, 0,5 );
+			self.hud_rankscroreupdate.color = ( 1, 1, 0.5 );
 		}
 		self.hud_rankscroreupdate setvalue( self.rankupdatetotal );
-		self.hud_rankscroreupdate.alpha = 0,85;
+		self.hud_rankscroreupdate.alpha = 0.85;
 		self.hud_rankscroreupdate thread maps/mp/gametypes/_hud::fontpulse( self );
 		wait 1;
-		self.hud_rankscroreupdate fadeovertime( 0,75 );
+		self.hud_rankscroreupdate fadeovertime( 0.75 );
 		self.hud_rankscroreupdate.alpha = 0;
 		self.rankupdatetotal = 0;
 	}
 }
 
-updatemomentumhud( amount, reason, reasonvalue )
+updatemomentumhud( amount, reason, reasonvalue ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "joined_team" );
@@ -705,15 +701,15 @@ updatemomentumhud( amount, reason, reasonvalue )
 		if ( self.rankupdatetotal < 0 )
 		{
 			self.hud_rankscroreupdate.label = &"";
-			self.hud_rankscroreupdate.color = ( 0,73, 0,19, 0,19 );
+			self.hud_rankscroreupdate.color = ( 0.73, 0.19, 0.19 );
 		}
 		else
 		{
 			self.hud_rankscroreupdate.label = &"MP_PLUS";
-			self.hud_rankscroreupdate.color = ( 1, 1, 0,5 );
+			self.hud_rankscroreupdate.color = ( 1, 1, 0.5 );
 		}
 		self.hud_rankscroreupdate setvalue( self.rankupdatetotal );
-		self.hud_rankscroreupdate.alpha = 0,85;
+		self.hud_rankscroreupdate.alpha = 0.85;
 		self.hud_rankscroreupdate thread maps/mp/gametypes/_hud::fontpulse( self );
 		if ( isDefined( self.hud_momentumreason ) )
 		{
@@ -729,29 +725,29 @@ updatemomentumhud( amount, reason, reasonvalue )
 					self.hud_momentumreason.label = reason;
 					self.hud_momentumreason setvalue( amount );
 				}
-				self.hud_momentumreason.alpha = 0,85;
+				self.hud_momentumreason.alpha = 0.85;
 				self.hud_momentumreason thread maps/mp/gametypes/_hud::fontpulse( self );
 			}
 			else
 			{
-				self.hud_momentumreason fadeovertime( 0,01 );
+				self.hud_momentumreason fadeovertime( 0.01 );
 				self.hud_momentumreason.alpha = 0;
 			}
 		}
 		wait 1;
-		self.hud_rankscroreupdate fadeovertime( 0,75 );
+		self.hud_rankscroreupdate fadeovertime( 0.75 );
 		self.hud_rankscroreupdate.alpha = 0;
 		if ( isDefined( self.hud_momentumreason ) && isDefined( reason ) )
 		{
-			self.hud_momentumreason fadeovertime( 0,75 );
+			self.hud_momentumreason fadeovertime( 0.75 );
 			self.hud_momentumreason.alpha = 0;
 		}
-		wait 0,75;
+		wait 0.75;
 		self.rankupdatetotal = 0;
 	}
 }
 
-removerankhud()
+removerankhud() //checked matches cerberus output
 {
 	if ( isDefined( self.hud_rankscroreupdate ) )
 	{
@@ -763,7 +759,7 @@ removerankhud()
 	}
 }
 
-getrank()
+getrank() //checked matches cerberus output
 {
 	rankxp = getrankxpcapped( self.pers[ "rankxp" ] );
 	rankid = self.pers[ "rank" ];
@@ -777,13 +773,15 @@ getrank()
 	}
 }
 
-getrankforxp( xpval )
+getrankforxp( xpval ) //checked matches cerberus output
 {
 	rankid = 0;
 	rankname = level.ranktable[ rankid ][ 1 ];
+	/*
 /#
 	assert( isDefined( rankname ) );
 #/
+	*/
 	while ( isDefined( rankname ) && rankname != "" )
 	{
 		if ( xpval < ( getrankinfominxp( rankid ) + getrankinfoxpamt( rankid ) ) )
@@ -806,18 +804,18 @@ getrankforxp( xpval )
 	return rankid;
 }
 
-getspm()
+getspm() //checked matches cerberus output
 {
 	ranklevel = self getrank() + 1;
-	return ( 3 + ( ranklevel * 0,5 ) ) * 10;
+	return ( 3 + ( ranklevel * 0.5 ) ) * 10;
 }
 
-getrankxp()
+getrankxp() //checked matches cerberus output
 {
 	return getrankxpcapped( self.pers[ "rankxp" ] );
 }
 
-incrankxp( amount )
+incrankxp( amount ) //checked matches cerberus output
 {
 	if ( !level.rankedmatch )
 	{
@@ -838,10 +836,11 @@ incrankxp( amount )
 	return xpincrease;
 }
 
-syncxpstat()
+syncxpstat() //checked matches cerberus output
 {
 	xp = getrankxpcapped( self getrankxp() );
 	cp = getcodpointscapped( int( self.pers[ "codpoints" ] ) );
 	self setdstat( "playerstatslist", "rankxp", "StatValue", xp );
 	self setdstat( "playerstatslist", "codpoints", "StatValue", cp );
 }
+

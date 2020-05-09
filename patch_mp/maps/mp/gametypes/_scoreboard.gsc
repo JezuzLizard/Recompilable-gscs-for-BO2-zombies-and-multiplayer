@@ -1,5 +1,5 @@
 
-init()
+init() //checked matches cerberus output
 {
 	if ( level.createfx_enabled )
 	{

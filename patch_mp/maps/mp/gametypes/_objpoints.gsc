@@ -1,7 +1,8 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precacheshader( "objpoint_default" );
 	level.objpointnames = [];
@@ -14,18 +15,20 @@ init()
 	{
 		level.objpointsize = 8;
 	}
-	level.objpoint_alpha_default = 0,5;
+	level.objpoint_alpha_default = 0.5;
 	level.objpointscale = 1;
 }
 
-createteamobjpoint( name, origin, team, shader, alpha, scale )
+createteamobjpoint( name, origin, team, shader, alpha, scale ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isDefined( level.teams[ team ] ) )
 	{
 		assert( team == "all" );
 	}
 #/
+	*/
 	objpoint = getobjpointbyname( name );
 	if ( isDefined( objpoint ) )
 	{
@@ -73,19 +76,23 @@ createteamobjpoint( name, origin, team, shader, alpha, scale )
 	return objpoint;
 }
 
-deleteobjpoint( oldobjpoint )
+deleteobjpoint( oldobjpoint ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( level.objpoints.size == level.objpointnames.size );
 #/
+	*/
 	if ( level.objpoints.size == 1 )
 	{
+		/*
 /#
 		assert( level.objpointnames[ 0 ] == oldobjpoint.name );
 #/
 /#
 		assert( isDefined( level.objpoints[ oldobjpoint.name ] ) );
 #/
+		*/
 		level.objpoints = [];
 		level.objpointnames = [];
 		oldobjpoint destroy();
@@ -96,10 +103,12 @@ deleteobjpoint( oldobjpoint )
 	objpoint = getobjpointbyindex( oldindex );
 	level.objpointnames[ newindex ] = objpoint.name;
 	objpoint.index = newindex;
+	level.objpointnames[oldindex] = undefined;
+	level.objpoints[oldobjpoint.name] = undefined;
 	oldobjpoint destroy();
 }
 
-updateorigin( origin )
+updateorigin( origin ) //checked matches cerberus output
 {
 	if ( self.x != origin[ 0 ] )
 	{
@@ -115,13 +124,13 @@ updateorigin( origin )
 	}
 }
 
-setoriginbyname( name, origin )
+setoriginbyname( name, origin ) //checked matches cerberus output
 {
 	objpoint = getobjpointbyname( name );
 	objpoint updateorigin( origin );
 }
 
-getobjpointbyname( name )
+getobjpointbyname( name ) //checked matches cerberus output
 {
 	if ( isDefined( level.objpoints[ name ] ) )
 	{
@@ -133,7 +142,7 @@ getobjpointbyname( name )
 	}
 }
 
-getobjpointbyindex( index )
+getobjpointbyindex( index ) //checked matches cerberus output
 {
 	if ( isDefined( level.objpointnames[ index ] ) )
 	{
@@ -145,7 +154,7 @@ getobjpointbyindex( index )
 	}
 }
 
-startflashing()
+startflashing() //checked matches cerberus output
 {
 	self endon( "stop_flashing_thread" );
 	if ( self.isflashing )
@@ -155,17 +164,17 @@ startflashing()
 	self.isflashing = 1;
 	while ( self.isflashing )
 	{
-		self fadeovertime( 0,75 );
-		self.alpha = 0,35 * self.basealpha;
-		wait 0,75;
-		self fadeovertime( 0,75 );
+		self fadeovertime( 0.75 );
+		self.alpha = 0.35 * self.basealpha;
+		wait 0.75;
+		self fadeovertime( 0.75 );
 		self.alpha = self.basealpha;
-		wait 0,75;
+		wait 0.75;
 	}
 	self.alpha = self.basealpha;
 }
 
-stopflashing()
+stopflashing() //checked matches cerberus output
 {
 	if ( !self.isflashing )
 	{
@@ -173,3 +182,4 @@ stopflashing()
 	}
 	self.isflashing = 0;
 }
+
