@@ -515,7 +515,7 @@ bot_get_aim_error() //checked changed at own discretion
 
 bot_update_lookat( origin, frac ) //checked matches cerberus output
 {
-	angles = vectorToAngle( origin - self.origin );
+	angles = vectorToAngles( origin - self.origin );
 	right = anglesToRight( angles );
 	error = bot_get_aim_error() * ( 1 - frac );
 	if ( cointoss() )
@@ -1863,6 +1863,7 @@ bot_riotshield_dangerous_think( enemy, goal ) //checked partially changed to mat
 		node setdangerous( self.team, 0 );
 	}
 }
+
 
 
 

@@ -23,15 +23,15 @@ bot_ctf_think() //checked changed to match cerberus output changed at own discre
 			node = random( nodes );
 			if ( cointoss() )
 			{
-				self maps/mp/bots/_bot_combat::bot_combat_throw_proximity( node.origin, flag_mine.curorigin );
+				self maps/mp/bots/_bot_combat::bot_combat_throw_proximity( node.origin );
 			}
 			if ( cointoss() )
 			{
-				self maps/mp/bots/_bot_combat::bot_combat_toss_frag( node.origin, flag_mine.curorigin );
+				self maps/mp/bots/_bot_combat::bot_combat_toss_frag( node.origin );
 			}
 			if ( cointoss() )
 			{
-				self maps/mp/bots/_bot_combat::bot_combat_toss_flash( node.origin, flag_mine.curorigin );
+				self maps/mp/bots/_bot_combat::bot_combat_toss_flash( node.origin );
 			}
 		}
 	}
@@ -379,4 +379,5 @@ bot_ctf_random_visible_node( origin ) //checked changed to match cerberus output
 	}
 	return undefined;
 }
+
 

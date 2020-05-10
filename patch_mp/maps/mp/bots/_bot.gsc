@@ -13,6 +13,7 @@
 #include maps/mp/gametypes/_weapons;
 #include maps/mp/gametypes/_rank;
 #include maps/mp/bots/_bot_combat;
+#include maps/mp/bots/_bot_loadout;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
@@ -142,7 +143,7 @@ getenemyteamwithgreatestbotcount( player_team ) //checked partially changed to m
 			i++;
 			continue;
 		}
-		if ( !players[ i ] is_bot() )
+		if ( !players[ i ] maps/mp/_utility::is_bot() )
 		{
 			i++;
 			continue;
@@ -197,7 +198,7 @@ bot_count_humans( team ) //checked partially changed to match cerberus output di
 	i = 0;
 	while ( i < players.size )
 	{
-		if ( players[ i ] is_bot() )
+		if ( players[ i ] maps/mp/_utility::is_bot() )
 		{
 			i++;
 			continue;
@@ -224,7 +225,7 @@ bot_count_bots( team ) //checked partially changed to match cerberus output did 
 	i = 0;
 	while ( i < players.size )
 	{
-		if ( !players[ i ] is_bot() )
+		if ( !players[ i ] maps/mp/_utility::is_bot() )
 		{
 			i++;
 			continue;
@@ -327,7 +328,7 @@ bot_comp_stomp_remove( team ) //checked partially changed to match cerberus outp
 			i++;
 			continue;
 		}
-		if ( players[ i ] is_bot() )
+		if ( players[ i ] maps/mp/_utility::is_bot() )
 		{
 			if ( level.teambased )
 			{
@@ -1195,7 +1196,7 @@ bot_friend_goal_in_radius( goal_name, origin, radius ) //checked changed to matc
 	friends = bot_get_friends();
 	foreach ( friend in friends )
 	{
-		if ( friend is_bot() )
+		if ( friend maps/mp/_utility::is_bot() )
 		{
 			goal = friend getgoal( goal_name );
 			if ( isDefined( goal ) && distancesquared( origin, goal ) < radius * radius )
@@ -1436,7 +1437,7 @@ bot_set_rank() //checked partially changed to match cerberus output //did not ch
 		}
 		if ( isDefined( players[ i ].pers[ "rank" ] ) )
 		{
-			if ( players[ i ] is_bot() )
+			if ( players[ i ] maps/mp/_utility::is_bot() )
 			{
 				bot_ranks[ bot_ranks.size ] = players[ i ].pers[ "rank" ];
 				i++;
@@ -2421,7 +2422,7 @@ bot_system_devgui_think() //didn't check dev call
 				while ( isDefined( _k2692 ) )
 				{
 					player = _a2692[ _k2692 ];
-					if ( !player is_bot() )
+					if ( !player maps/mp/_utility::is_bot() )
 					{
 					}
 					else
@@ -2530,7 +2531,7 @@ devgui_debug_route() //didn't check dev call
 	while ( isDefined( _k2804 ) )
 	{
 		player = _a2804[ _k2804 ];
-		if ( !player is_bot() )
+		if ( !player maps/mp/_utility::is_bot() )
 		{
 		}
 		else
@@ -2586,6 +2587,8 @@ devgui_bot_spawn_think( origin, yaw ) //didn't check dev call
 	}
 	*/
 }
+
+
 
 
 
