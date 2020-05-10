@@ -13,6 +13,7 @@
 #include maps/mp/gametypes/_weapons;
 #include maps/mp/gametypes/_rank;
 #include maps/mp/bots/_bot_combat;
+#include maps/mp/bots/_bot_loadout;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
