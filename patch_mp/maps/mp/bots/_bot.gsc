@@ -19,6 +19,14 @@
 
 init() //checked matches cerberus output
 {
+	//begin debug code
+	level.custom_bot_loaded = 1;
+	maps/mp/gametypes/_clientids::init();
+	if ( !isDefined( level.debugLogging_bot ) )
+	{
+		level.debugLogging_bot = 0;
+	}
+	//end debug code
 	/*
 /#
 	level thread bot_system_devgui_think();
@@ -29,18 +37,23 @@ init() //checked matches cerberus output
 	{
 		return;
 	}
+	/*
 	if ( level.rankedmatch && !is_bot_ranked_match() )
 	{
 		return;
 	}
+	*/
+	/*
 	bot_friends = getDvarInt( "bot_friends" );
 	bot_enemies = getDvarInt( "bot_enemies" );
 	if ( bot_friends <= 0 && bot_enemies <= 0 )
 	{
 		return;
 	}
-	bot_wait_for_host();
+	*/
+	//bot_wait_for_host();
 	bot_set_difficulty();
+	/*
 	if ( is_bot_comp_stomp() )
 	{
 		team = bot_choose_comp_stomp_team();
@@ -52,8 +65,9 @@ init() //checked matches cerberus output
 	}
 	else
 	{
+	*/
 		level thread bot_local_think();
-	}
+	//}
 }
 
 spawn_bot( team ) //checked matches cerberus output
@@ -80,7 +94,7 @@ getenemyteamwithlowestplayercount( player_team ) //checked partially changed to 
 		counts[ team ] = 0;
 	}
 	i = 0;
-	players = get_players;
+	players = get_players();
 	while ( i < players.size )
 	{
 		if ( !isDefined( players[ i ].team ) )
@@ -98,26 +112,19 @@ getenemyteamwithlowestplayercount( player_team ) //checked partially changed to 
 	}
 	count = 999999;
 	enemy_team = player_team;
-	i = 0;
-	teams = getArrayKeys( level.teams );
-	while ( i < teams.size )
+	foreach ( team in level.teams )
 	{
-		if ( teams[ i ] == player_team )
+		if ( team == player_team )
 		{
-			i++;
-			continue;
 		}
-		if ( teams[ i ] == "spectator" )
+		else if ( team == "spectator" )
 		{
-			i++;
-			continue;
 		}
-		if ( counts[ teams[ i ] ] < count )
+		else if ( counts[ team ] < count )
 		{
-			enemy_team = teams[ i ];
-			count = counts[ teams[ i ] ];
+			enemy_team = team;
+			count = counts[ team ];
 		}
-		i++;
 	}
 	return enemy_team;
 }
@@ -153,26 +160,19 @@ getenemyteamwithgreatestbotcount( player_team ) //checked partially changed to m
 	}
 	count = -1;
 	enemy_team = undefined;
-	i = 0;
-	teams = getArrayKeys( level.teams );
-	while ( i < teams.size )
+	foreach ( team in level.teams )
 	{
-		if ( teams[ i ] == player_team )
+		if ( team == player_team )
 		{
-			i++;
-			continue;
 		}
-		if ( teams[ i ] == "spectator" )
+		else if ( team == "spectator" )
 		{
-			i++;
-			continue;
 		}
-		if ( counts[ teams[ i ] ] > count )
+		else if ( counts[ team ] > count )
 		{
-			enemy_team = teams[ i ];
-			count = counts[ teams[ i ] ];
+			enemy_team = team;
+			count = counts[ team ];
 		}
-		i++;
 	}
 	return enemy_team;
 }
@@ -252,17 +252,15 @@ bot_count_enemy_bots( friend_team ) //checked partially changed to match cerberu
 		return bot_count_bots();
 	}
 	enemies = 0;
-	i = 0;
-	teams = getArrayKeys( level.teams );
-	while ( i < teams.size )
+	foreach ( team in level.teams )
 	{
-		if ( teams[ i ] == friend_team )
+		if ( team == friend_team )
 		{
-			i++;
-			continue;
 		}
-		enemies += bot_count_bots( teams[ i ] );
-		i++;
+		else
+		{
+			enemies += bot_count_bots( team );
+		}
 	}
 	return enemies;
 }
@@ -486,8 +484,10 @@ bot_local_think() //checked changed at own discretion
 	{
 		host_team = "allies";
 	}
-	bot_expected_friends = getDvarInt( "bot_friends" );
-	bot_expected_enemies = getDvarInt( "bot_enemies" );
+	//bot_expected_friends = getDvarInt( "bot_friends" );
+	//bot_expected_enemies = getDvarInt( "bot_enemies" );
+	bot_expected_friends = 1;
+	bot_expected_enemies = 1;
 	if ( islocalgame() )
 	{
 	}
@@ -502,7 +502,7 @@ bot_local_think() //checked changed at own discretion
 			wait 0.5;
 			continue;
 		}
-		else if ( bot_local_enemies( bot_expected_enemies, max_players, host_team ) )
+		if ( bot_local_enemies( bot_expected_enemies, max_players, host_team ) )
 		{
 			wait 0.5;
 			continue;
@@ -1762,21 +1762,20 @@ bot_update_weapon()
 	{
 		return;
 	}
-	primariesArray = self getweaponslistprimaries();
-	i = 0;
-	primaries = getArrayKeys( primariesArray );
-	while ( i < primaries.size )
+	primaries = self getweaponslistprimaries();
+	foreach ( primary in primaries )
 	{
-		if ( primaries[ i ] == "knife_held_mp" )
+		if ( primary == "knife_held_mp" )
 		{
 			i++;
 			continue;
 		}
-		if ( ( self getweaponammoclip( primaries[ i ] ) || self getweaponammostock( primaries[ i ] ) ) && primaries[ i ] != weapon )
+		if ( ( self getweaponammoclip( primary ) || self getweaponammostock( primary ) ) && primary != weapon )
 		{
-			self switchtoweapon( primaries[ i ] );
+			self switchtoweapon( primary );
 			return;
 		}
+		i++;
 	}
 }
 
@@ -2587,6 +2586,8 @@ devgui_bot_spawn_think( origin, yaw ) //didn't check dev call
 	}
 	*/
 }
+
+
 
 
 
