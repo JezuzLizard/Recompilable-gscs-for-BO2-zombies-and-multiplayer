@@ -1,9 +1,16 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes/_persistence;
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/bots/_bot;
+#include maps/mp/_popups;
+#include maps/mp/_scoreevents;
+#include maps/mp/_medals;
+#include maps/mp/_challenges;
+#include maps/mp/gametypes/_rank;
+#include maps/mp/gametypes/_class;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.persistentdatainfo = [];
 	level.maxrecentstats = 10;
@@ -19,7 +26,7 @@ init()
 	level thread uploadglobalstatcounters();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -28,7 +35,7 @@ onplayerconnect()
 	}
 }
 
-initializestattracking()
+initializestattracking() //checked changed to match cerberus output
 {
 	level.globalexecutions = 0;
 	level.globalchallenges = 0;
@@ -61,17 +68,13 @@ initializestattracking()
 	level.globalcarsdestroyed = 0;
 	level.globalbarrelsdestroyed = 0;
 	level.globalbombsdestroyedbyteam = [];
-	_a67 = level.teams;
-	_k67 = getFirstArrayKey( _a67 );
-	while ( isDefined( _k67 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a67[ _k67 ];
 		level.globalbombsdestroyedbyteam[ team ] = 0;
-		_k67 = getNextArrayKey( _a67, _k67 );
 	}
 }
 
-uploadglobalstatcounters()
+uploadglobalstatcounters() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	level waittill( "game_ended" );
 	if ( !level.rankedmatch && !level.wagermatch )
@@ -92,13 +95,9 @@ uploadglobalstatcounters()
 	totalsdplants = 0;
 	totalhumiliations = 0;
 	totalsabdestroyedbyteam = [];
-	_a95 = level.teams;
-	_k95 = getFirstArrayKey( _a95 );
-	while ( isDefined( _k95 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a95[ _k95 ];
 		totalsabdestroyedbyteam[ team ] = 0;
-		_k95 = getNextArrayKey( _a95, _k95 );
 	}
 	switch( level.gametype )
 	{
@@ -113,135 +112,114 @@ uploadglobalstatcounters()
 					index++;
 					continue;
 				}
-				else
-				{
-					level.globaldembombsdestroyed++;
-				}
+				level.globaldembombsdestroyed++;
 				index++;
 			}
-			case "sab":
-				_a117 = level.teams;
-				_k117 = getFirstArrayKey( _a117 );
-				while ( isDefined( _k117 ) )
-				{
-					team = _a117[ _k117 ];
+		case "sab":
+			foreach(team in level.teams)
+			{
 					totalsabdestroyedbyteam[ team ] = level.globalbombsdestroyedbyteam[ team ];
-					_k117 = getNextArrayKey( _a117, _k117 );
-				}
 			}
-			players = get_players();
-			i = 0;
-			while ( i < players.size )
-			{
-				player = players[ i ];
-				totaltimeplayed += min( player.timeplayed[ "total" ], level.timeplayedcap );
-				i++;
-			}
-			incrementcounter( "global_executions", level.globalexecutions );
-			incrementcounter( "global_sharedpackagemedals", level.globalsharepackages );
-			incrementcounter( "global_dem_bombsdestroyed", level.globaldembombsdestroyed );
-			incrementcounter( "global_dem_bombsprotected", level.globaldembombsprotected );
-			incrementcounter( "global_contracts_failed", level.globalcontractsfailed );
-			incrementcounter( "global_killstreaks_called", level.globalkillstreakscalled );
-			incrementcounter( "global_killstreaks_destroyed", level.globalkillstreaksdestroyed );
-			incrementcounter( "global_killstreaks_deathsfrom", level.globalkillstreaksdeathsfrom );
-			incrementcounter( "global_buzzkills", level.globalbuzzkills );
-			incrementcounter( "global_revives", level.globalrevives );
-			incrementcounter( "global_afterlifes", level.globalafterlifes );
-			incrementcounter( "global_comebacks", level.globalcomebacks );
-			incrementcounter( "global_paybacks", level.globalpaybacks );
-			incrementcounter( "global_backstabs", level.globalbackstabs );
-			incrementcounter( "global_bankshots", level.globalbankshots );
-			incrementcounter( "global_skewered", level.globalskewered );
-			incrementcounter( "global_teammedals", level.globalteammedals );
-			incrementcounter( "global_fraggrenadesthrown", level.globalfraggrenadesfired );
-			incrementcounter( "global_c4thrown", level.globalsatchelchargefired );
-			incrementcounter( "global_shotsfired", level.globalshotsfired );
-			incrementcounter( "global_crossbowfired", level.globalcrossbowfired );
-			incrementcounter( "global_carsdestroyed", level.globalcarsdestroyed );
-			incrementcounter( "global_barrelsdestroyed", level.globalbarrelsdestroyed );
-			incrementcounter( "global_challenges_finished", level.globalchallenges );
-			incrementcounter( "global_contractscppaid", level.globalcontractscppaid );
-			incrementcounter( "global_distancesprinted100inches", int( level.globaldistancesprinted ) );
-			incrementcounter( "global_combattraining_botskilled", level.globallarryskilled );
-			incrementcounter( "global_distancefeetfallen", int( level.globalfeetfallen ) );
-			incrementcounter( "global_minutes", int( totaltimeplayed / 60 ) );
-			if ( !waslastround() )
-			{
-				return;
-			}
-			wait 0,05;
-			players = get_players();
-			i = 0;
-			while ( i < players.size )
-			{
-				player = players[ i ];
-				totalkills += player.kills;
-				totaldeaths += player.deaths;
-				totalassists += player.assists;
-				totalheadshots += player.headshots;
-				totalsuicides += player.suicides;
-				totalhumiliations += player.humiliated;
-				totaltimeplayed += int( min( player.timeplayed[ "alive" ], level.timeplayedcap ) );
-				switch( level.gametype )
+	}
+	players = get_players();
+	for ( i = 0; i < players.size; i++ )
+	{
+		player = players[ i ];
+		totaltimeplayed += min( player.timeplayed[ "total" ], level.timeplayedcap );
+	}
+	incrementcounter( "global_executions", level.globalexecutions );
+	incrementcounter( "global_sharedpackagemedals", level.globalsharepackages );
+	incrementcounter( "global_dem_bombsdestroyed", level.globaldembombsdestroyed );
+	incrementcounter( "global_dem_bombsprotected", level.globaldembombsprotected );
+	incrementcounter( "global_contracts_failed", level.globalcontractsfailed );
+	incrementcounter( "global_killstreaks_called", level.globalkillstreakscalled );
+	incrementcounter( "global_killstreaks_destroyed", level.globalkillstreaksdestroyed );
+	incrementcounter( "global_killstreaks_deathsfrom", level.globalkillstreaksdeathsfrom );
+	incrementcounter( "global_buzzkills", level.globalbuzzkills );
+	incrementcounter( "global_revives", level.globalrevives );
+	incrementcounter( "global_afterlifes", level.globalafterlifes );
+	incrementcounter( "global_comebacks", level.globalcomebacks );
+	incrementcounter( "global_paybacks", level.globalpaybacks );
+	incrementcounter( "global_backstabs", level.globalbackstabs );
+	incrementcounter( "global_bankshots", level.globalbankshots );
+	incrementcounter( "global_skewered", level.globalskewered );
+	incrementcounter( "global_teammedals", level.globalteammedals );
+	incrementcounter( "global_fraggrenadesthrown", level.globalfraggrenadesfired );
+	incrementcounter( "global_c4thrown", level.globalsatchelchargefired );
+	incrementcounter( "global_shotsfired", level.globalshotsfired );
+	incrementcounter( "global_crossbowfired", level.globalcrossbowfired );
+	incrementcounter( "global_carsdestroyed", level.globalcarsdestroyed );
+	incrementcounter( "global_barrelsdestroyed", level.globalbarrelsdestroyed );
+	incrementcounter( "global_challenges_finished", level.globalchallenges );
+	incrementcounter( "global_contractscppaid", level.globalcontractscppaid );
+	incrementcounter( "global_distancesprinted100inches", int( level.globaldistancesprinted ) );
+	incrementcounter( "global_combattraining_botskilled", level.globallarryskilled );
+	incrementcounter( "global_distancefeetfallen", int( level.globalfeetfallen ) );
+	incrementcounter( "global_minutes", int( totaltimeplayed / 60 ) );
+	if ( !waslastround() )
+	{
+		return;
+	}
+	wait 0.05;
+	players = get_players();
+	for ( i = 0; i < players.size; i++ )
+	{
+		player = players[ i ];
+		totalkills += player.kills;
+		totaldeaths += player.deaths;
+		totalassists += player.assists;
+		totalheadshots += player.headshots;
+		totalsuicides += player.suicides;
+		totalhumiliations += player.humiliated;
+		totaltimeplayed += int( min( player.timeplayed[ "alive" ], level.timeplayedcap ) );
+		switch( level.gametype )
+		{
+			case "ctf":
+				totalflagscaptured += player.captures;
+				totalflagsreturned += player.returns;
+				break;
+			case "koth":
+				totalhqsdestroyed += player.destructions;
+				totalhqscaptured += player.captures;
+				break;
+			case "sd":
+				totalsddefused += player.defuses;
+				totalsdplants += player.plants;
+				break;
+			case "sab":
+				if ( isDefined( player.team ) && isDefined( level.teams[ player.team ] ) )
 				{
-					case "ctf":
-						totalflagscaptured += player.captures;
-						totalflagsreturned += player.returns;
-						break;
-					i++;
-					continue;
-					case "koth":
-						totalhqsdestroyed += player.destructions;
-						totalhqscaptured += player.captures;
-						break;
-					i++;
-					continue;
-					case "sd":
-						totalsddefused += player.defuses;
-						totalsdplants += player.plants;
-						break;
-					i++;
-					continue;
-					case "sab":
-						if ( isDefined( player.team ) && isDefined( level.teams[ player.team ] ) )
-						{
-							totalsabdestroyedbyteam[ player.team ] += player.destructions;
-						}
-						break;
-					i++;
-					continue;
+					totalsabdestroyedbyteam[ player.team ] += player.destructions;
 				}
-				i++;
-			}
-			if ( maps/mp/bots/_bot::is_bot_ranked_match() )
-			{
-				incrementcounter( "global_combattraining_gamesplayed", 1 );
-			}
-			incrementcounter( "global_kills", totalkills );
-			incrementcounter( "global_deaths", totaldeaths );
-			incrementcounter( "global_assists", totalassists );
-			incrementcounter( "global_headshots", totalheadshots );
-			incrementcounter( "global_suicides", totalsuicides );
-			incrementcounter( "global_games", 1 );
-			incrementcounter( "global_ctf_flagscaptured", totalflagscaptured );
-			incrementcounter( "global_ctf_flagsreturned", totalflagsreturned );
-			incrementcounter( "global_hq_destroyed", totalhqsdestroyed );
-			incrementcounter( "global_hq_captured", totalhqscaptured );
-			incrementcounter( "global_snd_defuses", totalsddefused );
-			incrementcounter( "global_snd_plants", totalsdplants );
-			incrementcounter( "global_sab_destroyedbyops", totalsabdestroyedbyteam[ "allies" ] );
-			incrementcounter( "global_sab_destroyedbycommunists", totalsabdestroyedbyteam[ "axis" ] );
-			incrementcounter( "global_humiliations", totalhumiliations );
-			if ( isDefined( game[ "wager_pot" ] ) )
-			{
-				incrementcounter( "global_wageredcp", game[ "wager_pot" ] );
-			}
+				break;
 		}
+	}
+	if ( maps/mp/bots/_bot::is_bot_ranked_match() )
+	{
+		incrementcounter( "global_combattraining_gamesplayed", 1 );
+	}
+	incrementcounter( "global_kills", totalkills );
+	incrementcounter( "global_deaths", totaldeaths );
+	incrementcounter( "global_assists", totalassists );
+	incrementcounter( "global_headshots", totalheadshots );
+	incrementcounter( "global_suicides", totalsuicides );
+	incrementcounter( "global_games", 1 );
+	incrementcounter( "global_ctf_flagscaptured", totalflagscaptured );
+	incrementcounter( "global_ctf_flagsreturned", totalflagsreturned );
+	incrementcounter( "global_hq_destroyed", totalhqsdestroyed );
+	incrementcounter( "global_hq_captured", totalhqscaptured );
+	incrementcounter( "global_snd_defuses", totalsddefused );
+	incrementcounter( "global_snd_plants", totalsdplants );
+	incrementcounter( "global_sab_destroyedbyops", totalsabdestroyedbyteam[ "allies" ] );
+	incrementcounter( "global_sab_destroyedbycommunists", totalsabdestroyedbyteam[ "axis" ] );
+	incrementcounter( "global_humiliations", totalhumiliations );
+	if ( isDefined( game[ "wager_pot" ] ) )
+	{
+		incrementcounter( "global_wageredcp", game[ "wager_pot" ] );
 	}
 }
 
-statgetwithgametype( dataname )
+statgetwithgametype( dataname ) //checked matches cerberus output
 {
 	if ( isDefined( level.nopersistence ) && level.nopersistence )
 	{
@@ -254,7 +232,7 @@ statgetwithgametype( dataname )
 	return self getdstat( "PlayerStatsByGameType", getgametypename(), dataname, "StatValue" );
 }
 
-getgametypename()
+getgametypename() //checked matches cerberus output
 {
 	if ( !isDefined( level.fullgametypename ) )
 	{
@@ -271,7 +249,7 @@ getgametypename()
 	return level.fullgametypename;
 }
 
-ispartygamemode()
+ispartygamemode() //checked changed to match cerberus output
 {
 	switch( level.gametype )
 	{
@@ -280,20 +258,20 @@ ispartygamemode()
 		case "sas":
 		case "shrp":
 			return 1;
-		}
-		return 0;
 	}
+	return 0;
 }
 
-isstatmodifiable( dataname )
+isstatmodifiable( dataname ) //checked changed at own discretion
 {
-	if ( !level.rankedmatch )
+	if ( level.rankedmatch || level.wagermatch )
 	{
-		return level.wagermatch;
+		return 1;
 	}
+	return 0;
 }
 
-statsetwithgametype( dataname, value, incvalue )
+statsetwithgametype( dataname, value, incvalue ) //checked matches cerberus output
 {
 	if ( isDefined( level.nopersistence ) && level.nopersistence )
 	{
@@ -310,38 +288,37 @@ statsetwithgametype( dataname, value, incvalue )
 	self setdstat( "PlayerStatsByGameType", getgametypename(), dataname, "StatValue", value );
 }
 
-adjustrecentstats()
+adjustrecentstats() //checked matches cerberus output
 {
+	/*
 /#
 	if ( getDvarInt( "scr_writeConfigStrings" ) == 1 || getDvarInt( "scr_hostmigrationtest" ) == 1 )
 	{
 		return;
 #/
 	}
+	*/
 	initializematchstats();
 }
 
-getrecentstat( isglobal, index, statname )
+getrecentstat( isglobal, index, statname ) //checked changed to match cerberus output
 {
 	if ( level.wagermatch )
 	{
 		return self getdstat( "RecentEarnings", index, statname );
 	}
+	else if ( isglobal )
+	{
+		modename = maps/mp/gametypes/_globallogic::getcurrentgamemode();
+		return self getdstat( "gameHistory", modename, "matchHistory", index, statname );
+	}
 	else
 	{
-		if ( isglobal )
-		{
-			modename = maps/mp/gametypes/_globallogic::getcurrentgamemode();
-			return self getdstat( "gameHistory", modename, "matchHistory", index, statname );
-		}
-		else
-		{
-			return self getdstat( "PlayerStatsByGameType", getgametypename(), "prevScores", index, statname );
-		}
+		return self getdstat( "PlayerStatsByGameType", getgametypename(), "prevScores", index, statname );
 	}
 }
 
-setrecentstat( isglobal, index, statname, value )
+setrecentstat( isglobal, index, statname, value ) //checked matches cerberus output
 {
 	if ( isDefined( level.nopersistence ) && level.nopersistence )
 	{
@@ -376,7 +353,7 @@ setrecentstat( isglobal, index, statname, value )
 	}
 }
 
-addrecentstat( isglobal, index, statname, value )
+addrecentstat( isglobal, index, statname, value ) //checked matches cerberus output
 {
 	if ( isDefined( level.nopersistence ) && level.nopersistence )
 	{
@@ -394,21 +371,21 @@ addrecentstat( isglobal, index, statname, value )
 	setrecentstat( isglobal, index, statname, currstat + value );
 }
 
-setmatchhistorystat( statname, value )
+setmatchhistorystat( statname, value ) //checked matches cerberus output
 {
 	modename = maps/mp/gametypes/_globallogic::getcurrentgamemode();
 	historyindex = self getdstat( "gameHistory", modename, "currentMatchHistoryIndex" );
 	setrecentstat( 1, historyindex, statname, value );
 }
 
-addmatchhistorystat( statname, value )
+addmatchhistorystat( statname, value ) //checked matches cerberus output
 {
 	modename = maps/mp/gametypes/_globallogic::getcurrentgamemode();
 	historyindex = self getdstat( "gameHistory", modename, "currentMatchHistoryIndex" );
 	addrecentstat( 1, historyindex, statname, value );
 }
 
-initializematchstats()
+initializematchstats() //checked matches cerberus output
 {
 	if ( isDefined( level.nopersistence ) && level.nopersistence )
 	{
@@ -427,19 +404,21 @@ initializematchstats()
 	self gamehistorystartmatch( getgametypeenumfromname( currgametype, level.hardcoremode ) );
 }
 
-setafteractionreportstat( statname, value, index )
+setafteractionreportstat( statname, value, index ) //checked changed to match cerberus output
 {
 	if ( self is_bot() )
 	{
 		return;
 	}
+		/*
 /#
 	if ( getDvarInt( "scr_writeConfigStrings" ) == 1 || getDvarInt( "scr_hostmigrationtest" ) == 1 )
 	{
 		return;
 #/
 	}
-	if ( !level.rankedmatch || level.wagermatch && level.leaguematch )
+		*/
+	if ( level.rankedmatch || level.wagermatch && level.leaguematch )
 	{
 		if ( isDefined( index ) )
 		{
@@ -453,31 +432,31 @@ setafteractionreportstat( statname, value, index )
 	}
 }
 
-codecallback_challengecomplete( rewardxp, maxval, row, tablenumber, challengetype, itemindex, challengeindex )
+codecallback_challengecomplete( rewardxp, maxval, row, tablenumber, challengetype, itemindex, challengeindex ) //checked matches cerberus output
 {
 	self luinotifyevent( &"challenge_complete", 7, challengeindex, itemindex, challengetype, tablenumber, row, maxval, rewardxp );
 	self luinotifyeventtospectators( &"challenge_complete", 7, challengeindex, itemindex, challengetype, tablenumber, row, maxval, rewardxp );
 }
 
-codecallback_gunchallengecomplete( rewardxp, attachmentindex, itemindex, rankid )
+codecallback_gunchallengecomplete( rewardxp, attachmentindex, itemindex, rankid ) //checked matches cerberus output
 {
 	self luinotifyevent( &"gun_level_complete", 4, rankid, itemindex, attachmentindex, rewardxp );
 	self luinotifyeventtospectators( &"gun_level_complete", 4, rankid, itemindex, attachmentindex, rewardxp );
 }
 
-checkcontractexpirations()
+checkcontractexpirations() //checked matches cerberus output
 {
 }
 
-incrementcontracttimes( timeinc )
+incrementcontracttimes( timeinc ) //checked matches cerberus output
 {
 }
 
-addcontracttoqueue( index, passed )
+addcontracttoqueue( index, passed ) //checked matches cerberus output
 {
 }
 
-uploadstatssoon()
+uploadstatssoon() //checked matches cerberus output
 {
 	self notify( "upload_stats_soon" );
 	self endon( "upload_stats_soon" );
@@ -486,14 +465,15 @@ uploadstatssoon()
 	uploadstats( self );
 }
 
-codecallback_onaddplayerstat( dataname, value )
+codecallback_onaddplayerstat( dataname, value ) //checked matches cerberus output
 {
 }
 
-codecallback_onaddweaponstat( weapname, dataname, value )
+codecallback_onaddweaponstat( weapname, dataname, value ) //checked matches cerberus output
 {
 }
 
-processcontractsonaddstat( stattype, dataname, value, weapname )
+processcontractsonaddstat( stattype, dataname, value, weapname ) //checked matches cerberus output
 {
 }
+

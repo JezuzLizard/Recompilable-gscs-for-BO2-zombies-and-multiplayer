@@ -10,6 +10,7 @@ patch_mp/maps/mp/gametypes/_shellshock.gsc
 ```
 ### The following scripts compile and run successfully with major errors:
 ```
+patch_mp/maps/mp/bots/_bot.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
 ```
@@ -19,7 +20,6 @@ patch_mp/maps/mp/gametypes/_shellshock.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
-patch_mp/maps/mp/bots/_bot.gsc
 patch_mp/maps/mp/bots/_bot_combat.gsc
 patch_mp/maps/mp/bots/_bot_loadout.gsc
 patch_mp/maps/mp/bots/_bot_conf.gsc
@@ -31,6 +31,7 @@ patch_mp/maps/mp/bots/_bot_hq.gsc
 patch_mp/maps/mp/bots/_bot_koth.gsc
 patch_mp/maps/mp/bots/_bot_sd.gsc
 
+patch_mp/maps/mp/gametypes/_battlechatter_mp.gsc
 patch_mp/maps/mp/gametypes/_callbacksetup.gsc
 patch_mp/maps/mp/gametypes/_damagefeedback.gsc
 patch_mp/maps/mp/gametypes/_deathicons.gsc
@@ -43,6 +44,8 @@ patch_mp/maps/mp/gametypes/_killcam.gsc
 patch_mp/maps/mp/gametypes/_menus.gsc
 patch_mp/maps/mp/gametypes/_objpoints.gsc
 patch_mp/maps/mp/gametypes/_perplayer.gsc
+patch_mp/maps/mp/gametypes/_persistence.gsc
+patch_mp/maps/mp/gametypes/_pregame.gsc
 patch_mp/maps/mp/gametypes/_rank.gsc
 patch_mp/maps/mp/gametypes/_serversettings.gsc
 patch_mp/maps/mp/gametypes/_spectating.gsc
@@ -65,7 +68,6 @@ patch_mp/maps/mp/gametypes/tdm.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
-patch_mp/maps/mp/gametypes/_battlechatter.gsc
 patch_mp/maps/mp/gametypes/_class.gsc
 patch_mp/maps/mp/gametypes/_copter.gsc
 patch_mp/maps/mp/gametypes/_gameobjects.gsc
@@ -80,8 +82,6 @@ patch_mp/maps/mp/gametypes/_globallogic_utils.gsc
 patch_mp/maps/mp/gametypes/_globallogic_vehicle.gsc
 patch_mp/maps/mp/gametypes/_hud_message.gsc
 patch_mp/maps/mp/gametypes/_hud_util.gsc
-patch_mp/maps/mp/gametypes/_persistence.gsc
-patch_mp/maps/mp/gametypes/_pregame.gsc
 patch_mp/maps/mp/gametypes/_spawning.gsc
 patch_mp/maps/mp/gametypes/_spawnlogic.gsc
 patch_mp/maps/mp/gametypes/_wager.gsc

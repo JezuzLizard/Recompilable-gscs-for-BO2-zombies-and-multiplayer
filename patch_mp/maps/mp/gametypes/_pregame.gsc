@@ -1,19 +1,26 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/gametypes/_globallogic_ui;
 #include maps/mp/gametypes/_hud;
 #include maps/mp/gametypes/_globallogic_player;
+#include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/_spawning;
 #include maps/mp/gametypes/_spawnlogic;
+#include maps/mp/gametypes/_callbacksetup;
+#include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 
-main()
+
+main() //checked matches cerberus output
 {
 	level.pregame = 1;
+	/*
 /#
 	println( "Pregame main() level.pregame = " + level.pregame + "\n" );
 #/
+	*/
 	maps/mp/gametypes/_globallogic::init();
 	maps/mp/gametypes/_callbacksetup::setupcallbacks();
 	maps/mp/gametypes/_globallogic::setupcallbacks();
@@ -39,16 +46,13 @@ main()
 	setmatchtalkflag( "EveryoneHearsEveryone", 1 );
 }
 
-onstartgametype()
+onstartgametype() //checked changed to match cerberus output
 {
 	setclientnamemode( "auto_change" );
-	level.spawnmins = ( 1, 1, 1 );
-	level.spawnmaxs = ( 1, 1, 1 );
-	_a85 = level.teams;
-	_k85 = getFirstArrayKey( _a85 );
-	while ( isDefined( _k85 ) )
+	level.spawnmins = ( 0, 0, 0 );
+	level.spawnmaxs = ( 0, 0, 0 );
+	foreach(team in level.teams)
 	{
-		team = _a85[ _k85 ];
 		setobjectivetext( team, &"OBJECTIVES_PREGAME" );
 		setobjectivehinttext( team, &"OBJECTIVES_PREGAME_HINT" );
 		if ( level.splitscreen )
@@ -60,7 +64,6 @@ onstartgametype()
 			setobjectivescoretext( team, &"OBJECTIVES_PREGAME_SCORE" );
 		}
 		maps/mp/gametypes/_spawnlogic::addspawnpoints( team, "mp_dm_spawn" );
-		_k85 = getNextArrayKey( _a85, _k85 );
 	}
 	maps/mp/gametypes/_spawning::updateallspawnpoints();
 	level.mapcenter = maps/mp/gametypes/_spawnlogic::findboxcenter( level.spawnmins, level.spawnmaxs );
@@ -81,7 +84,7 @@ onstartgametype()
 	startpregame();
 }
 
-startpregame()
+startpregame() //checked matches cerberus output
 {
 	game[ "strings" ][ "waiting_for_players" ] = &"MP_WAITING_FOR_X_PLAYERS";
 	game[ "strings" ][ "pregame" ] = &"MP_PREGAME";
@@ -94,12 +97,12 @@ startpregame()
 	thread pregamemain();
 }
 
-onspawnplayerunified()
+onspawnplayerunified() //checked matches cerberus output
 {
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn )
+onspawnplayer( predictedspawn ) //checked matches cerberus output
 {
 	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( self.pers[ "team" ] );
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_dm( spawnpoints );
@@ -113,21 +116,19 @@ onspawnplayer( predictedspawn )
 	}
 }
 
-onplayerclasschange( response )
+onplayerclasschange( response ) //checked matches cerberus output
 {
 	self.pregameclassresponse = response;
 }
 
-endpregame()
+endpregame() //checked changed to match cerberus output
 {
 	level.pregame = 0;
 	players = level.players;
-	index = 0;
-	while ( index < players.size )
+	for ( index = 0; index < players.size; index++ )
 	{
 		player = players[ index ];
 		player maps/mp/gametypes/_globallogic_player::freezeplayerforroundend();
-		index++;
 	}
 	setmatchtalkflag( "EveryoneHearsEveryone", 0 );
 	level.pregameplayercount destroyelem();
@@ -135,12 +136,11 @@ endpregame()
 	level.pregametitle destroyelem();
 }
 
-getplayersneededcount()
+getplayersneededcount() //checked changed to match cerberus output
 {
 	players = level.players;
 	count = 0;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		player = players[ i ];
 		team = player.team;
@@ -149,16 +149,14 @@ getplayersneededcount()
 		{
 			count++;
 		}
-		i++;
 	}
 	return int( level.pregame_minplayers - count );
 }
 
-saveplayerspregameinfo()
+saveplayerspregameinfo() //checked changed to match cerberus output
 {
 	players = level.players;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		player = players[ i ];
 		team = player.team;
@@ -171,16 +169,15 @@ saveplayerspregameinfo()
 		{
 			player setpregameclass( class );
 		}
-		i++;
 	}
 }
 
-pregamemain()
+pregamemain() //checked did not reference cerberus output used beta dump _pregame.gsc as a reference
 {
 	level endon( "game_ended" );
-	green = ( 0,6, 0,9, 0,6 );
-	red = ( 0,7, 0,3, 0,2 );
-	yellow = ( 1, 1, 1 );
+	green = ( 0.6, 0.9, 0.6 );
+	red = ( 0.7, 0.3, 0.2 );
+	yellow = ( 1, 1, 0 );
 	white = ( 1, 1, 1 );
 	titlesize = 3;
 	textsize = 2;
@@ -204,7 +201,7 @@ pregamemain()
 	level.pregamesubtitle.archived = 1;
 	level.pregamesubtitle settext( game[ "strings" ][ "waiting_for_players" ] );
 	level.pregamesubtitle.color = green;
-	level.pregameplayercount = createserverfontstring( font, 2,2 );
+	level.pregameplayercount = createserverfontstring( font, 2.2 );
 	level.pregameplayercount setparent( level.pregametitle );
 	level.pregameplayercount setpoint( "TOP", "BOTTOM", -11, 0 );
 	level.pregamesubtitle.glowalpha = 1;
@@ -215,41 +212,40 @@ pregamemain()
 	level.pregameplayercount.color = yellow;
 	level.pregameplayercount maps/mp/gametypes/_hud::fontpulseinit();
 	oldcount = -1;
-	for ( ;; )
+	for(;;)
 	{
-		wait 1;
-		count = getplayersneededcount();
-		if ( count < 0 )
+		wait( 1 );
+		
+		count = GetPlayersNeededCount();
+		
+		if ( 0 >= count )
 		{
 			break;
 		}
-		else /#
-		if ( getDvarInt( "scr_pregame_abort" ) > 0 )
+		/*
+/#			
+		if ( GetDvarint( "scr_pregame_abort" ) > 0 )
 		{
-			setdvar( "scr_pregame_abort", 0 );
+			SetDvar( "scr_pregame_abort", 0 );
 			break;
+		}
 #/
-		}
-		else
+		*/
+		if ( oldcount != count )
 		{
-			if ( oldcount != count )
-			{
-				level.pregameplayercount setvalue( count );
-				level.pregameplayercount thread maps/mp/gametypes/_hud::fontpulse( level );
-				oldcount = count;
-			}
+			level.pregamePlayerCount setValue( count );
+			level.pregamePlayerCount thread maps\mp\gametypes\_hud::fontPulse( level );
+			oldcount = count;
 		}
 	}
 	level.pregameplayercount settext( "" );
 	level.pregamesubtitle settext( game[ "strings" ][ "pregameover" ] );
 	players = level.players;
-	index = 0;
-	while ( index < players.size )
+	for ( index = 0; index < players.size; index++ )
 	{
 		player = players[ index ];
 		player maps/mp/gametypes/_globallogic_player::freezeplayerforroundend();
 		player maps/mp/gametypes/_globallogic_ui::freegameplayhudelems();
-		index++;
 	}
 	visionsetnaked( "mpIntro", 3 );
 	wait 4;
@@ -259,12 +255,12 @@ pregamemain()
 	map_restart( 0 );
 }
 
-onendgame( winner )
+onendgame( winner ) //checked matches cerberus output
 {
 	endpregame();
 }
 
-ontimelimit()
+ontimelimit() //checked changed to match cerberus output
 {
 	winner = undefined;
 	if ( level.teambased )
@@ -272,21 +268,24 @@ ontimelimit()
 		winner = maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "teamScores" );
 		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "time limit", winner );
 	}
-	else winner = maps/mp/gametypes/_globallogic_score::gethighestscoringplayer();
-	if ( isDefined( winner ) )
-	{
-		logstring( "time limit, win: " + winner.name );
-	}
 	else
 	{
-		logstring( "time limit, tie" );
+		winner = maps/mp/gametypes/_globallogic_score::gethighestscoringplayer();
+		if ( isDefined( winner ) )
+		{
+			logstring( "time limit, win: " + winner.name );
+		}
+		else
+		{
+			logstring( "time limit, tie" );
+		}
 	}
 	makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "pregame_time_limit_reached" ] );
 	setdvar( "ui_text_endreason", game[ "strings" ][ "time_limit_reached" ] );
 	thread maps/mp/gametypes/_globallogic::endgame( winner, game[ "strings" ][ "pregame_time_limit_reached" ] );
 }
 
-get_pregame_class()
+get_pregame_class() //checked matches cerberus output
 {
 	pclass = self getpregameclass();
 	if ( isDefined( pclass ) && pclass[ 0 ] != "" )
@@ -298,3 +297,4 @@ get_pregame_class()
 		return "smg_mp,0";
 	}
 }
+

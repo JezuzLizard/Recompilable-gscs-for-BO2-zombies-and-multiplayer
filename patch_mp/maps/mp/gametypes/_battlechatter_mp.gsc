@@ -1,29 +1,28 @@
+//checked includes match cerberus output
 #include maps/mp/killstreaks/_killstreaks;
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked changed to match cerberus output
 {
 	if ( level.createfx_enabled )
 	{
 		return;
 	}
-	_a10 = level.teams;
-	_k10 = getFirstArrayKey( _a10 );
-	while ( isDefined( _k10 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a10[ _k10 ];
+		/*
 /#
 		assert( isDefined( level.teamprefix[ team ] ) );
 #/
 /#
 		assert( isDefined( level.teamprefix[ team ] ) );
 #/
+		*/
 		level.isteamspeaking[ team ] = 0;
 		level.speakers[ team ] = [];
-		_k10 = getNextArrayKey( _a10, _k10 );
 	}
 	level.bcsounds = [];
 	level.bcsounds[ "inform_attack" ] = "attack";
@@ -113,7 +112,7 @@ init()
 	level.battlechatter_init = 1;
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -123,7 +122,7 @@ onplayerconnect()
 	}
 }
 
-updatebcdvars()
+updatebcdvars() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	for ( ;; )
@@ -137,7 +136,7 @@ updatebcdvars()
 	}
 }
 
-onjoinedteam()
+onjoinedteam() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -148,7 +147,7 @@ onjoinedteam()
 	}
 }
 
-onjoinedspectators()
+onjoinedspectators() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -157,7 +156,7 @@ onjoinedspectators()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -172,24 +171,21 @@ onplayerspawned()
 		{
 			continue;
 		}
-		else
-		{
-			self thread reloadtracking();
-			self thread grenadetracking();
-			self thread enemythreat();
-			self thread stickygrenadetracking();
-			self thread painvox();
-			self thread allyrevive();
-			self thread onfirescream();
-			self thread deathvox();
-			self thread watchmissileusage();
-		}
+		self thread reloadtracking();
+		self thread grenadetracking();
+		self thread enemythreat();
+		self thread stickygrenadetracking();
+		self thread painvox();
+		self thread allyrevive();
+		self thread onfirescream();
+		self thread deathvox();
+		self thread watchmissileusage();
 	}
 }
 
 enemycontactleveldelay()
 {
-	while ( 1 )
+	while ( 1 ) //checked matches cerberus output
 	{
 		level waittill( "level_enemy_spotted" );
 		level.enemyspotteddialog = 0;
@@ -198,7 +194,7 @@ enemycontactleveldelay()
 	}
 }
 
-breathinghurtvox()
+breathinghurtvox() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -208,7 +204,7 @@ breathinghurtvox()
 		self waittill( "snd_breathing_hurt" );
 		if ( randomintrange( 0, 100 ) >= level.bcmp_breathing_probability )
 		{
-			wait 0,5;
+			wait 0.5;
 			if ( isalive( self ) )
 			{
 				level thread mpsaylocalsound( self, "breathing", "hurt", 0, 1 );
@@ -218,7 +214,7 @@ breathinghurtvox()
 	}
 }
 
-onfirescream()
+onfirescream() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -227,7 +223,7 @@ onfirescream()
 		self waittill( "snd_burn_scream" );
 		if ( randomintrange( 0, 100 ) >= level.bcmp_breathing_probability )
 		{
-			wait 0,5;
+			wait 0.5;
 			if ( isalive( self ) )
 			{
 				level thread mpsaylocalsound( self, "fire", "scream" );
@@ -237,7 +233,7 @@ onfirescream()
 	}
 }
 
-breathingbettervox()
+breathingbettervox() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -252,7 +248,7 @@ breathingbettervox()
 	}
 }
 
-laststandvox()
+laststandvox() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -268,7 +264,7 @@ laststandvox()
 	}
 }
 
-allyrevive()
+allyrevive() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -283,7 +279,7 @@ allyrevive()
 	}
 }
 
-painvox()
+painvox() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -302,7 +298,7 @@ painvox()
 	}
 }
 
-deathvox()
+deathvox() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "death" );
@@ -313,7 +309,7 @@ deathvox()
 	}
 }
 
-stickygrenadetracking()
+stickygrenadetracking() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -333,7 +329,7 @@ stickygrenadetracking()
 	}
 }
 
-onplayersuicideorteamkill( player, type )
+onplayersuicideorteamkill( player, type ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
@@ -363,22 +359,22 @@ onplayersuicideorteamkill( player, type )
 	}
 }
 
-onplayerkillstreak( player )
+onplayerkillstreak( player ) //checked matches cerberus output
 {
 	player endon( "disconnect" );
 }
 
-onkillstreakused( killstreak, team )
+onkillstreakused( killstreak, team ) //checked matches cerberus output
 {
 }
 
-onplayernearexplodable( object, type )
+onplayernearexplodable( object, type ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "explosion_started" );
 }
 
-shoeboxtracking()
+shoeboxtracking() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -393,7 +389,7 @@ shoeboxtracking()
 	}
 }
 
-checkweaponreload( weapon )
+checkweaponreload( weapon ) //checked matches cerberus output
 {
 	switch( weapon )
 	{
@@ -408,7 +404,7 @@ checkweaponreload( weapon )
 	}
 }
 
-reloadtracking()
+reloadtracking() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -427,14 +423,14 @@ reloadtracking()
 	}
 }
 
-perkspecificbattlechatter( type, checkdistance )
+perkspecificbattlechatter( type, checkdistance ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	self endon( "perk_done" );
 }
 
-enemythreat()
+enemythreat() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -466,45 +462,37 @@ enemythreat()
 	}
 }
 
-weaponfired()
+weaponfired() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	for ( ;; )
 	{
 		self waittill( "weapon_fired" );
-		while ( ( getTime() - self.lastbcattempttime ) > level.bcweapondelay )
+		if ( ( getTime() - self.lastbcattempttime ) > level.bcweapondelay )
 		{
 			self.lastbcattempttime = getTime();
-			while ( randomintrange( 0, 100 ) >= level.bcweaponfireprobability )
+			if ( randomintrange( 0, 100 ) >= level.bcweaponfireprobability )
 			{
 				self.landmarkent = self getlandmark();
-				while ( isDefined( self.landmarkent ) )
+				if ( isDefined( self.landmarkent ) )
 				{
 					myteam = self.team;
-					_a646 = level.teams;
-					_k646 = getFirstArrayKey( _a646 );
-					while ( isDefined( _k646 ) )
+					foreach ( team in level.teams )
 					{
-						team = _a646[ _k646 ];
 						if ( team == myteam )
 						{
+							break;
 						}
-						else
+						keys = getarraykeys( level.squads[ team ] );
+						for ( i = 0; i < keys.size; i++ ) 
 						{
-							keys = getarraykeys( level.squads[ team ] );
-							i = 0;
-							while ( i < keys.size )
+							if ( level.squads[ team ][ keys[ i ] ].size )
 							{
-								if ( level.squads[ team ][ keys[ i ] ].size )
-								{
-									index = randomintrange( 0, level.squads[ team ][ keys[ i ] ].size );
-									level thread mpsaylocalsound( level.squads[ team ][ keys[ i ] ][ index ], "enemy", "infantry" );
-								}
-								i++;
+								index = randomintrange( 0, level.squads[ team ][ keys[ i ] ].size );
+								level thread mpsaylocalsound( level.squads[ team ][ keys[ i ] ][ index ], "enemy", "infantry" );
 							}
 						}
-						_k646 = getNextArrayKey( _a646, _k646 );
 					}
 				}
 			}
@@ -512,7 +500,7 @@ weaponfired()
 	}
 }
 
-killedbysniper( sniper )
+killedbysniper( sniper ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	sniper endon( "disconnect" );
@@ -539,7 +527,7 @@ killedbysniper( sniper )
 	}
 }
 
-playerkilled( attacker )
+playerkilled( attacker ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( !isplayer( attacker ) )
@@ -572,7 +560,7 @@ playerkilled( attacker )
 	}
 }
 
-grenadetracking()
+grenadetracking() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -588,7 +576,7 @@ grenadetracking()
 			level thread incominggrenadetracking( self, grenade, "grenade" );
 			continue;
 		}
-		else if ( weaponname == "satchel_charge_mp" )
+		if ( weaponname == "satchel_charge_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -596,7 +584,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "emp_grenade_mp" )
+		if ( weaponname == "emp_grenade_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -604,7 +592,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "claymore_mp" )
+		if ( weaponname == "claymore_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -612,7 +600,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "flash_grenade_mp" )
+		if ( weaponname == "flash_grenade_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -620,7 +608,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "sticky_grenade_mp" )
+		if ( weaponname == "sticky_grenade_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -628,7 +616,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "tabun_gas_mp" )
+		if ( weaponname == "tabun_gas_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -636,7 +624,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "willy_pete_mp" )
+		if ( weaponname == "willy_pete_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -644,7 +632,7 @@ grenadetracking()
 			}
 			continue;
 		}
-		else if ( weaponname == "hatchet_mp" || weaponname == "proximity_grenade_mp" )
+		if ( weaponname == "hatchet_mp" || weaponname == "proximity_grenade_mp" )
 		{
 			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
@@ -652,63 +640,57 @@ grenadetracking()
 			}
 			continue;
 		}
-		else
+		if ( weaponname == "concussion_grenade_mp" )
 		{
-			if ( weaponname == "concussion_grenade_mp" )
+			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
-				if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
-				{
-					level thread mpsaylocalsound( self, "inform_attack", "concussion" );
-				}
-				break;
+				level thread mpsaylocalsound( self, "inform_attack", "concussion" );
 			}
-			else if ( weaponname == "scrambler_mp" )
+			continue;
+		}
+		if ( weaponname == "scrambler_mp" )
+		{
+			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
-				if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
-				{
-					level thread mpsaylocalsound( self, "inform_attack", "scrambler" );
-				}
-				break;
+				level thread mpsaylocalsound( self, "inform_attack", "scrambler" );
 			}
-			else if ( weaponname == "tactical_insertion_mp" )
+			continue;
+		}
+		if ( weaponname == "tactical_insertion_mp" )
+		{
+			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
-				if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
-				{
-					level thread mpsaylocalsound( self, "inform_attack", "tactical" );
-				}
-				break;
+				level thread mpsaylocalsound( self, "inform_attack", "tactical" );
 			}
-			else if ( weaponname == "bouncingbetty_mp" )
+			continue;
+		}
+		if ( weaponname == "bouncingbetty_mp" )
+		{
+			if ( randomintrange( 0, 100 ) >= level.bctosstrophyprobability )
 			{
-				if ( randomintrange( 0, 100 ) >= level.bctosstrophyprobability )
-				{
-					level thread mpsaylocalsound( self, "inform_attack", "c4" );
-				}
-				break;
+				level thread mpsaylocalsound( self, "inform_attack", "c4" );
 			}
-			else if ( weaponname == "sensor_grenade_mp" )
+			continue;
+		}
+		if ( weaponname == "sensor_grenade_mp" )
+		{
+			if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
 			{
-				if ( randomintrange( 0, 100 ) >= level.bctossgrenadeprobability )
-				{
-					level thread mpsaylocalsound( self, "inform_attack", "hatchet" );
-				}
-				break;
+				level thread mpsaylocalsound( self, "inform_attack", "hatchet" );
 			}
-			else
+			continue;
+		}
+		if ( weaponname == "trophy_system_mp" )
+		{
+			if ( randomintrange( 0, 100 ) >= level.bctosstrophyprobability )
 			{
-				if ( weaponname == "trophy_system_mp" )
-				{
-					if ( randomintrange( 0, 100 ) >= level.bctosstrophyprobability )
-					{
-						level thread mpsaylocalsound( self, "inform_attack", "scrambler" );
-					}
-				}
+				level thread mpsaylocalsound( self, "inform_attack", "scrambler" );
 			}
 		}
 	}
 }
 
-watchmissileusage()
+watchmissileusage() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -718,17 +700,13 @@ watchmissileusage()
 		self waittill( "missile_fire", missile, weapon_name );
 		if ( weapon_name == "usrpg_mp" )
 		{
-			level thread incominggrenadetracking( self, missile, "rpg", 0,2 );
-			continue;
+			level thread incominggrenadetracking( self, missile, "rpg", 0.2 );
 		}
-		else
-		{
-			return;
-		}
+		return;
 	}
 }
 
-incominggrenadetracking( thrower, grenade, type, waittime )
+incominggrenadetracking( thrower, grenade, type, waittime ) //checked matches cerberus output
 {
 	if ( randomintrange( 0, 100 ) >= level.bcincominggrenadeprobability )
 	{
@@ -757,7 +735,7 @@ incominggrenadetracking( thrower, grenade, type, waittime )
 	}
 }
 
-incomingspecialgrenadetracking( type )
+incomingspecialgrenadetracking( type ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -776,7 +754,7 @@ incomingspecialgrenadetracking( type )
 	}
 }
 
-gametypespecificbattlechatter( event, team )
+gametypespecificbattlechatter( event, team ) //checked changed to match the beta dump _battlechatter_mp.gsc
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -785,30 +763,27 @@ gametypespecificbattlechatter( event, team )
 	{
 		if ( isDefined( team ) )
 		{
-			index = checkdistancetoevent( self, 90000 );
+
+			index = CheckDistanceToEvent( self, 300 * 300 );
 			if ( isDefined( index ) )
 			{
-				level thread mpsaylocalsound( level.aliveplayers[ team ][ index ], "gametype", event );
+				level thread mpSayLocalSound( level.alivePlayers[ team ][ index ], "gametype", event );
 				self notify( "event_ended" );
 			}
 		}
 		else
 		{
-			_a939 = level.teams;
-			_k939 = getFirstArrayKey( _a939 );
-			while ( isDefined( _k939 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a939[ _k939 ];
-				index = randomintrange( 0, level.aliveplayers[ team ].size );
-				level thread mpsaylocalsound( level.aliveplayers[ team ][ index ], "gametype", event );
-				_k939 = getNextArrayKey( _a939, _k939 );
+				index = randomIntRange( 0, level.alivePlayers[ team ].size );
+				level thread mpSayLocalSound( level.alivePlayers[ team ][ index ], "gametype", event );
 			}
 		}
 		wait 1;
 	}
 }
 
-checkweaponkill( weapon )
+checkweaponkill( weapon ) //checked matches cerberus output
 {
 	switch( weapon )
 	{
@@ -820,7 +795,7 @@ checkweaponkill( weapon )
 	}
 }
 
-saykillbattlechatter( attacker, sweapon, victim )
+saykillbattlechatter( attacker, sweapon, victim ) //checked changed to match cerberus output
 {
 	if ( checkweaponkill( sweapon ) )
 	{
@@ -828,22 +803,19 @@ saykillbattlechatter( attacker, sweapon, victim )
 	}
 	if ( isDefined( victim.issniperspotted ) && victim.issniperspotted && randomintrange( 0, 100 ) >= level.bckillinformprobability )
 	{
-		level thread saylocalsounddelayed( attacker, "kill", "sniper", 0,75 );
+		level thread saylocalsounddelayed( attacker, "kill", "sniper", 0.75 );
 		victim.issniperspotted = 0;
 	}
-	else
+	else if ( isDefined( level.bckillinformprobability ) && randomintrange( 0, 100 ) >= level.bckillinformprobability )
 	{
-		if ( isDefined( level.bckillinformprobability ) && randomintrange( 0, 100 ) >= level.bckillinformprobability )
+		if ( !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( sweapon ) )
 		{
-			if ( !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( sweapon ) )
-			{
-				level thread saylocalsounddelayed( attacker, "kill", "infantry", 0,75 );
-			}
+			level thread saylocalsounddelayed( attacker, "kill", "infantry", 0.75 );
 		}
 	}
 }
 
-saylocalsounddelayed( player, soundtype1, soundtype2, delay )
+saylocalsounddelayed( player, soundtype1, soundtype2, delay ) //checked matches cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -855,7 +827,7 @@ saylocalsounddelayed( player, soundtype1, soundtype2, delay )
 	mpsaylocalsound( player, soundtype1, soundtype2 );
 }
 
-saylocalsound( player, soundtype )
+saylocalsound( player, soundtype ) //checked matches cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -869,7 +841,7 @@ saylocalsound( player, soundtype )
 	}
 }
 
-mpsaylocalsound( player, partone, parttwo, checkspeakers, is2d )
+mpsaylocalsound( player, partone, parttwo, checkspeakers, is2d ) //checked changed to match cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -894,7 +866,6 @@ mpsaylocalsound( player, partone, parttwo, checkspeakers, is2d )
 		if ( isDefined( is2d ) )
 		{
 			player thread dosound( soundalias, is2d );
-			return;
 		}
 		else
 		{
@@ -903,7 +874,7 @@ mpsaylocalsound( player, partone, parttwo, checkspeakers, is2d )
 	}
 }
 
-mpsaylocationallocalsound( player, prefix, partone, parttwo )
+mpsaylocationallocalsound( player, prefix, partone, parttwo ) //checked matches cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -923,7 +894,7 @@ mpsaylocationallocalsound( player, prefix, partone, parttwo )
 	}
 }
 
-dosound( soundalias, is2d )
+dosound( soundalias, is2d ) //checked changed to match cerberus output
 {
 	team = self.team;
 	level addspeaker( self, team );
@@ -931,19 +902,16 @@ dosound( soundalias, is2d )
 	{
 		self playlocalsound( soundalias );
 	}
-	else
+	else if ( level.allowbattlechatter && level.teambased )
 	{
-		if ( level.allowbattlechatter && level.teambased )
-		{
-			self playsoundontag( soundalias, "J_Head" );
-		}
+		self playsoundontag( soundalias, "J_Head" );
 	}
 	self thread waitplaybacktime( soundalias );
 	self waittill_any( soundalias, "death", "disconnect" );
 	level removespeaker( self, team );
 }
 
-dolocationalsound( soundalias1, soundalias2 )
+dolocationalsound( soundalias1, soundalias2 ) //checked matches cerberus output
 {
 	team = self.team;
 	level addspeaker( self, team );
@@ -956,7 +924,7 @@ dolocationalsound( soundalias1, soundalias2 )
 	level removespeaker( self, team );
 }
 
-waitplaybacktime( soundalias )
+waitplaybacktime( soundalias ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -973,15 +941,14 @@ waitplaybacktime( soundalias )
 	self notify( soundalias );
 }
 
-isspeakerinrange( player )
+isspeakerinrange( player ) //checked changed to match cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
 	distsq = 1000000;
-	while ( isDefined( player ) && isDefined( player.team ) && player.team != "spectator" )
+	if ( isDefined( player ) && isDefined( player.team ) && player.team != "spectator" )
 	{
-		index = 0;
-		while ( index < level.speakers[ player.team ].size )
+		for ( index = 0; index < level.speakers[player.team].size; index++ )
 		{
 			teammate = level.speakers[ player.team ][ index ];
 			if ( teammate == player )
@@ -992,18 +959,17 @@ isspeakerinrange( player )
 			{
 				return 1;
 			}
-			index++;
 		}
 	}
 	return 0;
 }
 
-addspeaker( player, team )
+addspeaker( player, team ) //checked matches cerberus output
 {
 	level.speakers[ team ][ level.speakers[ team ].size ] = player;
 }
 
-removespeaker( player, team )
+removespeaker( player, team ) //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	newspeakers = [];
 	index = 0;
@@ -1014,31 +980,26 @@ removespeaker( player, team )
 			index++;
 			continue;
 		}
-		else
-		{
-			newspeakers[ newspeakers.size ] = level.speakers[ team ][ index ];
-		}
+		newspeakers[ newspeakers.size ] = level.speakers[ team ][ index ];
 		index++;
 	}
 	level.speakers[ team ] = newspeakers;
 }
 
-getlandmark()
+getlandmark() //checked changed to match cerberus output
 {
 	landmarks = level.landmarks;
-	i = 0;
-	while ( i < landmarks.size )
+	for ( i = 0; i < landmarks.size; i++ )
 	{
 		if ( self istouching( landmarks[ i ] ) && isDefined( landmarks[ i ].script_landmark ) )
 		{
 			return landmarks[ i ];
 		}
-		i++;
 	}
 	return undefined;
 }
 
-checkdistancetoevent( player, area )
+checkdistancetoevent( player, area ) //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	if ( !isDefined( player ) )
 	{
@@ -1053,33 +1014,12 @@ checkdistancetoevent( player, area )
 			index++;
 			continue;
 		}
-		else if ( teammate == player )
+		if ( teammate == player )
 		{
 			index++;
 			continue;
 		}
-		else
-		{
-			if ( distancesquared( teammate.origin, player.origin ) < area )
-			{
-				return index;
-			}
-		}
-		index++;
-	}
-}
-
-checkdistancetoenemy( enemy, area, team )
-{
-	if ( !isDefined( enemy ) )
-	{
-		return undefined;
-	}
-	index = 0;
-	while ( index < level.aliveplayers[ team ].size )
-	{
-		player = level.aliveplayers[ team ][ index ];
-		if ( distancesquared( enemy.origin, player.origin ) < area )
+		if ( distancesquared( teammate.origin, player.origin ) < area )
 		{
 			return index;
 		}
@@ -1087,15 +1027,28 @@ checkdistancetoenemy( enemy, area, team )
 	}
 }
 
-checkdistancetoobject( area, object, ignoreteam, ignoreent )
+checkdistancetoenemy( enemy, area, team ) //checked changed to match cerberus output
+{
+	if ( !isDefined( enemy ) )
+	{
+		return undefined;
+	}
+	for ( index = 0; index < level.aliveplayers[team].size; index++ )
+	{
+		player = level.aliveplayers[ team ][ index ];
+		if ( distancesquared( enemy.origin, player.origin ) < area )
+		{
+			return index;
+		}
+	}
+}
+
+checkdistancetoobject( area, object, ignoreteam, ignoreent ) //checked partially changed to match cerberus output did not change while loops to for loops see github for more info
 {
 	if ( isDefined( ignoreteam ) )
 	{
-		_a1232 = level.teams;
-		_k1232 = getFirstArrayKey( _a1232 );
-		while ( isDefined( _k1232 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1232[ _k1232 ];
 			i = 0;
 			while ( i < level.aliveplayers[ team ].size )
 			{
@@ -1105,19 +1058,15 @@ checkdistancetoobject( area, object, ignoreteam, ignoreent )
 					i++;
 					continue;
 				}
-				else
+				if ( isDefined( object ) && distancesquared( player.origin, object.origin ) < area )
 				{
-					if ( isDefined( object ) && distancesquared( player.origin, object.origin ) < area )
-					{
-						return player;
-					}
+					return player;
 				}
 				i++;
 			}
-			_k1232 = getNextArrayKey( _a1232, _k1232 );
 		}
 	}
-	else i = 0;
+	i = 0;
 	while ( i < level.players.size )
 	{
 		player = level.players[ i ];
@@ -1126,57 +1075,44 @@ checkdistancetoobject( area, object, ignoreteam, ignoreent )
 			i++;
 			continue;
 		}
-		else
+		if ( isalive( player ) )
 		{
-			if ( isalive( player ) )
+			if ( isDefined( object ) && distancesquared( player.origin, object.origin ) < area )
 			{
-				if ( isDefined( object ) && distancesquared( player.origin, object.origin ) < area )
-				{
-					return player;
-				}
+				return player;
 			}
 		}
 		i++;
 	}
 }
 
-get_closest_player_enemy()
+get_closest_player_enemy() //checked partially changed to match cerberus output did not use continue in foreach see github for more info
 {
 	players = getplayers();
 	players = arraysort( players, self.origin );
-	_a1269 = players;
-	_k1269 = getFirstArrayKey( _a1269 );
-	while ( isDefined( _k1269 ) )
+	foreach ( player in players )
 	{
-		player = _a1269[ _k1269 ];
 		if ( !isDefined( player ) || !isalive( player ) )
+		{
+		}
+		else if ( player.sessionstate != "playing" )
+		{
+		}
+		else if ( player == self )
+		{
+		}
+		else if ( level.teambased && self.team == player.team )
 		{
 		}
 		else
 		{
-			if ( player.sessionstate != "playing" )
-			{
-				break;
-			}
-			else if ( player == self )
-			{
-				break;
-			}
-			else if ( level.teambased && self.team == player.team )
-			{
-				break;
-			}
-			else
-			{
-				return player;
-			}
+			return player;
 		}
-		_k1269 = getNextArrayKey( _a1269, _k1269 );
 	}
 	return undefined;
 }
 
-get_closest_player_ally()
+get_closest_player_ally() //checked partially changed to match cerberus output did not use continue in foreach see github for more info
 {
 	if ( !level.teambased )
 	{
@@ -1184,30 +1120,22 @@ get_closest_player_ally()
 	}
 	players = getplayers( self.team );
 	players = arraysort( players, self.origin );
-	_a1307 = players;
-	_k1307 = getFirstArrayKey( _a1307 );
-	while ( isDefined( _k1307 ) )
+	foreach ( player in players )
 	{
-		player = _a1307[ _k1307 ];
 		if ( !isDefined( player ) || !isalive( player ) )
+		{
+		}
+		else if ( player.sessionstate != "playing" )
+		{
+		}
+		else if ( player == self )
 		{
 		}
 		else
 		{
-			if ( player.sessionstate != "playing" )
-			{
-				break;
-			}
-			else if ( player == self )
-			{
-				break;
-			}
-			else
-			{
-				return player;
-			}
+			return player;
 		}
-		_k1307 = getNextArrayKey( _a1307, _k1307 );
 	}
 	return undefined;
 }
+
