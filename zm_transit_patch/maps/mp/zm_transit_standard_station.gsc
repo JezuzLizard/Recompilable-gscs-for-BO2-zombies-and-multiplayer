@@ -6,12 +6,12 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 	precachemodel( "zm_collision_transit_busdepot_survival" );
 }
 
-station_treasure_chest_init()
+station_treasure_chest_init() //checked matches cerberus output
 {
 	chest1 = getstruct( "depot_chest", "script_noteworthy" );
 	level.chests = [];
@@ -19,7 +19,7 @@ station_treasure_chest_init()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "depot_chest" );
 }
 
-main()
+main() //checked changed to match cerberus output
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "station" );
 	station_treasure_chest_init();
@@ -32,20 +32,16 @@ main()
 	flag_set( "power_on" );
 	level setclientfield( "zombie_power_on", 1 );
 	zombie_doors = getentarray( "zombie_door", "targetname" );
-	_a48 = zombie_doors;
-	_k48 = getFirstArrayKey( _a48 );
-	while ( isDefined( _k48 ) )
+	foreach ( door in zombie_doors )
 	{
-		door = _a48[ _k48 ];
 		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
 		{
 			door trigger_off();
 		}
-		_k48 = getNextArrayKey( _a48, _k48 );
 	}
 }
 
-enemy_location_override( zombie, enemy )
+enemy_location_override( zombie, enemy ) //checked matches cerberus output
 {
 	location = enemy.origin;
 	if ( is_true( self.reroute ) )
@@ -57,3 +53,5 @@ enemy_location_override( zombie, enemy )
 	}
 	return location;
 }
+
+
