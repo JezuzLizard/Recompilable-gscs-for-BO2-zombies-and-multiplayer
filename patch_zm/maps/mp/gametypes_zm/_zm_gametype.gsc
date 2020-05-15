@@ -113,7 +113,7 @@ game_objects_allowed( mode, location ) //checked partially changed to match cerb
 		{
 			isallowed = maps/mp/gametypes_zm/_gameobjects::entity_is_allowed( entities[ i ], allowed );
 			isvalidlocation = maps/mp/gametypes_zm/_gameobjects::location_is_allowed( entities[ i ], location );
-			if ( !isallowed || !isvalidlocation && !is_classic() )
+			if ( !isallowed || !isvalidlocation && is_classic() )
 			{
 				if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
 				{
@@ -243,20 +243,17 @@ setup_standard_objects( location ) //checked partially used cerberus output
 		{
 			keep = 0;
 			tokens = strtok( structs[ i ].script_string, " " );
-			j = 0;
-			while ( j < tokens.size )
+			foreach ( token in tokens )
 			{
-				if ( tokens[ j ] == level.scr_zm_ui_gametype && tokens[ j ] != "zstandard" )
+				if ( token == level.scr_zm_ui_gametype && token != "zstandard" )
 				{
 					keep = 1;
-					j++;
 					continue;
 				}
-				if ( tokens[ j ] == "zstandard" )
+				else if ( token == "zstandard" )
 				{
 					keep = 1;
 				}
-				j++;
 			}
 			if ( !keep )
 			{
@@ -857,12 +854,13 @@ setup_classic_gametype() //checked did not change to match cerberus output
 			}
 			if ( should_remove )
 			{
-				ent delete();
+				ents[ i ] delete();
 			}
 		}
 		i++;
 	}
 	structs = getstructarray( "game_mode_object" );
+	i = 0;
 	while ( i < structs.size )
 	{
 		if ( !isdefined( structs[ i ].script_string ) )
@@ -884,9 +882,9 @@ setup_classic_gametype() //checked did not change to match cerberus output
 			i++;
 			continue;
 		}
-		barricade = spawn( "script_model", struct.origin );
-		barricade.angles = struct.angles;
-		barricade setmodel( struct.script_parameters );
+		barricade = spawn( "script_model", structs[ i ].origin );
+		barricade.angles = structs[ i ].angles;
+		barricade setmodel( structs[ i ].script_parameters );
 		i++;
 	}
 	unlink_meat_traversal_nodes();
@@ -1982,6 +1980,8 @@ blank()
 {
 	//empty function
 }
+
+
 
 
 
