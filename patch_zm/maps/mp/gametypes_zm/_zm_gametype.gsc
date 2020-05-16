@@ -7,14 +7,17 @@
 #include maps/mp/gametypes_zm/_hud;
 #include maps/mp/zombies/_zm_audio_announcer;
 #include maps/mp/zombies/_zm_audio;
+#include maps/mp/zombies/_zm;
 #include maps/mp/zombies/_zm_laststand;
 #include maps/mp/gametypes_zm/_globallogic_ui;
 #include maps/mp/gametypes_zm/_hud_message;
 #include maps/mp/gametypes_zm/_globallogic_score;
 #include maps/mp/gametypes_zm/_globallogic_defaults;
+#include maps/mp/gametypes_zm/_globallogic_spawn;
 #include maps/mp/gametypes_zm/_gameobjects;
 #include maps/mp/gametypes_zm/_weapons;
 #include maps/mp/gametypes_zm/_callbacksetup;
+#include maps/mp/gametypes_zm/_globallogic;
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/gametypes_zm/_hud_util;
@@ -184,7 +187,7 @@ globallogic_setupdefault_zombiecallbacks() //checked matches cerberus output
 	level.onteamscore = ::blank;
 	
 	//doesn't exist in any dump or any other script no idea what its trying to override to
-	//level.wavespawntimer = ::wavespawntimer;
+	level.wavespawntimer = maps/mp/gametypes_zm/_globallogic::wavespawntimer;
 	level.onspawnplayer = ::blank;
 	level.onspawnplayerunified = ::blank;
 	level.onspawnspectator = ::onspawnspectator;
@@ -646,7 +649,7 @@ respawn_spectators_and_freeze_players() //checked changed to match cerberus outp
 			}
 			player [[ level.spawnplayer ]]();
 		}
-		player freeze_player_controls(1);
+		player freeze_player_controls( 1 );
 	}
 }
 
@@ -1295,7 +1298,7 @@ start_round() //checked changed to match cerberus output
 	wait 1;
 	level thread play_sound_2d( "zmb_air_horn" );
 	players = get_players();
-	while ( i = 0; i < players.size; i++; )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] freeze_player_controls( 0 );
 		players[ i ] sprintuprequired();
@@ -1445,15 +1448,16 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 				spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
 			}	
 			spawnpoint = maps/mp/zombies/_zm::getfreespawnpoint( spawnpoints, self );
-			if ( predictedspawn )
-			{
-				self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
-				return;
-			}
-			else
-			{
-				self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
-			}
+
+		}
+		if ( predictedspawn )
+		{
+			self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
+			return;
+		}
+		else
+		{
+			self spawn( spawnpoint.origin, spawnpoint.angles, "zsurvival" );
 		}
 	}
 	self.entity_num = self getentitynumber();
