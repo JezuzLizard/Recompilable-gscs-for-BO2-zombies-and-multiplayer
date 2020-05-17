@@ -27,6 +27,7 @@ init() //checked matches cerberus output
 		level.debugLogging_zm_weapons = 0;
 	}
 	//end debug
+	level.monolingustic_prompt_format = 0;
 	init_weapons();
 	init_weapon_upgrade();
 	init_weapon_toggle();
@@ -588,14 +589,14 @@ add_attachments( weapon_name, upgrade_name ) //checked does not match cerberus o
 	row = tablelookuprownum( table, 0, upgrade_name );
 	if ( row > -1 )
 	{
-		level.zombie_weapons[weapon].default_attachment = TableLookUp( table, 0, upgrade.name, 1 );
-		level.zombie_weapons[weapon].addon_attachments = [];
+		level.zombie_weapons[ weapon_name ].default_attachment = TableLookUp( table, 0, upgrade.name, 1 );
+		level.zombie_weapons[ weapon_name ].addon_attachments = [];
 		index = 2;
 		next_addon = TableLookUp( table, 0, upgrade.name, index );
 
 		while ( isdefined( next_addon ) && next_addon.size > 0 )
 		{
-			level.zombie_weapons[weapon].addon_attachments[level.zombie_weapons[weapon].addon_attachments.size] = next_addon;
+			level.zombie_weapons[ weapon_name ].addon_attachments[ level.zombie_weapons[ weapon_name ].addon_attachments.size ] = next_addon;
 			index++;
 			next_addon = TableLookUp( table, 0, upgrade.name, index );
 		}
