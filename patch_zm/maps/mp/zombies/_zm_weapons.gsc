@@ -589,16 +589,16 @@ add_attachments( weapon_name, upgrade_name ) //checked does not match cerberus o
 	row = tablelookuprownum( table, 0, upgrade_name );
 	if ( row > -1 )
 	{
-		level.zombie_weapons[ weapon_name ].default_attachment = TableLookUp( table, 0, upgrade.name, 1 );
+		level.zombie_weapons[ weapon_name ].default_attachment = TableLookUp( table, 0, upgrade_name, 1 );
 		level.zombie_weapons[ weapon_name ].addon_attachments = [];
 		index = 2;
-		next_addon = TableLookUp( table, 0, upgrade.name, index );
+		next_addon = TableLookUp( table, 0, upgrade_name, index );
 
 		while ( isdefined( next_addon ) && next_addon.size > 0 )
 		{
 			level.zombie_weapons[ weapon_name ].addon_attachments[ level.zombie_weapons[ weapon_name ].addon_attachments.size ] = next_addon;
 			index++;
-			next_addon = TableLookUp( table, 0, upgrade.name, index );
+			next_addon = TableLookUp( table, 0, upgrade_name, index );
 		}
 	}
 }
@@ -741,11 +741,6 @@ init_weapons() //checked matches cerberus output
 		[[ level._zombie_custom_add_weapons ]]();
 	}
 	precachemodel( "zombie_teddybear" );
-	if ( level.debugLogging_zm_weapons )
-	{
-		logline1 = "_zm_weapons.gsc init_weapons() completed its operation" + "\n";
-		logprint( logline1 );
-	}
 }
 
 add_limited_weapon( weapon_name, amount ) //checked matches cerberus output
@@ -759,10 +754,8 @@ add_limited_weapon( weapon_name, amount ) //checked matches cerberus output
 
 limited_weapon_below_quota( weapon, ignore_player, pap_triggers ) //checked changed to match cerberus output
 {
-
 	if ( isDefined( level.limited_weapons[ weapon ] ) )
 	{
-
 		if ( !isDefined( pap_triggers ) )
 		{
 			if ( !isDefined( level.pap_triggers ) )
@@ -806,7 +799,7 @@ limited_weapon_below_quota( weapon, ignore_player, pap_triggers ) //checked chan
 		}
 		for ( k = 0; k < pap_triggers.size; k++ )
 		{
-			if ( isDefined( pap_triggers[ k ].current_weapon ) && pap_triggers[ k ].current_weapon == weapon || pap_triggers[ k ].current_weapon == upgradedweapon )
+			if ( isDefined( pap_triggers[ k ].current_weapon ) && pap_triggers[ k ].current_weapon == weapon || isDefined( pap_triggers[ k ].current_weapon ) && pap_triggers[ k ].current_weapon == upgradedweapon )
 			{
 				count++;
 				if ( count >= limit )
@@ -853,7 +846,6 @@ limited_weapon_below_quota( weapon, ignore_player, pap_triggers ) //checked chan
 		}
 	}
 	return 1;
-
 }
 
 add_custom_limited_weapon_check( callback ) //checked matches cerberus output
@@ -994,7 +986,7 @@ init_spawnable_weapon_upgrade() //checked partially changed to match cerberus ou
 			else
 			{
 				unitrigger_stub.hint_parm1 = get_weapon_display_name( spawn_list[ i ].zombie_weapon_upgrade );
-				if ( isDefined( unitrigger_stub.hint_parm1 ) || unitrigger_stub.hint_parm1 == "" || unitrigger_stub.hint_parm1 == "none" )
+				if ( !isDefined( unitrigger_stub.hint_parm1 ) || unitrigger_stub.hint_parm1 == "" || unitrigger_stub.hint_parm1 == "none" )
 				{
 					unitrigger_stub.hint_parm1 = "missing weapon name " + spawn_list[ i ].zombie_weapon_upgrade;
 				}
@@ -1035,11 +1027,6 @@ init_spawnable_weapon_upgrade() //checked partially changed to match cerberus ou
 	}
 	level._spawned_wallbuys = spawn_list;
 	tempmodel delete();
-	if ( level.debugLogging_zm_weapons )
-	{
-		logline2 = "_zm_weapons.gsc init_spawnable_weapon_upgrade() completed its operation" + "\n";
-		logprint( logline2 );
-	}
 }
 
 add_dynamic_wallbuy( weapon, wallbuy, pristine ) //checked partially changed to match cerberus output
@@ -1206,7 +1193,7 @@ wall_weapon_update_prompt( player ) //checked partially changed to match cerberu
 		{
 			cost = get_weapon_cost( weapon );
 			weapon_display = get_weapon_display_name( weapon );
-			if ( isDefined( weapon_display ) || weapon_display == "" || weapon_display == "none" )
+			if ( !isDefined( weapon_display ) || weapon_display == "" || weapon_display == "none" )
 			{
 				weapon_display = "missing weapon name " + weapon;
 			}
@@ -1227,11 +1214,6 @@ wall_weapon_update_prompt( player ) //checked partially changed to match cerberu
 	self.stub.cursor_hint = "HINT_WEAPON";
 	self.stub.cursor_hint_weapon = weapon;
 	self setcursorhint( self.stub.cursor_hint, self.stub.cursor_hint_weapon );
-	if ( level.debugLogging_zm_weapons )
-	{
-		logline3 = "_zm_weapons.gsc wall_weapon_update_prompt() completed its operation" + "\n";
-		logprint( logline3 );
-	}
 	return 1;
 }
 
@@ -1638,7 +1620,7 @@ weapon_supports_attachments( weaponname ) //checked changed at own discretion
 	{
 		attachments = level.zombie_weapons[ weaponname ].addon_attachments;
 	}
-	if ( isDefined( attachments ) && attachments.size > 1 )
+	if ( isDefined( attachments ) && attachments.size > 0 ) //was 1
 	{
 		return 1;
 	}
@@ -1818,9 +1800,9 @@ can_upgrade_weapon( weaponname ) //checked changed to match cerberus output
 	}
 	weaponname = tolower( weaponname );
 	weaponname = get_base_name( weaponname );
-	if ( !is_weapon_upgraded( weaponname ) )
+	if ( !is_weapon_upgraded( weaponname ) && isDefined( level.zombie_weapons[ weaponname ].upgrade_name ) )
 	{
-		return isDefined( level.zombie_weapons[ weaponname ].upgrade_name );
+		return 1;
 	}
 	if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch && weapon_supports_attachments( weaponname ) )
 	{
@@ -2622,7 +2604,7 @@ ammo_give( weapon ) //checked changed to match cerberus output
 			stockmax = weaponstartammo( weapon );
 			clipcount = self getweaponammoclip( weapon );
 			currstock = self getammocount( weapon );
-			if ( currstock - clipcount >= stockmax )
+			if ( ( currstock - clipcount ) >= stockmax )
 			{
 				give_ammo = 0;
 			}
@@ -2815,6 +2797,8 @@ register_zombie_weapon_callback( str_weapon, func ) //checked matches cerberus o
 		level.zombie_weapons_callbacks[ str_weapon ] = func;
 	}
 }
+
+
 
 
 
