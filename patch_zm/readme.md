@@ -5,6 +5,7 @@ patch_zm/maps/mp/gametypes_zm/_globalentities.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic.gsc
 patch_zm/maps/mp/gametypes_zm/_scoreboard.gsc
 patch_zm/maps/mp/gametypes_zm/_shellshock.gsc
+patch_zm/maps/mp/gametypes_zm/_zm_gametype.gsc
 patch_zm/maps/mp/gametypes_zm/zclassic.gsc
 patch_zm/maps/mp/zombies/_zm_ai_basic.gsc
 patch_zm/maps/mp/zombies/_zm_ai_dogs.gsc
@@ -25,6 +26,7 @@ patch_zm/maps/mp/zombies/_zm_powerups.gsc
 patch_zm/maps/mp/zombies/_zm_server_throttle.gsc
 patch_zm/maps/mp/zombies/_zm_score.gsc
 patch_zm/maps/mp/zombies/_zm_tombstone.gsc
+patch_zm/maps/mp/zombies/_zm_weapons.gsc
 patch_zm/maps/mp/zombies/_zm_zonemgr.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
@@ -33,10 +35,8 @@ patch_zm/maps/mp/zombies/_zm_timer.gsc
 ```
 ### The following scripts compile and run successfully with major errors:
 ```
-patch_zm/maps/mp/gametypes_zm/_zm_gametype.gsc
 patch_zm/maps/mp/zombies/_zm_spawner.gsc
 patch_zm/maps/mp/zombies/_zm_utility.gsc
-patch_zm/maps/mp/zombies/_zm_weapons.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
 ```
