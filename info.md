@@ -43,3 +43,9 @@ In the case of
 if ( ( a || b ) && ( c || d ) )
 WILL COMPILE
 ```
+
+**You cannot set variables equal to a condition**
+EXAMPLE:
+```a = b && c;```
+WILL NOT COMPILE
+```
