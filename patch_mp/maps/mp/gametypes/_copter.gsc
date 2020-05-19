@@ -1,5 +1,6 @@
+//checked no includes
 
-init()
+init() //checked changed to match cerberus output
 {
 	level.coptermodel = "vehicle_cobra_helicopter_fly";
 	precachemodel( level.coptermodel );
@@ -7,55 +8,48 @@ init()
 	level.copter_maxvel = 700;
 	level.copter_rotspeed = 90;
 	level.copter_accellookahead = 2;
-	level.coptercenteroffset = vectorScale( ( 0, 0, -1 ), 72 );
-	level.coptertargetoffset = vectorScale( ( 0, 0, -1 ), 45 );
+	level.coptercenteroffset = vectorScale( ( 0, 0, 1 ), 72 );
+	level.coptertargetoffset = vectorScale( ( 0, 0, 1 ), 45 );
 	level.copterexplosion = loadfx( "explosions/fx_default_explosion" );
 	level.copterfinalexplosion = loadfx( "explosions/fx_large_vehicle_explosion" );
 }
 
-getabovebuildingslocation( location )
+getabovebuildingslocation( location ) //checked changed to match cerberus output
 {
-	trace = bullettrace( location + vectorScale( ( 0, 0, -1 ), 10000 ), location, 0, undefined );
+	trace = bullettrace( location + vectorScale( ( 0, 0, 1 ), 10000 ), location, 0, undefined );
 	startorigin = trace[ "position" ] + vectorScale( ( 0, 0, -1 ), 514 );
 	zpos = 0;
 	maxxpos = 13;
 	maxypos = 13;
-	xpos = 0;
-	while ( xpos < maxxpos )
+	for ( xpos = 0; xpos < maxxpos; xpos++ )
 	{
-		ypos = 0;
-		while ( ypos < maxypos )
+		for ( ypos = 0; ypos < maxypos; ypos++ ) 
 		{
-			thisstartorigin = startorigin + ( ( ( xpos / ( maxxpos - 1 ) ) - 0,5 ) * 1024, ( ( ypos / ( maxypos - 1 ) ) - 0,5 ) * 1024, 0 );
+			thisstartorigin = startorigin + ( ( ( xpos / ( maxxpos - 1 ) ) - 0.5 ) * 1024, ( ( ypos / ( maxypos - 1 ) ) - 0.5 ) * 1024, 0 );
 			thisorigin = bullettrace( thisstartorigin, thisstartorigin + vectorScale( ( 0, 0, -1 ), 10000 ), 0, undefined );
 			zpos += thisorigin[ "position" ][ 2 ];
-			ypos++;
 		}
-		xpos++;
 	}
 	zpos /= maxxpos * maxypos;
 	zpos += 850;
 	return ( location[ 0 ], location[ 1 ], zpos );
 }
 
-vectorangle( v1, v2 )
+vectorangle( v1, v2 ) //checked changed to match cerberus output
 {
 	dot = vectordot( v1, v2 );
 	if ( dot >= 1 )
 	{
 		return 0;
 	}
-	else
+	else if ( dot <= -1 )
 	{
-		if ( dot <= -1 )
-		{
-			return 180;
-		}
+		return 180;
 	}
 	return acos( dot );
 }
 
-vectortowardsothervector( v1, v2, angle )
+vectortowardsothervector( v1, v2, angle ) //checked matches cerberus output
 {
 	dot = vectordot( v1, v2 );
 	if ( dot <= -1 )
@@ -66,18 +60,18 @@ vectortowardsothervector( v1, v2, angle )
 	return vectorScale( v1, cos( angle ) ) + vectorScale( v3, sin( angle ) );
 }
 
-veclength( v )
+veclength( v ) //checked changed to match cerberus output
 {
-	return distance( ( 0, 0, -1 ), v );
+	return distance( ( 0, 0, 0 ), v );
 }
 
-createcopter( location, team, damagetrig )
+createcopter( location, team, damagetrig ) //checked changed to match cerberus output dvars taken from the beta dump
 {
 	location = getabovebuildingslocation( location );
 	scriptorigin = spawn( "script_origin", location );
-	scriptorigin.angles = vectorToAngle( ( 0, 0, -1 ) );
+	scriptorigin.angles = vectorToAngle( ( 1, 0, 0 ) );
 	copter = spawn( "script_model", location );
-	copter.angles = vectorToAngle( ( 0, 0, -1 ) );
+	copter.angles = vectorToAngle( ( 1, 0, 0 ) );
 	copter linkto( scriptorigin );
 	scriptorigin.copter = copter;
 	copter setmodel( level.coptermodel );
@@ -87,15 +81,15 @@ createcopter( location, team, damagetrig )
 	scriptorigin.damagetrig = damagetrig;
 	scriptorigin.finaldest = location;
 	scriptorigin.finalzdest = location[ 2 ];
-	scriptorigin.desireddir = ( 0, 0, -1 );
+	scriptorigin.desireddir = ( 1, 0, 0 );
 	scriptorigin.desireddirentity = undefined;
-	scriptorigin.desireddirentityoffset = ( 0, 0, -1 );
-	scriptorigin.vel = ( 0, 0, -1 );
+	scriptorigin.desireddirentityoffset = ( 0, 0, 0 );
+	scriptorigin.vel = ( 0, 0, 0 );
 	scriptorigin.dontascend = 0;
 	scriptorigin.health = 2000;
-	if ( getDvar( #"A8262D2E" ) != "" )
+	if ( getDvar( "scr_copter_health" ) != "" )
 	{
-		scriptorigin.health = getDvarFloat( #"A8262D2E" );
+		scriptorigin.health = getDvarFloat( "scr_copter_health" );
 	}
 	scriptorigin.team = team;
 	scriptorigin thread copterai();
@@ -103,7 +97,7 @@ createcopter( location, team, damagetrig )
 	return scriptorigin;
 }
 
-makecopterpassive()
+makecopterpassive() //checked matches cerberus output
 {
 	self.damagetrig notify( "unlink" );
 	self.damagetrig = undefined;
@@ -112,7 +106,7 @@ makecopterpassive()
 	self.desireddir = undefined;
 }
 
-makecopteractive( damagetrig )
+makecopteractive( damagetrig ) //checked matches cerberus output
 {
 	damagetrig.origin = self.origin;
 	damagetrig thread mylinkto( self );
@@ -121,18 +115,18 @@ makecopteractive( damagetrig )
 	self thread copterdamage( damagetrig );
 }
 
-mylinkto( obj )
+mylinkto( obj ) //checked matches cerberus output
 {
 	self endon( "unlink" );
 	while ( 1 )
 	{
 		self.angles = obj.angles;
 		self.origin = obj.origin;
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-setcopterdefensearea( areaent )
+setcopterdefensearea( areaent ) //checked changed to match cerberus output
 {
 	self.areaent = areaent;
 	self.areadescentpoints = [];
@@ -140,15 +134,13 @@ setcopterdefensearea( areaent )
 	{
 		self.areadescentpoints = getentarray( areaent.target, "targetname" );
 	}
-	i = 0;
-	while ( i < self.areadescentpoints.size )
+	for ( i = 0; i < self.areadescentpoints.size; i++ )
 	{
 		self.areadescentpoints[ i ].targetent = getent( self.areadescentpoints[ i ].target, "targetname" );
-		i++;
 	}
 }
 
-copterai()
+copterai() //checked changed to match cerberus output and partially the beta dump
 {
 	self thread coptermove();
 	self thread coptershoot();
@@ -160,16 +152,16 @@ copterai()
 	returningtoarea = 0;
 	while ( 1 )
 	{
-		while ( !isDefined( self.areaent ) )
+		if ( !isDefined( self.areaent ) )
 		{
 			wait 1;
+			continue;
 		}
 		players = level.players;
 		enemytargets = [];
-		while ( self.team != "neutral" )
+		if ( self.team != "neutral" )
 		{
-			i = 0;
-			while ( i < players.size )
+			for ( i = 0; i < players.size; i++ )
 			{
 				if ( isalive( players[ i ] ) && isDefined( players[ i ].pers[ "team" ] ) && players[ i ].pers[ "team" ] != self.team && !isDefined( players[ i ].usingobj ) )
 				{
@@ -180,30 +172,25 @@ copterai()
 						enemytargets[ enemytargets.size ] = players[ i ];
 					}
 				}
-				i++;
 			}
 		}
 		insidetargets = [];
 		outsidetargets = [];
-		skyheight = bullettrace( self.origin, self.origin + vectorScale( ( 0, 0, -1 ), 10000 ), 0, undefined )[ "position" ][ 2 ] - 10;
+		skyheight = bullettrace( self.origin, self.origin + vectorScale( ( 0, 0, 1 ), 10000 ), 0, undefined )[ "position" ][ 2 ] - 10;
 		besttarget = undefined;
 		bestweight = 0;
-		i = 0;
-		while ( i < enemytargets.size )
+		for ( i = 0; i < enemytargets.size; i++ )
 		{
 			inside = 0;
-			trace = bullettrace( enemytargets[ i ].origin + vectorScale( ( 0, 0, -1 ), 10 ), enemytargets[ i ].origin + vectorScale( ( 0, 0, -1 ), 10000 ), 0, undefined );
+			trace = bullettrace( enemytargets[ i ].origin + vectorScale( ( 0, 0, 1 ), 10 ), enemytargets[ i ].origin + vectorScale( ( 0, 0, 1 ), 10000 ), 0, undefined );
 			if ( trace[ "position" ][ 2 ] >= skyheight )
 			{
 				outsidetargets[ outsidetargets.size ] = enemytargets[ i ];
-				i++;
-				continue;
 			}
 			else
 			{
 				insidetargets[ insidetargets.size ] = enemytargets[ i ];
 			}
-			i++;
 		}
 		gotopos = undefined;
 		calcedgotopos = 0;
@@ -218,7 +205,6 @@ copterai()
 				if ( isDefined( descendingent ) )
 				{
 					gotopos = result[ "position" ];
-					break;
 				}
 				else
 				{
@@ -226,19 +212,18 @@ copterai()
 				}
 			}
 		}
-		else olddescendingent = descendingent;
-		if ( insidetargets.size == 0 )
+		else 
 		{
-			flying = 1;
-		}
-		else
-		{
-			if ( outsidetargets.size > 0 )
+			olddescendingent = descendingent;
+			if ( insidetargets.size == 0 )
+			{
+				flying = 1;
+			}
+			else if ( outsidetargets.size > 0 )
 			{
 				if ( !isDefined( descendingent ) )
 				{
 					flying = 1;
-					break;
 				}
 				else
 				{
@@ -265,7 +250,6 @@ copterai()
 					descendingent = result[ "descendEnt" ];
 					gotopos = result[ "position" ];
 					reacheddescendingent = 0;
-					break;
 				}
 				else if ( isDefined( descendingent ) )
 				{
@@ -277,7 +261,6 @@ copterai()
 					{
 						gotopos = descendingent.origin;
 					}
-					break;
 				}
 				else
 				{
@@ -293,20 +276,20 @@ copterai()
 		{
 			desireddist = 2560;
 			disttoarea = distance( ( self.origin[ 0 ], self.origin[ 1 ], self.areaent.origin[ 2 ] ), self.areaent.origin );
-			if ( outsidetargets.size == 0 && disttoarea > ( self.areaent.radius + ( desireddist * 0,25 ) ) )
+			if ( outsidetargets.size == 0 && disttoarea > ( self.areaent.radius + ( desireddist * 0.25 ) ) )
 			{
 				returningtoarea = 1;
 			}
 			else
 			{
-				if ( disttoarea < ( self.areaent.radius * 0,5 ) )
+				if ( disttoarea < ( self.areaent.radius * 0.5 ) )
 				{
 					returningtoarea = 0;
 				}
 			}
-			while ( outsidetargets.size == 0 && !returningtoarea )
+			if ( outsidetargets.size == 0 && !returningtoarea )
 			{
-				while ( self.team != "neutral" )
+				if ( self.team != "neutral" )
 				{
 					i = 0;
 					while ( i < players.size )
@@ -326,8 +309,7 @@ copterai()
 			}
 			best = undefined;
 			bestdist = 0;
-			i = 0;
-			while ( i < outsidetargets.size )
+			for ( i = 0; i < outsidetargets.size; i++ )
 			{
 				dist = abs( distance( outsidetargets[ i ].origin, self.origin ) - desireddist );
 				if ( !isDefined( best ) || dist < bestdist )
@@ -335,7 +317,6 @@ copterai()
 					best = outsidetargets[ i ];
 					bestdist = dist;
 				}
-				i++;
 			}
 			if ( isDefined( best ) )
 			{
@@ -357,42 +338,51 @@ copterai()
 			}
 			continue;
 		}
-		else if ( distance( self.origin, descendingent.origin ) < descendingent.radius )
+		else 
 		{
-			reacheddescendingent = 1;
-		}
-		if ( isDefined( olddescendingent ) )
-		{
-			godirectly = olddescendingent == descendingent;
-		}
-		if ( godirectly )
-		{
-			godirectly = reacheddescendingent;
-		}
-		self.desireddir = vectornormalize( descendingent.targetent.origin - gotopos - level.coptercenteroffset );
-		self.desireddirentity = descendingent.targetent;
-		self.desireddirentityoffset = ( 0, 0, -1 );
-		if ( gotopos != self.origin )
-		{
-			self setcopterdest( gotopos - level.coptercenteroffset, 1, godirectly );
-			wait 0,3;
-			continue;
-		}
-		else
-		{
-			wait 0,3;
+			if ( distance( self.origin, descendingent.origin ) < descendingent.radius )
+			{
+				reacheddescendingent = 1;
+			}
+			if ( isdefined( oldDescendingEnt ) && oldDescendingEnt == descendingEnt )
+			{
+				goDirectly = 1;
+			}
+			else 
+			{
+				goDirectly = 0;
+			}
+			if ( goDirectly && reachedDescendingEnt )
+			{
+				goDirectly = 1;
+			}
+			else
+			{
+				goDirectly = 0;
+			}
+			self.desireddir = vectornormalize( descendingent.targetent.origin - gotopos - level.coptercenteroffset );
+			self.desireddirentity = descendingent.targetent;
+			self.desireddirentityoffset = ( 0, 0, 0 );
+			if ( gotopos != self.origin )
+			{
+				self setcopterdest( gotopos - level.coptercenteroffset, 1, godirectly );
+				wait 0.3;
+			}
+			else
+			{
+				wait 0.3;
+			}
 		}
 	}
 }
 
-determinebestpos( targets, descendent, startorigin )
+determinebestpos( targets, descendent, startorigin ) //checked changed to match cerberus output
 {
 	targetpos = descendent.targetent.origin;
 	circleradius = distance( targetpos, descendent.origin );
 	bestpoint = undefined;
 	bestdist = 0;
-	i = 0;
-	while ( i < targets.size )
+	for ( i = 0; i < targets.size; i++ )
 	{
 		enemypos = targets[ i ].origin + level.coptertargetoffset;
 		passed = bullettracepassed( enemypos, targetpos, 0, undefined );
@@ -413,19 +403,17 @@ determinebestpos( targets, descendent, startorigin )
 				}
 			}
 		}
-		i++;
 	}
 	return bestpoint;
 }
 
-determinebestent( targets, descendents, startorigin )
+determinebestent( targets, descendents, startorigin ) //checked changed to match cerberus output
 {
 	result = [];
 	bestpos = undefined;
 	bestent = 0;
 	bestdist = 0;
-	i = 0;
-	while ( i < descendents.size )
+	for ( i = 0; i < descendents.size; i++ )
 	{
 		thispos = determinebestpos( targets, descendents[ i ], startorigin );
 		if ( isDefined( thispos ) )
@@ -438,7 +426,6 @@ determinebestent( targets, descendents, startorigin )
 				bestdist = thisdist;
 			}
 		}
-		i++;
 	}
 	if ( isDefined( bestpos ) )
 	{
@@ -449,7 +436,7 @@ determinebestent( targets, descendents, startorigin )
 	return result;
 }
 
-determinebestattackpos( targetpos, curpos, desireddist )
+determinebestattackpos( targetpos, curpos, desireddist ) //checked changed to match cerberus output
 {
 	targetposcopterheight = ( targetpos[ 0 ], targetpos[ 1 ], curpos[ 2 ] );
 	attackdirx = curpos - targetposcopterheight;
@@ -457,8 +444,7 @@ determinebestattackpos( targetpos, curpos, desireddist )
 	attackdiry = ( 0 - attackdirx[ 1 ], attackdirx[ 0 ], 0 );
 	bestpos = undefined;
 	bestdist = 0;
-	i = 0;
-	while ( i < 8 )
+	for ( i = 0; i < 8; i++ )
 	{
 		theta = ( i / 8 ) * 360;
 		thisdir = vectorScale( attackdirx, cos( theta ) ) + vectorScale( attackdiry, sin( theta ) );
@@ -473,26 +459,28 @@ determinebestattackpos( targetpos, curpos, desireddist )
 				bestdist = thisdist;
 			}
 		}
-		i++;
 	}
 	gotopos = undefined;
 	if ( isDefined( bestpos ) )
 	{
 		gotopos = bestpos;
 	}
-	else dist = distance( targetposcopterheight, curpos );
-	if ( dist > desireddist )
-	{
-		gotopos = self.origin + vectorScale( vectornormalize( attackdirx ), 0 - dist - desireddist );
-	}
 	else
 	{
-		gotopos = self.origin;
+		dist = distance( targetposcopterheight, curpos );
+		if ( dist > desireddist )
+		{
+			gotopos = self.origin + vectorScale( vectornormalize( attackdirx ), 0 - dist - desireddist );
+		}
+		else
+		{
+			gotopos = self.origin;
+		}
 	}
 	return gotopos;
 }
 
-getrandompos( origin, radius )
+getrandompos( origin, radius ) //checked does not match cerberus output does match beta dump leaving as is
 {
 	pos = origin + ( ( randomfloat( 2 ) - 1 ) * radius, ( randomfloat( 2 ) - 1 ) * radius, 0 );
 	while ( distancesquared( pos, origin ) > ( radius * radius ) )
@@ -502,7 +490,7 @@ getrandompos( origin, radius )
 	return pos;
 }
 
-coptershoot()
+coptershoot() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "passive" );
@@ -527,31 +515,29 @@ coptershoot()
 				{
 					self playsound( "mp_copter_shoot" );
 					numshots = 20;
-					i = 0;
-					while ( i < numshots )
+					for ( i = 0; i < numshots; i++ )
 					{
 						mypos = self.origin + level.coptercenteroffset;
 						dir = anglesToForward( self.angles );
-						dir += ( ( randomfloat( 2 ) - 1 ) * 0,015, ( randomfloat( 2 ) - 1 ) * 0,015, ( randomfloat( 2 ) - 1 ) * 0,015 );
+						dir += ( ( randomfloat( 2 ) - 1 ) * 0.015, ( randomfloat( 2 ) - 1 ) * 0.015, ( randomfloat( 2 ) - 1 ) * 0.015 );
 						dir = vectornormalize( dir );
 						self mymagicbullet( mypos, dir );
-						wait 0,075;
-						i++;
+						wait 0.075;
 					}
-					wait 0,25;
+					wait 0.25;
 				}
 			}
 		}
-		wait 0,25;
+		wait 0.25;
 	}
 }
 
-mymagicbullet( pos, dir )
+mymagicbullet( pos, dir ) //checked matches cerberus output dvars found in beta dump
 {
 	damage = 20;
-	if ( getDvar( #"9E8F8CB7" ) != "" )
+	if ( getDvar( "scr_copter_damage" ) != "" )
 	{
-		damage = getDvarInt( #"9E8F8CB7" );
+		damage = getDvarInt( "scr_copter_damage" );
 	}
 	trace = bullettrace( pos, pos + vectorScale( dir, 10000 ), 1, undefined );
 	if ( isDefined( trace[ "entity" ] ) && isplayer( trace[ "entity" ] ) && isalive( trace[ "entity" ] ) )
@@ -560,7 +546,7 @@ mymagicbullet( pos, dir )
 	}
 }
 
-setcopterdest( newlocation, descend, dontascend )
+setcopterdest( newlocation, descend, dontascend ) //checked matches cerberus output
 {
 	self.finaldest = getabovebuildingslocation( newlocation );
 	if ( isDefined( descend ) && descend )
@@ -579,13 +565,13 @@ setcopterdest( newlocation, descend, dontascend )
 	}
 }
 
-notifyarrived()
+notifyarrived() //checked matches cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	self notify( "arrived" );
 }
 
-coptermove()
+coptermove() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( self.coptermoverunning ) )
@@ -594,8 +580,8 @@ coptermove()
 	}
 	self.coptermoverunning = 1;
 	self.intransit = 0;
-	interval = 0,15;
-	zinterp = 0,1;
+	interval = 0.15;
+	zinterp = 0.1;
 	tiltamnt = 0;
 	while ( 1 )
 	{
@@ -633,9 +619,11 @@ coptermove()
 		}
 		else
 		{
+			/*
 /#
 			assert( movingvertically );
 #/
+			*/
 			thisdest = ( self.origin[ 0 ], self.origin[ 1 ], desiredz );
 		}
 		movevec = thisdest - self.origin;
@@ -652,43 +640,40 @@ coptermove()
 			self.vel = vectorScale( self.vel, level.copter_maxvel / vlen );
 		}
 		thisdest = self.origin + vectorScale( self.vel, interval );
-		self moveto( thisdest, interval * 0,999 );
+		self moveto( thisdest, interval * 0.999 );
 		speed = veclength( self.vel );
 		if ( isDefined( self.desireddirentity ) && isDefined( self.desireddirentity.origin ) )
 		{
 			self.destdir = vectornormalize( ( self.desireddirentity.origin + self.desireddirentityoffset ) - ( self.origin + level.coptercenteroffset ) );
 		}
+		else if ( isDefined( self.desireddir ) )
+		{
+			self.destdir = self.desireddir;
+			break;
+		}
+		else if ( movingvertically )
+		{
+			self.destdir = anglesToForward( self.angles );
+			self.destdir = vectornormalize( ( self.destdir[ 0 ], self.destdir[ 1 ], 0 ) );
+			break;
+		}
 		else
 		{
-			if ( isDefined( self.desireddir ) )
+			tiltamnt = speed / level.copter_maxvel;
+			tiltamnt = ( tiltamnt - 0.1 ) / 0.9;
+			if ( tiltamnt < 0 )
 			{
-				self.destdir = self.desireddir;
-				break;
+				tiltamnt = 0;
 			}
-			else if ( movingvertically )
-			{
-				self.destdir = anglesToForward( self.angles );
-				self.destdir = vectornormalize( ( self.destdir[ 0 ], self.destdir[ 1 ], 0 ) );
-				break;
-			}
-			else
-			{
-				tiltamnt = speed / level.copter_maxvel;
-				tiltamnt = ( tiltamnt - 0,1 ) / 0,9;
-				if ( tiltamnt < 0 )
-				{
-					tiltamnt = 0;
-				}
-				self.destdir = movevec;
-				self.destdir = vectornormalize( ( self.destdir[ 0 ], self.destdir[ 1 ], 0 ) );
-				tiltamnt *= 1 - ( vectorangle( anglesToForward( self.angles ), self.destdir ) / 180 );
-				self.destdir = vectornormalize( ( self.destdir[ 0 ], self.destdir[ 1 ], tiltamnt * -0,4 ) );
-			}
+			self.destdir = movevec;
+			self.destdir = vectornormalize( ( self.destdir[ 0 ], self.destdir[ 1 ], 0 ) );
+			tiltamnt *= 1 - ( vectorangle( anglesToForward( self.angles ), self.destdir ) / 180 );
+			self.destdir = vectornormalize( ( self.destdir[ 0 ], self.destdir[ 1 ], tiltamnt * -0.4 ) );
 		}
 		newdir = self.destdir;
-		if ( newdir[ 2 ] < -0,4 )
+		if ( newdir[ 2 ] < -0.4 )
 		{
-			newdir = vectornormalize( ( newdir[ 0 ], newdir[ 1 ], -0,4 ) );
+			newdir = vectornormalize( ( newdir[ 0 ], newdir[ 1 ], -0.4 ) );
 		}
 		copterangles = self.angles;
 		copterangles = combineangles( copterangles, vectorScale( ( 0, 0, -1 ), 90 ) );
@@ -698,7 +683,7 @@ coptermove()
 		newdir2d = vectornormalize( ( newdir[ 0 ], newdir[ 1 ], 0 ) );
 		angle = vectorangle( olddir2d, newdir2d );
 		angle3d = vectorangle( olddir, newdir );
-		if ( angle > 0,001 && thisrotspeed > 0,001 )
+		if ( angle > 0.001 && thisrotspeed > 0.001 )
 		{
 			thisangle = thisrotspeed * interval;
 			if ( thisangle > angle )
@@ -711,24 +696,21 @@ coptermove()
 			interpz = oldz + ( ( newz - oldz ) * ( thisangle / angle ) );
 			newdir = vectornormalize( ( newdir2d[ 0 ], newdir2d[ 1 ], interpz ) );
 			copterangles = vectorToAngle( newdir );
-			copterangles = combineangles( copterangles, vectorScale( ( 0, 0, -1 ), 90 ) );
-			self rotateto( copterangles, interval * 0,999 );
+			copterangles = combineangles( copterangles, vectorScale( ( 0, -1, 0 ), 90 ) );
+			self rotateto( copterangles, interval * 0.999 );
 		}
-		else
+		else if ( angle3d > 0.001 && thisrotspeed > 0.001 )
 		{
-			if ( angle3d > 0,001 && thisrotspeed > 0,001 )
+			thisangle = thisrotspeed * interval;
+			if ( thisangle > angle3d )
 			{
-				thisangle = thisrotspeed * interval;
-				if ( thisangle > angle3d )
-				{
-					thisangle = angle3d;
-				}
-				newdir = vectortowardsothervector( olddir, newdir, thisangle );
-				newdir = vectornormalize( newdir );
-				copterangles = vectorToAngle( newdir );
-				copterangles = combineangles( copterangles, vectorScale( ( 0, 0, -1 ), 90 ) );
-				self rotateto( copterangles, interval * 0,999 );
+				thisangle = angle3d;
 			}
+			newdir = vectortowardsothervector( olddir, newdir, thisangle );
+			newdir = vectornormalize( newdir );
+			copterangles = vectorToAngle( newdir );
+			copterangles = combineangles( copterangles, vectorScale( ( 0, -1, 0 ), 90 ) );
+			self rotateto( copterangles, interval * 0.999 );
 		}
 		wait interval;
 	}
@@ -740,7 +722,7 @@ copterdamage( damagetrig )
 	while ( 1 )
 	{
 		damagetrig waittill( "damage", amount, attacker );
-		while ( isDefined( attacker ) && isplayer( attacker ) && isDefined( attacker.pers[ "team" ] ) && attacker.pers[ "team" ] == self.team )
+		if ( isDefined( attacker ) && isplayer( attacker ) && isDefined( attacker.pers[ "team" ] ) && attacker.pers[ "team" ] == self.team )
 		{
 			continue;
 		}
@@ -753,13 +735,13 @@ copterdamage( damagetrig )
 	}
 }
 
-copterdie()
+copterdie() //checked changed to match cerberus output
 {
 	self endon( "passive" );
 	self death_notify_wrapper();
 	self.dead = 1;
 	self thread copterexplodefx();
-	interval = 0,2;
+	interval = 0.2;
 	rottime = 15;
 	self rotateyaw( 360 + randomfloat( 360 ), rottime );
 	self rotatepitch( 360 + randomfloat( 360 ), rottime );
@@ -773,11 +755,8 @@ copterdie()
 		{
 			break;
 		}
-		else
-		{
-			self moveto( newpos, interval * 0,999 );
-			wait interval;
-		}
+		self moveto( newpos, interval * 0,999 );
+		wait interval;
 	}
 	playfx( level.copterfinalexplosion, self.origin );
 	fakeself = spawn( "script_origin", self.origin );
@@ -788,7 +767,7 @@ copterdie()
 	fakeself delete();
 }
 
-deletecopter()
+deletecopter() //checked matches cerberus output
 {
 	if ( isDefined( self.damagetrig ) )
 	{
@@ -799,13 +778,14 @@ deletecopter()
 	self delete();
 }
 
-copterexplodefx()
+copterexplodefx() //checked matches cerberus output
 {
 	self endon( "finaldeath" );
 	while ( 1 )
 	{
 		playfx( level.copterexplosion, self.origin );
 		self playsound( "mp_copter_explosion" );
-		wait ( 0,5 + randomfloat( 1 ) );
+		wait ( 0.5 + randomfloat( 1 ) );
 	}
 }
+

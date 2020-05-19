@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/killstreaks/_killstreaks;
 #include maps/mp/gametypes/_class;
 #include maps/mp/gametypes/_globallogic_audio;
@@ -10,7 +11,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachestring( &"MP_HEADS_UP" );
 	precachestring( &"MP_U2_ONLINE" );
@@ -37,7 +38,7 @@ init()
 	level.takelivesondeath = 1;
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -47,7 +48,7 @@ onplayerconnect()
 	}
 }
 
-initwagerplayer()
+initwagerplayer() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "spawned_player" );
@@ -57,7 +58,7 @@ initwagerplayer()
 		self.pers[ "wager_sideBetWinnings" ] = 0;
 		self.pers[ "wager_sideBetLosses" ] = 0;
 	}
-	if ( isDefined( level.inthemoneyonradar ) || level.inthemoneyonradar && isDefined( level.firstplaceonradar ) && level.firstplaceonradar )
+	if ( isDefined( level.inthemoneyonradar ) && level.inthemoneyonradar || isDefined( level.firstplaceonradar ) && level.firstplaceonradar )
 	{
 		self.pers[ "hasRadar" ] = 1;
 		self.hasspyplane = 1;
@@ -70,7 +71,7 @@ initwagerplayer()
 	self thread deductplayerante();
 }
 
-ondisconnect()
+ondisconnect() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "player_eliminated" );
@@ -78,7 +79,7 @@ ondisconnect()
 	level notify( "player_eliminated" );
 }
 
-deductplayerante()
+deductplayerante() //checked matches cerberus output
 {
 	if ( isDefined( self.pers[ "hasPaidWagerAnte" ] ) )
 	{
@@ -109,7 +110,7 @@ deductplayerante()
 	self thread maps/mp/gametypes/_persistence::uploadstatssoon();
 }
 
-incrementescrowforplayer( amount )
+incrementescrowforplayer( amount ) //checked matches cerberus output
 {
 	if ( !isDefined( self ) || !isplayer( self ) )
 	{
@@ -130,7 +131,7 @@ incrementescrowforplayer( amount )
 	game[ "escrows" ][ game[ "escrows" ].size ] = escrowstruct;
 }
 
-clearescrows()
+clearescrows() //checked changed to match cerberus output
 {
 	if ( !isDefined( game[ "escrows" ] ) )
 	{
@@ -138,22 +139,20 @@ clearescrows()
 	}
 	escrows = game[ "escrows" ];
 	numescrows = escrows.size;
-	i = 0;
-	while ( i < numescrows )
+	for ( i = 0; i < numescrows; i++ )
 	{
 		escrowstruct = escrows[ i ];
-		i++;
 	}
 	game[ "escrows" ] = [];
 }
 
-addrecentearningstostat( recentearnings )
+addrecentearningstostat( recentearnings ) //checked matches cerberus output 
 {
 	currearnings = self maps/mp/gametypes/_persistence::getrecentstat( 1, 0, "score" );
 	self maps/mp/gametypes/_persistence::setrecentstat( 1, 0, "score", currearnings + recentearnings );
 }
 
-prematchperiod()
+prematchperiod() //checked matches cerberus output 
 {
 	if ( !level.wagermatch )
 	{
@@ -161,7 +160,7 @@ prematchperiod()
 	}
 }
 
-finalizewagerround()
+finalizewagerround() //checked matches cerberus output 
 {
 	if ( level.wagermatch == 0 )
 	{
@@ -176,9 +175,13 @@ finalizewagerround()
 
 determinewagerwinnings()
 {
-	if ( isDefined( level.dontcalcwagerwinnings ) )
+	if ( !isDefined( level.dontcalcwagerwinnings ) || !level.dontcalcwagerwinnings )
 	{
-		shouldcalculatewinnings = !level.dontcalcwagerwinnings;
+		shouldcalculatewinnings = 0;
+	}
+	else
+	{
+		shouldcalculatewinnings = 1;
 	}
 	if ( !shouldcalculatewinnings )
 	{
@@ -194,33 +197,28 @@ determinewagerwinnings()
 	}
 }
 
-calculatefreeforallpayouts()
+calculatefreeforallpayouts() //checked changed to match cerberus output
 {
 	playerrankings = level.placement[ "all" ];
-	payoutpercentages = array( 0,5, 0,3, 0,2 );
+	payoutpercentages = array( 0.5, 0.3, 0.2 );
 	if ( playerrankings.size == 2 )
 	{
-		payoutpercentages = array( 0,7, 0,3 );
+		payoutpercentages = array( 0.7, 0.3 );
 	}
-	else
+	else if ( playerrankings.size == 1 )
 	{
-		if ( playerrankings.size == 1 )
-		{
-			payoutpercentages = array( 1 );
-		}
+		payoutpercentages = array( 1 );
 	}
 	setwagerwinningsonplayers( level.players, 0 );
 	if ( isDefined( level.hostforcedend ) && level.hostforcedend )
 	{
 		wagerbet = getDvarInt( "scr_wagerBet" );
-		i = 0;
-		while ( i < playerrankings.size )
+		for ( i = 0; i < playerrankings.size; i++ )
 		{
 			if ( !playerrankings[ i ] islocaltohost() )
 			{
 				playerrankings[ i ].wagerwinnings = wagerbet;
 			}
-			i++;
 		}
 	}
 	else if ( level.players.size == 1 )
@@ -233,8 +231,7 @@ calculatefreeforallpayouts()
 		cumulativepayoutpercentage = payoutpercentages[ 0 ];
 		playergroup = [];
 		playergroup[ playergroup.size ] = playerrankings[ 0 ];
-		i = 1;
-		while ( i < playerrankings.size )
+		for ( i = 1; i < playerrankings.size; i++ )
 		{
 			if ( playerrankings[ i ].pers[ "score" ] < playergroup[ 0 ].pers[ "score" ] )
 			{
@@ -248,20 +245,18 @@ calculatefreeforallpayouts()
 			{
 				cumulativepayoutpercentage += payoutpercentages[ currentpayoutpercentage ];
 			}
-			i++;
 		}
 		setwagerwinningsonplayers( playergroup, int( ( game[ "wager_pot" ] * cumulativepayoutpercentage ) / playergroup.size ) );
 	}
 }
 
-calculateplacesbasedonscore()
+calculateplacesbasedonscore() //checked changed to match cerberus output
 {
 	level.playerplaces = array( [], [], [] );
 	playerrankings = level.placement[ "all" ];
 	placementscores = array( playerrankings[ 0 ].pers[ "score" ], -1, -1 );
 	currentplace = 0;
-	index = 0;
-	while ( index < playerrankings.size && currentplace < placementscores.size )
+	for ( index = 0; index < playerrankings.size && currentplace < placementscores.size; index++ )
 	{
 		player = playerrankings[ index ];
 		if ( player.pers[ "score" ] < placementscores[ currentplace ] )
@@ -269,19 +264,15 @@ calculateplacesbasedonscore()
 			currentplace++;
 			if ( currentplace >= level.playerplaces.size )
 			{
-				return;
+				break;
 			}
-			else
-			{
-				placementscores[ currentplace ] = player.pers[ "score" ];
-			}
-			level.playerplaces[ currentplace ][ level.playerplaces[ currentplace ].size ] = player;
-			index++;
+			placementscores[ currentplace ] = player.pers[ "score" ];
 		}
+		level.playerplaces[ currentplace ][ level.playerplaces[ currentplace ].size ] = player;
 	}
 }
 
-calculateteampayouts()
+calculateteampayouts() //checked changed to match cerberus output
 {
 	winner = maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "teamScores" );
 	if ( winner == "tie" )
@@ -290,8 +281,7 @@ calculateteampayouts()
 		return;
 	}
 	playersonwinningteam = [];
-	index = 0;
-	while ( index < level.players.size )
+	for ( index = 0; index < level.players.size; index++ )
 	{
 		player = level.players[ index ];
 		player.wagerwinnings = 0;
@@ -299,7 +289,6 @@ calculateteampayouts()
 		{
 			playersonwinningteam[ playersonwinningteam.size ] = player;
 		}
-		index++;
 	}
 	if ( playersonwinningteam.size == 0 )
 	{
@@ -310,17 +299,15 @@ calculateteampayouts()
 	setwagerwinningsonplayers( playersonwinningteam, winningssplit );
 }
 
-setwagerwinningsonplayers( players, amount )
+setwagerwinningsonplayers( players, amount ) //checked changed to match cerberus output
 {
-	index = 0;
-	while ( index < players.size )
+	for ( index = 0; index < players.size; index++ )
 	{
 		players[ index ].wagerwinnings = amount;
-		index++;
 	}
 }
 
-finalizewagergame()
+finalizewagergame() //checked changed to match cerberus output
 {
 	level.wagergamefinalized = 1;
 	if ( level.wagermatch == 0 )
@@ -330,10 +317,9 @@ finalizewagergame()
 	determinewagerwinnings();
 	determinetopearners();
 	players = level.players;
-	wait 0,5;
+	wait 0.5;
 	playerrankings = level.wagertopearners;
-	index = 0;
-	while ( index < players.size )
+	for ( index = 0; index < players.size; index++ )
 	{
 		player = players[ index ];
 		if ( isDefined( player.pers[ "wager_sideBetWinnings" ] ) )
@@ -348,12 +334,11 @@ finalizewagergame()
 		{
 			maps/mp/gametypes/_globallogic_score::updatewinstats( player );
 		}
-		index++;
 	}
 	clearescrows();
 }
 
-payoutwagerwinnings( player, winnings )
+payoutwagerwinnings( player, winnings ) //checked matches cerberus output
 {
 	if ( winnings == 0 )
 	{
@@ -365,12 +350,11 @@ payoutwagerwinnings( player, winnings )
 	player addrecentearningstostat( winnings );
 }
 
-determinetopearners()
+determinetopearners() //checked changed to match beta dump
 {
 	topwinnings = array( -1, -1, -1 );
 	level.wagertopearners = [];
-	index = 0;
-	while ( index < level.players.size )
+	for ( index = 0; index < level.players.size; index++ )
 	{
 		player = level.players[ index ];
 		if ( !isDefined( player.wagerwinnings ) )
@@ -385,8 +369,6 @@ determinetopearners()
 			level.wagertopearners[ 2 ] = level.wagertopearners[ 1 ];
 			level.wagertopearners[ 1 ] = level.wagertopearners[ 0 ];
 			level.wagertopearners[ 0 ] = player;
-			index++;
-			continue;
 		}
 		else if ( player.wagerwinnings > topwinnings[ 1 ] )
 		{
@@ -394,22 +376,16 @@ determinetopearners()
 			topwinnings[ 1 ] = player.wagerwinnings;
 			level.wagertopearners[ 2 ] = level.wagertopearners[ 1 ];
 			level.wagertopearners[ 1 ] = player;
-			index++;
-			continue;
 		}
-		else
+		else if ( player.wagerwinnings > topwinnings[ 2 ] )
 		{
-			if ( player.wagerwinnings > topwinnings[ 2 ] )
-			{
-				topwinnings[ 2 ] = player.wagerwinnings;
-				level.wagertopearners[ 2 ] = player;
-			}
+			topwinnings[ 2 ] = player.wagerwinnings;
+			level.wagertopearners[ 2 ] = player;
 		}
-		index++;
 	}
 }
 
-postroundsidebet()
+postroundsidebet() //checked matches cerberus output
 {
 	if ( isDefined( level.sidebet ) && level.sidebet )
 	{
@@ -418,7 +394,7 @@ postroundsidebet()
 	}
 }
 
-sidebettimer()
+sidebettimer() //checked changed to match cerberus output
 {
 	level endon( "side_bet_end" );
 	secondstowait = ( level.sidebetendtime - getTime() ) / 1000;
@@ -427,19 +403,17 @@ sidebettimer()
 		secondstowait = 0;
 	}
 	wait secondstowait;
-	playerindex = 0;
-	while ( playerindex < level.players.size )
+	for ( playerindex = 0; playerindex < level.players.size; playerindex++ )
 	{
 		if ( isDefined( level.players[ playerindex ] ) )
 		{
 			level.players[ playerindex ] closemenu();
 		}
-		playerindex++;
 	}
 	level notify( "side_bet_end" );
 }
 
-sidebetallbetsplaced()
+sidebetallbetsplaced() //checked changed to match cerberus output
 {
 	secondsleft = ( level.sidebetendtime - getTime() ) / 1000;
 	if ( secondsleft <= 3 )
@@ -448,19 +422,17 @@ sidebetallbetsplaced()
 	}
 	level.sidebetendtime = getTime() + 3000;
 	wait 3;
-	playerindex = 0;
-	while ( playerindex < level.players.size )
+	for ( playerindex = 0; playerindex < level.players.size; playerindex++ )
 	{
 		if ( isDefined( level.players[ playerindex ] ) )
 		{
 			level.players[ playerindex ] closemenu();
 		}
-		playerindex++;
 	}
 	level notify( "side_bet_end" );
 }
 
-setupblankrandomplayer( takeweapons, chooserandombody, weapon )
+setupblankrandomplayer( takeweapons, chooserandombody, weapon ) //checked changed to match cerberus output
 {
 	if ( !isDefined( chooserandombody ) || chooserandombody )
 	{
@@ -484,23 +456,21 @@ setupblankrandomplayer( takeweapons, chooserandombody, weapon )
 	{
 		self.hasspyplane = 1;
 	}
-	while ( isDefined( self.powerups ) && isDefined( self.powerups.size ) )
+	if ( isDefined( self.powerups ) && isDefined( self.powerups.size ) )
 	{
-		i = 0;
-		while ( i < self.powerups.size )
+		for ( i = 0; i < self.powerups.size; i++ )
 		{
 			self applypowerup( self.powerups[ i ] );
-			i++;
 		}
 	}
 	self setradarvisibility();
 }
 
-assignrandombody()
+assignrandombody() //checked matches cerberus output
 {
 }
 
-queuewagerpopup( message, points, submessage, announcement )
+queuewagerpopup( message, points, submessage, announcement ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	size = self.wagernotifyqueue.size;
@@ -512,7 +482,7 @@ queuewagerpopup( message, points, submessage, announcement )
 	self notify( "received award" );
 }
 
-helpgameend()
+helpgameend() //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	for ( ;; )
@@ -522,37 +492,30 @@ helpgameend()
 		{
 			continue;
 		}
-		else
+		wait 0.05;
+		players = level.players;
+		playersleft = 0;
+		for ( i = 0; i < players.size; i++ )
 		{
-			wait 0,05;
-			players = level.players;
-			playersleft = 0;
-			i = 0;
-			while ( i < players.size )
+			if ( isDefined( players[ i ].pers[ "lives" ] ) && players[ i ].pers[ "lives" ] > 0 )
 			{
-				if ( isDefined( players[ i ].pers[ "lives" ] ) && players[ i ].pers[ "lives" ] > 0 )
-				{
-					playersleft++;
-				}
-				i++;
+				playersleft++;
 			}
-			while ( playersleft == 2 )
+		}
+		if ( playersleft == 2 )
+		{
+			for ( i = 0; i < players.size; i++ )
 			{
-				i = 0;
-				while ( i < players.size )
-				{
-					players[ i ] queuewagerpopup( &"MP_HEADS_UP", 0, &"MP_U2_ONLINE", "wm_u2_online" );
-					players[ i ].pers[ "hasRadar" ] = 1;
-					players[ i ].hasspyplane = 1;
-					level.activeuavs[ players[ i ] getentitynumber() ]++;
-					i++;
-				}
+				players[ i ] queuewagerpopup( &"MP_HEADS_UP", 0, &"MP_U2_ONLINE", "wm_u2_online" );
+				players[ i ].pers[ "hasRadar" ] = 1;
+				players[ i ].hasspyplane = 1;
+				level.activeuavs[ players[ i ] getentitynumber() ]++;
 			}
 		}
 	}
 }
 
-setradarvisibility()
+setradarvisibility() //checked changed to match cerberus output
 {
 	prevscoreplace = self.prevscoreplace;
 	if ( !isDefined( prevscoreplace ) )
@@ -570,31 +533,27 @@ setradarvisibility()
 			self setperk( "specialty_gpsjammer" );
 		}
 	}
-	else
+	else if ( isDefined( level.firstplaceonradar ) && level.firstplaceonradar )
 	{
-		if ( isDefined( level.firstplaceonradar ) && level.firstplaceonradar )
+		if ( prevscoreplace == 1 && isDefined( self.score ) && self.score > 0 )
 		{
-			if ( prevscoreplace == 1 && isDefined( self.score ) && self.score > 0 )
-			{
-				self unsetperk( "specialty_gpsjammer" );
-				return;
-			}
-			else
-			{
-				self setperk( "specialty_gpsjammer" );
-			}
+			self unsetperk( "specialty_gpsjammer" );
+			return;
+		}
+		else
+		{
+			self setperk( "specialty_gpsjammer" );
 		}
 	}
 }
 
-playerscored()
+playerscored() //checked changed to match cerberus output
 {
 	self notify( "wager_player_scored" );
 	self endon( "wager_player_scored" );
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_globallogic::updateplacement();
-	i = 0;
-	while ( i < level.placement[ "all" ].size )
+	for ( i = 0; i < level.placement["all"].size; i++ )
 	{
 		prevscoreplace = level.placement[ "all" ][ i ].prevscoreplace;
 		if ( !isDefined( prevscoreplace ) )
@@ -602,16 +561,13 @@ playerscored()
 			prevscoreplace = 1;
 		}
 		currentscoreplace = i + 1;
-		j = i - 1;
-		while ( j >= 0 )
+		for ( j = i - 1; j >= 0; j-- )
 		{
 			if ( level.placement[ "all" ][ i ].score == level.placement[ "all" ][ j ].score )
 			{
 				currentscoreplace--;
 
 			}
-			j--;
-
 		}
 		wasinthemoney = prevscoreplace <= 3;
 		isinthemoney = currentscoreplace <= 3;
@@ -619,25 +575,21 @@ playerscored()
 		{
 			level.placement[ "all" ][ i ] wagerannouncer( "wm_in_the_money" );
 		}
-		else
+		else if ( wasinthemoney && !isinthemoney )
 		{
-			if ( wasinthemoney && !isinthemoney )
-			{
-				level.placement[ "all" ][ i ] wagerannouncer( "wm_oot_money" );
-			}
+			level.placement[ "all" ][ i ] wagerannouncer( "wm_oot_money" );
 		}
 		level.placement[ "all" ][ i ].prevscoreplace = currentscoreplace;
 		level.placement[ "all" ][ i ] setradarvisibility();
-		i++;
 	}
 }
 
-wagerannouncer( dialog, group )
+wagerannouncer( dialog, group ) //checked matches cerberus output
 {
 	self maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( dialog, group );
 }
 
-createpowerup( name, type, displayname, iconmaterial )
+createpowerup( name, type, displayname, iconmaterial ) //checked matches cerberus output
 {
 	powerup = spawnstruct();
 	powerup.name = [];
@@ -648,32 +600,30 @@ createpowerup( name, type, displayname, iconmaterial )
 	return powerup;
 }
 
-addpowerup( name, type, displayname, iconmaterial )
+addpowerup( name, type, displayname, iconmaterial ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.poweruplist ) )
 	{
 		level.poweruplist = [];
 	}
-	i = 0;
-	while ( i < level.poweruplist.size )
+	for ( i = 0; i < level.poweruplist.size; i++ )
 	{
 		if ( level.poweruplist[ i ].displayname == displayname )
 		{
 			level.poweruplist[ i ].name[ level.poweruplist[ i ].name.size ] = name;
 			return;
 		}
-		i++;
 	}
 	powerup = createpowerup( name, type, displayname, iconmaterial );
 	level.poweruplist[ level.poweruplist.size ] = powerup;
 }
 
-copypowerup( powerup )
+copypowerup( powerup ) //checked matches cerberus output
 {
 	return createpowerup( powerup.name[ 0 ], powerup.type, powerup.displayname, powerup.iconmaterial );
 }
 
-applypowerup( powerup )
+applypowerup( powerup ) //checked changed to match cerberus output
 {
 	switch( powerup.type )
 	{
@@ -700,23 +650,20 @@ applypowerup( powerup )
 			self setweaponammoclip( powerup.name[ 0 ], 2 );
 			break;
 		case "perk":
-			i = 0;
-			while ( i < powerup.name.size )
+			for ( i = 0; i < powerup.name.size; i++ )
 			{
 				self setperk( powerup.name[ i ] );
-				i++;
 			}
-			case "killstreak":
-				self maps/mp/killstreaks/_killstreaks::givekillstreak( powerup.name[ 0 ] );
-				break;
-			case "score_multiplier":
-				self.scoremultiplier = powerup.name[ 0 ];
-				break;
-		}
+		case "killstreak":
+			self maps/mp/killstreaks/_killstreaks::givekillstreak( powerup.name[ 0 ] );
+			break;
+		case "score_multiplier":
+			self.scoremultiplier = powerup.name[ 0 ];
+			break;
 	}
 }
 
-givepowerup( powerup, doanimation )
+givepowerup( powerup, doanimation ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.powerups ) )
 	{
@@ -724,27 +671,25 @@ givepowerup( powerup, doanimation )
 	}
 	powerupindex = self.powerups.size;
 	self.powerups[ powerupindex ] = copypowerup( powerup );
-	i = 0;
-	while ( i < powerup.name.size )
+	for ( i = 0; i < powerup.name.size; i++ )
 	{
 		self.powerups[ powerupindex ].name[ self.powerups[ powerupindex ].name.size ] = powerup.name[ i ];
-		i++;
 	}
 	self applypowerup( self.powerups[ powerupindex ] );
 	self thread showpowerupmessage( powerupindex, doanimation );
 }
 
-pulsepowerupicon( powerupindex )
+pulsepowerupicon( powerupindex ) //checked changed to match cerberus output
 {
-	if ( isDefined( self ) && isDefined( self.powerups ) || !isDefined( self.powerups[ powerupindex ] ) && !isDefined( self.powerups[ powerupindex ].hud_elem_icon ) )
+	if ( !isDefined( self ) || !isDefined( self.powerups ) || !isDefined( self.powerups[ powerupindex ] ) || !isDefined( self.powerups[ powerupindex ].hud_elem_icon ) )
 	{
 		return;
 	}
 	self endon( "disconnect" );
 	self endon( "delete" );
 	self endon( "clearing_powerups" );
-	pulsepercent = 1,5;
-	pulsetime = 0,5;
+	pulsepercent = 1.5;
+	pulsetime = 0.5;
 	hud_elem = self.powerups[ powerupindex ].hud_elem_icon;
 	if ( isDefined( hud_elem.animating ) && hud_elem.animating )
 	{
@@ -758,18 +703,18 @@ pulsepowerupicon( powerupindex )
 	bigheight = origheight * pulsepercent;
 	xoffset = ( bigwidth - origwidth ) / 2;
 	yoffset = ( bigheight - origheight ) / 2;
-	hud_elem scaleovertime( 0,05, int( bigwidth ), int( bigheight ) );
-	hud_elem moveovertime( 0,05 );
+	hud_elem scaleovertime( 0.05, int( bigwidth ), int( bigheight ) );
+	hud_elem moveovertime( 0.05 );
 	hud_elem.x = origx - xoffset;
 	hud_elem.y = origy - yoffset;
-	wait 0,05;
+	wait 0.05;
 	hud_elem scaleovertime( pulsetime, origwidth, origheight );
 	hud_elem moveovertime( pulsetime );
 	hud_elem.x = origx;
 	hud_elem.y = origy;
 }
 
-showpowerupmessage( powerupindex, doanimation )
+showpowerupmessage( powerupindex, doanimation ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "delete" );
@@ -836,7 +781,7 @@ showpowerupmessage( powerupindex, doanimation )
 	{
 		self thread queuewagerpopup( self.powerups[ powerupindex ].displayname, 0, &"MP_BONUS_ACQUIRED" );
 	}
-	pulsetime = 0,5;
+	pulsetime = 0.5;
 	if ( doanimation )
 	{
 		self.powerups[ powerupindex ].hud_elem fadeovertime( pulsetime );
@@ -867,33 +812,28 @@ showpowerupmessage( powerupindex, doanimation )
 	{
 		self thread queuewagerpopup( self.powerups[ powerupindex ].displayname, 0, &"MP_BONUS_ACQUIRED" );
 	}
-	wait 1,5;
-	i = 0;
-	while ( i <= powerupindex )
+	wait 1.5;
+	for ( i = 0; i <= powerupindex; i++ )
 	{
-		self.powerups[ i ].hud_elem fadeovertime( 0,25 );
+		self.powerups[ i ].hud_elem fadeovertime( 0.25 );
 		self.powerups[ i ].hud_elem.alpha = 0;
-		i++;
 	}
-	wait 0,25;
-	i = 0;
-	while ( i <= powerupindex )
+	wait 0.25;
+	for ( i = 0; i <= powerupindex; i++ )
 	{
-		self.powerups[ i ].hud_elem_icon moveovertime( 0,25 );
+		self.powerups[ i ].hud_elem_icon moveovertime( 0.25 );
 		self.powerups[ i ].hud_elem_icon.x = 0 - iconsize;
 		self.powerups[ i ].hud_elem_icon.horzalign = "user_right";
-		i++;
 	}
 	self.powerups[ powerupindex ].hud_elem_icon.animating = 0;
 }
 
-clearpowerups()
+clearpowerups() //checked changed to match cerberus output
 {
 	self notify( "clearing_powerups" );
 	while ( isDefined( self.powerups ) && isDefined( self.powerups.size ) )
 	{
-		i = 0;
-		while ( i < self.powerups.size )
+		for ( i = 0; i < self.powerups.size; i++ )
 		{
 			if ( isDefined( self.powerups[ i ].hud_elem ) )
 			{
@@ -903,13 +843,12 @@ clearpowerups()
 			{
 				self.powerups[ i ].hud_elem_icon destroy();
 			}
-			i++;
 		}
 	}
 	self.powerups = [];
 }
 
-trackwagerweaponusage( name, incvalue, statname )
+trackwagerweaponusage( name, incvalue, statname ) //checked matches cerberus output
 {
 	if ( !isDefined( self.wagerweaponusage ) )
 	{
@@ -926,7 +865,7 @@ trackwagerweaponusage( name, incvalue, statname )
 	self.wagerweaponusage[ name ][ statname ] += incvalue;
 }
 
-gethighestwagerweaponusage( statname )
+gethighestwagerweaponusage( statname ) //checked partially changed to match cerberus output did not use continues in for loop see github for more info
 {
 	if ( !isDefined( self.wagerweaponusage ) )
 	{
@@ -935,26 +874,22 @@ gethighestwagerweaponusage( statname )
 	bestweapon = undefined;
 	highestvalue = 0;
 	wagerweaponsused = getarraykeys( self.wagerweaponusage );
-	i = 0;
-	while ( i < wagerweaponsused.size )
+	for ( i = 0; i < wagerweaponsused.size; i++ )
 	{
 		weaponstats = self.wagerweaponusage[ wagerweaponsused[ i ] ];
 		if ( !isDefined( weaponstats[ statname ] ) || !getbaseweaponitemindex( wagerweaponsused[ i ] ) )
 		{
-			i++;
-			continue;
 		}
 		else if ( !isDefined( bestweapon ) || weaponstats[ statname ] > highestvalue )
 		{
 			bestweapon = wagerweaponsused[ i ];
 			highestvalue = weaponstats[ statname ];
 		}
-		i++;
 	}
 	return bestweapon;
 }
 
-setwagerafteractionreportstats()
+setwagerafteractionreportstats() //checked changed to match beta dump
 {
 	topweapon = self gethighestwagerweaponusage( "kills" );
 	topkills = 0;
@@ -978,11 +913,10 @@ setwagerafteractionreportstats()
 	}
 	else
 	{
-		i = 0;
-		while ( i < 3 )
+		for(i = 0; i < 3; i++)
 		{
 			self maps/mp/gametypes/_persistence::setafteractionreportstat( "wagerAwards", 0, i );
-			i++;
 		}
 	}
 }
+

@@ -33,6 +33,8 @@ patch_mp/maps/mp/bots/_bot_sd.gsc
 
 patch_mp/maps/mp/gametypes/_battlechatter_mp.gsc
 patch_mp/maps/mp/gametypes/_callbacksetup.gsc
+patch_mp/maps/mp/gametypes/_class.gsc
+patch_mp/maps/mp/gametypes/_copter.gsc
 patch_mp/maps/mp/gametypes/_damagefeedback.gsc
 patch_mp/maps/mp/gametypes/_deathicons.gsc
 patch_mp/maps/mp/gametypes/_friendicons.gsc
@@ -50,6 +52,8 @@ patch_mp/maps/mp/gametypes/_rank.gsc
 patch_mp/maps/mp/gametypes/_serversettings.gsc
 patch_mp/maps/mp/gametypes/_spectating.gsc
 patch_mp/maps/mp/gametypes/_tweakables.gsc
+patch_mp/maps/mp/gametypes/_wager.gsc
+patch_mp/maps/mp/gametypes/_weapons.gsc
 patch_mp/maps/mp/gametypes/_weapon_utils.gsc
 patch_mp/maps/mp/gametypes/conf.gsc
 patch_mp/maps/mp/gametypes/ctf.gsc
@@ -68,8 +72,6 @@ patch_mp/maps/mp/gametypes/tdm.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
-patch_mp/maps/mp/gametypes/_class.gsc
-patch_mp/maps/mp/gametypes/_copter.gsc
 patch_mp/maps/mp/gametypes/_gameobjects.gsc
 patch_mp/maps/mp/gametypes/_globallogic_actor.gsc
 patch_mp/maps/mp/gametypes/_globallogic_audio.gsc
@@ -84,9 +86,7 @@ patch_mp/maps/mp/gametypes/_hud_message.gsc
 patch_mp/maps/mp/gametypes/_hud_util.gsc
 patch_mp/maps/mp/gametypes/_spawning.gsc
 patch_mp/maps/mp/gametypes/_spawnlogic.gsc
-patch_mp/maps/mp/gametypes/_wager.gsc
 patch_mp/maps/mp/gametypes/_weaponobjects.gsc
-patch_mp/maps/mp/gametypes/_weapons.gsc
 ```
 ### The following scipts are dev scripts filled with dev calls making them useless to modify for now
 ```

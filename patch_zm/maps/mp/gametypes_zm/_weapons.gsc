@@ -1,3 +1,4 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes_zm/_gameobjects;
 #include maps/mp/gametypes_zm/_shellshock;
 #include maps/mp/gametypes_zm/_globallogic_utils;
@@ -5,11 +6,15 @@
 #include maps/mp/_challenges;
 #include maps/mp/gametypes_zm/_weapons;
 #include maps/mp/_bb;
+#include maps/mp/_sticky_grenade;
+#include maps/mp/gametypes_zm/_weaponobjects;
 #include maps/mp/gametypes_zm/_weapon_utils;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+//whole script first checked as mp version then checked againt zm version
+
+init() //checked changed to match cerberus output
 {
 	precacheitem( "knife_mp" );
 	precacheitem( "knife_held_mp" );
@@ -24,6 +29,9 @@ init()
 	precachemodel( "t6_wpn_motion_sensor_world_detect" );
 	precachemodel( "t6_wpn_trophy_system_world_detect" );
 	precachemodel( "t6_wpn_bouncing_betty_world_detect" );
+	precachemodel( "t6_wpn_tac_insert_world" );
+	precachemodel( "t6_wpn_shield_stow_world" );
+	precachemodel( "t6_wpn_shield_carry_world" );
 	precachemodel( "t5_weapon_camera_head_world" );
 	precacheitem( "scavenger_item_mp" );
 	precacheitem( "scavenger_item_hack_mp" );
@@ -36,11 +44,11 @@ init()
 	precacheshellshock( "proximity_grenade_exit" );
 	level.missileentities = [];
 	level.hackertooltargets = [];
-	if ( !isDefined( level.grenadelauncherdudtime ) )
+	if ( !isdefined( level.grenadelauncherdudtime ) )
 	{
 		level.grenadelauncherdudtime = 0;
 	}
-	if ( !isDefined( level.throwngrenadedudtime ) )
+	if ( !isdefined(level.throwngrenadedudtime ) )
 	{
 		level.throwngrenadedudtime = 0;
 	}
@@ -52,7 +60,7 @@ init()
 	}
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -65,13 +73,14 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
 	{
 		self waittill( "spawned_player" );
 		self.concussionendtime = 0;
+		self.scavenged = 0;
 		self.hasdonecombat = 0;
 		self.shielddamageblocked = 0;
 		self thread watchweaponusage();
@@ -88,7 +97,7 @@ onplayerspawned()
 	}
 }
 
-watchturretuse()
+watchturretuse() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -99,7 +108,7 @@ watchturretuse()
 	}
 }
 
-watchfortowfire( turret )
+watchfortowfire( turret ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -112,7 +121,7 @@ watchfortowfire( turret )
 	}
 }
 
-watchmissleunlink( turret )
+watchmissleunlink( turret ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -121,7 +130,7 @@ watchmissleunlink( turret )
 	self relinktoturret( turret );
 }
 
-watchweaponchange()
+watchweaponchange() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -132,6 +141,7 @@ watchweaponchange()
 	{
 		self.hitsthismag[ weapon ] = weaponclipsize( weapon );
 	}
+	self.lastweaponchange = 0;
 	while ( 1 )
 	{
 		previous_weapon = self getcurrentweapon();
@@ -139,10 +149,11 @@ watchweaponchange()
 		if ( maydropweapon( newweapon ) )
 		{
 			self.lastdroppableweapon = newweapon;
+			self.lastweaponchange = getTime();
 		}
 		if ( newweapon != "none" )
 		{
-			if ( !isprimaryweapon( newweapon ) && issidearm( newweapon ) && !isDefined( self.hitsthismag[ newweapon ] ) )
+			if ( !isprimaryweapon( newweapon ) || issidearm( newweapon ) && !isDefined( self.hitsthismag[ newweapon ] ) )
 			{
 				self.hitsthismag[ newweapon ] = weaponclipsize( newweapon );
 			}
@@ -150,11 +161,11 @@ watchweaponchange()
 	}
 }
 
-watchriotshielduse()
+watchriotshielduse() //checked changed to match cerberus output
 {
 }
 
-updatelastheldweapontimings( newtime )
+updatelastheldweapontimings( newtime ) //checked matches cerberus output
 {
 	if ( isDefined( self.currentweapon ) && isDefined( self.currentweaponstarttime ) )
 	{
@@ -167,7 +178,7 @@ updatelastheldweapontimings( newtime )
 	}
 }
 
-updateweapontimings( newtime )
+updateweapontimings( newtime ) //checked changed to match beta dump
 {
 	if ( self is_bot() )
 	{
@@ -184,38 +195,32 @@ updateweapontimings( newtime )
 		return;
 	}
 	self.staticweaponsstarttime = newtime;
-	while ( isDefined( self.weapon_array_grenade ) )
+	if ( isDefined( self.weapon_array_grenade ) )
 	{
-		i = 0;
-		while ( i < self.weapon_array_grenade.size )
+		for(i = 0; i < self.weapon_array_grenade.size; i++)
 		{
 			self addweaponstat( self.weapon_array_grenade[ i ], "timeUsed", totaltime );
-			i++;
 		}
 	}
-	while ( isDefined( self.weapon_array_inventory ) )
+	if ( isDefined( self.weapon_array_inventory ) )
 	{
-		i = 0;
-		while ( i < self.weapon_array_inventory.size )
+		for(i = 0; i < self.weapon_array_inventory.size; i++)
 		{
 			self addweaponstat( self.weapon_array_inventory[ i ], "timeUsed", totaltime );
-			i++;
 		}
 	}
-	while ( isDefined( self.killstreak ) )
+	if ( isDefined( self.killstreak ) )
 	{
-		i = 0;
-		while ( i < self.killstreak.size )
+		for ( i = 0; i < self.killstreak.size; i++ )
 		{
 			killstreakweapon = level.menureferenceforkillstreak[ self.killstreak[ i ] ];
 			if ( isDefined( killstreakweapon ) )
 			{
 				self addweaponstat( killstreakweapon, "timeUsed", totaltime );
 			}
-			i++;
 		}
 	}
-	while ( level.rankedmatch && level.perksenabled )
+	if ( level.rankedmatch && level.perksenabled )
 	{
 		perksindexarray = [];
 		specialtys = self.specialty;
@@ -227,33 +232,29 @@ updateweapontimings( newtime )
 		{
 			return;
 		}
-		while ( isDefined( self.class_num ) )
+		if ( isDefined( self.class_num ) )
 		{
-			numspecialties = 0;
-			while ( numspecialties < level.maxspecialties )
+			for ( numspecialties = 0; numspecialties < level.maxspecialties; numspecialties++ )
 			{
 				perk = self getloadoutitem( self.class_num, "specialty" + ( numspecialties + 1 ) );
 				if ( perk != 0 )
 				{
 					perksindexarray[ perk ] = 1;
 				}
-				numspecialties++;
 			}
 			perkindexarraykeys = getarraykeys( perksindexarray );
-			i = 0;
-			while ( i < perkindexarraykeys.size )
+			for ( i = 0; i < perkindexarraykeys.size; i++ )
 			{
 				if ( perksindexarray[ perkindexarraykeys[ i ] ] == 1 )
 				{
 					self adddstat( "itemStats", perkindexarraykeys[ i ], "stats", "timeUsed", "statValue", totaltime );
 				}
-				i++;
 			}
 		}
 	}
 }
 
-trackweapon()
+trackweapon() //checked changed to match beta dump
 {
 	currentweapon = self getcurrentweapon();
 	currenttime = getTime();
@@ -272,11 +273,10 @@ trackweapon()
 				currentweapon = newweapon;
 				currenttime = newtime;
 			}
-			continue;
 		}
 		else
 		{
-			if ( event != "disconnect" )
+			if ( event != "disconnect" && isDefined( self ) )
 			{
 				self maps/mp/_bb::commitweapondata( spawnid, currentweapon, currenttime );
 				updateweapontimings( newtime );
@@ -286,7 +286,7 @@ trackweapon()
 	}
 }
 
-maydropweapon( weapon )
+maydropweapon( weapon ) //checked matches cerberus output
 {
 	if ( level.disableweapondrop == 1 )
 	{
@@ -312,7 +312,7 @@ maydropweapon( weapon )
 	return 1;
 }
 
-dropweaponfordeath( attacker )
+dropweaponfordeath( attacker, sweapon, smeansofdeath ) //checked matches cerberus output dvars taken from beta dump
 {
 	if ( level.disableweapondrop == 1 )
 	{
@@ -325,42 +325,50 @@ dropweaponfordeath( attacker )
 	}
 	if ( !isDefined( weapon ) )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: not defined" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( weapon == "none" )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: weapon == none" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( !self hasweapon( weapon ) )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: don't have it anymore (" + weapon + ")" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( !self anyammoforweaponmodes( weapon ) )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: no ammo for weapon modes" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( !shoulddroplimitedweapon( weapon, self ) )
@@ -372,12 +380,14 @@ dropweaponfordeath( attacker )
 	clip_and_stock_ammo = clipammo + stockammo;
 	if ( !clip_and_stock_ammo )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: no ammo" );
 #/
 		}
+		*/
 		return;
 	}
 	stockmax = weaponmaxammo( weapon );
@@ -388,66 +398,80 @@ dropweaponfordeath( attacker )
 	item = self dropitem( weapon );
 	if ( !isDefined( item ) )
 	{
+		/*
 /#
 		iprintlnbold( "dropItem: was not able to drop weapon " + weapon );
 #/
+		*/
 		return;
 	}
+	/*
 /#
-	if ( getDvar( #"08F7FC88" ) == "1" )
+	if ( getDvar( "scr_dropdebug" ) == "1" )
 	{
 		println( "dropped weapon: " + weapon );
 #/
 	}
+	*/
 	droplimitedweapon( weapon, self, item );
 	self.droppeddeathweapon = 1;
 	item itemweaponsetammo( clipammo, stockammo );
 	item.owner = self;
 	item.ownersattacker = attacker;
+	item.sweapon = sweapon;
+	item.smeansofdeath = smeansofdeath;
 	item thread watchpickup();
 	item thread deletepickupafterawhile();
 }
 
-dropweapontoground( weapon )
+dropweapontoground( weapon ) //checked changed to match cerberus output dvars taken from beta dump
 {
 	if ( !isDefined( weapon ) )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: not defined" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( weapon == "none" )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: weapon == none" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( !self hasweapon( weapon ) )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: don't have it anymore (" + weapon + ")" );
 #/
 		}
+		*/
 		return;
 	}
 	if ( !self anyammoforweaponmodes( weapon ) )
 	{
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "didn't drop weapon: no ammo for weapon modes" );
 #/
 		}
+		*/
 		switch( weapon )
 		{
 			case "m202_flash_mp":
@@ -458,8 +482,7 @@ dropweapontoground( weapon )
 				self takeweapon( weapon );
 				break;
 			default:
-			}
-			return;
+				break;
 		}
 		if ( !shoulddroplimitedweapon( weapon, self ) )
 		{
@@ -469,13 +492,15 @@ dropweapontoground( weapon )
 		stockammo = self getweaponammostock( weapon );
 		clip_and_stock_ammo = clipammo + stockammo;
 		if ( !clip_and_stock_ammo )
-		{
+		{	
+			/*
 /#
-			if ( getDvar( #"08F7FC88" ) == "1" )
+			if ( getDvar( "scr_dropdebug" ) == "1" )
 			{
 				println( "didn't drop weapon: no ammo" );
 #/
 			}
+			*/
 			return;
 		}
 		stockmax = weaponmaxammo( weapon );
@@ -484,12 +509,14 @@ dropweapontoground( weapon )
 			stockammo = stockmax;
 		}
 		item = self dropitem( weapon );
+		/*
 /#
-		if ( getDvar( #"08F7FC88" ) == "1" )
+		if ( getDvar( "scr_dropdebug" ) == "1" )
 		{
 			println( "dropped weapon: " + weapon );
 #/
 		}
+		*/
 		droplimitedweapon( weapon, self, item );
 		item itemweaponsetammo( clipammo, stockammo );
 		item.owner = self;
@@ -498,7 +525,7 @@ dropweapontoground( weapon )
 	}
 }
 
-deletepickupafterawhile()
+deletepickupafterawhile() //checked matches cerberus output
 {
 	self endon( "death" );
 	wait 60;
@@ -509,33 +536,33 @@ deletepickupafterawhile()
 	self delete();
 }
 
-getitemweaponname()
+getitemweaponname() //checked matches cerberus output
 {
 	classname = self.classname;
+	/*
 /#
 	assert( getsubstr( classname, 0, 7 ) == "weapon_" );
 #/
+	*/
 	weapname = getsubstr( classname, 7 );
 	return weapname;
 }
 
-watchpickup()
+watchpickup() //checked changed to match cerberus output dvar taken from beta dump
 {
 	self endon( "death" );
 	weapname = self getitemweaponname();
-	while ( 1 )
+	while ( 
 	{
 		self waittill( "trigger", player, droppeditem );
-		if ( isDefined( droppeditem ) )
+		if ( isdefined( droppeditem ) )
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
+	/*
 /#
-	if ( getDvar( #"08F7FC88" ) == "1" )
+	if ( getDvar( "scr_dropdebug" ) == "1" )
 	{
 		println( "picked up weapon: " + weapname + ", " + isDefined( self.ownersattacker ) );
 #/
@@ -546,21 +573,28 @@ watchpickup()
 /#
 	assert( isDefined( player.pickedupweaponkills ) );
 #/
+	*/
 	droppedweaponname = droppeditem getitemweaponname();
 	if ( isDefined( player.tookweaponfrom[ droppedweaponname ] ) )
 	{
 		droppeditem.owner = player.tookweaponfrom[ droppedweaponname ];
 		droppeditem.ownersattacker = player;
+		player.tookweaponfrom[ droppedweaponname ] = undefined;
 	}
 	droppeditem thread watchpickup();
 	if ( isDefined( self.ownersattacker ) && self.ownersattacker == player )
 	{
-		player.tookweaponfrom[ weapname ] = self.owner;
+		player.tookweaponfrom[ weapname ].previousowner = self.owner;
 		player.pickedupweaponkills[ weapname ] = 0;
 	}
-	else }
+	else
+	{
+		player.tookweaponfrom[ weapname ] = undefined;
+		player.pickedupweaponkills[ weapname ] = undefined;
+	}
+}
 
-itemremoveammofromaltmodes()
+itemremoveammofromaltmodes() //checked matches cerberus output
 {
 	origweapname = self getitemweaponname();
 	curweapname = weaponaltweaponname( origweapname );
@@ -573,7 +607,7 @@ itemremoveammofromaltmodes()
 	}
 }
 
-dropoffhand()
+dropoffhand() //checked partially changed to match cerberus output did not change while loop to for loop see github for more info
 {
 	grenadetypes = [];
 	index = 0;
@@ -584,21 +618,18 @@ dropoffhand()
 			index++;
 			continue;
 		}
-		else count = self getammocount( grenadetypes[ index ] );
+		count = self getammocount( grenadetypes[ index ] );
 		if ( !count )
 		{
 			index++;
 			continue;
 		}
-		else
-		{
-			self dropitem( grenadetypes[ index ] );
-		}
+		self dropitem( grenadetypes[ index ] );
 		index++;
 	}
 }
 
-watchweaponusage()
+watchweaponusage() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -627,48 +658,50 @@ watchweaponusage()
 				self thread updatemagshots( curweapon );
 			}
 		}
-		switch( weaponclass( curweapon ) )
+		switch ( weaponclass( curweapon ) )
 		{
 			case "rifle":
+				if ( curweapon == "crossbow_mp" )
+				{
+					level.globalcrossbowfired++;
+				}
 				if ( curweapon == "crossbow_explosive_mp" )
 				{
 					level.globalcrossbowfired++;
 					self addweaponstat( curweapon, "shots", 1 );
 					self thread begingrenadetracking();
 					break;
-				continue;
-			}
-			else case "mg":
+				}
+			case "mg":
 			case "pistol":
+			case "pistol spread":
 			case "smg":
 			case "spread":
 				self trackweaponfire( curweapon );
 				level.globalshotsfired++;
 				break;
-			continue;
 			case "grenade":
 			case "rocketlauncher":
 				self addweaponstat( curweapon, "shots", 1 );
 				break;
-			continue;
 			default:
-			}
+				break;
 		}
 	}
 }
 
-updatemagshots( weaponname )
+updatemagshots( weaponname ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	self endon( "updateMagShots_" + weaponname );
 	self.hitsthismag[ weaponname ]--;
 
-	wait 0,05;
+	wait 0.05;
 	self.hitsthismag[ weaponname ] = weaponclipsize( weaponname );
 }
 
-checkhitsthismag( weaponname )
+checkhitsthismag( weaponname ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -685,10 +718,10 @@ checkhitsthismag( weaponname )
 	}
 }
 
-trackweaponfire( curweapon )
+trackweaponfire( curweapon ) //checked changed to match cerberus output
 {
 	shotsfired = 1;
-	if ( isDefined( self.laststandparams ) && self.laststandparams.laststandstarttime == getTime() )
+	if ( isdefined( self.laststandparams ) && self.laststandparams.laststandstarttime == GetTime() )
 	{
 		self.hits = 0;
 		return;
@@ -700,7 +733,7 @@ trackweaponfire( curweapon )
 	}
 	self addweaponstat( curweapon, "shots", shotsfired );
 	self addweaponstat( curweapon, "hits", self.hits );
-	if ( isDefined( level.add_client_stat ) )
+	if ( isdefined( level.add_client_stat ) )
 	{
 		self [[ level.add_client_stat ]]( "total_shots", shotsfired );
 		self [[ level.add_client_stat ]]( "hits", self.hits );
@@ -720,9 +753,9 @@ trackweaponfire( curweapon )
 	pixendevent();
 }
 
-checkhit( sweapon )
+checkhit( sweapon ) //checked changed to match cerberus output
 {
-	switch( weaponclass( sweapon ) )
+	switch ( weaponclass( sweapon ) )
 	{
 		case "mg":
 		case "pistol":
@@ -735,20 +768,20 @@ checkhit( sweapon )
 			self.hits = 1;
 			break;
 		default:
-		}
-		waittillframeend;
-		if ( isDefined( self.hitsthismag ) && isDefined( self.hitsthismag[ sweapon ] ) )
-		{
-			self thread checkhitsthismag( sweapon );
-		}
-		if ( sweapon != "bazooka_mp" || isstrstart( sweapon, "t34" ) && isstrstart( sweapon, "panzer" ) )
-		{
-			self addweaponstat( sweapon, "hits", 1 );
-		}
+			break;
+	}
+	waittillframeend;
+	if ( isDefined( self ) && isDefined( self.hitsthismag ) && isDefined( self.hitsthismag[ sweapon ] ) )
+	{
+		self thread checkhitsthismag( sweapon );
+	}
+	if(sweapon == "bazooka_mp" || isstrstart(sweapon, "t34") || isstrstart(sweapon, "panzer"))
+	{
+		self addweaponstat(sweapon, "hits", 1);
 	}
 }
 
-watchgrenadeusage()
+watchgrenadeusage() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -773,7 +806,7 @@ watchgrenadeusage()
 	}
 }
 
-watchmissileusage()
+watchmissileusage() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -782,72 +815,73 @@ watchmissileusage()
 	{
 		self waittill( "missile_fire", missile, weapon_name );
 		self.hasdonecombat = 1;
+		/*
 /#
 		assert( isDefined( missile ) );
 #/
+		*/
 		level.missileentities[ level.missileentities.size ] = missile;
 		missile thread watchmissiledeath();
 	}
 }
 
-watchmissiledeath()
+watchmissiledeath() //checked matches cerberus output
 {
 	self waittill( "death" );
 	arrayremovevalue( level.missileentities, self );
 }
 
-dropweaponstoground( origin, radius )
+dropweaponstoground( origin, radius ) //checked changed to match cerberus output
 {
 	weapons = getdroppedweapons();
-	i = 0;
-	while ( i < weapons.size )
+	for ( i = 0; i < weapons.size; i++ )
 	{
 		if ( distancesquared( origin, weapons[ i ].origin ) < ( radius * radius ) )
 		{
-			trace = bullettrace( weapons[ i ].origin, weapons[ i ].origin + vectorScale( ( 0, 0, 1 ), 2000 ), 0, weapons[ i ] );
+			trace = bullettrace( weapons[ i ].origin, weapons[ i ].origin + vectorScale( ( 0, 0, -1 ), 2000 ), 0, weapons[ i ] );
 			weapons[ i ].origin = trace[ "position" ];
 		}
-		i++;
 	}
 }
 
-dropgrenadestoground( origin, radius )
+dropgrenadestoground( origin, radius ) //checked changed to match cerberus output
 {
 	grenades = getentarray( "grenade", "classname" );
-	i = 0;
-	while ( i < grenades.size )
+	for ( i = 0; i < grenades.size; i++ )
 	{
 		if ( distancesquared( origin, grenades[ i ].origin ) < ( radius * radius ) )
 		{
-			grenades[ i ] launch( vectorScale( ( 0, 0, 1 ), 5 ) );
+			grenades[ i ] launch( vectorScale( ( 1, 1, 1 ), 5 ) );
 		}
-		i++;
 	}
 }
 
-watchgrenadecancel()
+watchgrenadecancel() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	self endon( "grenade_fire" );
-	self waittill( "weapon_change" );
+	self waittill( "weapon_change", weapon );
 	self.throwinggrenade = 0;
 	self.gotpullbacknotify = 0;
 }
 
-begingrenadetracking()
+begingrenadetracking() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
+	self endon( "grenade_throw_cancelled" );
 	starttime = getTime();
 	self thread watchgrenadecancel();
 	self waittill( "grenade_fire", grenade, weaponname );
+	/*
 /#
 	assert( isDefined( grenade ) );
 #/
+	*/
 	level.missileentities[ level.missileentities.size ] = grenade;
 	grenade thread watchmissiledeath();
-	if ( grenade maps/mp/gametypes_zm/_weaponobjects::ishacked() )
+	if ( grenade maps/mp/_utility::ishacked() )
 	{
 		return;
 	}
@@ -861,24 +895,23 @@ begingrenadetracking()
 		case "frag_grenade_zm":
 		case "sticky_grenade_zm":
 			self addweaponstat( weaponname, "used", 1 );
-			case "explosive_bolt_zm":
-				grenade.originalowner = self;
-				break;
-		}
-		if ( weaponname == "sticky_grenade_zm" || weaponname == "frag_grenade_zm" )
-		{
-			grenade setteam( self.pers[ "team" ] );
-			grenade setowner( self );
-		}
-		self.throwinggrenade = 0;
+		case "explosive_bolt_zm":
+			grenade.originalowner = self;
+			break;
 	}
+	if ( weaponname == "sticky_grenade_zm" || weaponname == "frag_grenade_zm" )
+	{
+		grenade setteam( self.pers[ "team" ] );
+		grenade setowner( self );
+	}
+	self.throwinggrenade = 0;
 }
 
-beginothergrenadetracking()
+beginothergrenadetracking() //checked matches cerberus output
 {
 }
 
-checkstucktoplayer( deleteonteamchange, awardscoreevent, weaponname )
+checkstucktoplayer( deleteonteamchange, awardscoreevent, weaponname ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittill( "stuck_to_player", player );
@@ -890,15 +923,12 @@ checkstucktoplayer( deleteonteamchange, awardscoreevent, weaponname )
 		}
 		if ( awardscoreevent && isDefined( self.originalowner ) )
 		{
-			if ( self.originalowner isenemyplayer( player ) )
-			{
-			}
 		}
 		self.stucktoplayer = player;
 	}
 }
 
-checkhatchetbounce()
+checkhatchetbounce() //checked matches cerberus output
 {
 	self endon( "stuck_to_player" );
 	self endon( "death" );
@@ -906,7 +936,7 @@ checkhatchetbounce()
 	self.bounced = 1;
 }
 
-stucktoplayerteamchange( player )
+stucktoplayerteamchange( player ) //checked matches cerberus output
 {
 	self endon( "death" );
 	player endon( "disconnect" );
@@ -922,7 +952,7 @@ stucktoplayerteamchange( player )
 	}
 }
 
-beginsatcheltracking()
+beginsatcheltracking() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -930,7 +960,7 @@ beginsatcheltracking()
 	self.throwinggrenade = 0;
 }
 
-watchforthrowbacks()
+watchforthrowbacks() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -942,43 +972,37 @@ watchforthrowbacks()
 			self.gotpullbacknotify = 0;
 			continue;
 		}
-		else if ( !issubstr( weapname, "frag_" ) )
+		if ( !issubstr( weapname, "frag_" ) )
 		{
 			continue;
 		}
-		else
-		{
-			grenade.threwback = 1;
-			grenade.originalowner = self;
-		}
+		grenade.threwback = 1;
+		grenade.originalowner = self;
 	}
 }
 
-registergrenadelauncherduddvar( dvarstring, defaultvalue, minvalue, maxvalue )
+registergrenadelauncherduddvar( dvarstring, defaultvalue, minvalue, maxvalue ) //checked changed to match cerberus output
 {
 	dvarstring = "scr_" + dvarstring + "_grenadeLauncherDudTime";
-	if ( getDvar( dvarstring ) == "" )
+	if ( GetDvar( dvarstring ) == "" )
 	{
 		setdvar( dvarstring, defaultvalue );
 	}
-	if ( getDvarInt( dvarstring ) > maxvalue )
+	if ( GetDvarInt( dvarstring ) > maxvalue )
 	{
 		setdvar( dvarstring, maxvalue );
 	}
-	else
+	else if ( GetDvarInt( dvarstring ) < minvalue )
 	{
-		if ( getDvarInt( dvarstring ) < minvalue )
-		{
-			setdvar( dvarstring, minvalue );
-		}
+		setdvar( dvarstring, minvalue );
 	}
 	level.grenadelauncherdudtimedvar = dvarstring;
 	level.grenadelauncherdudtimemin = minvalue;
 	level.grenadelauncherdudtimemax = maxvalue;
-	level.grenadelauncherdudtime = getDvarInt( level.grenadelauncherdudtimedvar );
+	level.grenadelauncherdudtime = GetDvarInt( level.grenadelauncherdudtimedvar );
 }
 
-registerthrowngrenadeduddvar( dvarstring, defaultvalue, minvalue, maxvalue )
+registerthrowngrenadeduddvar( dvarstring, defaultvalue, minvalue, maxvalue ) //checked changed to match cerberus output
 {
 	dvarstring = "scr_" + dvarstring + "_thrownGrenadeDudTime";
 	if ( getDvar( dvarstring ) == "" )
@@ -989,12 +1013,9 @@ registerthrowngrenadeduddvar( dvarstring, defaultvalue, minvalue, maxvalue )
 	{
 		setdvar( dvarstring, maxvalue );
 	}
-	else
+	else if ( getDvarInt( dvarstring ) < minvalue )
 	{
-		if ( getDvarInt( dvarstring ) < minvalue )
-		{
-			setdvar( dvarstring, minvalue );
-		}
+		setdvar( dvarstring, minvalue );
 	}
 	level.throwngrenadedudtimedvar = dvarstring;
 	level.throwngrenadedudtimemin = minvalue;
@@ -1002,7 +1023,7 @@ registerthrowngrenadeduddvar( dvarstring, defaultvalue, minvalue, maxvalue )
 	level.throwngrenadedudtime = getDvarInt( level.throwngrenadedudtimedvar );
 }
 
-registerkillstreakdelay( dvarstring, defaultvalue, minvalue, maxvalue )
+registerkillstreakdelay( dvarstring, defaultvalue, minvalue, maxvalue ) //checked changed to match cerberus output
 {
 	dvarstring = "scr_" + dvarstring + "_killstreakDelayTime";
 	if ( getDvar( dvarstring ) == "" )
@@ -1013,17 +1034,14 @@ registerkillstreakdelay( dvarstring, defaultvalue, minvalue, maxvalue )
 	{
 		setdvar( dvarstring, maxvalue );
 	}
-	else
+	else if ( getDvarInt( dvarstring ) < minvalue )
 	{
-		if ( getDvarInt( dvarstring ) < minvalue )
-		{
-			setdvar( dvarstring, minvalue );
-		}
+		setdvar( dvarstring, minvalue );
 	}
 	level.killstreakrounddelay = getDvarInt( dvarstring );
 }
 
-turngrenadeintoadud( weapname, isthrowngrenade, player )
+turngrenadeintoadud( weapname, isthrowngrenade, player ) //checked changed to match cerberus output
 {
 	if ( level.grenadelauncherdudtime >= ( maps/mp/gametypes_zm/_globallogic_utils::gettimepassed() / 1000 ) && !isthrowngrenade )
 	{
@@ -1038,29 +1056,26 @@ turngrenadeintoadud( weapname, isthrowngrenade, player )
 			self makegrenadedud();
 		}
 	}
-	else
+	else if ( level.throwngrenadedudtime >= ( maps/mp/gametypes_zm/_globallogic_utils::gettimepassed() / 1000 ) && isthrowngrenade )
 	{
-		if ( level.throwngrenadedudtime >= ( maps/mp/gametypes_zm/_globallogic_utils::gettimepassed() / 1000 ) && isthrowngrenade )
+		if ( weapname == "frag_grenade_mp" || weapname == "sticky_grenade_mp" )
 		{
-			if ( weapname == "frag_grenade_mp" || weapname == "sticky_grenade_mp" )
+			if ( isDefined( player.suicide ) && player.suicide )
 			{
-				if ( isDefined( player.suicide ) && player.suicide )
-				{
-					return;
-				}
-				timeleft = int( level.throwngrenadedudtime - ( maps/mp/gametypes_zm/_globallogic_utils::gettimepassed() / 1000 ) );
-				if ( !timeleft )
-				{
-					timeleft = 1;
-				}
-				player iprintlnbold( &"MP_GRENADE_UNAVAILABLE_FOR_N", " " + timeleft + " ", &"EXE_SECONDS" );
-				self makegrenadedud();
+				return;
 			}
+			timeleft = int( level.throwngrenadedudtime - ( maps/mp/gametypes_zm/_globallogic_utils::gettimepassed() / 1000 ) );
+			if ( !timeleft )
+			{
+				timeleft = 1;
+			}
+			player iprintlnbold( &"MP_GRENADE_UNAVAILABLE_FOR_N", " " + timeleft + " ", &"EXE_SECONDS" );
+			self makegrenadedud();
 		}
 	}
 }
 
-watchforgrenadeduds()
+watchforgrenadeduds() //checked matches cerberus output
 {
 	self endon( "spawned_player" );
 	self endon( "disconnect" );
@@ -1071,7 +1086,7 @@ watchforgrenadeduds()
 	}
 }
 
-watchforgrenadelauncherduds()
+watchforgrenadelauncherduds() //checked matches cerberus output
 {
 	self endon( "spawned_player" );
 	self endon( "disconnect" );
@@ -1082,7 +1097,7 @@ watchforgrenadelauncherduds()
 	}
 }
 
-getdamageableents( pos, radius, dolos, startradius )
+getdamageableents( pos, radius, dolos, startradius ) //checked partially changed to match cerberus output did not use continue in for loop and foreach see github for more info
 {
 	ents = [];
 	if ( !isDefined( dolos ) )
@@ -1094,13 +1109,10 @@ getdamageableents( pos, radius, dolos, startradius )
 		startradius = 0;
 	}
 	players = level.players;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( !isalive( players[ i ] ) || players[ i ].sessionstate != "playing" )
 		{
-			i++;
-			continue;
 		}
 		else
 		{
@@ -1118,11 +1130,9 @@ getdamageableents( pos, radius, dolos, startradius )
 				ents[ ents.size ] = newent;
 			}
 		}
-		i++;
 	}
 	grenades = getentarray( "grenade", "classname" );
-	i = 0;
-	while ( i < grenades.size )
+	for ( i = 0; i < grenades.size; i++ )
 	{
 		entpos = grenades[ i ].origin;
 		distsq = distancesquared( pos, entpos );
@@ -1137,11 +1147,9 @@ getdamageableents( pos, radius, dolos, startradius )
 			newent.damagecenter = entpos;
 			ents[ ents.size ] = newent;
 		}
-		i++;
 	}
 	destructibles = getentarray( "destructible", "targetname" );
-	i = 0;
-	while ( i < destructibles.size )
+	for ( i = 0; i < destructibles.size; i++ )
 	{
 		entpos = destructibles[ i ].origin;
 		distsq = distancesquared( pos, entpos );
@@ -1156,11 +1164,9 @@ getdamageableents( pos, radius, dolos, startradius )
 			newent.damagecenter = entpos;
 			ents[ ents.size ] = newent;
 		}
-		i++;
 	}
 	destructables = getentarray( "destructable", "targetname" );
-	i = 0;
-	while ( i < destructables.size )
+	for ( i = 0; i < destructables.size; i++ )
 	{
 		entpos = destructables[ i ].origin;
 		distsq = distancesquared( pos, entpos );
@@ -1175,18 +1181,17 @@ getdamageableents( pos, radius, dolos, startradius )
 			newent.damagecenter = entpos;
 			ents[ ents.size ] = newent;
 		}
-		i++;
 	}
 	return ents;
 }
 
-weapondamagetracepassed( from, to, startradius, ignore )
+weapondamagetracepassed( from, to, startradius, ignore ) //checked matches cerberus output
 {
 	trace = weapondamagetrace( from, to, startradius, ignore );
 	return trace[ "fraction" ] == 1;
 }
 
-weapondamagetrace( from, to, startradius, ignore )
+weapondamagetrace( from, to, startradius, ignore ) //checked changed to match cerberus output
 {
 	midpos = undefined;
 	diff = to - from;
@@ -1197,22 +1202,22 @@ weapondamagetrace( from, to, startradius, ignore )
 	dir = vectornormalize( diff );
 	midpos = from + ( dir[ 0 ] * startradius, dir[ 1 ] * startradius, dir[ 2 ] * startradius );
 	trace = bullettrace( midpos, to, 0, ignore );
-	if ( getDvarInt( #"0A1C40B1" ) != 0 )
+	if ( getDvarInt( "scr_damage_debug" ) != 0 )
 	{
 		if ( trace[ "fraction" ] == 1 )
 		{
-			thread debugline( midpos, to, ( 0, 0, 1 ) );
+			thread debugline( midpos, to, ( 1, 1, 1 ) );
 		}
 		else
 		{
-			thread debugline( midpos, trace[ "position" ], ( 1, 0,9, 0,8 ) );
-			thread debugline( trace[ "position" ], to, ( 1, 0,4, 0,3 ) );
+			thread debugline( midpos, trace[ "position" ], ( 1, 0.9, 0.8 ) );
+			thread debugline( trace[ "position" ], to, ( 1, 0.4, 0.3 ) );
 		}
 	}
 	return trace;
 }
 
-damageent( einflictor, eattacker, idamage, smeansofdeath, sweapon, damagepos, damagedir )
+damageent( einflictor, eattacker, idamage, smeansofdeath, sweapon, damagepos, damagedir ) //checked does not match cerberus output matches beta dump
 {
 	if ( self.isplayer )
 	{
@@ -1235,24 +1240,24 @@ damageent( einflictor, eattacker, idamage, smeansofdeath, sweapon, damagepos, da
 		{
 			return;
 		}
-		self.entity damage_notify_wrapper( idamage, eattacker, ( 0, 0, 1 ), ( 0, 0, 1 ), "mod_explosive", "", "" );
+		self.entity damage_notify_wrapper( idamage, eattacker, ( 0, 0, 0 ), ( 0, 0, 0 ), "mod_explosive", "", "" );
 	}
 }
 
-debugline( a, b, color )
+debugline( a, b, color ) //checked changed to match cerberus output
 {
+	/*
 /#
-	i = 0;
-	while ( i < 600 )
+	for ( i = 0; i < 600; i++ )
 	{
 		line( a, b, color );
-		wait 0,05;
-		i++;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-onweapondamage( eattacker, einflictor, sweapon, meansofdeath, damage )
+onweapondamage( eattacker, einflictor, sweapon, meansofdeath, damage ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -1262,7 +1267,7 @@ onweapondamage( eattacker, einflictor, sweapon, meansofdeath, damage )
 			radius = 512;
 			if ( self == eattacker )
 			{
-				radius *= 0,5;
+				radius *= 0.5;
 			}
 			scale = 1 - ( distance( self.origin, einflictor.origin ) / radius );
 			if ( scale < 0 )
@@ -1270,10 +1275,10 @@ onweapondamage( eattacker, einflictor, sweapon, meansofdeath, damage )
 				scale = 0;
 			}
 			time = 2 + ( 4 * scale );
-			wait 0,05;
+			wait 0.05;
 			if ( self hasperk( "specialty_stunprotection" ) )
 			{
-				time *= 0,1;
+				time *= 0.1;
 			}
 			self thread playconcussionsound( time );
 			if ( self mayapplyscreeneffect() )
@@ -1288,7 +1293,7 @@ onweapondamage( eattacker, einflictor, sweapon, meansofdeath, damage )
 	}
 }
 
-playconcussionsound( duration )
+playconcussionsound( duration ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -1298,84 +1303,78 @@ playconcussionsound( duration )
 	concussionsound thread deleteentonownerdeath( self );
 	concussionsound playsound( "" );
 	concussionsound playloopsound( "" );
-	if ( duration > 0,5 )
+	if ( duration > 0.5 )
 	{
-		wait ( duration - 0,5 );
+		wait ( duration - 0.5 );
 	}
 	concussionsound playsound( "" );
-	concussionsound stoploopsound( 0,5 );
-	wait 0,5;
+	concussionsound stoploopsound( 0.5 );
+	wait 0.5;
 	concussionsound notify( "delete" );
 	concussionsound delete();
 }
 
-deleteentonownerdeath( owner )
+deleteentonownerdeath( owner ) //checked matches cerberus output
 {
 	self endon( "delete" );
 	owner waittill( "death" );
 	self delete();
 }
 
-monitor_dog_special_grenades()
+monitor_dog_special_grenades() //checked matches cerberus output
 {
 }
 
-isprimaryweapon( weaponname )
+isprimaryweapon( weaponname ) //checked matches cerberus output
 {
 	return isDefined( level.primary_weapon_array[ weaponname ] );
 }
 
-issidearm( weaponname )
+issidearm( weaponname ) //checked matches cerberus output
 {
 	return isDefined( level.side_arm_array[ weaponname ] );
 }
 
-isinventory( weaponname )
+isinventory( weaponname ) //checked matches cerberus output
 {
 	return isDefined( level.inventory_array[ weaponname ] );
 }
 
-isgrenade( weaponname )
+isgrenade( weaponname ) //checked matches cerberus output
 {
 	return isDefined( level.grenade_array[ weaponname ] );
 }
 
-isexplosivebulletweapon( weaponname )
+isexplosivebulletweapon( weaponname ) //checked changed to match cerberus output
 {
-	if ( weaponname != "chopper_minigun_mp" && weaponname != "cobra_20mm_mp" || weaponname == "littlebird_guard_minigun_mp" && weaponname == "cobra_20mm_comlink_mp" )
+	if ( weaponname == "chopper_minigun_mp" || weaponname == "cobra_20mm_mp" || weaponname == "littlebird_guard_minigun_mp" || weaponname == "cobra_20mm_comlink_mp" )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-getweaponclass_array( current )
+getweaponclass_array( current ) //checked changed to match cerberus output
 {
 	if ( isprimaryweapon( current ) )
 	{
 		return level.primary_weapon_array;
 	}
+	else if ( issidearm( current ) )
+	{
+		return level.side_arm_array;
+	}
+	else if ( isgrenade( current ) )
+	{
+		return level.grenade_array;
+	}
 	else
 	{
-		if ( issidearm( current ) )
-		{
-			return level.side_arm_array;
-		}
-		else
-		{
-			if ( isgrenade( current ) )
-			{
-				return level.grenade_array;
-			}
-			else
-			{
-				return level.inventory_array;
-			}
-		}
+		return level.inventory_array;
 	}
 }
 
-updatestowedweapon()
+updatestowedweapon() //checked partially changed to match cerberus output did not use for loop see github for more info
 {
 	self endon( "spawned" );
 	self endon( "killed_player" );
@@ -1405,57 +1404,53 @@ updatestowedweapon()
 				case "zipline_mp":
 					idx++;
 					continue;
-					default:
-					}
-					if ( isprimaryweapon( weaponslist[ idx ] ) )
-					{
-						self.weapon_array_primary[ self.weapon_array_primary.size ] = weaponslist[ idx ];
-						idx++;
-						continue;
-					}
-					else if ( issidearm( weaponslist[ idx ] ) )
-					{
-						self.weapon_array_sidearm[ self.weapon_array_sidearm.size ] = weaponslist[ idx ];
-						idx++;
-						continue;
-					}
-					else if ( isgrenade( weaponslist[ idx ] ) )
-					{
-						self.weapon_array_grenade[ self.weapon_array_grenade.size ] = weaponslist[ idx ];
-						idx++;
-						continue;
-					}
-					else if ( isinventory( weaponslist[ idx ] ) )
-					{
-						self.weapon_array_inventory[ self.weapon_array_inventory.size ] = weaponslist[ idx ];
-						idx++;
-						continue;
-					}
-					else
-					{
-						if ( isweaponprimary( weaponslist[ idx ] ) )
-						{
-							self.weapon_array_primary[ self.weapon_array_primary.size ] = weaponslist[ idx ];
-						}
-					}
-					idx++;
-				}
-				detach_all_weapons();
-				stow_on_back();
-				stow_on_hip();
+				default:
+					break;
 			}
+			if ( isprimaryweapon( weaponslist[ idx ] ) )
+			{
+				self.weapon_array_primary[ self.weapon_array_primary.size ] = weaponslist[ idx ];
+				idx++;
+				continue;
+			}
+			if ( issidearm( weaponslist[ idx ] ) )
+			{
+				self.weapon_array_sidearm[ self.weapon_array_sidearm.size ] = weaponslist[ idx ];
+				idx++;
+				continue;
+			}
+			if ( isgrenade( weaponslist[ idx ] ) )
+			{
+				self.weapon_array_grenade[ self.weapon_array_grenade.size ] = weaponslist[ idx ];
+				idx++;
+				continue;
+			}
+			if ( isinventory( weaponslist[ idx ] ) )
+			{
+				self.weapon_array_inventory[ self.weapon_array_inventory.size ] = weaponslist[ idx ];
+				idx++;
+				continue;
+			}
+			if ( isweaponprimary( weaponslist[ idx ] ) )
+			{
+				self.weapon_array_primary[ self.weapon_array_primary.size ] = weaponslist[ idx ];
+			}
+			idx++;
 		}
+		detach_all_weapons();
+		stow_on_back();
+		stow_on_hip();
 	}
 }
 
-forcestowedweaponupdate()
+forcestowedweaponupdate() //checked matches cerberus output
 {
 	detach_all_weapons();
 	stow_on_back();
 	stow_on_hip();
 }
 
-detachcarryobjectmodel()
+detachcarryobjectmodel() //checked matches cerberus output
 {
 	if ( isDefined( self.carryobject ) && isDefined( self.carryobject maps/mp/gametypes_zm/_gameobjects::getvisiblecarriermodel() ) )
 	{
@@ -1467,7 +1462,7 @@ detachcarryobjectmodel()
 	}
 }
 
-detach_all_weapons()
+detach_all_weapons() //checked matches cerberus output
 {
 	if ( isDefined( self.tag_stowed_back ) )
 	{
@@ -1495,7 +1490,7 @@ detach_all_weapons()
 	}
 }
 
-non_stowed_weapon( weapon )
+non_stowed_weapon( weapon ) //checked matches cerberus output
 {
 	if ( self hasweapon( "knife_ballistic_mp" ) && weapon != "knife_ballistic_mp" )
 	{
@@ -1508,9 +1503,10 @@ non_stowed_weapon( weapon )
 	return 0;
 }
 
-stow_on_back( current )
+stow_on_back( current ) //checked partially changed to match cerberus output did not use for loop see github for more info
 {
 	current = self getcurrentweapon();
+	currentalt = self getcurrentweaponaltweapon();
 	self.tag_stowed_back = undefined;
 	weaponoptions = 0;
 	index_weapon = "";
@@ -1520,77 +1516,49 @@ stow_on_back( current )
 		self attach( self.tag_stowed_back, "tag_stowed_back", 1 );
 		return;
 	}
-	else
+	if ( non_stowed_weapon( current ) || self.hasriotshield )
 	{
-		if ( non_stowed_weapon( current ) || self.hasriotshield )
+		return;
+	}
+	if ( current != "none" )
+	{
+		if ( issubstr( current, "gl_" ) || issubstr( temp_index_weapon, "gl_" ) || issubstr( current, "mk_" ) || issubstr( temp_index_weapon, "mk_" ) || issubstr( current, "dualoptic_" ) || issubstr( temp_index_weapon, "dualoptic_" ) || issubstr( current, "ft_" ) || issubstr( temp_index_weapon, "ft_" ) )
 		{
-			return;
+			index_weapon_tok = strtok( temp_index_weapon, "_" );
+			current_tok = strtok( current, "_" );
+			for ( i = 0; i < index_weapon_tok.size; i++ )
+			{
+				if ( !issubstr( current, index_weapon_tok[ i ] ) || index_weapon_tok.size != current_tok.size )
+				{
+					i = 0;
+					break;
+				}
+			}
+			if ( i == index_weapon_tok.size )
+			{
+				continue;
+			}
+		}
+		index_weapon = temp_index_weapon;
+		/*
+/#
+		assert( isDefined( self.curclass ), "Player missing current class" );
+#/
+		*/
+		if ( issubstr( index_weapon, self.pers[ "primaryWeapon" ] ) && issubstr( self.curclass, "CUSTOM" ) )
+		{
+			self.tag_stowed_back = getweaponmodel( index_weapon );
 		}
 		else
 		{
-			idx = 0;
-			while ( idx < self.weapon_array_primary.size )
-			{
-				temp_index_weapon = self.weapon_array_primary[ idx ];
-/#
-				assert( isDefined( temp_index_weapon ), "Primary weapon list corrupted." );
-#/
-				if ( temp_index_weapon == current )
-				{
-					idx++;
-					continue;
-				}
-				else if ( current == "none" )
-				{
-					idx++;
-					continue;
-				}
-				else if ( !issubstr( current, "gl_" ) && !issubstr( temp_index_weapon, "gl_" ) && !issubstr( current, "mk_" ) && !issubstr( temp_index_weapon, "mk_" ) && !issubstr( current, "dualoptic_" ) && !issubstr( temp_index_weapon, "dualoptic_" ) || issubstr( current, "ft_" ) && issubstr( temp_index_weapon, "ft_" ) )
-				{
-					index_weapon_tok = strtok( temp_index_weapon, "_" );
-					current_tok = strtok( current, "_" );
-					i = 0;
-					while ( i < index_weapon_tok.size )
-					{
-						if ( !issubstr( current, index_weapon_tok[ i ] ) || index_weapon_tok.size != current_tok.size )
-						{
-							i = 0;
-							break;
-						}
-						else
-						{
-							i++;
-						}
-					}
-					if ( i == index_weapon_tok.size )
-					{
-						idx++;
-						continue;
-					}
-				}
-				else
-				{
-					index_weapon = temp_index_weapon;
-/#
-					assert( isDefined( self.curclass ), "Player missing current class" );
-#/
-					if ( issubstr( index_weapon, self.pers[ "primaryWeapon" ] ) && issubstr( self.curclass, "CUSTOM" ) )
-					{
-						self.tag_stowed_back = getweaponmodel( index_weapon, self getloadoutitem( self.class_num, "primarycamo" ) );
-					}
-					else
-					{
-						stowedmodelindex = getweaponstowedmodel( index_weapon );
-						self.tag_stowed_back = getweaponmodel( index_weapon, stowedmodelindex );
-					}
-					if ( issubstr( self.curclass, "CUSTOM" ) )
-					{
-						weaponoptions = self calcweaponoptions( self.class_num, 0 );
-					}
-				}
-				idx++;
-			}
+			stowedmodelindex = getweaponstowedmodel( index_weapon );
+			self.tag_stowed_back = getweaponmodel( index_weapon, stowedmodelindex );
 		}
+		if ( issubstr( self.curclass, "CUSTOM" ) )
+		{
+			weaponoptions = self calcweaponoptions( self.class_num, 0 );
+		}
+		idx++;
 	}
 	if ( !isDefined( self.tag_stowed_back ) )
 	{
@@ -1599,7 +1567,7 @@ stow_on_back( current )
 	self setstowedweapon( index_weapon );
 }
 
-stow_on_hip()
+stow_on_hip() //checked partially changed to match cerberus output did not use for loop see github for more info
 {
 	current = self getcurrentweapon();
 	self.tag_stowed_hip = undefined;
@@ -1611,15 +1579,12 @@ stow_on_hip()
 			idx++;
 			continue;
 		}
-		else if ( !self getweaponammostock( self.weapon_array_inventory[ idx ] ) )
+		if ( !self getweaponammostock( self.weapon_array_inventory[ idx ] ) )
 		{
 			idx++;
 			continue;
 		}
-		else
-		{
-			self.tag_stowed_hip = self.weapon_array_inventory[ idx ];
-		}
+		self.tag_stowed_hip = self.weapon_array_inventory[ idx ];
 		idx++;
 	}
 	if ( !isDefined( self.tag_stowed_hip ) )
@@ -1635,7 +1600,7 @@ stow_on_hip()
 	self attach( weapon_model, "tag_stowed_hip_rear", 1 );
 }
 
-stow_inventory( inventories, current )
+stow_inventory( inventories, current ) //checked matches cerberus output
 {
 	if ( isDefined( self.inventory_tag ) )
 	{
@@ -1655,12 +1620,12 @@ stow_inventory( inventories, current )
 	}
 }
 
-weapons_get_dvar_int( dvar, def )
+weapons_get_dvar_int( dvar, def ) //checked matches cerberus output
 {
 	return int( weapons_get_dvar( dvar, def ) );
 }
 
-weapons_get_dvar( dvar, def )
+weapons_get_dvar( dvar, def ) //checked matches cerberus output
 {
 	if ( getDvar( dvar ) != "" )
 	{
@@ -1673,7 +1638,7 @@ weapons_get_dvar( dvar, def )
 	}
 }
 
-player_is_driver()
+player_is_driver() //checked matches cerberus output
 {
 	if ( !isalive( self ) )
 	{
@@ -1695,14 +1660,16 @@ player_is_driver()
 	return 0;
 }
 
-loadout_get_class_num()
+loadout_get_class_num() //checked matches cerberus output
 {
+	/*
 /#
 	assert( isplayer( self ) );
 #/
 /#
 	assert( isDefined( self.class ) );
 #/
+	*/
 	if ( isDefined( level.classtoclassnum[ self.class ] ) )
 	{
 		return level.classtoclassnum[ self.class ];
@@ -1715,51 +1682,60 @@ loadout_get_class_num()
 	return class_num;
 }
 
-loadout_get_offhand_weapon( stat )
+loadout_get_offhand_weapon( stat ) //checked matches cerberus output
 {
 	if ( isDefined( level.givecustomloadout ) )
 	{
 		return "weapon_null_mp";
 	}
-	class_num = self loadout_get_class_num();
-	index = 0;
-	if ( isDefined( level.tbl_weaponids[ index ] ) && isDefined( level.tbl_weaponids[ index ][ "reference" ] ) )
+	/*
+/#
+	assert( isDefined( self.class_num ) );
+#/
+	*/
+	if ( isDefined( self.class_num ) )
 	{
-		return level.tbl_weaponids[ index ][ "reference" ] + "_mp";
+		index = self maps/mp/gametypes_zm/_class::getloadoutitemfromddlstats( self.class_num, stat );
+		if ( isDefined( level.tbl_weaponids[ index ] ) && isDefined( level.tbl_weaponids[ index ][ "reference" ] ) )
+		{
+			return level.tbl_weaponids[ index ][ "reference" ] + "_mp";
+		}
 	}
 	return "weapon_null_mp";
 }
 
-loadout_get_offhand_count( stat )
+loadout_get_offhand_count( stat ) //checked matches cerberus output
 {
+	count = 0;
 	if ( isDefined( level.givecustomloadout ) )
 	{
 		return 0;
 	}
-	class_num = self loadout_get_class_num();
-	count = 0;
+	/*
+/#
+	assert( isDefined( self.class_num ) );
+#/
+	*/
+	if ( isDefined( self.class_num ) )
+	{
+		count = self maps/mp/gametypes_zm/_class::getloadoutitemfromddlstats( self.class_num, stat );
+	}
 	return count;
 }
 
-scavenger_think()
+scavenger_think() //checked partially changed to match cerberus output did not use for loops see github for more info
 {
 	self endon( "death" );
 	self waittill( "scavenger", player );
 	primary_weapons = player getweaponslistprimaries();
 	offhand_weapons_and_alts = array_exclude( player getweaponslist( 1 ), primary_weapons );
 	arrayremovevalue( offhand_weapons_and_alts, "knife_mp" );
+	offhand_weapons_and_alts = array_reverse( offhand_weapons_and_alts );
 	player playsound( "fly_equipment_pickup_npc" );
 	player playlocalsound( "fly_equipment_pickup_plr" );
 	player.scavenger_icon.alpha = 1;
 	player.scavenger_icon fadeovertime( 2,5 );
 	player.scavenger_icon.alpha = 0;
-	scavenger_lethal_proc = 1;
-	scavenger_tactical_proc = 1;
-	if ( !isDefined( player.scavenger_lethal_proc ) )
-	{
-		player.scavenger_lethal_proc = 0;
-		player.scavenger_tactical_proc = 0;
-	}
 	loadout_primary = player loadout_get_offhand_weapon( "primarygrenade" );
 	loadout_primary_count = player loadout_get_offhand_count( "primarygrenadecount" );
 	loadout_secondary = player loadout_get_offhand_weapon( "specialgrenade" );
@@ -1770,160 +1746,100 @@ scavenger_think()
 		weapon = offhand_weapons_and_alts[ i ];
 		if ( ishackweapon( weapon ) )
 		{
-			break;
+			i++;
+			continue;
+		}
+		switch ( weapon )
+		{
+			case "satchel_charge_mp":
+				if ( player maps/mp/gametypes_zm/_weaponobjects::anyobjectsinworld( weapon ) )
+				{
+					break;
+				}
+			case "bouncingbetty_mp":
+			case "claymore_mp":
+			case "frag_grenade_mp":
+			case "hatchet_mp":
+			case "sticky_grenade_mp":
+				if ( isDefined( player.grenadetypeprimarycount ) && player.grenadetypeprimarycount < 1 )
+				{
+					break;
+				}
+			case "concussion_grenade_mp":
+			case "emp_grenade_mp":
+			case "flash_grenade_mp":
+			case "nightingale_mp":
+			case "pda_hack_mp":
+			case "proximity_grenade_mp":
+			case "sensor_grenade_mp":
+			case "tabun_gas_mp":
+			case "trophy_system_mp":
+			case "willy_pete_mp":
+				if ( isDefined( player.grenadetypesecondarycount ) && player.grenadetypesecondarycount < 1 )
+				{
+					break;
+				}
+				maxammo = weaponmaxammo( weapon );
+				stock = player getweaponammostock( weapon );
+				if ( isDefined( level.customloadoutscavenge ) )
+				{
+					maxammo = self [[ level.customloadoutscavenge ]]( weapon );
+				}
+				else if ( weapon == loadout_primary )
+				{
+					maxammo = loadout_primary_count;
+				}
+				else if ( weapon == loadout_secondary )
+				{
+					maxammo = loadout_secondary_count;
+				}
+				if ( stock < maxammo )
+				{
+					ammo = stock + 1;
+					if ( ammo > maxammo )
+					{
+						ammo = maxammo;
+					}
+					player setweaponammostock( weapon, ammo );
+					player.scavenged = 1;
+					player thread maps/mp/_challenges::scavengedgrenade();
+				}
+				break;
+		}
 		i++;
-		continue;
 	}
-	else switch( weapon )
+	i = 0;
+	while ( i < primary_weapons.size )
 	{
-		case "bouncingbetty_mp":
-		case "claymore_mp":
-		case "frag_grenade_mp":
-		case "hatchet_mp":
-		case "satchel_charge_mp":
-		case "sticky_grenade_mp":
-			if ( isDefined( player.grenadetypeprimarycount ) && player.grenadetypeprimarycount < 1 )
-			{
-				break;
+		weapon = primary_weapons[ i ];
+		if ( ishackweapon( weapon ) || weapon == "kniferang_mp" )
+		{
 			i++;
 			continue;
 		}
-		else
-		{
-			if ( player getweaponammostock( weapon ) != loadout_primary_count )
-			{
-				if ( player.scavenger_lethal_proc < scavenger_lethal_proc )
-				{
-					player.scavenger_lethal_proc++;
-					break;
-				i++;
-				continue;
-			}
-			else player.scavenger_lethal_proc = 0;
-			player.scavenger_tactical_proc = 0;
-		}
-		case "concussion_grenade_mp":
-		case "emp_grenade_mp":
-		case "flash_grenade_mp":
-		case "nightingale_mp":
-		case "pda_hack_mp":
-		case "proximity_grenade_mp":
-		case "sensor_grenade_mp":
-		case "tabun_gas_mp":
-		case "trophy_system_mp":
-		case "willy_pete_mp":
-			if ( isDefined( player.grenadetypesecondarycount ) && player.grenadetypesecondarycount < 1 )
-			{
-				break;
-			i++;
-			continue;
-		}
-		else
-		{
-			if ( weapon == loadout_secondary && player getweaponammostock( weapon ) != loadout_secondary_count )
-			{
-				if ( player.scavenger_tactical_proc < scavenger_tactical_proc )
-				{
-					player.scavenger_tactical_proc++;
-					break;
-				i++;
-				continue;
-			}
-			else player.scavenger_tactical_proc = 0;
-			player.scavenger_lethal_proc = 0;
-		}
-		maxammo = weaponmaxammo( weapon );
 		stock = player getweaponammostock( weapon );
-		if ( isDefined( level.customloadoutscavenge ) )
+		start = player getfractionstartammo( weapon );
+		clip = weaponclipsize( weapon );
+		clip *= getdvarfloatdefault( "scavenger_clip_multiplier", 1 );
+		clip = int( clip );
+		maxammo = weaponmaxammo( weapon );
+		if ( stock < ( maxammo - clip ) )
 		{
-			maxammo = self [[ level.customloadoutscavenge ]]( weapon );
-		}
-		else if ( weapon == loadout_primary )
-		{
-			maxammo = loadout_primary_count;
-		}
-		else
-		{
-			if ( weapon == loadout_secondary )
-			{
-				maxammo = loadout_secondary_count;
-			}
-		}
-		if ( stock < maxammo )
-		{
-			ammo = stock + 1;
-			if ( ammo > maxammo )
-			{
-				ammo = maxammo;
-			}
+			ammo = stock + clip;
 			player setweaponammostock( weapon, ammo );
-			player thread maps/mp/_challenges::scavengedgrenade();
+			player.scavenged = 1;
+			exit_early = 1;
+			i++;
+			continue;
 		}
-		break;
-	i++;
-	continue;
-	default:
-		if ( islauncherweapon( weapon ) )
-		{
-			stock = player getweaponammostock( weapon );
-			start = player getfractionstartammo( weapon );
-			clip = weaponclipsize( weapon );
-			clip *= getdvarfloatdefault( "scavenger_clip_multiplier", 2 );
-			clip = int( clip );
-			maxammo = weaponmaxammo( weapon );
-			if ( stock < ( maxammo - clip ) )
-			{
-				ammo = stock + clip;
-				player setweaponammostock( weapon, ammo );
-				break;
-			}
-			else
-			{
-				player setweaponammostock( weapon, maxammo );
-			}
-		}
-		break;
-	i++;
-	continue;
-}
-}
-}
-i++;
-}
-i = 0;
-while ( i < primary_weapons.size )
-{
-weapon = primary_weapons[ i ];
-if ( ishackweapon( weapon ) || weapon == "kniferang_mp" )
-{
-i++;
-continue;
-}
-else
-{
-stock = player getweaponammostock( weapon );
-start = player getfractionstartammo( weapon );
-clip = weaponclipsize( weapon );
-clip *= getdvarfloatdefault( "scavenger_clip_multiplier", 2 );
-clip = int( clip );
-maxammo = weaponmaxammo( weapon );
-if ( stock < ( maxammo - clip ) )
-{
-ammo = stock + clip;
-player setweaponammostock( weapon, ammo );
-i++;
-continue;
-}
-else
-{
-player setweaponammostock( weapon, maxammo );
-}
-}
-i++;
-}
+		player setweaponammostock( weapon, maxammo );
+		player.scavenged = 1;
+		exit_early = 1;
+		i++;
+	}
 }
 
-scavenger_hud_create()
+scavenger_hud_create() //checked matches cerberus output
 {
 	if ( level.wagermatch )
 	{
@@ -1932,21 +1848,20 @@ scavenger_hud_create()
 	self.scavenger_icon = newclienthudelem( self );
 	self.scavenger_icon.horzalign = "center";
 	self.scavenger_icon.vertalign = "middle";
-	self.scavenger_icon.x = -16;
-	self.scavenger_icon.y = 16;
 	self.scavenger_icon.alpha = 0;
-	width = 32;
-	height = 16;
-	if ( self issplitscreen() )
+	width = 48;
+	height = 24;
+	if ( level.splitscreen )
 	{
-		width = int( width * 0,5 );
-		height = int( height * 0,5 );
-		self.scavenger_icon.x = -8;
+		width = int( width * 0.5 );
+		height = int( height * 0.5 );
 	}
+	self.scavenger_icon.x = ( width * -1 ) / 2;
+	self.scavenger_icon.y = 16;
 	self.scavenger_icon setshader( "hud_scavenger_pickup", width, height );
 }
 
-dropscavengerfordeath( attacker )
+dropscavengerfordeath( attacker ) //checked matches cerberus output
 {
 	if ( sessionmodeiszombiesgame() )
 	{
@@ -1968,14 +1883,18 @@ dropscavengerfordeath( attacker )
 	{
 		item = self dropscavengeritem( "scavenger_item_hack_mp" );
 	}
-	else
+	else if ( isplayer( attacker ) && attacker hasperk( "specialty_scavenger" ) )
 	{
 		item = self dropscavengeritem( "scavenger_item_mp" );
+	}
+	else
+	{
+		return;
 	}
 	item thread scavenger_think();
 }
 
-addlimitedweapon( weapon_name, owner, num_drops )
+addlimitedweapon( weapon_name, owner, num_drops ) //checked matches cerberus output
 {
 	limited_info = spawnstruct();
 	limited_info.weapon = weapon_name;
@@ -1983,7 +1902,7 @@ addlimitedweapon( weapon_name, owner, num_drops )
 	owner.limited_info = limited_info;
 }
 
-shoulddroplimitedweapon( weapon_name, owner )
+shoulddroplimitedweapon( weapon_name, owner ) //checked matches cerberus output
 {
 	limited_info = owner.limited_info;
 	if ( !isDefined( limited_info ) )
@@ -2001,7 +1920,7 @@ shoulddroplimitedweapon( weapon_name, owner )
 	return 1;
 }
 
-droplimitedweapon( weapon_name, owner, item )
+droplimitedweapon( weapon_name, owner, item ) //checked matches cerberus output
 {
 	limited_info = owner.limited_info;
 	if ( !isDefined( limited_info ) )
@@ -2017,7 +1936,7 @@ droplimitedweapon( weapon_name, owner, item )
 	item thread limitedpickup( limited_info );
 }
 
-limitedpickup( limited_info )
+limitedpickup( limited_info ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittill( "trigger", player, item );
@@ -2027,3 +1946,5 @@ limitedpickup( limited_info )
 	}
 	player.limited_info = limited_info;
 }
+
+
