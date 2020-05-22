@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_class;
 #include maps/mp/gametypes/_globallogic_player;
 #include maps/mp/gametypes/_spectating;
@@ -10,7 +11,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachestring( &"MP_HALFTIME" );
 	precachestring( &"MP_OVERTIME" );
@@ -37,7 +38,7 @@ init()
 	}
 }
 
-setupcallbacks()
+setupcallbacks() //checked matches cerberus output
 {
 	level.autoassign = ::menuautoassign;
 	level.spectator = ::menuspectator;
@@ -45,16 +46,16 @@ setupcallbacks()
 	level.teammenu = ::menuteam;
 }
 
-hideloadoutaftertime( delay )
+hideloadoutaftertime( delay ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "perks_hidden" );
 	wait delay;
-	self thread hideallperks( 0,4 );
+	self thread hideallperks( 0.4 );
 	self notify( "perks_hidden" );
 }
 
-hideloadoutondeath()
+hideloadoutondeath() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "perks_hidden" );
@@ -63,7 +64,7 @@ hideloadoutondeath()
 	self notify( "perks_hidden" );
 }
 
-hideloadoutonkill()
+hideloadoutonkill() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -73,19 +74,17 @@ hideloadoutonkill()
 	self notify( "perks_hidden" );
 }
 
-freegameplayhudelems()
+freegameplayhudelems() //checked changed to match cerberus output
 {
-	while ( isDefined( self.perkicon ) )
+	if ( isDefined( self.perkicon ) )
 	{
-		numspecialties = 0;
-		while ( numspecialties < level.maxspecialties )
+		for ( numspecialties = 0; numspecialties < level.maxspecialties; numspecialties++ )
 		{
 			if ( isDefined( self.perkicon[ numspecialties ] ) )
 			{
 				self.perkicon[ numspecialties ] destroyelem();
 				self.perkname[ numspecialties ] destroyelem();
 			}
-			numspecialties++;
 		}
 	}
 	if ( isDefined( self.perkhudelem ) )
@@ -139,14 +138,11 @@ freegameplayhudelems()
 	maps/mp/killstreaks/_killstreaks::destroykillstreaktimers();
 }
 
-teamplayercountsequal( playercounts )
+teamplayercountsequal( playercounts ) //checked partially changed to match cerberus output did not use continue see github for more info
 {
 	count = undefined;
-	_a146 = level.teams;
-	_k146 = getFirstArrayKey( _a146 );
-	while ( isDefined( _k146 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a146[ _k146 ];
 		if ( !isDefined( count ) )
 		{
 			count = playercounts[ team ];
@@ -158,31 +154,26 @@ teamplayercountsequal( playercounts )
 				return 0;
 			}
 		}
-		_k146 = getNextArrayKey( _a146, _k146 );
 	}
 	return 1;
 }
 
-teamwithlowestplayercount( playercounts, ignore_team )
+teamwithlowestplayercount( playercounts, ignore_team ) //checked changed to match cerberus output
 {
 	count = 9999;
 	lowest_team = undefined;
-	_a165 = level.teams;
-	_k165 = getFirstArrayKey( _a165 );
-	while ( isDefined( _k165 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a165[ _k165 ];
 		if ( count > playercounts[ team ] )
 		{
 			count = playercounts[ team ];
 			lowest_team = team;
 		}
-		_k165 = getNextArrayKey( _a165, _k165 );
 	}
 	return lowest_team;
 }
 
-menuautoassign( comingfrommenu )
+menuautoassign( comingfrommenu ) //checked changed to match cerberus output
 {
 	teamkeys = getarraykeys( level.teams );
 	assignment = teamkeys[ randomint( teamkeys.size ) ];
@@ -191,80 +182,78 @@ menuautoassign( comingfrommenu )
 	{
 		assignment = "allies";
 	}
-	else
+	else if ( level.teambased )
 	{
-		if ( level.teambased )
+		if ( getDvarInt( "party_autoteams" ) == 1 )
 		{
-			if ( getDvarInt( "party_autoteams" ) == 1 )
+			if ( level.allow_teamchange == "1" || self.hasspawned && comingfrommenu )
 			{
-				if ( level.allow_teamchange == "1" || self.hasspawned && comingfrommenu )
-				{
-					assignment = "";
+				assignment = "";
+			}
+		}
+		else
+		{
+			team = getassignedteam( self );
+			switch( team )
+			{
+				case 1:
+					assignment = teamkeys[ 1 ];
 					break;
-			}
-			else
-			{
-				team = getassignedteam( self );
-				switch( team )
-				{
-					case 1:
-						assignment = teamkeys[ 1 ];
-						break;
-					case 2:
-						assignment = teamkeys[ 0 ];
-						break;
-					case 3:
-						assignment = teamkeys[ 2 ];
-						break;
-					case 4:
-						if ( !isDefined( level.forceautoassign ) || !level.forceautoassign )
-						{
-							self setclientscriptmainmenu( game[ "menu_class" ] );
-							return;
-						}
-						default:
-							assignment = "";
-							if ( isDefined( level.teams[ team ] ) )
-							{
-								assignment = team;
-							}
-							else
-							{
-								if ( team == "spectator" && !level.forceautoassign )
-								{
-									self setclientscriptmainmenu( game[ "menu_class" ] );
-									return;
-								}
-							}
+				case 2:
+					assignment = teamkeys[ 0 ];
+					break;
+				case 3:
+					assignment = teamkeys[ 2 ];
+					break;
+				case 4:
+					if ( !isDefined( level.forceautoassign ) || !level.forceautoassign )
+					{
+						self setclientscriptmainmenu( game[ "menu_class" ] );
+						return;
 					}
-				}
+				default:
+					assignment = "";
+					if ( isDefined( level.teams[ team ] ) )
+					{
+						assignment = team;
+					}
+					else if ( team == "spectator" && !level.forceautoassign )
+					{
+						self setclientscriptmainmenu( game[ "menu_class" ] );
+						return;
+					}
 			}
-			if ( assignment == "" || getDvarInt( "party_autoteams" ) == 0 )
+		}
+		if ( assignment == "" || getDvarInt( "party_autoteams" ) == 0 )
+		{
+			if ( sessionmodeiszombiesgame() )
 			{
-				if ( sessionmodeiszombiesgame() )
-				{
-					assignment = "allies";
-				}
-				else if ( maps/mp/bots/_bot::is_bot_comp_stomp() )
-				{
-					host = gethostplayerforbots();
+				assignment = "allies";
+			}
+			else if ( maps/mp/bots/_bot::is_bot_comp_stomp() )
+			{
+				host = gethostplayerforbots();
+				/*
 /#
-					assert( isDefined( host ) );
+				assert( isDefined( host ) );
 #/
-					if ( !isDefined( host.team ) || host.team == "spectator" )
-					{
-						host.team = random( teamkeys );
-					}
-					if ( !self is_bot() )
-					{
-						assignment = host.team;
-					}
-					else
-					{
-						assignment = getotherteam( host.team );
-					}
+				*/
+				if ( !isDefined( host.team ) || host.team == "spectator" )
+				{
+					host.team = random( teamkeys );
 				}
-				else playercounts = self maps/mp/teams/_teams::countplayers();
+				if ( !self is_bot() )
+				{
+					assignment = host.team;
+				}
+				else
+				{
+					assignment = getotherteam( host.team );
+				}
+			}
+			else 
+			{
+				playercounts = self maps/mp/teams/_teams::countplayers();
 				if ( teamplayercountsequal( playercounts ) )
 				{
 					if ( !level.splitscreen && self issplitscreen() )
@@ -285,33 +274,30 @@ menuautoassign( comingfrommenu )
 					assignment = teamwithlowestplayercount( playercounts, "none" );
 				}
 			}
-			if ( assignment == self.pers[ "team" ] || self.sessionstate == "playing" && self.sessionstate == "dead" )
+		}
+		if ( assignment == self.pers[ "team" ] && self.sessionstate == "playing" || self.sessionstate == "dead" )
+		{
+			self beginclasschoice();
+			return;
+		}
+	}
+	else if ( getDvarInt( "party_autoteams" ) == 1 )
+	{
+		if ( level.allow_teamchange != "1" || !self.hasspawned && !comingfrommenu )
+		{
+			team = getassignedteam( self );
+			if ( isDefined( level.teams[ team ] ) )
 			{
-				self beginclasschoice();
+				assignment = team;
+			}
+			else if ( team == "spectator" && !level.forceautoassign )
+			{
+				self setclientscriptmainmenu( game[ "menu_class" ] );
 				return;
 			}
 		}
-		else if ( getDvarInt( "party_autoteams" ) == 1 )
-		{
-			if ( level.allow_teamchange != "1" || !self.hasspawned && !comingfrommenu )
-			{
-				team = getassignedteam( self );
-				if ( isDefined( level.teams[ team ] ) )
-				{
-					assignment = team;
-				}
-				else
-				{
-					if ( team == "spectator" && !level.forceautoassign )
-					{
-						self setclientscriptmainmenu( game[ "menu_class" ] );
-						return;
-					}
-				}
-			}
-		}
 	}
-	if ( assignment != self.pers[ "team" ] || self.sessionstate == "playing" && self.sessionstate == "dead" )
+	if ( assignment != self.pers[ "team" ] && self.sessionstate == "playing" || self.sessionstate == "dead" )
 	{
 		self.switching_teams = 1;
 		self.joining_team = assignment;
@@ -320,7 +306,10 @@ menuautoassign( comingfrommenu )
 	}
 	self.pers[ "team" ] = assignment;
 	self.team = assignment;
+	self.pers["class"] = undefined;
 	self.class = undefined;
+	self.pers["weapon"] = undefined;
+	self.pers["savedmodel"] = undefined;
 	self updateobjectivetext();
 	if ( level.teambased )
 	{
@@ -367,14 +356,11 @@ menuautoassign( comingfrommenu )
 	self setclientscriptmainmenu( game[ "menu_class" ] );
 }
 
-teamscoresequal()
+teamscoresequal() //checked partially changed to match cerberus output did not use continue in foreach see github for more info
 {
 	score = undefined;
-	_a397 = level.teams;
-	_k397 = getFirstArrayKey( _a397 );
-	while ( isDefined( _k397 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a397[ _k397 ];
 		if ( !isDefined( score ) )
 		{
 			score = getteamscore( team );
@@ -386,7 +372,6 @@ teamscoresequal()
 				return 0;
 			}
 		}
-		_k397 = getNextArrayKey( _a397, _k397 );
 	}
 	return 1;
 }
@@ -395,21 +380,17 @@ teamwithlowestscore()
 {
 	score = 99999999;
 	lowest_team = undefined;
-	_a416 = level.teams;
-	_k416 = getFirstArrayKey( _a416 );
-	while ( isDefined( _k416 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a416[ _k416 ];
 		if ( score > getteamscore( team ) )
 		{
 			lowest_team = team;
 		}
-		_k416 = getNextArrayKey( _a416, _k416 );
 	}
 	return lowest_team;
 }
 
-pickteamfromscores( teams )
+pickteamfromscores( teams ) //checked matches cerberus output
 {
 	assignment = "allies";
 	if ( teamscoresequal() )
@@ -423,7 +404,7 @@ pickteamfromscores( teams )
 	return assignment;
 }
 
-getsplitscreenteam()
+getsplitscreenteam() //checked partially changed to match cerberus output did not use for loop see github for more info
 {
 	index = 0;
 	while ( index < level.players.size )
@@ -433,30 +414,27 @@ getsplitscreenteam()
 			index++;
 			continue;
 		}
-		else if ( level.players[ index ] == self )
+		if ( level.players[ index ] == self )
 		{
 			index++;
 			continue;
 		}
-		else if ( !self isplayeronsamemachine( level.players[ index ] ) )
+		if ( !self isplayeronsamemachine( level.players[ index ] ) )
 		{
 			index++;
 			continue;
 		}
-		else
+		team = level.players[ index ].sessionteam;
+		if ( team != "spectator" )
 		{
-			team = level.players[ index ].sessionteam;
-			if ( team != "spectator" )
-			{
-				return team;
-			}
+			return team;
 		}
 		index++;
 	}
 	return "";
 }
 
-updateobjectivetext()
+updateobjectivetext() //checked matches cerberus output
 {
 	if ( sessionmodeiszombiesgame() || self.pers[ "team" ] == "spectator" )
 	{
@@ -473,17 +451,19 @@ updateobjectivetext()
 	}
 }
 
-closemenus()
+closemenus() //checked matches cerberus output
 {
 	self closemenu();
 	self closeingamemenu();
 }
 
-beginclasschoice( forcenewchoice )
+beginclasschoice( forcenewchoice ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.teams[ self.pers[ "team" ] ] ) );
 #/
+	*/
 	team = self.pers[ "team" ];
 	if ( level.disableclassselection == 1 || getDvarInt( "migration_soak" ) == 1 )
 	{
@@ -511,11 +491,13 @@ beginclasschoice( forcenewchoice )
 	}
 }
 
-showmainmenuforteam()
+showmainmenuforteam() //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.teams[ self.pers[ "team" ] ] ) );
 #/
+	*/
 	team = self.pers[ "team" ];
 	if ( level.wagermatch )
 	{
@@ -527,7 +509,7 @@ showmainmenuforteam()
 	}
 }
 
-menuteam( team )
+menuteam( team ) //checked changed to match cerberus output
 {
 	self closemenus();
 	if ( !level.console && level.allow_teamchange == "0" && isDefined( self.hasdonecombat ) && self.hasdonecombat )
@@ -549,7 +531,10 @@ menuteam( team )
 		}
 		self.pers[ "team" ] = team;
 		self.team = team;
+		self.pers[ "class" ] = undefined;
 		self.class = undefined;
+		self.pers[ "weapon" ] = undefined;
+		self.pers[ "savedmodel" ] = undefined;
 		self updateobjectivetext();
 		if ( !level.rankedmatch && !level.leaguematch )
 		{
@@ -572,7 +557,7 @@ menuteam( team )
 	self beginclasschoice();
 }
 
-menuspectator()
+menuspectator() //checked changed to match cerberus output
 {
 	self closemenus();
 	if ( self.pers[ "team" ] != "spectator" )
@@ -586,7 +571,10 @@ menuspectator()
 		}
 		self.pers[ "team" ] = "spectator";
 		self.team = "spectator";
+		self.pers[ "class" ] = undefined;
 		self.class = undefined;
+		self.pers[ "weapon" ] = undefined;
+		self.pers[ "savedmodel" ] = undefined;
 		self updateobjectivetext();
 		self.sessionteam = "spectator";
 		if ( !level.teambased )
@@ -600,7 +588,7 @@ menuspectator()
 	}
 }
 
-menuclass( response )
+menuclass( response ) //checked changed to match cerberus output
 {
 	self closemenus();
 	if ( !isDefined( self.pers[ "team" ] ) || !isDefined( level.teams[ self.pers[ "team" ] ] ) )
@@ -635,7 +623,7 @@ menuclass( response )
 			supplystationclasschange = self.usingsupplystation;
 		}
 		self.usingsupplystation = 0;
-		if ( level.ingraceperiod || !self.hasdonecombat && supplystationclasschange )
+		if ( level.ingraceperiod && !self.hasdonecombat || supplystationclasschange )
 		{
 			self maps/mp/gametypes/_class::setclass( self.pers[ "class" ] );
 			self.tag_stowed_back = undefined;
@@ -643,18 +631,16 @@ menuclass( response )
 			self maps/mp/gametypes/_class::giveloadout( self.pers[ "team" ], self.pers[ "class" ] );
 			self maps/mp/killstreaks/_killstreaks::giveownedkillstreak();
 		}
-		else
+		else if ( !self issplitscreen() )
 		{
-			if ( !self issplitscreen() )
-			{
-				self iprintlnbold( game[ "strings" ][ "change_class" ] );
-			}
+			self iprintlnbold( game[ "strings" ][ "change_class" ] );
 		}
 	}
 	else
 	{
 		self.pers[ "class" ] = class;
 		self.class = class;
+		self.pers[ "weapon" ] = undefined;
 		if ( game[ "state" ] == "postgame" )
 		{
 			return;
@@ -689,7 +675,7 @@ menuclass( response )
 	self thread maps/mp/gametypes/_spectating::setspectatepermissionsformachine();
 }
 
-removespawnmessageshortly( delay )
+removespawnmessageshortly( delay ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
@@ -697,3 +683,4 @@ removespawnmessageshortly( delay )
 	wait delay;
 	self clearlowermessage( 2 );
 }
+

@@ -1,19 +1,20 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_globallogic_score;
 #include maps/mp/gametypes/_hostmigration;
 #include maps/mp/killstreaks/_killstreaks;
 #include maps/mp/gametypes/_hud_message;
 #include maps/mp/_utility;
 
-waittillslowprocessallowed()
+waittillslowprocessallowed() //checked matches cerberus output
 {
 	while ( level.lastslowprocessframe == getTime() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	level.lastslowprocessframe = getTime();
 }
 
-testmenu()
+testmenu() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -28,7 +29,7 @@ testmenu()
 	}
 }
 
-testshock()
+testshock() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -36,18 +37,16 @@ testshock()
 	{
 		wait 3;
 		numshots = randomint( 6 );
-		i = 0;
-		while ( i < numshots )
+		for ( i = 0; i < numshots; i++ )
 		{
 			iprintlnbold( numshots );
 			self shellshock( "frag_grenade_mp", 0,2 );
-			wait 0,1;
-			i++;
+			wait 0.1;
 		}
 	}
 }
 
-testhps()
+testhps() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -66,7 +65,7 @@ testhps()
 	}
 }
 
-timeuntilroundend()
+timeuntilroundend() //checked matches cerberus output
 {
 	if ( level.gameended )
 	{
@@ -95,12 +94,12 @@ timeuntilroundend()
 	return timeremaining + level.postroundtime;
 }
 
-gettimeremaining()
+gettimeremaining() //checked matches cerberus output
 {
 	return ( ( level.timelimit * 60 ) * 1000 ) - gettimepassed();
 }
 
-registerpostroundevent( eventfunc )
+registerpostroundevent( eventfunc ) //checked matches cerberus output
 {
 	if ( !isDefined( level.postroundevents ) )
 	{
@@ -109,98 +108,86 @@ registerpostroundevent( eventfunc )
 	level.postroundevents[ level.postroundevents.size ] = eventfunc;
 }
 
-executepostroundevents()
+executepostroundevents() //checked changed to match cerberus output
 {
 	if ( !isDefined( level.postroundevents ) )
 	{
 		return;
 	}
-	i = 0;
-	while ( i < level.postroundevents.size )
+	for ( i = 0; i < level.postroundevents.size; i++ ) 
 	{
 		[[ level.postroundevents[ i ] ]]();
-		i++;
 	}
 }
 
-getvalueinrange( value, minvalue, maxvalue )
+getvalueinrange( value, minvalue, maxvalue ) //checked changed to match cerberus output
 {
 	if ( value > maxvalue )
 	{
 		return maxvalue;
 	}
+	else if ( value < minvalue )
+	{
+		return minvalue;
+	}
 	else
 	{
-		if ( value < minvalue )
-		{
-			return minvalue;
-		}
-		else
-		{
-			return value;
-		}
+		return value;
 	}
 }
 
-assertproperplacement()
+assertproperplacement() //checked partially changed to match cerberus output changed at own discretion
 {
+	/*
 /#
 	numplayers = level.placement[ "all" ].size;
 	if ( level.teambased )
 	{
-		i = 0;
-		while ( i < ( numplayers - 1 ) )
+		for ( i = 0; i < numplayers - 1; i++ )
 		{
 			if ( level.placement[ "all" ][ i ].score < level.placement[ "all" ][ i + 1 ].score )
 			{
 				println( "^1Placement array:" );
-				i = 0;
-				while ( i < numplayers )
+				for ( i = 0; i < numplayers; i++ )
 				{
 					player = level.placement[ "all" ][ i ];
 					println( "^1" + i + ". " + player.name + ": " + player.score );
-					i++;
 				}
 				assertmsg( "Placement array was not properly sorted" );
 				break;
 			}
-			else
-			{
-				i++;
-			}
 		}
 	}
-	else i = 0;
-	while ( i < ( numplayers - 1 ) )
+	else 
 	{
-		if ( level.placement[ "all" ][ i ].pointstowin < level.placement[ "all" ][ i + 1 ].pointstowin )
+		for ( i = 0; i < numplayers - 1; i++ )
 		{
-			println( "^1Placement array:" );
-			i = 0;
-			while ( i < numplayers )
+			if ( level.placement[ "all" ][ i ].pointstowin < level.placement[ "all" ][ i + 1 ].pointstowin )
 			{
-				player = level.placement[ "all" ][ i ];
-				println( "^1" + i + ". " + player.name + ": " + player.pointstowin );
-				i++;
+				println( "^1Placement array:" );
+				for ( i = 0; i < numplayers; i++ )
+				{
+					player = level.placement[ "all" ][ i ];
+					println( "^1" + i + ". " + player.name + ": " + player.pointstowin );
+				}
+				assertmsg( "Placement array was not properly sorted" );
+				break;
 			}
-			assertmsg( "Placement array was not properly sorted" );
-			return;
-		}
-		else
-		{
-			i++;
-#/
 		}
 	}
+#/
+	*/
 }
 
-isvalidclass( class )
+isvalidclass( class ) //checked matches cerberus output
 {
 	if ( level.oldschool || sessionmodeiszombiesgame() )
 	{
+		/*
 /#
 		assert( !isDefined( class ) );
 #/
+		*/
 		return 1;
 	}
 	if ( isDefined( class ) )
@@ -209,7 +196,7 @@ isvalidclass( class )
 	}
 }
 
-playtickingsound( gametype_tick_sound )
+playtickingsound( gametype_tick_sound ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_ticking" );
@@ -226,28 +213,28 @@ playtickingsound( gametype_tick_sound )
 		else if ( time > 4 )
 		{
 			time -= 0,5;
-			wait 0,5;
+			wait 0.5;
 		}
 		else if ( time > 1 )
 		{
 			time -= 0,4;
-			wait 0,4;
+			wait 0.4;
 		}
 		else
 		{
 			time -= 0,3;
-			wait 0,3;
+			wait 0.3;
 		}
 		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 }
 
-stoptickingsound()
+stoptickingsound() //checked matches cerberus output
 {
 	self notify( "stop_ticking" );
 }
 
-gametimer()
+gametimer() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	level waittill( "prematch_over" );
@@ -256,6 +243,7 @@ gametimer()
 	if ( isDefined( game[ "roundMillisecondsAlreadyPassed" ] ) )
 	{
 		level.starttime -= game[ "roundMillisecondsAlreadyPassed" ];
+		game["roundMillisecondsAlreadyPassed"] = undefined;
 	}
 	prevtime = getTime();
 	while ( game[ "state" ] == "playing" )
@@ -269,7 +257,7 @@ gametimer()
 	}
 }
 
-gettimepassed()
+gettimepassed() //checked matches cerberus output
 {
 	if ( !isDefined( level.starttime ) )
 	{
@@ -285,7 +273,7 @@ gettimepassed()
 	}
 }
 
-pausetimer()
+pausetimer() //checked matches cerberus output
 {
 	if ( level.timerstopped )
 	{
@@ -295,7 +283,7 @@ pausetimer()
 	level.timerpausetime = getTime();
 }
 
-resumetimer()
+resumetimer() //checked matches cerberus output
 {
 	if ( !level.timerstopped )
 	{
@@ -305,14 +293,16 @@ resumetimer()
 	level.discardtime += getTime() - level.timerpausetime;
 }
 
-getscoreremaining( team )
+getscoreremaining( team ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isplayer( self ) )
 	{
 		assert( isDefined( team ) );
 	}
 #/
+	*/
 	scorelimit = level.scorelimit;
 	if ( isplayer( self ) )
 	{
@@ -324,7 +314,7 @@ getscoreremaining( team )
 	}
 }
 
-getteamscoreforround( team )
+getteamscoreforround( team ) //checked matches cerberus output
 {
 	if ( level.roundscorecarry && isDefined( game[ "lastroundscore" ][ team ] ) )
 	{
@@ -333,17 +323,19 @@ getteamscoreforround( team )
 	return getteamscore( team );
 }
 
-getscoreperminute( team )
+getscoreperminute( team ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isplayer( self ) )
 	{
 		assert( isDefined( team ) );
 	}
 #/
+	*/
 	scorelimit = level.scorelimit;
 	timelimit = level.timelimit;
-	minutespassed = ( gettimepassed() / 60000 ) + 0,0001;
+	minutespassed = ( gettimepassed() / 60000 ) + 0.0001;
 	if ( isplayer( self ) )
 	{
 		return maps/mp/gametypes/_globallogic_score::_getplayerscore( self ) / minutespassed;
@@ -354,14 +346,16 @@ getscoreperminute( team )
 	}
 }
 
-getestimatedtimeuntilscorelimit( team )
+getestimatedtimeuntilscorelimit( team ) //checked matches cerberus output
 {
+	/*
 /#
 	if ( !isplayer( self ) )
 	{
 		assert( isDefined( team ) );
 	}
 #/
+	*/
 	scoreperminute = self getscoreperminute( team );
 	scoreremaining = self getscoreremaining( team );
 	if ( !scoreperminute )
@@ -371,36 +365,38 @@ getestimatedtimeuntilscorelimit( team )
 	return scoreremaining / scoreperminute;
 }
 
-rumbler()
+rumbler() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
 	{
-		wait 0,1;
+		wait 0.1;
 		self playrumbleonentity( "damage_heavy" );
 	}
 }
 
-waitfortimeornotify( time, notifyname )
+waitfortimeornotify( time, notifyname ) //checked matches cerberus output
 {
 	self endon( notifyname );
 	wait time;
 }
 
-waitfortimeornotifynoartillery( time, notifyname )
+waitfortimeornotifynoartillery( time, notifyname ) //checked matches cerberus output
 {
 	self endon( notifyname );
 	wait time;
 	while ( isDefined( level.artilleryinprogress ) )
 	{
+		/*
 /#
 		assert( level.artilleryinprogress );
 #/
-		wait 0,25;
+		*/
+		wait 0.25;
 	}
 }
 
-isheadshot( sweapon, shitloc, smeansofdeath, einflictor )
+isheadshot( sweapon, shitloc, smeansofdeath, einflictor ) //checked changed to match cerberus output
 {
 	if ( shitloc != "head" && shitloc != "helmet" )
 	{
@@ -419,7 +415,7 @@ isheadshot( sweapon, shitloc, smeansofdeath, einflictor )
 	}
 	if ( maps/mp/killstreaks/_killstreaks::iskillstreakweapon( sweapon ) )
 	{
-		if ( isDefined( einflictor ) || !isDefined( einflictor.controlled ) && einflictor.controlled == 0 )
+		if ( isDefined( einflictor ) || !isDefined( einflictor.controlled ) || einflictor.controlled == 0 )
 		{
 			return 0;
 		}
@@ -427,7 +423,7 @@ isheadshot( sweapon, shitloc, smeansofdeath, einflictor )
 	return 1;
 }
 
-gethitlocheight( shitloc )
+gethitlocheight( shitloc ) //checked matches cerberus output
 {
 	switch( shitloc )
 	{
@@ -459,34 +455,32 @@ gethitlocheight( shitloc )
 	return 48;
 }
 
-debugline( start, end )
+debugline( start, end ) //checked changed to match cerberus output
 {
+	/*
 /#
-	i = 0;
-	while ( i < 50 )
+	for ( i = 0; i < 50; i++ )
 	{
 		line( start, end );
-		wait 0,05;
-		i++;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-isexcluded( entity, entitylist )
+isexcluded( entity, entitylist ) //checked changed to match cerberus output
 {
-	index = 0;
-	while ( index < entitylist.size )
+	for ( index = 0; index < entitylist.size; index++ )
 	{
 		if ( entity == entitylist[ index ] )
 		{
 			return 1;
 		}
-		index++;
 	}
 	return 0;
 }
 
-waitfortimeornotifies( desireddelay )
+waitfortimeornotifies( desireddelay ) //checked matches cerberus output
 {
 	startedwaiting = getTime();
 	waitedtime = ( getTime() - startedwaiting ) / 1000;
@@ -501,20 +495,17 @@ waitfortimeornotifies( desireddelay )
 	}
 }
 
-logteamwinstring( wintype, winner )
+logteamwinstring( wintype, winner ) //checked changed to match cerberus output
 {
 	log_string = wintype;
 	if ( isDefined( winner ) )
 	{
 		log_string = ( log_string + ", win: " ) + winner;
 	}
-	_a495 = level.teams;
-	_k495 = getFirstArrayKey( _a495 );
-	while ( isDefined( _k495 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a495[ _k495 ];
 		log_string = ( log_string + ", " ) + team + ": " + game[ "teamScores" ][ team ];
-		_k495 = getNextArrayKey( _a495, _k495 );
 	}
 	logstring( log_string );
 }
+

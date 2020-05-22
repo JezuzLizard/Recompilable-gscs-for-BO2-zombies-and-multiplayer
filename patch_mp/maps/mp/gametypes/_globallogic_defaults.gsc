@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_rank;
 #include maps/mp/killstreaks/_killstreaks;
 #include maps/mp/gametypes/_spawnlogic;
@@ -8,23 +9,20 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-getwinningteamfromloser( losing_team )
+getwinningteamfromloser( losing_team ) //checked changed to match cerberus output
 {
 	if ( level.multiteam )
 	{
 		return "tie";
 	}
-	else
+	else if ( losing_team == "axis" )
 	{
-		if ( losing_team == "axis" )
-		{
-			return "allies";
-		}
+		return "allies";
 	}
 	return "axis";
 }
 
-default_onforfeit( team )
+default_onforfeit( team ) //checked matches cerberus output
 {
 	level.gameforfeited = 1;
 	level notify( "forfeit in progress" );
@@ -56,12 +54,14 @@ default_onforfeit( team )
 	}
 	else
 	{
+		/*
 /#
 		assert( isDefined( team ), "Forfeited team is not defined" );
 #/
 /#
 		assert( 0, "Forfeited team " + team + " is not allies or axis" );
 #/
+		*/
 		winner = "tie";
 	}
 	level.forcedend = 1;
@@ -76,7 +76,7 @@ default_onforfeit( team )
 	thread maps/mp/gametypes/_globallogic::endgame( winner, endreason );
 }
 
-default_ondeadevent( team )
+default_ondeadevent( team ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.teams[ team ] ) )
 	{
@@ -88,20 +88,23 @@ default_ondeadevent( team )
 		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "team eliminated", winner );
 		thread maps/mp/gametypes/_globallogic::endgame( winner, eliminatedstring );
 	}
-	else makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "tie" ] );
-	setdvar( "ui_text_endreason", game[ "strings" ][ "tie" ] );
-	maps/mp/gametypes/_globallogic_utils::logteamwinstring( "tie" );
-	if ( level.teambased )
+	else 
 	{
-		thread maps/mp/gametypes/_globallogic::endgame( "tie", game[ "strings" ][ "tie" ] );
-	}
-	else
-	{
-		thread maps/mp/gametypes/_globallogic::endgame( undefined, game[ "strings" ][ "tie" ] );
+		makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "tie" ] );
+		setdvar( "ui_text_endreason", game[ "strings" ][ "tie" ] );
+		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "tie" );
+		if ( level.teambased )
+		{
+			thread maps/mp/gametypes/_globallogic::endgame( "tie", game[ "strings" ][ "tie" ] );
+		}
+		else
+		{
+			thread maps/mp/gametypes/_globallogic::endgame( undefined, game[ "strings" ][ "tie" ] );
+		}
 	}
 }
 
-default_onlastteamaliveevent( team )
+default_onlastteamaliveevent( team ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.teams[ team ] ) )
 	{
@@ -113,29 +116,32 @@ default_onlastteamaliveevent( team )
 		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "team eliminated", winner );
 		thread maps/mp/gametypes/_globallogic::endgame( winner, eliminatedstring );
 	}
-	else makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "tie" ] );
-	setdvar( "ui_text_endreason", game[ "strings" ][ "tie" ] );
-	maps/mp/gametypes/_globallogic_utils::logteamwinstring( "tie" );
-	if ( level.teambased )
+	else 
 	{
-		thread maps/mp/gametypes/_globallogic::endgame( "tie", game[ "strings" ][ "tie" ] );
-	}
-	else
-	{
-		thread maps/mp/gametypes/_globallogic::endgame( undefined, game[ "strings" ][ "tie" ] );
+		makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "tie" ] );
+		setdvar( "ui_text_endreason", game[ "strings" ][ "tie" ] );
+		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "tie" );
+		if ( level.teambased )
+		{
+			thread maps/mp/gametypes/_globallogic::endgame( "tie", game[ "strings" ][ "tie" ] );
+		}
+		else
+		{
+			thread maps/mp/gametypes/_globallogic::endgame( undefined, game[ "strings" ][ "tie" ] );
+		}
 	}
 }
 
-default_onalivecountchange( team )
+default_onalivecountchange( team ) //checked matches cerberus output
 {
 }
 
-default_onroundendgame( winner )
+default_onroundendgame( winner ) //checked matches cerberus output
 {
 	return winner;
 }
 
-default_ononeleftevent( team )
+default_ononeleftevent( team ) //checked partially changed to match beta dump did not change while loop to for loop see github for more info
 {
 	if ( !level.teambased )
 	{
@@ -161,21 +167,18 @@ default_ononeleftevent( team )
 				index++;
 				continue;
 			}
-			else if ( !isDefined( player.pers[ "team" ] ) || player.pers[ "team" ] != team )
+			if ( !isDefined( player.pers[ "team" ] ) || player.pers[ "team" ] != team )
 			{
 				index++;
 				continue;
 			}
-			else
-			{
-				player maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "sudden_death" );
-			}
+			player maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "sudden_death" );
 			index++;
 		}
 	}
 }
 
-default_ontimelimit()
+default_ontimelimit() //checked changed to match cerberus output
 {
 	winner = undefined;
 	if ( level.teambased )
@@ -183,21 +186,24 @@ default_ontimelimit()
 		winner = maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "teamScores" );
 		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "time limit", winner );
 	}
-	else winner = maps/mp/gametypes/_globallogic_score::gethighestscoringplayer();
-	if ( isDefined( winner ) )
+	else 
 	{
-		logstring( "time limit, win: " + winner.name );
-	}
-	else
-	{
-		logstring( "time limit, tie" );
+		winner = maps/mp/gametypes/_globallogic_score::gethighestscoringplayer();
+		if ( isDefined( winner ) )
+		{
+			logstring( "time limit, win: " + winner.name );
+		}
+		else
+		{
+			logstring( "time limit, tie" );
+		}
 	}
 	makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "time_limit_reached" ] );
 	setdvar( "ui_text_endreason", game[ "strings" ][ "time_limit_reached" ] );
 	thread maps/mp/gametypes/_globallogic::endgame( winner, game[ "strings" ][ "time_limit_reached" ] );
 }
 
-default_onscorelimit()
+default_onscorelimit() //checked changed to match cerberus output
 {
 	if ( !level.endgameonscorelimit )
 	{
@@ -209,14 +215,17 @@ default_onscorelimit()
 		winner = maps/mp/gametypes/_globallogic::determineteamwinnerbygamestat( "teamScores" );
 		maps/mp/gametypes/_globallogic_utils::logteamwinstring( "scorelimit", winner );
 	}
-	else winner = maps/mp/gametypes/_globallogic_score::gethighestscoringplayer();
-	if ( isDefined( winner ) )
+	else 
 	{
-		logstring( "scorelimit, win: " + winner.name );
-	}
-	else
-	{
-		logstring( "scorelimit, tie" );
+		winner = maps/mp/gametypes/_globallogic_score::gethighestscoringplayer();
+		if ( isDefined( winner ) )
+		{
+			logstring( "scorelimit, win: " + winner.name );
+		}
+		else
+		{
+			logstring( "scorelimit, tie" );
+		}
 	}
 	makedvarserverinfo( "ui_text_endreason", game[ "strings" ][ "score_limit_reached" ] );
 	setdvar( "ui_text_endreason", game[ "strings" ][ "score_limit_reached" ] );
@@ -224,7 +233,7 @@ default_onscorelimit()
 	return 1;
 }
 
-default_onspawnspectator( origin, angles )
+default_onspawnspectator( origin, angles ) //checked matches cerberus output
 {
 	if ( isDefined( origin ) && isDefined( angles ) )
 	{
@@ -233,14 +242,16 @@ default_onspawnspectator( origin, angles )
 	}
 	spawnpointname = "mp_global_intermission";
 	spawnpoints = getentarray( spawnpointname, "classname" );
+	/*
 /#
 	assert( spawnpoints.size, "There are no mp_global_intermission spawn points in the map.  There must be at least one." );
 #/
+	*/
 	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_random( spawnpoints );
 	self spawn( spawnpoint.origin, spawnpoint.angles );
 }
 
-default_onspawnintermission()
+default_onspawnintermission() //checked matches cerberus output
 {
 	spawnpointname = "mp_global_intermission";
 	spawnpoints = getentarray( spawnpointname, "classname" );
@@ -251,18 +262,20 @@ default_onspawnintermission()
 	}
 	else
 	{
+		/*
 /#
 		maps/mp/_utility::error( "NO " + spawnpointname + " SPAWNPOINTS IN MAP" );
 #/
+		*/
 	}
 }
 
-default_gettimelimit()
+default_gettimelimit() //checked matches cerberus output
 {
 	return clamp( getgametypesetting( "timeLimit" ), level.timelimitmin, level.timelimitmax );
 }
 
-default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon )
+default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked matches cerberus output
 {
 	teamkill_penalty = 1;
 	score = maps/mp/gametypes/_globallogic_score::_getplayerscore( attacker );
@@ -277,7 +290,8 @@ default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon )
 	return teamkill_penalty;
 }
 
-default_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon )
+default_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon ) //checked matches cerberus output
 {
 	return maps/mp/gametypes/_rank::getscoreinfovalue( "team_kill" );
 }
+

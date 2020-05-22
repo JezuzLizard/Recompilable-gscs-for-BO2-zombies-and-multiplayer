@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/_challenges;
 #include maps/mp/gametypes/_dev;
 #include maps/mp/teams/_teams;
@@ -8,7 +9,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked partially changed to match cerberus output and beta dump did not change while loop to for loop see github for more info
 {
 	level.classmap[ "class_smg" ] = "CLASS_SMG";
 	level.classmap[ "class_cqb" ] = "CLASS_CQB";
@@ -101,39 +102,29 @@ init()
 			i++;
 			continue;
 		}
-		else
+		if ( !isDefined( level.tbl_weaponids[ i ] ) || level.tbl_weaponids[ i ][ "reference" ] == "" )
 		{
-			if ( !isDefined( level.tbl_weaponids[ i ] ) || level.tbl_weaponids[ i ][ "reference" ] == "" )
+			i++;
+			continue;
+		}
+		weapon_type = level.tbl_weaponids[ i ][ "group" ];
+		weapon = level.tbl_weaponids[ i ][ "reference" ];
+		attachment = level.tbl_weaponids[ i ][ "attachment" ];
+		weapon_class_register( weapon + "_mp", weapon_type );
+		if ( isDefined( attachment ) && attachment != "" )
+		{
+			attachment_tokens = strtok( attachment, " " );
+			if ( isDefined( attachment_tokens ) )
 			{
-				i++;
-				continue;
-			}
-			else
-			{
-				weapon_type = level.tbl_weaponids[ i ][ "group" ];
-				weapon = level.tbl_weaponids[ i ][ "reference" ];
-				attachment = level.tbl_weaponids[ i ][ "attachment" ];
-				weapon_class_register( weapon + "_mp", weapon_type );
-				while ( isDefined( attachment ) && attachment != "" )
+				if ( attachment_tokens.size == 0 )
 				{
-					attachment_tokens = strtok( attachment, " " );
-					while ( isDefined( attachment_tokens ) )
+					weapon_class_register( ( weapon + "_" ) + attachment + "_mp", weapon_type );
+				}
+				else
+				{
+					for ( k = 0; k < attachment_tokens.size; k++ )
 					{
-						if ( attachment_tokens.size == 0 )
-						{
-							weapon_class_register( ( weapon + "_" ) + attachment + "_mp", weapon_type );
-							i++;
-							continue;
-						}
-						else
-						{
-							k = 0;
-							while ( k < attachment_tokens.size )
-							{
-								weapon_class_register( ( weapon + "_" ) + attachment_tokens[ k ] + "_mp", weapon_type );
-								k++;
-							}
-						}
+						weapon_class_register( ( weapon + "_" ) + attachment_tokens[ k ] + "_mp", weapon_type );
 					}
 				}
 			}
@@ -144,59 +135,55 @@ init()
 	level thread onplayerconnecting();
 }
 
-create_class_exclusion_list()
+create_class_exclusion_list() //checked changed to match the beta dump
 {
 	currentdvar = 0;
 	level.itemexclusions = [];
-	while ( getDvarInt( 853497292 + currentdvar ) )
+	while ( getDvarInt( "item_exclusion_" + currentdvar ) )
 	{
-		level.itemexclusions[ currentdvar ] = getDvarInt( 853497292 + currentdvar );
+		level.itemexclusions[ currentdvar ] = getDvarInt( "item_exclusion_" + currentdvar );
 		currentdvar++;
 	}
 	level.attachmentexclusions = [];
 	currentdvar = 0;
-	while ( getDvar( 2137981926 + currentdvar ) != "" )
+	while ( getDvar( "attachment_exclusion_" + currentdvar ) != "" )
 	{
-		level.attachmentexclusions[ currentdvar ] = getDvar( 2137981926 + currentdvar );
+		level.attachmentexclusions[ currentdvar ] = getDvar( "attachment_exclusion_" + currentdvar );
 		currentdvar++;
 	}
 }
 
-is_item_excluded( itemindex )
+is_item_excluded( itemindex ) //checked changed to match cerberus output
 {
 	if ( !level.onlinegame )
 	{
 		return 0;
 	}
 	numexclusions = level.itemexclusions.size;
-	exclusionindex = 0;
-	while ( exclusionindex < numexclusions )
+	for ( exclusionindex = 0; exclusionindex < numexclusions; exclusionindex++ )
 	{
 		if ( itemindex == level.itemexclusions[ exclusionindex ] )
 		{
 			return 1;
 		}
-		exclusionindex++;
 	}
 	return 0;
 }
 
-is_attachment_excluded( attachment )
+is_attachment_excluded( attachment ) //checked changed to match cerberus output
 {
 	numexclusions = level.attachmentexclusions.size;
-	exclusionindex = 0;
-	while ( exclusionindex < numexclusions )
+	for ( exclusionindex = 0; exclusionindex < numexclusions; exclusionindex++ )
 	{
 		if ( attachment == level.attachmentexclusions[ exclusionindex ] )
 		{
 			return 1;
 		}
-		exclusionindex++;
 	}
 	return 0;
 }
 
-set_statstable_id()
+set_statstable_id() //checked matches cerberus output
 {
 	if ( !isDefined( level.statstableid ) )
 	{
@@ -204,7 +191,7 @@ set_statstable_id()
 	}
 }
 
-get_item_count( itemreference )
+get_item_count( itemreference ) //checked matches cerberus output
 {
 	set_statstable_id();
 	itemcount = int( tablelookup( level.statstableid, 4, itemreference, 5 ) );
@@ -215,7 +202,7 @@ get_item_count( itemreference )
 	return itemcount;
 }
 
-getdefaultclassslotwithexclusions( classname, slotname )
+getdefaultclassslotwithexclusions( classname, slotname ) //checked matches cerberus output
 {
 	itemreference = getdefaultclassslot( classname, slotname );
 	set_statstable_id();
@@ -227,12 +214,12 @@ getdefaultclassslotwithexclusions( classname, slotname )
 	return itemreference;
 }
 
-load_default_loadout( class, classnum )
+load_default_loadout( class, classnum ) //checked matches cerberus output
 {
 	level.classtoclassnum[ class ] = classnum;
 }
 
-weapon_class_register( weapon, weapon_type )
+weapon_class_register( weapon, weapon_type ) //checked matches cerberus output
 {
 	if ( issubstr( "weapon_smg weapon_cqb weapon_assault weapon_lmg weapon_sniper weapon_shotgun weapon_launcher weapon_special", weapon_type ) )
 	{
@@ -256,18 +243,19 @@ weapon_class_register( weapon, weapon_type )
 	}
 	else
 	{
+		/*
 /#
 		assert( 0, "Weapon group info is missing from statsTable for: " + weapon_type );
 #/
+		*/
 	}
 }
 
-cac_init()
+cac_init() //checked changed to match cerberus output
 {
 	level.tbl_weaponids = [];
 	set_statstable_id();
-	i = 0;
-	while ( i < 256 )
+	for ( i = 0; i < 256; i++ )
 	{
 		itemrow = tablelookuprownum( level.statstableid, 0, i );
 		if ( itemrow > -1 )
@@ -285,11 +273,9 @@ cac_init()
 				}
 			}
 		}
-		i++;
 	}
 	level.perknames = [];
-	i = 0;
-	while ( i < 256 )
+	for ( i = 0; i < 256; i++ )
 	{
 		itemrow = tablelookuprownum( level.statstableid, 0, i );
 		if ( itemrow > -1 )
@@ -308,13 +294,11 @@ cac_init()
 				}
 			}
 		}
-		i++;
 	}
 	level.killstreaknames = [];
 	level.killstreakicons = [];
 	level.killstreakindices = [];
-	i = 0;
-	while ( i < 256 )
+	for ( i = 0; i < 256; i++ )
 	{
 		itemrow = tablelookuprownum( level.statstableid, 0, i );
 		if ( itemrow > -1 )
@@ -338,19 +322,20 @@ cac_init()
 				}
 			}
 		}
-		i++;
 	}
 }
 
-getclasschoice( response )
+getclasschoice( response ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.classmap[ response ] ) );
 #/
+	*/
 	return level.classmap[ response ];
 }
 
-getloadoutitemfromddlstats( customclassnum, loadoutslot )
+getloadoutitemfromddlstats( customclassnum, loadoutslot ) //checked matches cerberus output
 {
 	itemindex = self getloadoutitem( customclassnum, loadoutslot );
 	if ( is_item_excluded( itemindex ) && !is_warlord_perk( itemindex ) )
@@ -360,7 +345,7 @@ getloadoutitemfromddlstats( customclassnum, loadoutslot )
 	return itemindex;
 }
 
-getattachmentstring( weaponnum, attachmentnum )
+getattachmentstring( weaponnum, attachmentnum ) //checked matches cerberus output
 {
 	attachmentstring = getitemattachment( weaponnum, attachmentnum );
 	if ( attachmentstring != "none" && !is_attachment_excluded( attachmentstring ) )
@@ -374,7 +359,7 @@ getattachmentstring( weaponnum, attachmentnum )
 	return attachmentstring;
 }
 
-getattachmentsdisabled()
+getattachmentsdisabled() //checked matches cerberus output
 {
 	if ( !isDefined( level.attachmentsdisabled ) )
 	{
@@ -383,13 +368,13 @@ getattachmentsdisabled()
 	return level.attachmentsdisabled;
 }
 
-getkillstreakindex( class, killstreaknum )
+getkillstreakindex( class, killstreaknum ) //checked changed to match beta dump
 {
 	killstreaknum++;
 	killstreakstring = "killstreak" + killstreaknum;
-	if ( getDvarInt( #"826EB3B9" ) == 2 )
+	if ( getDvarInt( "custom_killstreak_mode" ) == 2 )
 	{
-		return getDvarInt( 3788714527 + killstreakstring );
+		return getDvarInt( "custom_" + killstreakstring );
 	}
 	else
 	{
@@ -397,7 +382,7 @@ getkillstreakindex( class, killstreaknum )
 	}
 }
 
-givekillstreaks( classnum )
+givekillstreaks( classnum ) //checked changed to match cerberus output
 {
 	self.killstreak = [];
 	if ( !level.loadoutkillstreaksenabled )
@@ -406,15 +391,16 @@ givekillstreaks( classnum )
 	}
 	sortedkillstreaks = [];
 	currentkillstreak = 0;
-	killstreaknum = 0;
-	while ( killstreaknum < level.maxkillstreaks )
+	for ( killstreaknum = 0; killstreaknum < level.maxkillstreaks; killstreaknum++ )
 	{
 		killstreakindex = getkillstreakindex( classnum, killstreaknum );
 		if ( isDefined( killstreakindex ) && killstreakindex > 0 )
 		{
+			/*
 /#
 			assert( isDefined( level.tbl_killstreakdata[ killstreakindex ] ), "KillStreak #:" + killstreakindex + "'s data is undefined" );
 #/
+			*/
 			if ( isDefined( level.tbl_killstreakdata[ killstreakindex ] ) )
 			{
 				self.killstreak[ currentkillstreak ] = level.tbl_killstreakdata[ killstreakindex ];
@@ -446,7 +432,6 @@ givekillstreaks( classnum )
 								{
 									self maps/mp/gametypes/_class::setweaponammooverall( weapon, 0 );
 								}
-								break;
 							}
 							else
 							{
@@ -462,24 +447,16 @@ givekillstreaks( classnum )
 						sortdata.cost = level.killstreaks[ killstreaktype ].momentumcost;
 						sortdata.weapon = weapon;
 						sortindex = 0;
-						sortindex = 0;
-						while ( sortindex < sortedkillstreaks.size )
+						for ( sortindex = 0; sortindex < sortedkillstreaks.size; sortindex++ )
 						{
 							if ( sortedkillstreaks[ sortindex ].cost > sortdata.cost )
 							{
 								break;
 							}
-							else
-							{
-								sortindex++;
-							}
 						}
-						i = sortedkillstreaks.size;
-						while ( i > sortindex )
+						for ( i = sortedkillstreaks.size; i > sortindex; i-- )
 						{
 							sortedkillstreaks[ i ] = sortedkillstreaks[ i - 1 ];
-							i--;
-
 						}
 						sortedkillstreaks[ sortindex ] = sortdata;
 					}
@@ -487,7 +464,6 @@ givekillstreaks( classnum )
 				currentkillstreak++;
 			}
 		}
-		killstreaknum++;
 	}
 	actionslotorder = [];
 	actionslotorder[ 0 ] = 4;
@@ -504,7 +480,7 @@ givekillstreaks( classnum )
 	}
 }
 
-is_warlord_perk( itemindex )
+is_warlord_perk( itemindex ) //checked matches cerberus output
 {
 	if ( itemindex == 168 || itemindex == 169 )
 	{
@@ -516,47 +492,46 @@ is_warlord_perk( itemindex )
 	}
 }
 
-isperkgroup( perkname )
+isperkgroup( perkname ) //checked changed at own discretion
 {
-	if ( isDefined( perkname ) )
+	if ( isDefined( perkname ) && isstring( perkname ) )
 	{
-		return isstring( perkname );
+		return 1;
 	}
+	return 0;
 }
 
-logclasschoice( class, primaryweapon, specialtype, perks )
+logclasschoice( class, primaryweapon, specialtype, perks ) //checked changed to match cerberus output
 {
 	if ( class == self.lastclass )
 	{
 		return;
 	}
 	self logstring( "choseclass: " + class + " weapon: " + primaryweapon + " special: " + specialtype );
-	i = 0;
-	while ( i < perks.size )
+	for ( i = 0; i < perks.size; i++ )
 	{
 		self logstring( "perk" + i + ": " + perks[ i ] );
-		i++;
 	}
 	self.lastclass = class;
 }
 
-reset_specialty_slots( class_num )
+reset_specialty_slots( class_num ) //checked matches cerberus output
 {
 	self.specialty = [];
 }
 
-initstaticweaponstime()
+initstaticweaponstime() //checked matches cerberus output
 {
 	self.staticweaponsstarttime = getTime();
 }
 
-initweaponattachments( weaponname )
+initweaponattachments( weaponname ) //checked matches cerberus output
 {
 	self.currentweaponstarttime = getTime();
 	self.currentweapon = weaponname;
 }
 
-isequipmentallowed( equipment )
+isequipmentallowed( equipment ) //checked matches cerberus output
 {
 	if ( equipment == "camera_spike_mp" && self issplitscreen() )
 	{
@@ -569,7 +544,7 @@ isequipmentallowed( equipment )
 	return 1;
 }
 
-isleagueitemrestricted( item )
+isleagueitemrestricted( item ) //checked matches cerberus output
 {
 	if ( level.leaguematch )
 	{
@@ -578,7 +553,7 @@ isleagueitemrestricted( item )
 	return 0;
 }
 
-giveloadoutlevelspecific( team, class )
+giveloadoutlevelspecific( team, class ) //checked matches cerberus output
 {
 	pixbeginevent( "giveLoadoutLevelSpecific" );
 	if ( isDefined( level.givecustomcharacters ) )
@@ -592,41 +567,35 @@ giveloadoutlevelspecific( team, class )
 	pixendevent();
 }
 
-removeduplicateattachments( weapon )
+removeduplicateattachments( weapon ) //checked changed to match cerberus output
 {
 	if ( !isDefined( weapon ) )
 	{
 		return undefined;
 	}
 	attachments = strtok( weapon, "+" );
-	attachmentindex = 1;
-	while ( attachmentindex < attachments.size )
+	for ( attachmentindex = 1; attachmentindex < attachments.size; attachmentindex++ )
 	{
-		attachmentindex2 = attachmentindex + 1;
-		while ( attachmentindex2 < attachments.size )
+		for ( attachmentindex2 = attachmentindex + 1; attachmentindex2 < attachments.size; attachmentindex2++ )
 		{
 			if ( attachments[ attachmentindex ] == attachments[ attachmentindex2 ] )
 			{
 				attachments[ attachmentindex2 ] = "none";
 			}
-			attachmentindex2++;
 		}
-		attachmentindex++;
 	}
 	uniqueattachmentsweapon = attachments[ 0 ];
-	attachmentindex = 1;
-	while ( attachmentindex < attachments.size )
+	for ( attachmentindex = 1; attachmentindex < attachments.size; attachmentindex++ )
 	{
 		if ( attachments[ attachmentindex ] != "none" )
 		{
 			uniqueattachmentsweapon = ( uniqueattachmentsweapon + "+" ) + attachments[ attachmentindex ];
 		}
-		attachmentindex++;
 	}
 	return uniqueattachmentsweapon;
 }
 
-giveloadout( team, class )
+giveloadout( team, class ) //checked partially changed to match cerberus output did not use continue in for loop see github for more info
 {
 	pixbeginevent( "giveLoadout" );
 	self takeallweapons();
@@ -659,9 +628,11 @@ giveloadout( team, class )
 	else
 	{
 		pixbeginevent( "default class" );
+		/*
 /#
 		assert( isDefined( self.pers[ "class" ] ), "Player during spawn and loadout got no class!" );
 #/
+		*/
 		class_num = level.classtoclassnum[ class ];
 		self.class_num = class_num;
 		pixendevent();
@@ -669,10 +640,9 @@ giveloadout( team, class )
 	knifeweaponoptions = self calcweaponoptions( class_num, 2 );
 	self giveweapon( "knife_mp", 0, knifeweaponoptions );
 	self.specialty = self getloadoutperks( class_num );
-	while ( level.leaguematch )
+	if ( level.leaguematch )
 	{
-		i = 0;
-		while ( i < self.specialty.size )
+		for ( i = 0; i < self.specialty.size; i++ )
 		{
 			if ( isleagueitemrestricted( self.specialty[ i ] ) )
 			{
@@ -680,7 +650,6 @@ giveloadout( team, class )
 				i--;
 
 			}
-			i++;
 		}
 	}
 	self register_perks();
@@ -717,16 +686,13 @@ giveloadout( team, class )
 		self.secondaryloadoutweapon = sidearm;
 		self.secondaryloadoutaltweapon = weaponaltweaponname( sidearm );
 	}
-	else
+	else if ( self isbonuscardactive( 0, self.class_num ) )
 	{
-		if ( self isbonuscardactive( 0, self.class_num ) )
-		{
-			self.primaryloadoutweapon = weapon;
-		}
-		if ( self isbonuscardactive( 1, self.class_num ) )
-		{
-			self.secondaryloadoutweapon = sidearm;
-		}
+		self.primaryloadoutweapon = weapon;
+	}
+	if ( self isbonuscardactive( 1, self.class_num ) )
+	{
+		self.secondaryloadoutweapon = sidearm;
 	}
 	if ( sidearm != "weapon_null_mp" )
 	{
@@ -750,9 +716,11 @@ giveloadout( team, class )
 	primaryweapon = weapon;
 	primarytokens = strtok( primaryweapon, "_" );
 	self.pers[ "primaryWeapon" ] = primarytokens[ 0 ];
+	/*
 /#
 	println( "^5GiveWeapon( " + weapon + " ) -- weapon" );
 #/
+	*/
 	if ( primaryweapon != "" && primaryweapon != "weapon_null_mp" && primaryweapon != "weapon_null" )
 	{
 		if ( self hasperk( "specialty_extraammo" ) )
@@ -780,9 +748,11 @@ giveloadout( team, class )
 		spawnweapon = self.spawnweapon;
 	}
 	self.pers[ "changed_class" ] = 0;
+	/*
 /#
 	assert( spawnweapon != "" );
 #/
+	*/
 	self.spawnweapon = spawnweapon;
 	self.pers[ "spawnWeapon" ] = self.spawnweapon;
 	self setspawnweapon( spawnweapon );
@@ -825,9 +795,11 @@ giveloadout( team, class )
 			grenadetypeprimary = level.weapons[ "flash" ];
 		}
 	}
+	/*
 /#
 	println( "^5GiveWeapon( " + grenadetypeprimary + " ) -- grenadeTypePrimary" );
 #/
+	*/
 	self giveweapon( grenadetypeprimary );
 	self setweaponammoclip( grenadetypeprimary, primarygrenadecount );
 	self switchtooffhand( grenadetypeprimary );
@@ -840,9 +812,11 @@ giveloadout( team, class )
 	if ( grenadetypesecondary != "" && grenadetypesecondary != "weapon_null_mp" && isequipmentallowed( grenadetypesecondary ) )
 	{
 		self setoffhandsecondaryclass( grenadetypesecondary );
+		/*
 /#
 		println( "^5GiveWeapon( " + grenadetypesecondary + " ) -- grenadeTypeSecondary" );
 #/
+		*/
 		self giveweapon( grenadetypesecondary );
 		self setweaponammoclip( grenadetypesecondary, grenadesecondarycount );
 		self.grenadetypesecondary = grenadetypesecondary;
@@ -851,20 +825,16 @@ giveloadout( team, class )
 	self bbclasschoice( class_num, primaryweapon, sidearm );
 	if ( !sessionmodeiszombiesgame() )
 	{
-		i = 0;
-		while ( i < 3 )
+		for ( i = 0; i < 3; i++ )
 		{
 			if ( level.loadoutkillstreaksenabled && isDefined( self.killstreak[ i ] ) && isDefined( level.killstreakindices[ self.killstreak[ i ] ] ) )
 			{
 				killstreaks[ i ] = level.killstreakindices[ self.killstreak[ i ] ];
-				i++;
-				continue;
 			}
 			else
 			{
 				killstreaks[ i ] = 0;
 			}
-			i++;
 		}
 		self recordloadoutperksandkillstreaks( primaryweapon, sidearm, grenadetypeprimary, grenadetypesecondary, killstreaks[ 0 ], killstreaks[ 1 ], killstreaks[ 2 ] );
 	}
@@ -904,7 +874,7 @@ giveloadout( team, class )
 	pixendevent();
 }
 
-setweaponammooverall( weaponname, amount )
+setweaponammooverall( weaponname, amount ) //checked matches cerberus output
 {
 	if ( isweaponcliponly( weaponname ) )
 	{
@@ -914,14 +884,16 @@ setweaponammooverall( weaponname, amount )
 	{
 		self setweaponammoclip( weaponname, amount );
 		diff = amount - self getweaponammoclip( weaponname );
+		/*
 /#
 		assert( diff >= 0 );
 #/
+		*/
 		self setweaponammostock( weaponname, diff );
 	}
 }
 
-onplayerconnecting()
+onplayerconnecting() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -943,19 +915,19 @@ onplayerconnecting()
 	}
 }
 
-fadeaway( waitdelay, fadedelay )
+fadeaway( waitdelay, fadedelay ) //checked matches cerberus output
 {
 	wait waitdelay;
 	self fadeovertime( fadedelay );
 	self.alpha = 0;
 }
 
-setclass( newclass )
+setclass( newclass ) //checked matches cerberus output
 {
 	self.curclass = newclass;
 }
 
-initperkdvars()
+initperkdvars() //checked matches cerberus output
 {
 	level.cac_armorpiercing_data = cac_get_dvar_int( "perk_armorpiercing", "40" ) / 100;
 	level.cac_bulletdamage_data = cac_get_dvar_int( "perk_bulletDamage", "35" );
@@ -966,60 +938,51 @@ initperkdvars()
 	level.cac_flakjacket_hardcore_data = cac_get_dvar_int( "perk_flakJacket_hardcore", "9" );
 }
 
-cac_selector()
+cac_selector() //checked changed to match cerberus output
 {
 	perks = self.specialty;
 	self.detectexplosives = 0;
-	i = 0;
-	while ( i < perks.size )
+	for ( i = 0; i < perks.size; i++ )
 	{
 		perk = perks[ i ];
 		if ( perk == "specialty_detectexplosive" )
 		{
 			self.detectexplosives = 1;
 		}
-		i++;
 	}
 }
 
-register_perks()
+register_perks() //checked changed at own discretion did not use continue in for loop see github for more info
 {
 	perks = self.specialty;
 	self clearperks();
-	i = 0;
-	while ( i < perks.size )
+	for ( i = 0; i < perks.size; i++ )
 	{
 		perk = perks[ i ];
-		if ( perk != "specialty_null" || issubstr( perk, "specialty_weapon_" ) && perk == "weapon_null" )
+		if ( perk == "specialty_null" || issubstr( perk, "specialty_weapon_" ) || perk == "weapon_null" )
 		{
-			i++;
-			continue;
+		}
+		else if ( !level.perksenabled )
+		{
 		}
 		else
 		{
-			if ( !level.perksenabled )
-			{
-				i++;
-				continue;
-			}
-			else
-			{
-				self setperk( perk );
-			}
+			self setperk( perk );
 		}
-		i++;
 	}
+	/*
 /#
 	maps/mp/gametypes/_dev::giveextraperks();
 #/
+	*/
 }
 
-cac_get_dvar_int( dvar, def )
+cac_get_dvar_int( dvar, def ) //checked matches cerberus output
 {
 	return int( cac_get_dvar( dvar, def ) );
 }
 
-cac_get_dvar( dvar, def )
+cac_get_dvar( dvar, def ) //checked matches cerberus output
 {
 	if ( getDvar( dvar ) != "" )
 	{
@@ -1032,13 +995,13 @@ cac_get_dvar( dvar, def )
 	}
 }
 
-cac_modified_vehicle_damage( victim, attacker, damage, meansofdeath, weapon, inflictor )
+cac_modified_vehicle_damage( victim, attacker, damage, meansofdeath, weapon, inflictor ) //checked changed to match cerberus output dvars obtained from beta dump
 {
-	if ( isDefined( victim ) || !isDefined( attacker ) && !isplayer( attacker ) )
+	if ( !isDefined( victim ) || !isDefined( attacker ) || !isplayer( attacker ) )
 	{
 		return damage;
 	}
-	if ( isDefined( damage ) || !isDefined( meansofdeath ) && !isDefined( weapon ) )
+	if ( !isDefined( damage ) || !isDefined( meansofdeath ) || !isDefined( weapon ) )
 	{
 		return damage;
 	}
@@ -1047,41 +1010,45 @@ cac_modified_vehicle_damage( victim, attacker, damage, meansofdeath, weapon, inf
 	if ( attacker hasperk( "specialty_bulletdamage" ) && isprimarydamage( meansofdeath ) )
 	{
 		final_damage = ( damage * ( 100 + level.cac_bulletdamage_data ) ) / 100;
+		/*
 /#
-		if ( getDvarInt( #"5ABA6445" ) )
+		if ( getDvarInt( "scr_perkdebug" ) )
 		{
 			println( "Perk/> " + attacker.name + "'s bullet damage did extra damage to vehicle" );
 #/
 		}
+		*/
+	}
+	else if ( attacker hasperk( "specialty_explosivedamage" ) && isplayerexplosiveweapon( weapon, meansofdeath ) )
+	{
+		final_damage = ( damage * ( 100 + level.cac_explosivedamage_data ) ) / 100;
+		/*
+/#
+		if ( getDvarInt( "scr_perkdebug" ) )
+		{
+			println( "Perk/> " + attacker.name + "'s explosive damage did extra damage to vehicle" );
+#/
+		}
+		*/
 	}
 	else
 	{
-		if ( attacker hasperk( "specialty_explosivedamage" ) && isplayerexplosiveweapon( weapon, meansofdeath ) )
-		{
-			final_damage = ( damage * ( 100 + level.cac_explosivedamage_data ) ) / 100;
-/#
-			if ( getDvarInt( #"5ABA6445" ) )
-			{
-				println( "Perk/> " + attacker.name + "'s explosive damage did extra damage to vehicle" );
-#/
-			}
-		}
-		else
-		{
-			final_damage = old_damage;
-		}
+		final_damage = old_damage;
 	}
+		/*
 /#
-	if ( getDvarInt( #"5ABA6445" ) )
+	if ( getDvarInt( "scr_perkdebug" ) )
 	{
 		println( "Perk/> Damage Factor: " + ( final_damage / old_damage ) + " - Pre Damage: " + old_damage + " - Post Damage: " + final_damage );
 #/
 	}
+		*/
 	return int( final_damage );
 }
 
-cac_modified_damage( victim, attacker, damage, mod, weapon, inflictor, hitloc )
+cac_modified_damage( victim, attacker, damage, mod, weapon, inflictor, hitloc ) //checked changed to match cerberus output certain order of operations changed to match beta dump
 {
+	/*
 /#
 	assert( isDefined( victim ) );
 #/
@@ -1091,6 +1058,7 @@ cac_modified_damage( victim, attacker, damage, mod, weapon, inflictor, hitloc )
 /#
 	assert( isplayer( victim ) );
 #/
+	*/
 	if ( victim == attacker )
 	{
 		return damage;
@@ -1103,106 +1071,106 @@ cac_modified_damage( victim, attacker, damage, mod, weapon, inflictor, hitloc )
 	{
 		return damage;
 	}
+	/*
 /#
 	debug = 0;
-	if ( getDvarInt( #"5ABA6445" ) )
+	if ( getDvarInt( "scr_perkdebug" ) )
 	{
 		debug = 1;
 #/
 	}
+	*/
 	final_damage = damage;
 	if ( attacker hasperk( "specialty_bulletdamage" ) && isprimarydamage( mod ) )
 	{
 		if ( victim hasperk( "specialty_armorvest" ) && !isheaddamage( hitloc ) )
 		{
+			/*
 /#
 			if ( debug )
 			{
 				println( "Perk/> " + victim.name + "'s armor countered " + attacker.name + "'s increased bullet damage" );
 #/
 			}
+			*/
 		}
 		else
 		{
-			final_damage = ( damage * ( 100 + level.cac_bulletdamage_data ) ) / 100;
+			final_damage = damage * ( 100 + level.cac_bulletdamage_data ) / 100;
+			/*
 /#
 			if ( debug )
 			{
 				println( "Perk/> " + attacker.name + "'s bullet damage did extra damage to " + victim.name );
 #/
 			}
+			*/
 		}
 	}
-	else
+	else if ( victim hasperk( "specialty_armorvest" ) && isprimarydamage( mod ) && !isheaddamage( hitloc ) )
 	{
-		if ( victim hasperk( "specialty_armorvest" ) && isprimarydamage( mod ) && !isheaddamage( hitloc ) )
-		{
-			final_damage = damage * ( level.cac_armorvest_data * 0,01 );
+		final_damage = damage * ( level.cac_armorvest_data * 0.01 );
+		/*
 /#
-			if ( debug )
-			{
-				println( "Perk/> " + attacker.name + "'s bullet damage did less damage to " + victim.name );
+		if ( debug )
+		{
+			println( "Perk/> " + attacker.name + "'s bullet damage did less damage to " + victim.name );
 #/
-			}
+		}
+		*/
+	}
+	else if ( victim hasperk( "specialty_fireproof" ) && isfiredamage( weapon, mod ) )
+	{
+		final_damage = damage * ( ( 100 - level.cac_fireproof_data ) / 100 );
+		/*
+/#
+		if ( debug )
+		{
+			println( "Perk/> " + attacker.name + "'s flames did less damage to " + victim.name );
+#/
+		}
+		*/
+	}
+	else if ( attacker hasperk( "specialty_explosivedamage" ) && isplayerexplosiveweapon( weapon, mod ) )
+	{
+		final_damage = damage * ( 100 + level.cac_explosivedamage_data ) / 100;
+		/*
+/#
+		if ( debug )
+		{
+			println( "Perk/> " + attacker.name + "'s explosive damage did extra damage to " + victim.name );
+#/
+		}
+		*/
+	}
+	else if ( victim hasperk( "specialty_flakjacket" ) && isexplosivedamage( weapon, mod ) && !victim grenadestuck( inflictor ) )
+	{
+		if ( level.hardcoremode )
+		{
 		}
 		else
 		{
-			if ( victim hasperk( "specialty_fireproof" ) && isfiredamage( weapon, mod ) )
-			{
-				final_damage = damage * ( ( 100 - level.cac_fireproof_data ) / 100 );
-/#
-				if ( debug )
-				{
-					println( "Perk/> " + attacker.name + "'s flames did less damage to " + victim.name );
-#/
-				}
-			}
-			else
-			{
-				if ( attacker hasperk( "specialty_explosivedamage" ) && isplayerexplosiveweapon( weapon, mod ) )
-				{
-					final_damage = ( damage * ( 100 + level.cac_explosivedamage_data ) ) / 100;
-/#
-					if ( debug )
-					{
-						println( "Perk/> " + attacker.name + "'s explosive damage did extra damage to " + victim.name );
-#/
-					}
-				}
-				else
-				{
-					if ( victim hasperk( "specialty_flakjacket" ) && isexplosivedamage( weapon, mod ) && !victim grenadestuck( inflictor ) )
-					{
-						if ( level.hardcoremode )
-						{
-						}
-						else
-						{
-						}
-						cac_data = level.cac_flakjacket_data;
-						if ( level.teambased && attacker.team != victim.team )
-						{
-							victim thread maps/mp/_challenges::flakjacketprotected( weapon, attacker );
-						}
-						else
-						{
-							if ( attacker != victim )
-							{
-								victim thread maps/mp/_challenges::flakjacketprotected( weapon, attacker );
-							}
-						}
-						final_damage = int( damage * ( cac_data / 100 ) );
-/#
-						if ( debug )
-						{
-							println( "Perk/> " + victim.name + "'s flak jacket decreased " + attacker.name + "'s grenade damage" );
-#/
-						}
-					}
-				}
-			}
 		}
+		cac_data = level.cac_flakjacket_data;
+		if ( level.teambased && attacker.team != victim.team )
+		{
+			victim thread maps/mp/_challenges::flakjacketprotected( weapon, attacker );
+		}
+		else if ( attacker != victim )
+		{
+			victim thread maps/mp/_challenges::flakjacketprotected( weapon, attacker );
+		}
+		final_damage = int( damage * ( cac_data / 100 ) );
+		/*
+/#
+		if ( debug )
+		{
+			println( "Perk/> " + victim.name + "'s flak jacket decreased " + attacker.name + "'s grenade damage" );
+#/
+		}
+		*/
 	}
+	/*
 /#
 	victim.cac_debug_damage_type = tolower( mod );
 	victim.cac_debug_original_damage = damage;
@@ -1215,6 +1183,7 @@ cac_modified_damage( victim, attacker, damage, mod, weapon, inflictor, hitloc )
 		println( "Perk/> Damage Factor: " + ( final_damage / damage ) + " - Pre Damage: " + damage + " - Post Damage: " + final_damage );
 #/
 	}
+	*/
 	final_damage = int( final_damage );
 	if ( final_damage < 1 )
 	{
@@ -1223,7 +1192,7 @@ cac_modified_damage( victim, attacker, damage, mod, weapon, inflictor, hitloc )
 	return final_damage;
 }
 
-isexplosivedamage( weapon, meansofdeath )
+isexplosivedamage( weapon, meansofdeath ) //checked matches cerberus output
 {
 	if ( isDefined( weapon ) )
 	{
@@ -1250,25 +1219,39 @@ isexplosivedamage( weapon, meansofdeath )
 	return 0;
 }
 
-hastacticalmask( player )
+hastacticalmask( player ) //checked changed at own discretion
 {
-	if ( !player hasperk( "specialty_stunprotection" ) && !player hasperk( "specialty_flashprotection" ) )
+	if ( player hasperk( "specialty_stunprotection" ) || player hasperk( "specialty_flashprotection" ) || player hasperk( "specialty_proximityprotection" ) )
 	{
-		return player hasperk( "specialty_proximityprotection" );
+		return 1;
 	}
+	return 0;
 }
 
-isprimarydamage( meansofdeath )
+isprimarydamage( meansofdeath ) //checked changed at own discretion
 {
-	if ( meansofdeath != "MOD_RIFLE_BULLET" )
+	if ( meansofdeath != "MOD_RIFLE_BULLET" || meansofdeath == "MOD_PISTOL_BULLET" )
 	{
-		return meansofdeath == "MOD_PISTOL_BULLET";
+		return 1;
 	}
+	return 0;
 }
 
-isfiredamage( weapon, meansofdeath )
+isfiredamage( weapon, meansofdeath ) //checked changed at own discretion
 {
-	if ( !issubstr( weapon, "flame" ) && !issubstr( weapon, "napalmblob_" ) && issubstr( weapon, "napalm_" ) && meansofdeath != "MOD_BURNED" || meansofdeath == "MOD_GRENADE" && meansofdeath == "MOD_GRENADE_SPLASH" )
+	if ( ( meansofdeath == "MOD_BURNED" || meansofdeath == "MOD_GRENADE" ) && isSubStr( weapon, "napalm_" ) )
+	{
+		return 1;
+	}
+	if ( isSubStr( weapon, "napalm_" ) && meansofdeath == "MOD_GRENADE_SPLASH" )
+	{
+		return 1;
+	}
+	if ( ( isSubStr( weapon, "flame" ) || isSubStr( weapon, "napalmblob_" ) ) && ( meansofdeath == "MOD_BURNED" || meansofdeath == "MOD_GRENADE" ) )
+	{
+		return 1;
+	}
+	if ( ( isSubStr( weapon, "flame" ) || isSubStr( weapon, "napalmblob_" ) ) && meansofdeath == "MOD_GRENADE_SPLASH" )
 	{
 		return 1;
 	}
@@ -1279,7 +1262,7 @@ isfiredamage( weapon, meansofdeath )
 	return 0;
 }
 
-isplayerexplosiveweapon( weapon, meansofdeath )
+isplayerexplosiveweapon( weapon, meansofdeath ) //checked matches cerberus output
 {
 	if ( !isexplosivedamage( weapon, meansofdeath ) )
 	{
@@ -1298,18 +1281,22 @@ isplayerexplosiveweapon( weapon, meansofdeath )
 	return 1;
 }
 
-isheaddamage( hitloc )
+isheaddamage( hitloc ) //checked changed at own discretion
 {
-	if ( hitloc != "helmet" && hitloc != "head" )
+	if ( hitloc == "helmet" && hitloc == "head" || hitloc == "neck" )
 	{
-		return hitloc == "neck";
+		return 1;
 	}
+	return 0;
 }
 
-grenadestuck( inflictor )
+grenadestuck( inflictor ) //checked changed at own discretion
 {
-	if ( isDefined( inflictor ) && isDefined( inflictor.stucktoplayer ) )
+	if ( isDefined( inflictor ) && isDefined( inflictor.stucktoplayer ) && inflictor.stucktoplayer == self )
 	{
-		return inflictor.stucktoplayer == self;
+		return 1;
 	}
+	return 0;
 }
+
+

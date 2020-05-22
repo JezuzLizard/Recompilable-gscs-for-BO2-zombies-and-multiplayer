@@ -51,6 +51,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 patch_zm/maps/mp/gametypes_zm/_callbacksetup.gsc
 patch_zm/maps/mp/gametypes_zm/_damagefeedback.gsc
+patch_zm/maps/mp/gametypes_zm/_globallogic_actor.gsc
 patch_zm/maps/mp/gametypes_zm/_healthoverlay.gsc
 patch_zm/maps/mp/gametypes_zm/_hostmigration.gsc
 patch_zm/maps/mp/gametypes_zm/_hud.gsc
@@ -81,7 +82,6 @@ patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
 patch_zm/maps/mp/gametypes_zm/_gameobjects.gsc
-patch_zm/maps/mp/gametypes_zm/_globallogic_actor.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_audio.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_defaults.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_player.gsc
