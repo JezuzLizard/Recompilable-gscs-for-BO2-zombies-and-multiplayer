@@ -1,3 +1,4 @@
+//checked include match cerberus output
 #include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_utility;
@@ -44,12 +45,12 @@ get_zone_from_position( v_pos, ignore_enabled_check ) //checked changed to match
 {
 	zone = undefined;
 	scr_org = spawn( "script_origin", v_pos );
-	keys = getarraykeys( level.zones );
+	keys = getarraykeys(level.zones);
 	for ( i = 0; i < keys.size; i++ )
 	{
 		if ( scr_org entity_in_zone( keys[ i ], ignore_enabled_check ) )
 		{
-			zone = keys[ i ];
+			zone = keys [i ];
 			break;
 		}
 	}
@@ -79,7 +80,7 @@ get_zone_zbarriers( zone_name ) //checked matches cerberus output
 
 get_players_in_zone( zone_name, return_players ) //checked changed to match cerberus output
 {
-	if(!zone_is_enabled(zone_name))
+	if ( !zone_is_enabled( zone_name ) )
 	{
 		return 0;
 	}
@@ -117,7 +118,7 @@ player_in_zone( zone_name ) //checked changed to match cerberus output
 		players = get_players();
 		for ( j = 0; j < players.size; j++ )
 		{
-			if ( players[ j ] istouching( zone.volumes[ i ]) && !players[ j ] .sessionstate == "spectator" )
+			if ( players[ j ] istouching( zone.volumes[ i ] ) && !players[ j ] .sessionstate == "spectator" )
 			{
 				return 1;
 			}
@@ -132,7 +133,7 @@ entity_in_zone( zone_name, ignore_enabled_check ) //checked changed to match cer
 	{
 		return 0;
 	}
-	zone = level.zones[zone_name];
+	zone = level.zones[ zone_name ];
 	for ( i = 0; i < zone.volumes.size; i++ )
 	{
 		if ( self istouching( zone.volumes[ i ] ) )
@@ -158,17 +159,20 @@ deactivate_initial_barrier_goals() //checked changed to match cerberus output
 
 zone_init( zone_name ) //checked changed to match cerberus output
 {
+	
 	if ( isDefined( level.zones[ zone_name ] ) )
 	{
 		return;
 	}
+	
 	level.zones[ zone_name ] = spawnstruct();
 	zone = level.zones[ zone_name ];
-	zone.is_enabled = 0;
-	zone.is_occupied = 0;
+	zone.is_enabled = 0; 
+	zone.is_occupied = 0; 
 	zone.is_active = 0;
 	zone.adjacent_zones = [];
 	zone.is_spawning_allowed = 0;
+	
 	spawn_points = maps/mp/gametypes_zm/_zm_gametype::get_player_spawns_for_gametype();
 	for( i = 0; i < spawn_points.size; i++ )
 	{
@@ -453,7 +457,7 @@ add_zone_flags( wait_flag, add_flags ) //checked changed to match cerberus outpu
 	i = 0;
 	for ( i = 0; i < keys.size; i++ )
 	{
-		if(keys[ i ] == wait_flag)
+		if ( keys[ i ] == wait_flag )
 		{
 			level.zone_flags[ keys[ i ] ] = arraycombine( level.zone_flags[ keys[ i ] ], add_flags, 1, 0 );
 			return;
@@ -533,14 +537,16 @@ zone_flag_wait( flag_name )
 							break;
 						}
 					}
-					//break;
 				}
-				flags_set = 1;
-				for ( f = 0; f < azone.flags.size; f++ )
+				else
 				{
-					if ( !flag(azone.flags[ f ] ) )
+					flags_set = 1;
+					for ( f = 0; f < azone.flags.size; f++ )
 					{
-						flags_set = 0;
+						if ( !flag(azone.flags[ f ] ) )
+						{
+							flags_set = 0;
+						}
 					}
 				}
 				if ( flags_set )
@@ -569,7 +575,7 @@ zone_flag_wait( flag_name )
 			{
 				flag_set( check_flag[ k ] );
 			}
-			//break;
+			break;
 		}
 	}
 }
@@ -629,13 +635,13 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 		for ( i = 0; i < initial_zone.size; i++ )
 		{
 			zone_init( initial_zone[ i ] );
-			enable_zone( initial_zone[ i ] ); //was disabled
+			enable_zone( initial_zone[ i ] );
 		}
 	}
 	else
 	{
 		zone_init( initial_zone );
-		enable_zone( initial_zone ); //was disabled
+		enable_zone( initial_zone );
 	}
 	setup_zone_flag_waits();
 	zkeys = getarraykeys( level.zones );
@@ -649,12 +655,7 @@ manage_zones( initial_zone ) //checked changed to match cerberus output
 	flag_set( "zones_initialized" );
 	flag_wait( "begin_spawning" );
 	while ( getDvarInt( "noclip" ) == 0 || getDvarInt( "notarget" ) != 0 )
-	{
-		
-		players = get_players();
-		zone = players[ 0 ] get_current_zone();
-		players[ 0 ] iprintln( zone );
-		
+	{	
 		for( z = 0; z < zkeys.size; z++ )
 		{
 			level.newzones[ zkeys[ z ] ].is_active = 0;
@@ -1095,7 +1096,7 @@ is_player_in_zone( zone_name ) //checked changed to match cerberus output
 	zone = level.zones[ zone_name ];
 	for ( i = 0; i < zone.volumes.size; i++ )
 	{
-		if ( self istouching( level.zones[ zone_name ].volumes[ i ] ) && self.sessionstate != "spectator")
+		if ( self istouching( level.zones[zone_name].volumes[ i ] ) && !self.sessionstate == "spectator" )
 		{
 			return 1;
 		}
