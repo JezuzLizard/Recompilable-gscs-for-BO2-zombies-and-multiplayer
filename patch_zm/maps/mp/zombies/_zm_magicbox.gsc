@@ -9,6 +9,7 @@
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
+#include maps/mp/zombies/_zm_magicbox_lock;
 
 init() //checked matches cerberus output
 {
@@ -20,11 +21,6 @@ init() //checked matches cerberus output
 		level.debugLogging_zm_magicbox = 0;
 	}
 	//end debug code
-	if ( level.debugLogging_zm_magicbox )
-	{
-		logline7 = "_zm_magicbox.gsc init() is called" + "\n";
-		logprint( logline7 );
-	}
 	if ( !isDefined( level.chest_joker_model ) )
 	{
 		level.chest_joker_model = "zombie_teddybear";
@@ -43,11 +39,6 @@ init() //checked matches cerberus output
 	if ( is_classic() )
 	{
 		level.chests = getstructarray( "treasure_chest_use", "targetname" );
-		if ( level.debugLogging_zm_magicbox )
-		{
-			logline7 = "_zm_magicbox.gsc init() calls treasure_chest_init() on start chest" + "\n";
-			logprint( logline7 );
-		}
 		treasure_chest_init( "start_chest" );
 	}
 	if ( level.createfx_enabled )
@@ -62,11 +53,6 @@ init() //checked matches cerberus output
 		level.magic_box_check_equipment = ::default_magic_box_check_equipment;
 	}
 	level thread magicbox_host_migration();
-	if ( level.debugLogging_zm_magicbox )
-	{
-		logline1 = "_zm_magicbox.gsc init() has fully parsed" + "\n";
-		logprint( logline1 );
-	}
 }
 
 treasure_chest_init( start_chest_name ) //checked changed to match cerberus output
@@ -96,11 +82,6 @@ treasure_chest_init( start_chest_name ) //checked changed to match cerberus outp
 	}
 	if ( !level.enable_magic )
 	{
-		if ( level.debugLogging_zm_magicbox )
-		{
-			logline2 = "_zm_magicbox.gsc treasure_chest_init() found that magic is not enabled; calling hide_chest() on each box and returning" + "\n";
-			logprint( logline2 );
-		}
 		foreach( chest in level.chests )
 		{
 			chest hide_chest();
@@ -110,21 +91,11 @@ treasure_chest_init( start_chest_name ) //checked changed to match cerberus outp
 	level.chest_accessed = 0;
 	if ( level.chests.size > 1 )
 	{
-		if ( level.debugLogging_zm_magicbox )
-		{
-			logline3 = "_zm_magicbox.gsc treasure_chest_init() found multiple boxes; enabling moving box; randomizing chests" + "\n";
-			logprint( logline3 );
-		}
 		flag_set( "moving_chest_enabled" );
 		level.chests = array_randomize( level.chests );
 	}
 	else
 	{
-		if ( level.debugLogging_zm_magicbox )
-		{
-			logline4 = "_zm_magicbox.gsc treasure_chest_init() found only one box; setting level.chest_index to 0 and level.chests[ 0 ].no_fly_away to 1" + "\n";
-			logprint( logline4 );
-		}
 		level.chest_index = 0;
 		level.chests[ 0 ].no_fly_away = 1;
 	}
@@ -190,11 +161,6 @@ init_starting_chest_location( start_chest_name ) //checked changed to match cerb
 
 set_treasure_chest_cost( cost ) //checked matches cerberus output
 {
-	if ( level.debugLogging_zm_magicbox )
-	{
-		logline5 = "_zm_magicbox.gsc set_treasure_chest_cost() set the cost of the boxes to: " + cost + " \n";
-		logprint( logline5 );
-	}
 	level.zombie_treasure_chest_cost = cost;
 }
 
@@ -430,11 +396,6 @@ unregister_unitrigger_on_kill_think() //checked matches cerberus output
 
 treasure_chest_think() //checked changed to match cerberus output
 {
-	if ( level.debugLogging_zm_magicbox )
-	{
-		logline6 = "_zm_magicbox.gsc treasure_chest_think() is called" + "\n";
-		logprint( logline6 );
-	}
 	self endon( "kill_chest_think" );
 	user = undefined;
 	user_cost = undefined;
@@ -596,19 +557,6 @@ treasure_chest_think() //checked changed to match cerberus output
 				if ( isplayer( grabber ) )
 				{
 					user = grabber;
-				}
-			}
-			if ( level.debugLogging_zm_magicbox )
-			{
-				if ( !isDefined( grabber ) )
-				{
-					logline12 = "_zm_magicbox.gsc treasure_chest_think() grabber is undefined" + "\n";
-					logprint( logline12 );
-				}
-				else 
-				{
-					logline13 = "_zm_magicbox.gsc treasure_chest_think() grabber is defined as: " + grabber + "\n";
-					logprint( logline13 );
 				}
 			}
 			if ( isDefined( level.pers_upgrade_box_weapon ) && level.pers_upgrade_box_weapon )
@@ -1219,11 +1167,6 @@ treasure_chest_weapon_spawn( chest, player, respin ) //checked changed to match 
 			i++;
 		}
 	}
-	if ( level.debugLogging_zm_magicbox )
-	{
-		logline8 = "_zm_magicbox.gsc treasure_chest_weapon_spawn() completed weapon cycling" + " \n";
-		logprint( logline8 );
-	}
 	if ( isDefined( level.custom_magic_box_weapon_wait ) )
 	{
 		[[ level.custom_magic_box_weapon_wait ]]();
@@ -1231,20 +1174,10 @@ treasure_chest_weapon_spawn( chest, player, respin ) //checked changed to match 
 	if ( isDefined( player.pers_upgrades_awarded[ "box_weapon" ] ) && player.pers_upgrades_awarded[ "box_weapon" ] )
 	{
 		rand = maps/mp/zombies/_zm_pers_upgrades_functions::pers_treasure_chest_choosespecialweapon( player );
-		if ( level.debugLogging_zm_magicbox )
-		{
-			logline9 = "_zm_magicbox.gsc treasure_chest_weapon_spawn() chose random weapon based on the box perma perk; box chose: " + rand + " \n";
-			logprint( logline9 );
-		}
 	}
 	else
 	{
 		rand = treasure_chest_chooseweightedrandomweapon( player );
-		if ( level.debugLogging_zm_magicbox )
-		{
-			logline10 = "_zm_magicbox.gsc treasure_chest_weapon_spawn() chose random weapon based on treasure_chest_chooseweightedrandomweapon(); box chose: " + rand + " \n";
-			logprint( logline10 );
-		}
 	}
 	
 	self.weapon_string = rand;
@@ -1262,11 +1195,6 @@ treasure_chest_weapon_spawn( chest, player, respin ) //checked changed to match 
 	if ( weapon_is_dual_wield( rand ) )
 	{
 		self.weapon_model_dw = spawn_weapon_model( rand, get_left_hand_weapon_model_name( rand ), self.weapon_model.origin - vectorScale( ( 0, 1, 0 ), 3 ), self.weapon_model.angles );
-	}
-	if ( level.debugLogging_zm_magicbox )
-	{
-		logline11 = "_zm_magicbox.gsc treasure_chest_weapon_spawn() spawns in the weapon model" + " \n";
-		logprint( logline11 );
 	}
 	if ( getDvar( "magic_chest_movable" ) == "1" && isDefined( chest._box_opened_by_fire_sale ) && !chest._box_opened_by_fire_sale && isDefined( level.zombie_vars[ "zombie_powerup_fire_sale_on" ] ) && !level.zombie_vars[ "zombie_powerup_fire_sale_on" ] && self [[ level._zombiemode_check_firesale_loc_valid_func ]]() )
 	{
