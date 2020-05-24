@@ -1,9 +1,10 @@
+//checked includes match cerberus output
 #include maps/mp/_music;
 #include maps/mp/gametypes/_globallogic_audio;
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	game[ "music" ][ "defeat" ] = "mus_defeat";
 	game[ "music" ][ "victory_spectator" ] = "mus_defeat";
@@ -150,21 +151,20 @@ init()
 	level thread post_match_snapshot_watcher();
 }
 
-registerdialoggroup( group, skipifcurrentlyplayinggroup )
+registerdialoggroup( group, skipifcurrentlyplayinggroup ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.dialoggroups ) )
 	{
 		level.dialoggroups = [];
 	}
-	else
+	else if ( isDefined( level.dialoggroup[ group ] ) )
 	{
-		if ( isDefined( level.dialoggroup[ group ] ) )
-		{
+		/*
 /#
-			error( "registerDialogGroup:  Dialog group " + group + " already registered." );
+		error( "registerDialogGroup:  Dialog group " + group + " already registered." );
 #/
-			return;
-		}
+		*/
+		return;
 	}
 	level.dialoggroup[ group ] = spawnstruct();
 	level.dialoggroup[ group ].group = group;
@@ -172,7 +172,7 @@ registerdialoggroup( group, skipifcurrentlyplayinggroup )
 	level.dialoggroup[ group ].currentcount = 0;
 }
 
-sndstartmusicsystem()
+sndstartmusicsystem() //checked matches cerberus output dvars taken from beta dump
 {
 	self endon( "disconnect" );
 	if ( game[ "state" ] == "postgame" )
@@ -181,12 +181,14 @@ sndstartmusicsystem()
 	}
 	if ( game[ "state" ] == "pregame" )
 	{
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - music state is undefined Waiting 15 seconds to set music state" );
 #/
 		}
+		*/
 		wait 45;
 		if ( !isDefined( level.nextmusicstate ) )
 		{
@@ -196,61 +198,72 @@ sndstartmusicsystem()
 	}
 	if ( !isDefined( level.nextmusicstate ) )
 	{
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - music state is undefined Waiting 15 seconds to set music state" );
 #/
 		}
+		*/
 		self.pers[ "music" ].currentstate = "UNDERSCORE";
 		self thread suspensemusic();
 	}
 }
 
-suspensemusicforplayer()
+suspensemusicforplayer() //checked matches cerberus output dvar taken from beta dump
 {
 	self endon( "disconnect" );
 	self thread set_music_on_player( "UNDERSCORE", 0 );
+	/*
 /#
-	if ( getDvarInt( #"0BC4784C" ) > 0 )
+	if ( getDvarInt( "debug_music" ) > 0 )
 	{
 		println( "Music System - Setting Music State Random Underscore " + self.pers[ "music" ].returnstate + " On player " + self getentitynumber() );
 #/
 	}
+	*/
 }
 
-suspensemusic( random )
+suspensemusic( random ) //checked changed to match cerberus output dvars taken from beta dump
 {
 	level endon( "game_ended" );
 	level endon( "match_ending_soon" );
 	self endon( "disconnect" );
+	/*
 /#
-	if ( getDvarInt( #"0BC4784C" ) > 0 )
+	if ( getDvarInt( "debug_music" ) > 0 )
 	{
 		println( "Music System - Starting random underscore" );
 #/
 	}
+	*/
 	while ( 1 )
 	{
 		wait randomintrange( 25, 60 );
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - Checking for random underscore" );
 #/
 		}
+		*/
 		if ( !isDefined( self.pers[ "music" ].inque ) )
 		{
 			self.pers[ "music" ].inque = 0;
 		}
-		while ( self.pers[ "music" ].inque )
+		if ( self.pers[ "music" ].inque )
 		{
+			/*
 /#
-			if ( getDvarInt( #"0BC4784C" ) > 0 )
+			if ( getDvarInt( "debug_music" ) > 0 )
 			{
 				println( "Music System - Inque no random underscore" );
 #/
 			}
+			*/
+			continue;
 		}
 		if ( !isDefined( self.pers[ "music" ].currentstate ) )
 		{
@@ -260,32 +273,30 @@ suspensemusic( random )
 		{
 			self thread suspensemusicforplayer();
 			self.underscorechance -= 20;
+			/*
 /#
-			if ( getDvarInt( #"0BC4784C" ) > 0 )
+			if ( getDvarInt( "debug_music" ) > 0 )
 			{
 				println( "Music System - Starting random underscore" );
 #/
 			}
+			*/
 		}
 	}
 }
 
-leaderdialogforotherteams( dialog, skip_team, squad_dialog )
+leaderdialogforotherteams( dialog, skip_team, squad_dialog ) //checked changed to match cerberus output
 {
-	_a350 = level.teams;
-	_k350 = getFirstArrayKey( _a350 );
-	while ( isDefined( _k350 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a350[ _k350 ];
 		if ( team != skip_team )
 		{
 			leaderdialog( dialog, team, undefined, undefined, squad_dialog );
 		}
-		_k350 = getNextArrayKey( _a350, _k350 );
 	}
 }
 
-announceroundwinner( winner, delay )
+announceroundwinner( winner, delay ) //checked changed to match cerberus output
 {
 	if ( delay > 0 )
 	{
@@ -302,19 +313,15 @@ announceroundwinner( winner, delay )
 	}
 	else
 	{
-		_a376 = level.teams;
-		_k376 = getFirstArrayKey( _a376 );
-		while ( isDefined( _k376 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a376[ _k376 ];
 			thread playsoundonplayers( "mus_round_draw" + "_" + level.teampostfix[ team ] );
-			_k376 = getNextArrayKey( _a376, _k376 );
 		}
 		leaderdialog( "round_draw" );
 	}
 }
 
-announcegamewinner( winner, delay )
+announcegamewinner( winner, delay ) //checked matches cerberus output
 {
 	if ( delay > 0 )
 	{
@@ -335,7 +342,7 @@ announcegamewinner( winner, delay )
 	}
 }
 
-doflameaudio()
+doflameaudio() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
@@ -351,11 +358,13 @@ doflameaudio()
 	}
 }
 
-leaderdialog( dialog, team, group, excludelist, squaddialog )
+leaderdialog( dialog, team, group, excludelist, squaddialog ) //checked changed to match beta dump
 {
+	/*
 /#
 	assert( isDefined( level.players ) );
 #/
+	*/
 	if ( level.wagermatch )
 	{
 		return;
@@ -363,47 +372,44 @@ leaderdialog( dialog, team, group, excludelist, squaddialog )
 	if ( !isDefined( team ) )
 	{
 		dialogs = [];
-		_a433 = level.teams;
-		_k433 = getFirstArrayKey( _a433 );
-		while ( isDefined( _k433 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a433[ _k433 ];
 			dialogs[ team ] = dialog;
-			_k433 = getNextArrayKey( _a433, _k433 );
 		}
 		leaderdialogallteams( dialogs, group, excludelist );
 		return;
 	}
 	if ( isDefined( excludelist ) )
 	{
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			player = level.players[ i ];
 			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team && !maps/mp/gametypes/_globallogic_utils::isexcluded( player, excludelist ) )
 			{
 				player leaderdialogonplayer( dialog, group );
 			}
-			i++;
 		}
 	}
-	else i = 0;
-	while ( i < level.players.size )
+	else
 	{
-		player = level.players[ i ];
-		if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
+		for ( i = 0; i < level.players.size; i++ )
 		{
-			player leaderdialogonplayer( dialog, group );
+			player = level.players[ i ];
+			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
+			{
+				player leaderdialogonplayer( dialog, group );
+			}
 		}
-		i++;
 	}
 }
 
-leaderdialogallteams( dialogs, group, excludelist )
+leaderdialogallteams( dialogs, group, excludelist ) //checked partially changed to match cerberus see info.md
 {
+	/*
 /#
 	assert( isDefined( level.players ) );
 #/
+	*/
 	i = 0;
 	while ( i < level.players.size )
 	{
@@ -414,37 +420,30 @@ leaderdialogallteams( dialogs, group, excludelist )
 			i++;
 			continue;
 		}
-		else if ( !isDefined( dialogs[ team ] ) )
+		if ( !isDefined( dialogs[ team ] ) )
 		{
 			i++;
 			continue;
 		}
-		else if ( isDefined( excludelist ) && maps/mp/gametypes/_globallogic_utils::isexcluded( player, excludelist ) )
+		if ( isDefined( excludelist ) && maps/mp/gametypes/_globallogic_utils::isexcluded( player, excludelist ) )
 		{
 			i++;
 			continue;
 		}
-		else
-		{
-			player leaderdialogonplayer( dialogs[ team ], group );
-		}
+		player leaderdialogonplayer( dialogs[ team ], group );
 		i++;
 	}
 }
 
-flushdialog()
+flushdialog() //checked changed to match cerberus output
 {
-	_a485 = level.players;
-	_k485 = getFirstArrayKey( _a485 );
-	while ( isDefined( _k485 ) )
+	foreach ( player in level.players )
 	{
-		player = _a485[ _k485 ];
 		player flushdialogonplayer();
-		_k485 = getNextArrayKey( _a485, _k485 );
 	}
 }
 
-flushdialogonplayer()
+flushdialogonplayer() //checked matches cerberus output
 {
 	self.leaderdialoggroups = [];
 	self.leaderdialogqueue = [];
@@ -453,20 +452,17 @@ flushdialogonplayer()
 	self notify( "flush_dialog" );
 }
 
-flushgroupdialog( group )
+flushgroupdialog( group ) //checked changed to match cerberus output
 {
-	_a503 = level.players;
-	_k503 = getFirstArrayKey( _a503 );
-	while ( isDefined( _k503 ) )
+	foreach ( player in level.players )
 	{
-		player = _a503[ _k503 ];
 		player flushgroupdialogonplayer( group );
-		_k503 = getNextArrayKey( _a503, _k503 );
 	}
 }
 
-flushgroupdialogonplayer( group )
+flushgroupdialogonplayer( group ) //checked changed to match cerberus output
 {
+	self.leaderdialoggroups[ group ] = undefined;
 	arrayremovevalue( self.leaderdialogqueue, group );
 	if ( self.leaderdialogqueue.size == 0 )
 	{
@@ -474,13 +470,15 @@ flushgroupdialogonplayer( group )
 	}
 }
 
-addgroupdialogtoplayer( dialog, group )
+addgroupdialogtoplayer( dialog, group ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.dialoggroup[ group ] ) )
 	{
+		/*
 /#
 		error( "leaderDialogOnPlayer:  Dialog group " + group + " is not registered" );
 #/
+		*/
 		return 0;
 	}
 	addtoqueue = 0;
@@ -492,6 +490,7 @@ addgroupdialogtoplayer( dialog, group )
 	{
 		if ( self.currentleaderdialog == dialog && ( self.currentleaderdialogtime + 2000 ) > getTime() )
 		{
+			self.leaderdialoggroups[ group ] = undefined;
 			arrayremovevalue( self.leaderdialogqueue, group );
 			if ( self.leaderdialogqueue.size == 0 )
 			{
@@ -500,22 +499,21 @@ addgroupdialogtoplayer( dialog, group )
 			return 0;
 		}
 	}
-	else
+	else if ( self.currentleaderdialoggroup == group )
 	{
-		if ( self.currentleaderdialoggroup == group )
-		{
-			return 0;
-		}
+		return 0;
 	}
 	self.leaderdialoggroups[ group ] = dialog;
 	return addtoqueue;
 }
 
-leaderdialogonplayer( dialog, group )
+leaderdialogonplayer( dialog, group ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( dialog ) );
 #/
+	*/
 	team = self.pers[ "team" ];
 	if ( !isDefined( team ) )
 	{
@@ -543,11 +541,11 @@ leaderdialogonplayer( dialog, group )
 	}
 }
 
-waitforsound( sound, extratime )
+waitforsound( sound, extratime ) //checked matches cerberus output
 {
 	if ( !isDefined( extratime ) )
 	{
-		extratime = 0,1;
+		extratime = 0.1;
 	}
 	time = soundgetplaybacktime( sound );
 	if ( time < 0 )
@@ -556,11 +554,11 @@ waitforsound( sound, extratime )
 	}
 	else
 	{
-		wait ( ( time * 0,001 ) + extratime );
+		wait ( ( time * 0.001 ) + extratime );
 	}
 }
 
-playnextleaderdialog()
+playnextleaderdialog() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "flush_dialog" );
@@ -570,19 +568,24 @@ playnextleaderdialog()
 	}
 	self.leaderdialogactive = 1;
 	waittillframeend;
+	/*
 /#
 	assert( self.leaderdialogqueue.size > 0 );
 #/
+	*/
 	dialog = self.leaderdialogqueue[ 0 ];
+	/*
 /#
 	assert( isDefined( dialog ) );
 #/
+	*/
 	arrayremoveindex( self.leaderdialogqueue, 0 );
 	team = self.pers[ "team" ];
 	if ( isDefined( self.leaderdialoggroups[ dialog ] ) )
 	{
 		group = dialog;
 		dialog = self.leaderdialoggroups[ group ];
+		self.leaderdialoggroups[ group ] = undefined;
 		self.currentleaderdialoggroup = group;
 	}
 	if ( level.wagermatch )
@@ -614,14 +617,11 @@ playnextleaderdialog()
 	}
 }
 
-isteamwinning( checkteam )
+isteamwinning( checkteam ) //checked changed to match cerberus output
 {
 	score = game[ "teamScores" ][ checkteam ];
-	_a678 = level.teams;
-	_k678 = getFirstArrayKey( _a678 );
-	while ( isDefined( _k678 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a678[ _k678 ];
 		if ( team != checkteam )
 		{
 			if ( game[ "teamScores" ][ team ] >= score )
@@ -629,30 +629,25 @@ isteamwinning( checkteam )
 				return 0;
 			}
 		}
-		_k678 = getNextArrayKey( _a678, _k678 );
 	}
 	return 1;
 }
 
-announceteamiswinning()
+announceteamiswinning() //checked changed to match cerberus output
 {
-	_a692 = level.teams;
-	_k692 = getFirstArrayKey( _a692 );
-	while ( isDefined( _k692 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a692[ _k692 ];
 		if ( isteamwinning( team ) )
 		{
 			leaderdialog( "winning", team, undefined, undefined, "squad_winning" );
 			leaderdialogforotherteams( "losing", team, "squad_losing" );
 			return 1;
 		}
-		_k692 = getNextArrayKey( _a692, _k692 );
 	}
 	return 0;
 }
 
-musiccontroller()
+musiccontroller() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	level thread musictimesout();
@@ -667,27 +662,26 @@ musiccontroller()
 			}
 		}
 		level waittill( "match_ending_very_soon" );
-		_a725 = level.teams;
-		_k725 = getFirstArrayKey( _a725 );
-		while ( isDefined( _k725 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a725[ _k725 ];
 			leaderdialog( "timesup", team, undefined, undefined, "squad_30sec" );
-			_k725 = getNextArrayKey( _a725, _k725 );
 		}
 	}
-	else level waittill( "match_ending_vox" );
-	leaderdialog( "timesup" );
+	else 
+	{
+		level waittill( "match_ending_vox" );
+		leaderdialog( "timesup" );
+	}
 }
 
-musictimesout()
+musictimesout() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	level waittill( "match_ending_very_soon" );
 	thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "TIME_OUT", "both", 1, 0 );
 }
 
-actionmusicset()
+actionmusicset() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	level.playingactionmusic = 1;
@@ -695,244 +689,272 @@ actionmusicset()
 	level.playingactionmusic = 0;
 }
 
-play_2d_on_team( alias, team )
+play_2d_on_team( alias, team ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.players ) );
 #/
-	i = 0;
-	while ( i < level.players.size )
+	*/
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
 		if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
 		{
 			player playlocalsound( alias );
 		}
-		i++;
 	}
 }
 
-set_music_on_team( state, team, save_state, return_state, wait_time )
+set_music_on_team( state, team, save_state, return_state, wait_time ) //checked partially changed to match cerberus output see info.md dvars taken from beta dump
 {
 	if ( sessionmodeiszombiesgame() )
 	{
 		return;
 	}
+	/*
 /#
 	assert( isDefined( level.players ) );
 #/
+	*/
 	if ( !isDefined( team ) )
 	{
 		team = "both";
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - team undefined: Setting to both" );
 #/
 		}
+		*/
 	}
 	if ( !isDefined( save_state ) )
 	{
 		save_sate = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - save_sate undefined: Setting to false" );
 #/
 		}
+		*/
 	}
 	if ( !isDefined( return_state ) )
 	{
 		return_state = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - Music System - return_state undefined: Setting to false" );
 #/
 		}
+		*/
 	}
 	if ( !isDefined( wait_time ) )
 	{
 		wait_time = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - wait_time undefined: Setting to 0" );
 #/
 		}
+		*/
 	}
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
 		if ( team == "both" )
 		{
 			player thread set_music_on_player( state, save_state, return_state, wait_time );
-			i++;
-			continue;
 		}
 		else
 		{
 			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
 			{
 				player thread set_music_on_player( state, save_state, return_state, wait_time );
+				/*
 /#
-				if ( getDvarInt( #"0BC4784C" ) > 0 )
+				if ( getDvarInt( "debug_music" ) > 0 )
 				{
 					println( "Music System - Setting Music State " + state + " On player " + player getentitynumber() );
 #/
 				}
+				*/
 			}
 		}
-		i++;
 	}
 }
 
-set_music_on_player( state, save_state, return_state, wait_time )
+set_music_on_player( state, save_state, return_state, wait_time ) //checked matches cerberus output dvars taken from beta dump
 {
 	self endon( "disconnect" );
 	if ( sessionmodeiszombiesgame() )
 	{
 		return;
 	}
+	/*
 /#
 	assert( isplayer( self ) );
 #/
+	*/
 	if ( !isDefined( save_state ) )
 	{
 		save_state = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - Music System - save_sate undefined: Setting to false" );
 #/
 		}
+		*/
 	}
 	if ( !isDefined( return_state ) )
 	{
 		return_state = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - Music System - return_state undefined: Setting to false" );
 #/
 		}
+		*/
 	}
 	if ( !isDefined( wait_time ) )
 	{
 		wait_time = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - wait_time undefined: Setting to 0" );
 #/
 		}
+		*/
 	}
 	if ( !isDefined( state ) )
 	{
 		state = "UNDERSCORE";
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - state undefined: Setting to UNDERSCORE" );
 #/
 		}
+		*/
 	}
 	maps/mp/_music::setmusicstate( state, self );
 	if ( isDefined( self.pers[ "music" ].currentstate ) && save_state )
 	{
 		self.pers[ "music" ].returnstate = state;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - Saving Music State " + self.pers[ "music" ].returnstate + " On " + self getentitynumber() );
 #/
 		}
+		*/
 	}
 	self.pers[ "music" ].previousstate = self.pers[ "music" ].currentstate;
 	self.pers[ "music" ].currentstate = state;
+	/*
 /#
-	if ( getDvarInt( #"0BC4784C" ) > 0 )
+	if ( getDvarInt( "debug_music" ) > 0 )
 	{
 		println( "Music System - Setting Music State " + state + " On player " + self getentitynumber() );
 #/
 	}
+	*/
 	if ( isDefined( self.pers[ "music" ].returnstate ) && return_state )
 	{
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - Starting Return State " + self.pers[ "music" ].returnstate + " On " + self getentitynumber() );
 #/
 		}
+		*/
 		self set_next_music_state( self.pers[ "music" ].returnstate, wait_time );
 	}
 }
 
-return_music_state_player( wait_time )
+return_music_state_player( wait_time ) //checked matches cerberus output dvars taken from beta dump
 {
 	if ( !isDefined( wait_time ) )
 	{
 		wait_time = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - wait_time undefined: Setting to 0" );
 #/
 		}
+		*/
 	}
 	self set_next_music_state( self.pers[ "music" ].returnstate, wait_time );
 }
 
-return_music_state_team( team, wait_time )
+return_music_state_team( team, wait_time ) //checked partially changed to match cerberus output see info.md dvars taken from beta dump
 {
 	if ( !isDefined( wait_time ) )
 	{
 		wait_time = 0;
+		/*
 /#
-		if ( getDvarInt( #"0BC4784C" ) > 0 )
+		if ( getDvarInt( "debug_music" ) > 0 )
 		{
 			println( "Music System - wait_time undefined: Setting to 0" );
 #/
 		}
+		*/
 	}
-	i = 0;
-	while ( i < level.players.size )
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
 		if ( team == "both" )
 		{
 			player thread set_next_music_state( self.pers[ "music" ].returnstate, wait_time );
-			i++;
-			continue;
 		}
 		else
 		{
 			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == team )
 			{
 				player thread set_next_music_state( self.pers[ "music" ].returnstate, wait_time );
+				/*
 /#
-				if ( getDvarInt( #"0BC4784C" ) > 0 )
+				if ( getDvarInt( "debug_music" ) > 0 )
 				{
 					println( "Music System - Setting Music State " + self.pers[ "music" ].returnstate + " On player " + player getentitynumber() );
 #/
 				}
+				*/
 			}
 		}
-		i++;
 	}
 }
 
-set_next_music_state( nextstate, wait_time )
+set_next_music_state( nextstate, wait_time ) //checked matches cerberus output dvars taken from beta dump
 {
 	self endon( "disconnect" );
 	self.pers[ "music" ].nextstate = nextstate;
+	/*
 /#
-	if ( getDvarInt( #"0BC4784C" ) > 0 )
+	if ( getDvarInt( "debug_music" ) > 0 )
 	{
 		println( "Music System - Setting next Music State " + self.pers[ "music" ].nextstate + " On " + self getentitynumber() );
 #/
 	}
+	*/
 	if ( !isDefined( self.pers[ "music" ].inque ) )
 	{
 		self.pers[ "music" ].inque = 0;
@@ -940,9 +962,11 @@ set_next_music_state( nextstate, wait_time )
 	if ( self.pers[ "music" ].inque )
 	{
 		return;
+		/*
 /#
 		println( "Music System - Music state in que" );
 #/
+		*/
 	}
 	else
 	{
@@ -956,7 +980,7 @@ set_next_music_state( nextstate, wait_time )
 	}
 }
 
-getroundswitchdialog( switchtype )
+getroundswitchdialog( switchtype ) //checked matches cerberus output
 {
 	switch( switchtype )
 	{
@@ -969,10 +993,11 @@ getroundswitchdialog( switchtype )
 	}
 }
 
-post_match_snapshot_watcher()
+post_match_snapshot_watcher() //checked matches cerberus output
 {
 	level waittill( "game_ended" );
 	level clientnotify( "pm" );
 	level waittill( "sfade" );
 	level clientnotify( "pmf" );
 }
+

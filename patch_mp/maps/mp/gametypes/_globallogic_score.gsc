@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/bots/_bot;
 #include maps/mp/gametypes/_globallogic_audio;
 #include maps/mp/gametypes/_globallogic_score;
@@ -15,7 +16,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-updatematchbonusscores( winner )
+updatematchbonusscores( winner ) //checked partially changed to match beta dump see info.md
 {
 	if ( !game[ "timepassed" ] )
 	{
@@ -48,30 +49,23 @@ updatematchbonusscores( winner )
 	if ( level.teambased )
 	{
 		winningteam = "tie";
-		_a40 = level.teams;
-		_k40 = getFirstArrayKey( _a40 );
-		while ( isDefined( _k40 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a40[ _k40 ];
 			if ( winner == team )
 			{
 				winningteam = team;
 				break;
 			}
-			else
-			{
-				_k40 = getNextArrayKey( _a40, _k40 );
-			}
 		}
 		if ( winningteam != "tie" )
 		{
 			winnerscale = 1;
-			loserscale = 0,5;
+			loserscale = 0.5;
 		}
 		else
 		{
-			winnerscale = 0,75;
-			loserscale = 0,75;
+			winnerscale = 0.75;
+			loserscale = 0.75;
 		}
 		players = level.players;
 		i = 0;
@@ -84,79 +78,70 @@ updatematchbonusscores( winner )
 				i++;
 				continue;
 			}
-			else
+			totaltimeplayed = player.timeplayed[ "total" ];
+			if ( totaltimeplayed > gamelength )
 			{
-				totaltimeplayed = player.timeplayed[ "total" ];
-				if ( totaltimeplayed > gamelength )
-				{
-					totaltimeplayed = gamelength;
-				}
-				if ( level.hostforcedend && player ishost() )
-				{
-					i++;
-					continue;
-				}
-				else
-				{
-					if ( player.pers[ "score" ] < 0 )
-					{
-						i++;
-						continue;
-					}
-					else spm = player maps/mp/gametypes/_rank::getspm();
-					if ( winningteam == "tie" )
-					{
-						playerscore = int( ( winnerscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
-						player thread givematchbonus( "tie", playerscore );
-						player.matchbonus = playerscore;
-						i++;
-						continue;
-					}
-					else if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == winningteam )
-					{
-						playerscore = int( ( winnerscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
-						player thread givematchbonus( "win", playerscore );
-						player.matchbonus = playerscore;
-						i++;
-						continue;
-					}
-					else
-					{
-						if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] != "spectator" )
-						{
-							playerscore = int( ( loserscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
-							player thread givematchbonus( "loss", playerscore );
-							player.matchbonus = playerscore;
-						}
-					}
-				}
+				totaltimeplayed = gamelength;
+			}
+			if ( level.hostforcedend && player ishost() )
+			{
+				i++;
+				continue;
+			}
+			if ( player.pers[ "score" ] < 0 )
+			{
+				i++;
+				continue;
+			}
+			spm = player maps/mp/gametypes/_rank::getspm();
+			if ( winningteam == "tie" )
+			{
+				playerscore = int( ( winnerscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
+				player thread givematchbonus( "tie", playerscore );
+				player.matchbonus = playerscore;
+				i++;
+				continue;
+			}
+			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] == winningteam )
+			{
+				playerscore = int( ( winnerscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
+				player thread givematchbonus( "win", playerscore );
+				player.matchbonus = playerscore;
+				i++;
+				continue;
+			}
+			if ( isDefined( player.pers[ "team" ] ) && player.pers[ "team" ] != "spectator" )
+			{
+				playerscore = int( ( loserscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
+				player thread givematchbonus( "loss", playerscore );
+				player.matchbonus = playerscore;
 			}
 			i++;
 		}
 	}
-	else if ( isDefined( winner ) )
-	{
-		winnerscale = 1;
-		loserscale = 0,5;
-	}
 	else
 	{
-		winnerscale = 0,75;
-		loserscale = 0,75;
-	}
-	players = level.players;
-	i = 0;
-	while ( i < players.size )
-	{
-		player = players[ i ];
-		if ( player.timeplayed[ "total" ] < 1 || player.pers[ "participation" ] < 1 )
+		if ( isDefined( winner ) )
 		{
-			player thread maps/mp/gametypes/_rank::endgameupdate();
-			i++;
-			continue;
+			winnerscale = 1;
+			loserscale = 0.5;
 		}
 		else
 		{
+			winnerscale = 0.75;
+			loserscale = 0.75;
+		}
+		players = level.players;
+		i = 0;
+		while ( i < players.size )
+		{
+			player = players[ i ];
+			if ( player.timeplayed[ "total" ] < 1 || player.pers[ "participation" ] < 1 )
+			{
+				player thread maps/mp/gametypes/_rank::endgameupdate();
+				i++;
+				continue;
+			}
 			totaltimeplayed = player.timeplayed[ "total" ];
 			if ( totaltimeplayed > gamelength )
 			{
@@ -164,19 +149,15 @@ updatematchbonusscores( winner )
 			}
 			spm = player maps/mp/gametypes/_rank::getspm();
 			iswinner = 0;
-			pidx = 0;
-			while ( pidx < min( level.placement[ "all" ][ 0 ].size, 3 ) )
+			for ( pidx = 0; pidx < min(level.placement[ "all" ][ 0 ].size, 3 ); pidx++ )
 			{
 				if ( level.placement[ "all" ][ pidx ] != player )
 				{
-					pidx++;
-					continue;
 				}
 				else
 				{
 					iswinner = 1;
 				}
-				pidx++;
 			}
 			if ( iswinner )
 			{
@@ -186,18 +167,15 @@ updatematchbonusscores( winner )
 				i++;
 				continue;
 			}
-			else
-			{
-				playerscore = int( ( loserscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
-				player thread givematchbonus( "loss", playerscore );
-				player.matchbonus = playerscore;
-			}
+			playerscore = int( ( loserscale * ( gamelength / 60 ) * spm ) * ( totaltimeplayed / gamelength ) );
+			player thread givematchbonus( "loss", playerscore );
+			player.matchbonus = playerscore;
+			i++;
 		}
-		i++;
 	}
 }
 
-givematchbonus( scoretype, score )
+givematchbonus( scoretype, score ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level waittill( "give_match_bonus" );
@@ -208,12 +186,12 @@ givematchbonus( scoretype, score )
 	self maps/mp/gametypes/_rank::endgameupdate();
 }
 
-doskillupdate( winner )
+doskillupdate( winner ) //checked matches cerberus output
 {
 	skillupdate( winner, level.teambased );
 }
 
-gethighestscoringplayer()
+gethighestscoringplayer() //checked partially changed to match cerberus output see info.md
 {
 	players = level.players;
 	winner = undefined;
@@ -226,24 +204,21 @@ gethighestscoringplayer()
 			i++;
 			continue;
 		}
-		else if ( players[ i ].pointstowin < 1 )
+		if ( players[ i ].pointstowin < 1 )
 		{
 			i++;
 			continue;
 		}
-		else if ( !isDefined( winner ) || players[ i ].pointstowin > winner.pointstowin )
+		if ( !isDefined( winner ) || players[ i ].pointstowin > winner.pointstowin )
 		{
 			winner = players[ i ];
 			tie = 0;
 			i++;
 			continue;
 		}
-		else
+		if ( players[ i ].pointstowin == winner.pointstowin )
 		{
-			if ( players[ i ].pointstowin == winner.pointstowin )
-			{
-				tie = 1;
-			}
+			tie = 1;
 		}
 		i++;
 	}
@@ -257,14 +232,14 @@ gethighestscoringplayer()
 	}
 }
 
-resetscorechain()
+resetscorechain() //checked matches cerberus output
 {
 	self notify( "reset_score_chain" );
 	self.scorechain = 0;
 	self.rankupdatetotal = 0;
 }
 
-scorechaintimer()
+scorechaintimer() //checked matches cerberus output
 {
 	self notify( "score_chain_timer" );
 	self endon( "reset_score_chain" );
@@ -275,7 +250,7 @@ scorechaintimer()
 	self thread resetscorechain();
 }
 
-roundtonearestfive( score )
+roundtonearestfive( score ) //checked matches cerberus output
 {
 	rounding = score % 5;
 	if ( rounding <= 2 )
@@ -288,7 +263,7 @@ roundtonearestfive( score )
 	}
 }
 
-giveplayermomentumnotification( score, label, descvalue, countstowardrampage )
+giveplayermomentumnotification( score, label, descvalue, countstowardrampage ) //checked matches cerberus output
 {
 	rampagebonus = 0;
 	if ( isDefined( level.usingrampage ) && level.usingrampage )
@@ -304,7 +279,7 @@ giveplayermomentumnotification( score, label, descvalue, countstowardrampage )
 		}
 		if ( isDefined( self.scorechain ) && self.scorechain >= 999 )
 		{
-			rampagebonus = roundtonearestfive( int( ( score * level.rampagebonusscale ) + 0,5 ) );
+			rampagebonus = roundtonearestfive( int( ( score * level.rampagebonusscale ) + 0.5 ) );
 		}
 	}
 	if ( score != 0 )
@@ -315,7 +290,7 @@ giveplayermomentumnotification( score, label, descvalue, countstowardrampage )
 	score += rampagebonus;
 	if ( score > 0 && self hasperk( "specialty_earnmoremomentum" ) )
 	{
-		score = roundtonearestfive( int( ( score * getDvarFloat( "perk_killstreakMomentumMultiplier" ) ) + 0,5 ) );
+		score = roundtonearestfive( int( ( score * getDvarFloat( "perk_killstreakMomentumMultiplier" ) ) + 0.5 ) );
 	}
 	if ( isalive( self ) )
 	{
@@ -323,7 +298,7 @@ giveplayermomentumnotification( score, label, descvalue, countstowardrampage )
 	}
 }
 
-resetplayermomentumonspawn()
+resetplayermomentumonspawn() //checked matches cerberus output
 {
 	if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks )
 	{
@@ -332,16 +307,18 @@ resetplayermomentumonspawn()
 	}
 }
 
-giveplayermomentum( event, player, victim, weapon, descvalue )
+giveplayermomentum( event, player, victim, weapon, descvalue ) //checked matches cerberus output
 {
 	if ( isDefined( level.disablemomentum ) && level.disablemomentum == 1 )
 	{
 		return;
 	}
 	score = maps/mp/gametypes/_rank::getscoreinfovalue( event );
+	/*
 /#
 	assert( isDefined( score ) );
 #/
+	*/
 	label = maps/mp/gametypes/_rank::getscoreinfolabel( event );
 	countstowardrampage = maps/mp/gametypes/_rank::doesscoreinfocounttowardrampage( event );
 	if ( event == "death" )
@@ -354,9 +331,11 @@ giveplayermomentum( event, player, victim, weapon, descvalue )
 	}
 	if ( !isDefined( label ) )
 	{
+		/*
 /#
 		assertmsg( event + " label undefined" );
 #/
+		*/
 		player giveplayermomentumnotification( score, "", descvalue, countstowardrampage );
 		return;
 	}
@@ -367,7 +346,7 @@ giveplayermomentum( event, player, victim, weapon, descvalue )
 	player giveplayermomentumnotification( score, label, descvalue, countstowardrampage );
 }
 
-giveplayerscore( event, player, victim, weapon, descvalue )
+giveplayerscore( event, player, victim, weapon, descvalue ) //checked matches cerberus output
 {
 	scorediff = 0;
 	momentum = player.pers[ "momentum" ];
@@ -422,12 +401,14 @@ giveplayerscore( event, player, victim, weapon, descvalue )
 	return scorediff;
 }
 
-default_onplayerscore( event, player, victim )
+default_onplayerscore( event, player, victim ) //checked matches cerberus output
 {
 	score = maps/mp/gametypes/_rank::getscoreinfovalue( event );
+	/*
 /#
 	assert( isDefined( score ) );
 #/
+	*/
 	if ( level.wagermatch )
 	{
 		player thread maps/mp/gametypes/_rank::updaterankscorehud( score );
@@ -435,7 +416,7 @@ default_onplayerscore( event, player, victim )
 	_setplayerscore( player, player.pers[ "score" ] + score );
 }
 
-_setplayerscore( player, score )
+_setplayerscore( player, score ) //checked matches cerberus output
 {
 	if ( score == player.pers[ "score" ] )
 	{
@@ -454,17 +435,16 @@ _setplayerscore( player, score )
 	}
 }
 
-_getplayerscore( player )
+_getplayerscore( player ) //checked matches cerberus output
 {
 	return player.pers[ "score" ];
 }
 
-playtop3sounds()
+playtop3sounds() //checked changed to match cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_globallogic::updateplacement();
-	i = 0;
-	while ( i < level.placement[ "all" ].size )
+	for ( i = 0; i < level.placement[ "all" ].size; i++ )
 	{
 		prevscoreplace = level.placement[ "all" ][ i ].prevscoreplace;
 		if ( !isDefined( prevscoreplace ) )
@@ -472,25 +452,20 @@ playtop3sounds()
 			prevscoreplace = 1;
 		}
 		currentscoreplace = i + 1;
-		j = i - 1;
-		while ( j >= 0 )
+		for ( j = i - 1; j >= 0; j-- )
 		{
 			if ( level.placement[ "all" ][ i ].score == level.placement[ "all" ][ j ].score )
 			{
 				currentscoreplace--;
-
 			}
-			j--;
-
 		}
 		wasinthemoney = prevscoreplace <= 3;
 		isinthemoney = currentscoreplace <= 3;
 		level.placement[ "all" ][ i ].prevscoreplace = currentscoreplace;
-		i++;
 	}
 }
 
-setpointstowin( points )
+setpointstowin( points ) //checked matches cerberus output
 {
 	self.pers[ "pointstowin" ] = clamp( points, 0, 65000 );
 	self.pointstowin = self.pers[ "pointstowin" ];
@@ -499,12 +474,12 @@ setpointstowin( points )
 	level thread playtop3sounds();
 }
 
-givepointstowin( points )
+givepointstowin( points ) //checked matches cerberus output
 {
 	self setpointstowin( self.pers[ "pointstowin" ] + points );
 }
 
-_setplayermomentum( player, momentum )
+_setplayermomentum( player, momentum ) //checked changed to match cerberus output
 {
 	momentum = clamp( momentum, 0, 2000 );
 	oldmomentum = player.pers[ "momentum" ];
@@ -513,7 +488,7 @@ _setplayermomentum( player, momentum )
 		return;
 	}
 	player maps/mp/_bb::bbaddtostat( "momentum", momentum - oldmomentum );
-	while ( momentum > oldmomentum )
+	if ( momentum > oldmomentum )
 	{
 		highestmomentumcost = 0;
 		numkillstreaks = 0;
@@ -522,8 +497,7 @@ _setplayermomentum( player, momentum )
 			numkillstreaks = player.killstreak.size;
 		}
 		killstreaktypearray = [];
-		currentkillstreak = 0;
-		while ( currentkillstreak < numkillstreaks )
+		for ( currentkillstreak = 0; currentkillstreak < numkillstreaks; currentkillstreak++ )
 		{
 			killstreaktype = maps/mp/killstreaks/_killstreaks::getkillstreakbymenuname( player.killstreak[ currentkillstreak ] );
 			if ( isDefined( killstreaktype ) )
@@ -535,7 +509,6 @@ _setplayermomentum( player, momentum )
 				}
 				killstreaktypearray[ killstreaktypearray.size ] = killstreaktype;
 			}
-			currentkillstreak++;
 		}
 		_giveplayerkillstreakinternal( player, momentum, oldmomentum, killstreaktypearray );
 		while ( highestmomentumcost > 0 && momentum >= highestmomentumcost )
@@ -549,10 +522,9 @@ _setplayermomentum( player, momentum )
 	player.momentum = player.pers[ "momentum" ];
 }
 
-_giveplayerkillstreakinternal( player, momentum, oldmomentum, killstreaktypearray )
+_giveplayerkillstreakinternal( player, momentum, oldmomentum, killstreaktypearray ) //checked changed to match beta dump
 {
-	killstreaktypeindex = 0;
-	while ( killstreaktypeindex < killstreaktypearray.size )
+	for ( killstreaktypeindex = 0; killstreaktypeindex < killstreaktypearray.size; killstreaktypeindex++ )
 	{
 		killstreaktype = killstreaktypearray[ killstreaktypeindex ];
 		momentumcost = level.killstreaks[ killstreaktype ].momentumcost;
@@ -609,12 +581,12 @@ _giveplayerkillstreakinternal( player, momentum, oldmomentum, killstreaktypearra
 				}
 			}
 		}
-		killstreaktypeindex++;
 	}
 }
 
-setplayermomentumdebug()
+setplayermomentumdebug() //checked matches cerberus output
 {
+	/*
 /#
 	setdvar( "sv_momentumPercent", 0 );
 	while ( 1 )
@@ -635,9 +607,10 @@ setplayermomentumdebug()
 		}
 #/
 	}
+	*/
 }
 
-giveteamscore( event, team, player, victim )
+giveteamscore( event, team, player, victim ) //checked matches cerberus output
 {
 	if ( level.overrideteamscore )
 	{
@@ -657,7 +630,7 @@ giveteamscore( event, team, player, victim )
 	thread maps/mp/gametypes/_globallogic::checkscorelimit();
 }
 
-giveteamscoreforobjective_delaypostprocessing( team, score )
+giveteamscoreforobjective_delaypostprocessing( team, score ) //checked matches cerberus output
 {
 	teamscore = game[ "teamScores" ][ team ];
 	onteamscore_incrementscore( score, team );
@@ -670,20 +643,16 @@ giveteamscoreforobjective_delaypostprocessing( team, score )
 	updateteamscores( team );
 }
 
-postprocessteamscores( teams )
+postprocessteamscores( teams ) //cjecked changed to match cerberus output
 {
-	_a660 = teams;
-	_k660 = getFirstArrayKey( _a660 );
-	while ( isDefined( _k660 ) )
+	foreach ( team in teams )
 	{
-		team = _a660[ _k660 ];
 		onteamscore_postprocess( team );
-		_k660 = getNextArrayKey( _a660, _k660 );
 	}
 	thread maps/mp/gametypes/_globallogic::checkscorelimit();
 }
 
-giveteamscoreforobjective( team, score )
+giveteamscoreforobjective( team, score ) //checked matches cerberus output
 {
 	if ( !isDefined( level.teams[ team ] ) )
 	{
@@ -701,7 +670,7 @@ giveteamscoreforobjective( team, score )
 	thread maps/mp/gametypes/_globallogic::checkscorelimit();
 }
 
-_setteamscore( team, teamscore )
+_setteamscore( team, teamscore ) //checked matches cerberus output
 {
 	if ( teamscore == game[ "teamScores" ][ team ] )
 	{
@@ -712,76 +681,63 @@ _setteamscore( team, teamscore )
 	thread maps/mp/gametypes/_globallogic::checkscorelimit();
 }
 
-resetteamscores()
+resetteamscores() //checked changed to match cerberus output
 {
-	while ( isDefined( level.roundscorecarry ) || level.roundscorecarry == 0 && maps/mp/_utility::isfirstround() )
+	if ( isDefined( level.roundscorecarry ) || level.roundscorecarry == 0 || maps/mp/_utility::isfirstround() )
 	{
-		_a705 = level.teams;
-		_k705 = getFirstArrayKey( _a705 );
-		while ( isDefined( _k705 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a705[ _k705 ];
 			game[ "teamScores" ][ team ] = 0;
-			_k705 = getNextArrayKey( _a705, _k705 );
 		}
 	}
 	maps/mp/gametypes/_globallogic_score::updateallteamscores();
 }
 
-resetallscores()
+resetallscores() //checked matches cerberus output
 {
 	resetteamscores();
 	resetplayerscores();
 }
 
-resetplayerscores()
+resetplayerscores() //checked changed to match cerberus output
 {
 	players = level.players;
 	winner = undefined;
 	tie = 0;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( players[ i ].pers[ "score" ] ) )
 		{
 			_setplayerscore( players[ i ], 0 );
 		}
-		i++;
 	}
 }
 
-updateteamscores( team )
+updateteamscores( team ) //checked matches cerberus output
 {
 	setteamscore( team, game[ "teamScores" ][ team ] );
 	level thread maps/mp/gametypes/_globallogic::checkteamscorelimitsoon( team );
 }
 
-updateallteamscores()
+updateallteamscores() //checked changed to match cerberus output
 {
-	_a743 = level.teams;
-	_k743 = getFirstArrayKey( _a743 );
-	while ( isDefined( _k743 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a743[ _k743 ];
 		updateteamscores( team );
-		_k743 = getNextArrayKey( _a743, _k743 );
 	}
 }
 
-_getteamscore( team )
+_getteamscore( team ) //checked matches cerberus output
 {
 	return game[ "teamScores" ][ team ];
 }
 
-gethighestteamscoreteam()
+gethighestteamscoreteam() //checked changed to match cerberus output
 {
 	score = 0;
 	winning_teams = [];
-	_a759 = level.teams;
-	_k759 = getFirstArrayKey( _a759 );
-	while ( isDefined( _k759 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a759[ _k759 ];
 		team_score = game[ "teamScores" ][ team ];
 		if ( team_score > score )
 		{
@@ -792,38 +748,33 @@ gethighestteamscoreteam()
 		{
 			winning_teams[ team ] = team;
 		}
-		_k759 = getNextArrayKey( _a759, _k759 );
 	}
 	return winning_teams;
 }
 
-areteamarraysequal( teamsa, teamsb )
+areteamarraysequal( teamsa, teamsb ) //checked changed to match cerberus output
 {
 	if ( teamsa.size != teamsb.size )
 	{
 		return 0;
 	}
-	_a782 = teamsa;
-	_k782 = getFirstArrayKey( _a782 );
-	while ( isDefined( _k782 ) )
+	foreach ( team in teamsa )
 	{
-		team = _a782[ _k782 ];
 		if ( !isDefined( teamsb[ team ] ) )
 		{
 			return 0;
 		}
-		_k782 = getNextArrayKey( _a782, _k782 );
 	}
 	return 1;
 }
 
-onteamscore( score, team )
+onteamscore( score, team ) //checked matches cerberus output
 {
 	onteamscore_incrementscore( score, team );
 	onteamscore_postprocess( team );
 }
 
-onteamscore_incrementscore( score, team )
+onteamscore_incrementscore( score, team ) //checked matches cerberus output
 {
 	game[ "teamScores" ][ team ] += score;
 	if ( game[ "teamScores" ][ team ] < 0 )
@@ -836,7 +787,7 @@ onteamscore_incrementscore( score, team )
 	}
 }
 
-onteamscore_postprocess( team )
+onteamscore_postprocess( team ) //checked partially changed to match cerberus output see info.md
 {
 	if ( level.splitscreen )
 	{
@@ -862,32 +813,32 @@ onteamscore_postprocess( team )
 	if ( iswinning.size == 1 )
 	{
 		level.laststatustime = getTime();
-		_a835 = iswinning;
-		_k835 = getFirstArrayKey( _a835 );
-		while ( isDefined( _k835 ) )
+		foreach ( team in iswinning )
 		{
-			team = _a835[ _k835 ];
 			if ( isDefined( level.waswinning[ team ] ) )
 			{
 				if ( level.waswinning.size == 1 )
 				{
+				}
+				else
+				{
+					maps/mp/gametypes/_globallogic_audio::leaderdialog( "lead_taken", team, "status" );
 				}
 			}
 			else
 			{
 				maps/mp/gametypes/_globallogic_audio::leaderdialog( "lead_taken", team, "status" );
 			}
-			_k835 = getNextArrayKey( _a835, _k835 );
 		}
 	}
-	else return;
-	while ( level.waswinning.size == 1 )
+	else 
 	{
-		_a858 = level.waswinning;
-		_k858 = getFirstArrayKey( _a858 );
-		while ( isDefined( _k858 ) )
+		return;
+	}
+	if ( level.waswinning.size == 1 )
+	{
+		foreach ( team in level.waswinning )
 		{
-			team = _a858[ _k858 ];
 			if ( isDefined( iswinning[ team ] ) )
 			{
 				if ( iswinning.size == 1 )
@@ -896,27 +847,32 @@ onteamscore_postprocess( team )
 				else if ( level.waswinning.size > 1 )
 				{
 				}
+				else
+				{
+					maps/mp/gametypes/_globallogic_audio::leaderdialog( "lead_lost", team, "status" );
+				}
 			}
 			else
 			{
 				maps/mp/gametypes/_globallogic_audio::leaderdialog( "lead_lost", team, "status" );
 			}
-			_k858 = getNextArrayKey( _a858, _k858 );
 		}
 	}
 	level.waswinning = iswinning;
 }
 
-default_onteamscore( event, team )
+default_onteamscore( event, team ) //checked matches cerberus output
 {
 	score = maps/mp/gametypes/_rank::getscoreinfovalue( event );
+	/*
 /#
 	assert( isDefined( score ) );
 #/
+	*/
 	onteamscore( score, team );
 }
 
-initpersstat( dataname, record_stats )
+initpersstat( dataname, record_stats ) //checked matches cerberus output
 {
 	if ( !isDefined( self.pers[ dataname ] ) )
 	{
@@ -928,12 +884,12 @@ initpersstat( dataname, record_stats )
 	}
 }
 
-getpersstat( dataname )
+getpersstat( dataname ) //checked matches cerberus output
 {
 	return self.pers[ dataname ];
 }
 
-incpersstat( dataname, increment, record_stats, includegametype )
+incpersstat( dataname, increment, record_stats, includegametype ) //checked matches cerberus output
 {
 	pixbeginevent( "incPersStat" );
 	self.pers[ dataname ] += increment;
@@ -952,14 +908,14 @@ incpersstat( dataname, increment, record_stats, includegametype )
 	pixendevent();
 }
 
-threadedrecordplayerstats( dataname )
+threadedrecordplayerstats( dataname ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
 	recordplayerstats( self, dataname, self.pers[ dataname ] );
 }
 
-updatewinstats( winner )
+updatewinstats( winner ) //checked matches cerberus output
 {
 	winner addplayerstatwithgametype( "losses", -1 );
 	winner addplayerstatwithgametype( "wins", 1 );
@@ -993,14 +949,14 @@ updatewinstats( winner )
 	}
 }
 
-updatelossstats( loser )
+updatelossstats( loser ) //checked matches cerberus output
 {
 	loser addplayerstatwithgametype( "losses", 1 );
 	loser updatestatratio( "wlratio", "wins", "losses" );
 	loser notify( "loss" );
 }
 
-updatetiestats( loser )
+updatetiestats( loser ) //checked matches cerberus output
 {
 	loser addplayerstatwithgametype( "losses", -1 );
 	loser addplayerstatwithgametype( "ties", 1 );
@@ -1012,7 +968,7 @@ updatetiestats( loser )
 	loser notify( "tie" );
 }
 
-updatewinlossstats( winner )
+updatewinlossstats( winner ) //checked partially changed to match beta dump see info.md
 {
 	if ( !waslastround() && !level.hostforcedend )
 	{
@@ -1029,15 +985,12 @@ updatewinlossstats( winner )
 				i++;
 				continue;
 			}
-			else if ( level.hostforcedend && players[ i ] ishost() )
+			if ( level.hostforcedend && players[ i ] ishost() )
 			{
 				i++;
 				continue;
 			}
-			else
-			{
-				updatetiestats( players[ i ] );
-			}
+			updatetiestats( players[ i ] );
 			i++;
 		}
 	}
@@ -1048,45 +1001,39 @@ updatewinlossstats( winner )
 			return;
 		}
 		updatewinstats( winner );
-		while ( !level.teambased )
+		if ( !level.teambased )
 		{
 			placement = level.placement[ "all" ];
 			topthreeplayers = min( 3, placement.size );
-			index = 1;
-			while ( index < topthreeplayers )
+			for ( index = 1; index < topthreeplayers; index++ )
 			{
 				nexttopplayer = placement[ index ];
 				updatewinstats( nexttopplayer );
-				index++;
 			}
 		}
 	}
-	else i = 0;
-	while ( i < players.size )
+	else 
 	{
-		if ( !isDefined( players[ i ].pers[ "team" ] ) )
+		i = 0;
+		while ( i < players.size )
 		{
-			i++;
-			continue;
-		}
-		else if ( level.hostforcedend && players[ i ] ishost() )
-		{
-			i++;
-			continue;
-		}
-		else
-		{
+			if ( !isDefined( players[ i ].pers[ "team" ] ) )
+			{
+				i++;
+				continue;
+			}
+			if ( level.hostforcedend && players[ i ] ishost() )
+			{
+				i++;
+				continue;
+			}
 			if ( winner == "tie" )
 			{
 				updatetiestats( players[ i ] );
-				i++;
-				continue;
 			}
 			else if ( players[ i ].pers[ "team" ] == winner )
 			{
 				updatewinstats( players[ i ] );
-				i++;
-				continue;
 			}
 			else
 			{
@@ -1095,12 +1042,12 @@ updatewinlossstats( winner )
 					players[ i ] setdstat( "playerstatslist", "cur_win_streak", "StatValue", 0 );
 				}
 			}
+			i++;
 		}
-		i++;
 	}
 }
 
-backupandclearwinstreaks()
+backupandclearwinstreaks() //checked matches cerberus output
 {
 	self.pers[ "winStreak" ] = self getdstat( "playerstatslist", "cur_win_streak", "StatValue" );
 	if ( !level.disablestattracking )
@@ -1111,7 +1058,7 @@ backupandclearwinstreaks()
 	self maps/mp/gametypes/_persistence::statsetwithgametype( "cur_win_streak", 0 );
 }
 
-restorewinstreaks( winner )
+restorewinstreaks( winner ) //checked matches cerberus output
 {
 	if ( !level.disablestattracking )
 	{
@@ -1120,7 +1067,7 @@ restorewinstreaks( winner )
 	winner maps/mp/gametypes/_persistence::statsetwithgametype( "cur_win_streak", winner.pers[ "winStreakForGametype" ] );
 }
 
-inckillstreaktracker( sweapon )
+inckillstreaktracker( sweapon ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
@@ -1134,7 +1081,7 @@ inckillstreaktracker( sweapon )
 	}
 }
 
-trackattackerkill( name, rank, xp, prestige, xuid )
+trackattackerkill( name, rank, xp, prestige, xuid ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	attacker = self;
@@ -1167,13 +1114,10 @@ trackattackerkill( name, rank, xp, prestige, xuid )
 		attacker.pers[ "nemesis_xp" ] = xp;
 		attacker.pers[ "nemesis_xuid" ] = xuid;
 	}
-	else
+	else if ( isDefined( attacker.pers[ "nemesis_name" ] ) && attacker.pers[ "nemesis_name" ] == name )
 	{
-		if ( isDefined( attacker.pers[ "nemesis_name" ] ) && attacker.pers[ "nemesis_name" ] == name )
-		{
-			attacker.pers[ "nemesis_rank" ] = rank;
-			attacker.pers[ "nemesis_xp" ] = xp;
-		}
+		attacker.pers[ "nemesis_rank" ] = rank;
+		attacker.pers[ "nemesis_xp" ] = xp;
 	}
 	if ( !isDefined( attacker.lastkilledvictim ) || !isDefined( attacker.lastkilledvictimcount ) )
 	{
@@ -1197,7 +1141,7 @@ trackattackerkill( name, rank, xp, prestige, xuid )
 	pixendevent();
 }
 
-trackattackeedeath( attackername, rank, xp, prestige, xuid )
+trackattackeedeath( attackername, rank, xp, prestige, xuid ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
@@ -1211,7 +1155,7 @@ trackattackeedeath( attackername, rank, xp, prestige, xuid )
 	{
 		self.pers[ "nemesis_tracking" ][ attackername ] = 0;
 	}
-	self.pers[ "nemesis_tracking" ][ attackername ] += 1,5;
+	self.pers[ "nemesis_tracking" ][ attackername ] += 1.5;
 	if ( self.pers[ "nemesis_name" ] == "" || self.pers[ "nemesis_tracking" ][ attackername ] > self.pers[ "nemesis_tracking" ][ self.pers[ "nemesis_name" ] ] )
 	{
 		self.pers[ "nemesis_name" ] = attackername;
@@ -1220,13 +1164,10 @@ trackattackeedeath( attackername, rank, xp, prestige, xuid )
 		self.pers[ "nemesis_xp" ] = xp;
 		self.pers[ "nemesis_xuid" ] = xuid;
 	}
-	else
+	else if ( isDefined( self.pers[ "nemesis_name" ] ) && self.pers[ "nemesis_name" ] == attackername )
 	{
-		if ( isDefined( self.pers[ "nemesis_name" ] ) && self.pers[ "nemesis_name" ] == attackername )
-		{
-			self.pers[ "nemesis_rank" ] = rank;
-			self.pers[ "nemesis_xp" ] = xp;
-		}
+		self.pers[ "nemesis_rank" ] = rank;
+		self.pers[ "nemesis_xp" ] = xp;
 	}
 	if ( self.pers[ "nemesis_name" ] == attackername && self.pers[ "nemesis_tracking" ][ attackername ] >= 2 )
 	{
@@ -1239,20 +1180,22 @@ trackattackeedeath( attackername, rank, xp, prestige, xuid )
 	pixendevent();
 }
 
-default_iskillboosting()
+default_iskillboosting() //checked matches cerberus output
 {
 	return 0;
 }
 
-givekillstats( smeansofdeath, sweapon, evictim )
+givekillstats( smeansofdeath, sweapon, evictim ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	waittillframeend;
 	if ( level.rankedmatch && self [[ level.iskillboosting ]]() )
 	{
+		/*
 /#
 		self iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU OFFENSIVE CREDIT AS BOOSTING PREVENTION" );
 #/
+		*/
 		return;
 	}
 	pixbeginevent( "giveKillStats" );
@@ -1272,7 +1215,7 @@ givekillstats( smeansofdeath, sweapon, evictim )
 	pixendevent();
 }
 
-inctotalkills( team )
+inctotalkills( team ) //checked matches cerberus output
 {
 	if ( level.teambased && isDefined( level.teams[ team ] ) )
 	{
@@ -1281,7 +1224,7 @@ inctotalkills( team )
 	game[ "totalKills" ]++;
 }
 
-setinflictorstat( einflictor, eattacker, sweapon )
+setinflictorstat( einflictor, eattacker, sweapon ) //checked changed to match cerberus output
 {
 	if ( !isDefined( eattacker ) )
 	{
@@ -1297,17 +1240,12 @@ setinflictorstat( einflictor, eattacker, sweapon )
 		einflictor.playeraffectedarray = [];
 	}
 	foundnewplayer = 1;
-	i = 0;
-	while ( i < einflictor.playeraffectedarray.size )
+	for ( i = 0; i < einflictor.playeraffectedarray.size; i++ )
 	{
 		if ( einflictor.playeraffectedarray[ i ] == self )
 		{
 			foundnewplayer = 0;
 			break;
-		}
-		else
-		{
-			i++;
 		}
 	}
 	if ( foundnewplayer )
@@ -1321,11 +1259,11 @@ setinflictorstat( einflictor, eattacker, sweapon )
 	}
 }
 
-processshieldassist( killedplayer )
+processshieldassist( killedplayer ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	killedplayer endon( "disconnect" );
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_globallogic_utils::waittillslowprocessallowed();
 	if ( !isDefined( level.teams[ self.pers[ "team" ] ] ) )
 	{
@@ -1344,11 +1282,11 @@ processshieldassist( killedplayer )
 	maps/mp/_scoreevents::processscoreevent( "shield_assist", self, killedplayer, "riotshield_mp" );
 }
 
-processassist( killedplayer, damagedone, weapon )
+processassist( killedplayer, damagedone, weapon ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	killedplayer endon( "disconnect" );
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_globallogic_utils::waittillslowprocessallowed();
 	if ( !isDefined( level.teams[ self.pers[ "team" ] ] ) )
 	{
@@ -1368,12 +1306,9 @@ processassist( killedplayer, damagedone, weapon )
 	{
 		assist_level_value = 1;
 	}
-	else
+	else if ( assist_level_value > 3 )
 	{
-		if ( assist_level_value > 3 )
-		{
-			assist_level_value = 3;
-		}
+		assist_level_value = 3;
 	}
 	assist_level = ( assist_level + "_" ) + ( assist_level_value * 25 );
 	self maps/mp/gametypes/_globallogic_score::incpersstat( "assists", 1, 1, 1 );
@@ -1402,24 +1337,21 @@ processassist( killedplayer, damagedone, weapon )
 	maps/mp/_scoreevents::processscoreevent( assist_level, self, killedplayer, weapon );
 }
 
-processkillstreakassists( attacker, inflictor, weaponname )
+processkillstreakassists( attacker, inflictor, weaponname ) //checked partially changed to match cerberus output see info.md
 {
-	if ( isDefined( attacker ) || !isDefined( attacker.team ) && self isenemyplayer( attacker ) == 0 )
+	if ( isDefined( attacker ) || !isDefined( attacker.team ) || self isenemyplayer( attacker ) == 0 )
 	{
 		return;
 	}
-	if ( self == attacker || attacker.classname == "trigger_hurt" && attacker.classname == "worldspawn" )
+	if ( self == attacker || attacker.classname == "trigger_hurt" || attacker.classname == "worldspawn" )
 	{
 		return;
 	}
 	enemycuavactive = 0;
-	while ( attacker hasperk( "specialty_immunecounteruav" ) == 0 )
+	if ( attacker hasperk( "specialty_immunecounteruav" ) == 0 )
 	{
-		_a1403 = level.teams;
-		_k1403 = getFirstArrayKey( _a1403 );
-		while ( isDefined( _k1403 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1403[ _k1403 ];
 			if ( team == attacker.team )
 			{
 			}
@@ -1430,14 +1362,10 @@ processkillstreakassists( attacker, inflictor, weaponname )
 					enemycuavactive = 1;
 				}
 			}
-			_k1403 = getNextArrayKey( _a1403, _k1403 );
 		}
 	}
-	_a1417 = level.players;
-	_k1417 = getFirstArrayKey( _a1417 );
-	while ( isDefined( _k1417 ) )
+	foreach ( player in level.players )
 	{
-		player = _a1417[ _k1417 ];
 		if ( player.team != attacker.team )
 		{
 		}
@@ -1452,6 +1380,7 @@ processkillstreakassists( attacker, inflictor, weaponname )
 		}
 		else
 		{
+			/*
 /#
 			assert( isDefined( player.activecounteruavs ) );
 #/
@@ -1461,6 +1390,7 @@ processkillstreakassists( attacker, inflictor, weaponname )
 /#
 			assert( isDefined( player.activesatellites ) );
 #/
+			*/
 			if ( player.activecounteruavs > 0 && !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( weaponname ) )
 			{
 				scoregiven = thread maps/mp/_scoreevents::processscoreevent( "counter_uav_assist", player );
@@ -1489,13 +1419,9 @@ processkillstreakassists( attacker, inflictor, weaponname )
 				}
 			}
 		}
-		_k1417 = getNextArrayKey( _a1417, _k1417 );
 	}
-	_a1466 = level.teams;
-	_k1466 = getFirstArrayKey( _a1466 );
-	while ( isDefined( _k1466 ) )
+	foreach ( assistteam in level.teams )
 	{
-		assistteam = _a1466[ _k1466 ];
 		if ( assistteam == self.team )
 		{
 		}
@@ -1520,27 +1446,29 @@ processkillstreakassists( attacker, inflictor, weaponname )
 				}
 			}
 		}
-		_k1466 = getNextArrayKey( _a1466, _k1466 );
 	}
 }
 
-xpratethread()
+xpratethread() //checked matches cerberus output dvar taken from beta dump
 {
+	/*
 /#
 	self endon( "death" );
 	self endon( "disconnect" );
 	level endon( "game_ended" );
 	while ( level.inprematchperiod )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	for ( ;; )
 	{
 		wait 5;
 		if ( isDefined( level.teams[ level.players[ 0 ].pers[ "team" ] ] ) )
 		{
-			self maps/mp/gametypes/_rank::giverankxp( "kill", int( min( getDvarInt( #"F8D00F60" ), 50 ) ) );
+			self maps/mp/gametypes/_rank::giverankxp( "kill", int( min( getDvarInt( "scr_xprate" ), 50 ) ) );
 		}
 #/
 	}
+	*/
 }
+

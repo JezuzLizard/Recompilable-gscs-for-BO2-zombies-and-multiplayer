@@ -40,7 +40,11 @@ patch_mp/maps/mp/gametypes/_deathicons.gsc
 patch_mp/maps/mp/gametypes/_friendicons.gsc
 patch_mp/maps/mp/gametypes/_globallogic.gsc
 patch_mp/maps/mp/gametypes/_globallogic_actor.gsc
+patch_mp/maps/mp/gametypes/_globallogic_audio.gsc
 patch_mp/maps/mp/gametypes/_globallogic_defaults.gsc
+patch_mp/maps/mp/gametypes/_globallogic_player.gsc
+patch_mp/maps/mp/gametypes/_globallogic_score.gsc
+patch_mp/maps/mp/gametypes/_globallogic_spawn.gsc
 patch_mp/maps/mp/gametypes/_globallogic_ui.gsc
 patch_mp/maps/mp/gametypes/_globallogic_utils.gsc
 patch_mp/maps/mp/gametypes/_globallogic_vehicle.gsc
@@ -78,10 +82,6 @@ patch_mp/maps/mp/gametypes/tdm.gsc
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
 patch_mp/maps/mp/gametypes/_gameobjects.gsc
-patch_mp/maps/mp/gametypes/_globallogic_audio.gsc
-patch_mp/maps/mp/gametypes/_globallogic_player.gsc
-patch_mp/maps/mp/gametypes/_globallogic_score.gsc
-patch_mp/maps/mp/gametypes/_globallogic_spawn.gsc
 patch_mp/maps/mp/gametypes/_hud_message.gsc
 patch_mp/maps/mp/gametypes/_hud_util.gsc
 patch_mp/maps/mp/gametypes/_spawning.gsc

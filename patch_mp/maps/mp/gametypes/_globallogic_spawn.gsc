@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_spawnlogic;
 #include maps/mp/gametypes/_globallogic_defaults;
 #include maps/mp/gametypes/_hostmigration;
@@ -19,7 +20,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-timeuntilspawn( includeteamkilldelay )
+timeuntilspawn( includeteamkilldelay ) //checked matches cerberus output
 {
 	if ( level.ingraceperiod && !self.hasspawned )
 	{
@@ -58,25 +59,21 @@ timeuntilspawn( includeteamkilldelay )
 	return respawndelay;
 }
 
-allteamshaveexisted()
+allteamshaveexisted() //checked changed to match cerberus output
 {
-	_a42 = level.teams;
-	_k42 = getFirstArrayKey( _a42 );
-	while ( isDefined( _k42 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a42[ _k42 ];
 		if ( !level.everexisted[ team ] )
 		{
 			return 0;
 		}
-		_k42 = getNextArrayKey( _a42, _k42 );
 	}
 	return 1;
 }
 
-mayspawn()
+mayspawn() //checked partially changed to match cerberus output changed at own discretion
 {
-	if ( isDefined( level.mayspawn ) && !( self [[ level.mayspawn ]]() ) )
+	if ( isDefined( level.mayspawn ) && !self [[ level.mayspawn ]]() )
 	{
 		return 0;
 	}
@@ -94,35 +91,30 @@ mayspawn()
 		{
 			gamehasstarted = allteamshaveexisted();
 		}
+		else if ( level.maxplayercount > 1 || !isoneround() && !isfirstround() )
+		{
+			gamehasstarted = 1;
+		}
 		else
 		{
-			if ( level.maxplayercount > 1 )
-			{
-				if ( !isoneround() )
-				{
-					gamehasstarted = !isfirstround();
-				}
-			}
+			gamehasstarted = 0;
 		}
 		if ( !self.pers[ "lives" ] )
 		{
 			return 0;
 		}
-		else
+		else if ( gamehasstarted )
 		{
-			if ( gamehasstarted )
+			if ( !level.ingraceperiod && !self.hasspawned && !level.wagermatch )
 			{
-				if ( !level.ingraceperiod && !self.hasspawned && !level.wagermatch )
-				{
-					return 0;
-				}
+				return 0;
 			}
 		}
 	}
 	return 1;
 }
 
-timeuntilwavespawn( minimumwait )
+timeuntilwavespawn( minimumwait ) //checked matches cerberus output
 {
 	earliestspawntime = getTime() + ( minimumwait * 1000 );
 	lastwavetime = level.lastwave[ self.pers[ "team" ] ];
@@ -141,7 +133,7 @@ timeuntilwavespawn( minimumwait )
 	return ( timeofspawn - getTime() ) / 1000;
 }
 
-stoppoisoningandflareonspawn()
+stoppoisoningandflareonspawn() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.inpoisonarea = 0;
@@ -150,7 +142,7 @@ stoppoisoningandflareonspawn()
 	self.ingroundnapalm = 0;
 }
 
-spawnplayerprediction()
+spawnplayerprediction() //checked matches cerberus output dvar taken from beta dump
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -159,8 +151,8 @@ spawnplayerprediction()
 	self endon( "spawned" );
 	while ( 1 )
 	{
-		wait 0,5;
-		if ( isDefined( level.onspawnplayerunified ) && getDvarInt( #"CF6EEB8B" ) == 0 )
+		wait 0.5;
+		if ( isDefined( level.onspawnplayerunified ) && getDvarInt( "scr_disableunifiedspawning" ) == 0 )
 		{
 			maps/mp/gametypes/_spawning::onspawnplayer_unified( 1 );
 			continue;
@@ -172,7 +164,7 @@ spawnplayerprediction()
 	}
 }
 
-doinitialspawnmessaging()
+doinitialspawnmessaging() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	if ( isDefined( level.disableprematchmessages ) && level.disableprematchmessages )
@@ -181,7 +173,7 @@ doinitialspawnmessaging()
 	}
 	team = self.pers[ "team" ];
 	thread maps/mp/gametypes/_hud_message::showinitialfactionpopup( team );
-	if ( isDefined( game[ "dialog" ][ "gametype" ] ) || !level.splitscreen && self == level.players[ 0 ] )
+	if ( ( !level.splitscreen || self == level.players[ 0 ] ) && isDefined( game[ "dialog" ][ "gametype" ] ) )
 	{
 		if ( !isDefined( level.infinalfight ) || !level.infinalfight )
 		{
@@ -197,7 +189,7 @@ doinitialspawnmessaging()
 	}
 	while ( level.inprematchperiod )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	hintmessage = getobjectivehinttext( team );
 	if ( isDefined( hintmessage ) )
@@ -214,7 +206,7 @@ doinitialspawnmessaging()
 	}
 }
 
-spawnplayer()
+spawnplayer() //checked changed to match cerberus output dvars taken from beta dump
 {
 	pixbeginevent( "spawnPlayer_preUTS" );
 	self endon( "disconnect" );
@@ -231,6 +223,7 @@ spawnplayer()
 	if ( isDefined( self.pers[ "resetMomentumOnSpawn" ] ) && self.pers[ "resetMomentumOnSpawn" ] )
 	{
 		self maps/mp/gametypes/_globallogic_score::resetplayermomentumonspawn();
+		self.pers["resetMomentumOnSpawn"] = undefined;
 	}
 	if ( level.teambased )
 	{
@@ -249,9 +242,9 @@ spawnplayer()
 	self.psoffsettime = 0;
 	self.statusicon = "";
 	self.damagedplayers = [];
-	if ( getDvarInt( #"C8077F47" ) > 0 )
+	if ( getDvarInt( "scr_csmode" ) > 0 )
 	{
-		self.maxhealth = getDvarInt( #"C8077F47" );
+		self.maxhealth = getDvarInt( "scr_csmode" );
 	}
 	else
 	{
@@ -262,7 +255,7 @@ spawnplayer()
 	self.hasspawned = 1;
 	self.spawntime = getTime();
 	self.afk = 0;
-	if ( self.pers[ "lives" ] || !isDefined( level.takelivesondeath ) && level.takelivesondeath == 0 )
+	if ( ( !isDefined( level.takelivesondeath ) || level.takelivesondeath == 0 ) && self.pers[ "lives" ] )
 	{
 		self.pers[ "lives" ]--;
 
@@ -294,7 +287,7 @@ spawnplayer()
 	self setdepthoffield( 0, 0, 512, 512, 4, 0 );
 	self resetfov();
 	pixbeginevent( "onSpawnPlayer" );
-	if ( isDefined( level.onspawnplayerunified ) && getDvarInt( #"CF6EEB8B" ) == 0 )
+	if ( isDefined( level.onspawnplayerunified ) && getDvarInt( "scr_disableunifiedspawning" ) == 0 )
 	{
 		self [[ level.onspawnplayerunified ]]();
 	}
@@ -313,9 +306,11 @@ spawnplayer()
 	self thread stoppoisoningandflareonspawn();
 	self.sensorgrenadedata = undefined;
 	self stopburning();
+	/*
 /#
 	assert( maps/mp/gametypes/_globallogic_utils::isvalidclass( self.class ) );
 #/
+	*/
 	if ( sessionmodeiszombiesgame() )
 	{
 		self maps/mp/gametypes/_class::giveloadoutlevelspecific( self.team, self.class );
@@ -424,34 +419,38 @@ spawnplayer()
 		self thread maps/mp/_vehicles::vehicledeathwaiter();
 		self thread maps/mp/_vehicles::turretdeathwaiter();
 	}
+	/*
 /#
-	if ( getDvarInt( #"F8D00F60" ) > 0 )
+	if ( getDvarInt( "scr_xprate" ) > 0 )
 	{
 		self thread maps/mp/gametypes/_globallogic_score::xpratethread();
 #/
 	}
+	*/
 	if ( game[ "state" ] == "postgame" )
 	{
+		/*
 /#
 		assert( !level.intermission );
 #/
+		*/
 		self maps/mp/gametypes/_globallogic_player::freezeplayerforroundend();
 	}
 }
 
-spawnspectator( origin, angles )
+spawnspectator( origin, angles ) //checked matches cerberus output
 {
 	self notify( "spawned" );
 	self notify( "end_respawn" );
 	in_spawnspectator( origin, angles );
 }
 
-respawn_asspectator( origin, angles )
+respawn_asspectator( origin, angles ) //checked matches cerberus output
 {
 	in_spawnspectator( origin, angles );
 }
 
-in_spawnspectator( origin, angles )
+in_spawnspectator( origin, angles ) //checked matches cerberus output
 {
 	pixmarker( "BEGIN: in_spawnSpectator" );
 	self setspawnvariables();
@@ -483,7 +482,7 @@ in_spawnspectator( origin, angles )
 	pixmarker( "END: in_spawnSpectator" );
 }
 
-spectatorthirdpersonness()
+spectatorthirdpersonness() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned" );
@@ -492,7 +491,7 @@ spectatorthirdpersonness()
 	self.spectatingthirdperson = 0;
 }
 
-forcespawn( time )
+forcespawn( time ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -519,14 +518,16 @@ forcespawn( time )
 	self thread [[ level.spawnclient ]]();
 }
 
-kickifdontspawn()
+kickifdontspawn() //checked matches cerberus output
 {
+	/*
 /#
 	if ( getDvarInt( "scr_hostmigrationtest" ) == 1 )
 	{
 		return;
 #/
 	}
+	*/
 	if ( self ishost() )
 	{
 		return;
@@ -534,25 +535,25 @@ kickifdontspawn()
 	self kickifidontspawninternal();
 }
 
-kickifidontspawninternal()
+kickifidontspawninternal() //checked matches cerberus output dvars taken from beta dump
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	self endon( "spawned" );
 	waittime = 90;
-	if ( getDvar( #"4257CF5C" ) != "" )
+	if ( getDvar( "scr_kick_time" ) != "" )
 	{
-		waittime = getDvarFloat( #"4257CF5C" );
+		waittime = getDvarFloat( "scr_kick_time" );
 	}
 	mintime = 45;
-	if ( getDvar( #"0DF057E0" ) != "" )
+	if ( getDvar( "scr_kick_time" ) != "" )
 	{
-		mintime = getDvarFloat( #"0DF057E0" );
+		mintime = getDvarFloat( "scr_kick_time" );
 	}
 	starttime = getTime();
 	kickwait( waittime );
 	timepassed = ( getTime() - starttime ) / 1000;
-	if ( timepassed < ( waittime - 0,1 ) && timepassed < mintime )
+	if ( timepassed < ( waittime - 0.1 ) && timepassed < mintime )
 	{
 		return;
 	}
@@ -576,13 +577,13 @@ kickifidontspawninternal()
 	kick( self getentitynumber() );
 }
 
-kickwait( waittime )
+kickwait( waittime ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	maps/mp/gametypes/_hostmigration::waitlongdurationwithhostmigrationpause( waittime );
 }
 
-spawninterroundintermission()
+spawninterroundintermission() //checked matches cerberus output
 {
 	self notify( "spawned" );
 	self notify( "end_respawn" );
@@ -598,10 +599,10 @@ spawninterroundintermission()
 	self maps/mp/gametypes/_globallogic_defaults::default_onspawnintermission();
 	self setorigin( self.origin );
 	self setplayerangles( self.angles );
-	self setdepthoffield( 0, 128, 512, 4000, 6, 1,8 );
+	self setdepthoffield( 0, 128, 512, 4000, 6, 1.8 );
 }
 
-spawnintermission( usedefaultcallback )
+spawnintermission( usedefaultcallback ) //checked matches cerberus output
 {
 	self notify( "spawned" );
 	self notify( "end_respawn" );
@@ -623,27 +624,23 @@ spawnintermission( usedefaultcallback )
 	{
 		[[ level.onspawnintermission ]]();
 	}
-	self setdepthoffield( 0, 128, 512, 4000, 6, 1,8 );
+	self setdepthoffield( 0, 128, 512, 4000, 6, 1.8 );
 }
 
-spawnqueuedclientonteam( team )
+spawnqueuedclientonteam( team ) //checked partially changed to match cerberus output did not use continue in for loop see github info.md 
 {
 	player_to_spawn = undefined;
-	i = 0;
-	while ( i < level.deadplayers[ team ].size )
+	for ( i = 0; i < level.deadplayers[ team ].size; i++ )
 	{
 		player = level.deadplayers[ team ][ i ];
 		if ( player.waitingtospawn )
 		{
-			i++;
-			continue;
 		}
 		else
 		{
 			player_to_spawn = player;
 			break;
 		}
-		i++;
 	}
 	if ( isDefined( player_to_spawn ) )
 	{
@@ -653,7 +650,7 @@ spawnqueuedclientonteam( team )
 	}
 }
 
-spawnqueuedclient( dead_player_team, killer )
+spawnqueuedclient( dead_player_team, killer ) //checked partially changed to match cerberus output did not use continue in foreach see github info.md
 {
 	if ( !level.playerqueuedrespawn )
 	{
@@ -670,11 +667,8 @@ spawnqueuedclient( dead_player_team, killer )
 		spawnqueuedclientonteam( spawn_team );
 		return;
 	}
-	_a730 = level.teams;
-	_k730 = getFirstArrayKey( _a730 );
-	while ( isDefined( _k730 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a730[ _k730 ];
 		if ( team == dead_player_team )
 		{
 		}
@@ -682,11 +676,10 @@ spawnqueuedclient( dead_player_team, killer )
 		{
 			spawnqueuedclientonteam( team );
 		}
-		_k730 = getNextArrayKey( _a730, _k730 );
 	}
 }
 
-allteamsnearscorelimit()
+allteamsnearscorelimit() //checked changed to match cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -696,21 +689,17 @@ allteamsnearscorelimit()
 	{
 		return 0;
 	}
-	_a747 = level.teams;
-	_k747 = getFirstArrayKey( _a747 );
-	while ( isDefined( _k747 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a747[ _k747 ];
 		if ( ( level.scorelimit - 1 ) < game[ "teamScores" ][ team ] )
 		{
 			return 0;
 		}
-		_k747 = getNextArrayKey( _a747, _k747 );
 	}
 	return 1;
 }
 
-shouldshowrespawnmessage()
+shouldshowrespawnmessage() //checked matches cerberus output
 {
 	if ( waslastround() )
 	{
@@ -731,13 +720,13 @@ shouldshowrespawnmessage()
 	return 1;
 }
 
-default_spawnmessage()
+default_spawnmessage() //checked matches cerberus output
 {
 	setlowermessage( game[ "strings" ][ "spawn_next_round" ] );
 	self thread maps/mp/gametypes/_globallogic_ui::removespawnmessageshortly( 3 );
 }
 
-showspawnmessage()
+showspawnmessage() //checked matches cerberus output
 {
 	if ( shouldshowrespawnmessage() )
 	{
@@ -745,15 +734,17 @@ showspawnmessage()
 	}
 }
 
-spawnclient( timealreadypassed )
+spawnclient( timealreadypassed ) //checked matches cerberus output
 {
 	pixbeginevent( "spawnClient" );
+	/*
 /#
 	assert( isDefined( self.team ) );
 #/
 /#
 	assert( maps/mp/gametypes/_globallogic_utils::isvalidclass( self.class ) );
 #/
+	*/
 	if ( !self mayspawn() )
 	{
 		currentorigin = self.origin;
@@ -778,7 +769,7 @@ spawnclient( timealreadypassed )
 	pixendevent();
 }
 
-waitandspawnclient( timealreadypassed )
+waitandspawnclient( timealreadypassed ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -893,7 +884,7 @@ waitandspawnclient( timealreadypassed )
 	self thread [[ level.spawnplayer ]]();
 }
 
-waitrespawnorsafespawnbutton()
+waitrespawnorsafespawnbutton() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -903,14 +894,11 @@ waitrespawnorsafespawnbutton()
 		{
 			return;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 }
 
-waitinspawnqueue()
+waitinspawnqueue() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -923,7 +911,7 @@ waitinspawnqueue()
 	}
 }
 
-setthirdperson( value )
+setthirdperson( value ) //checked matches cerberus output
 {
 	if ( !level.console )
 	{
@@ -935,7 +923,7 @@ setthirdperson( value )
 		if ( value )
 		{
 			self setclientthirdperson( 1 );
-			self setdepthoffield( 0, 128, 512, 4000, 6, 1,8 );
+			self setdepthoffield( 0, 128, 512, 4000, 6, 1.8 );
 		}
 		else
 		{
@@ -946,9 +934,11 @@ setthirdperson( value )
 	}
 }
 
-setspawnvariables()
+setspawnvariables() //checked matches cerberus output
 {
 	resettimeout();
 	self stopshellshock();
 	self stoprumble( "damage_heavy" );
 }
+
+
