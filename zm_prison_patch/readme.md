@@ -19,6 +19,7 @@ zm_prison_patch/maps/mp/zm_prison.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
+zm_prison_patch/maps/mp/zombies/_zm_perk_divetonuke.gsc
 ```
 
 
