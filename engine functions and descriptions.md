@@ -1,0 +1,1 @@
+- weapon_name is a STRING
