@@ -1,10 +1,21 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_blockers;
 #include maps/mp/zombies/_zm_audio;
+#include character/c_zom_oleary;
+#include character/c_zom_handsome;
+#include character/c_zom_deluca;
+#include character/c_zom_arlington;
 #include maps/mp/zm_prison;
 #include maps/mp/_visionset_mgr;
 #include maps/mp/zm_alcatraz_grief_cellblock;
+#include maps/mp/zm_alcatraz_weap_quest;
 #include maps/mp/zombies/_zm_zonemgr;
+#include maps/mp/zombies/_zm_weap_tomahawk;
+#include maps/mp/zombies/_zm_weap_blundersplat;
+#include maps/mp/zombies/_zm_weap_riotshield_prison;
+#include maps/mp/zombies/_zm_weap_claymore;
 #include maps/mp/zombies/_zm_ai_basic;
+#include maps/mp/zombies/_zm_magicbox_prison;
 #include maps/mp/zm_alcatraz_travel;
 #include maps/mp/zm_alcatraz_traps;
 #include maps/mp/zm_alcatraz_distance_tracking;
@@ -12,8 +23,13 @@
 #include maps/mp/zombies/_zm_perk_electric_cherry;
 #include maps/mp/gametypes_zm/_spawning;
 #include maps/mp/zm_prison_achievement;
+#include maps/mp/zombies/_load;
+#include maps/mp/zm_alcatraz_amb;
 #include maps/mp/animscripts/zm_death;
+#include maps/mp/zombies/_zm;
 #include maps/mp/zm_prison_ffotd;
+#include maps/mp/zm_prison_fx;
+#include maps/mp/zm_alcatraz_gamemodes;
 #include maps/mp/zm_alcatraz_utility;
 #include maps/mp/zombies/_zm_craftables;
 #include maps/mp/zombies/_zm_weapons;
@@ -21,14 +37,12 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props" );
-
-gamemode_callback_setup()
+gamemode_callback_setup() //checked matches cerberus output
 {
 	maps/mp/zm_alcatraz_gamemodes::init();
 }
 
-init_characters()
+init_characters() //checked matches cerberus output
 {
 	level.has_weasel = 0;
 	level.givecustomloadout = ::givecustomloadout;
@@ -38,26 +52,24 @@ init_characters()
 	flag_wait( "start_zombie_round_logic" );
 }
 
-zclassic_preinit()
+zclassic_preinit() //checked matches cerberus output
 {
 	init_characters();
 }
 
-createfx_callback()
+createfx_callback() //checked changed to match cerberus output
 {
 	ents = getentarray();
-	i = 0;
-	while ( i < ents.size )
+	for ( i = 0; i < ents.size; i++ )
 	{
 		if ( ents[ i ].classname != "info_player_start" )
 		{
 			ents[ i ] delete();
 		}
-		i++;
 	}
 }
 
-main()
+main() //checked changed to match cerberus output
 {
 	maps/mp/zm_prison_fx::main();
 	level thread maps/mp/zm_prison_ffotd::main_start();
@@ -72,12 +84,13 @@ main()
 	level._no_water_risers = 1;
 	maps/mp/zm_alcatraz_amb::main();
 	maps/mp/zombies/_load::main();
-	level.level_specific_stats_init = ::maps/mp/zm_prison_achievement::init_player_achievement_stats;
+	level.level_specific_stats_init = maps/mp/zm_prison_achievement::init_player_achievement_stats;
 	if ( getDvar( "createfx" ) == "1" )
 	{
 		return;
 	}
 	maps/mp/gametypes_zm/_spawning::level_use_unified_spawning( 1 );
+	level.fixed_max_player_use_radius = 72;
 	level.custom_player_fake_death = ::zm_player_fake_death;
 	level.custom_player_fake_death_cleanup = ::zm_player_fake_death_cleanup;
 	level.initial_round_wait_func = ::initial_round_wait_func;
@@ -91,19 +104,16 @@ main()
 	level.zombiemode_using_juggernaut_perk = 1;
 	level.zombiemode_using_sleightofhand_perk = 1;
 	level.zombiemode_using_deadshot_perk = 1;
-	if ( is_gametype_active( "zclassic" ) )
+	if ( maps/mp/zombies/_zm_utility::is_gametype_active( "zclassic" ) )
 	{
 		level.zombiemode_using_electric_cherry_perk = 1;
 		maps/mp/zombies/_zm_perk_electric_cherry::enable_electric_cherry_perk_for_level();
 	}
-	else
+	else if ( maps/mp/zombies/_zm_utility::is_gametype_active( "zgrief" ) )
 	{
-		if ( is_gametype_active( "zgrief" ) )
-		{
-			level.zombiemode_using_additionalprimaryweapon_perk = 1;
-			level.zombiemode_using_divetonuke_perk = 1;
-			maps/mp/zombies/_zm_perk_divetonuke::enable_divetonuke_perk_for_level();
-		}
+		level.zombiemode_using_additionalprimaryweapon_perk = 1;
+		level.zombiemode_using_divetonuke_perk = 1;
+		maps/mp/zombies/_zm_perk_divetonuke::enable_divetonuke_perk_for_level();
 	}
 	level._zmbvoxlevelspecific = ::init_level_specific_audio;
 	level.random_pandora_box_start = 1;
@@ -113,6 +123,9 @@ main()
 	}
 	level.register_offhand_weapons_for_level_defaults_override = ::offhand_weapon_overrride;
 	level.zombiemode_offhand_weapon_give_override = ::offhand_weapon_give_override;
+	level.max_equipment_attack_range = 72;
+	level.min_equipment_attack_range = 25;
+	level.vert_equipment_attack_range = 55;
 	level._zombie_custom_add_weapons = ::custom_add_weapons;
 	level._allow_melee_weapon_switching = 1;
 	level._no_vending_machine_bump_trigs = 1;
@@ -121,10 +134,11 @@ main()
 	precachemodel( "p6_zm_al_gondola_frame_light_red" );
 	precachemodel( "p6_zm_al_gondola_frame_light_green" );
 	precachemodel( "fxanim_zom_al_gondola_chains_mod" );
-	if ( is_gametype_active( "zgrief" ) )
+	if ( maps/mp/zombies/_zm_utility::is_gametype_active( "zgrief" ) )
 	{
 		precachemodel( "p6_zm_al_shock_box_on" );
 	}
+	level.raygun2_included = 1;
 	include_weapons();
 	include_powerups();
 	include_equipment_for_level();
@@ -173,6 +187,7 @@ main()
 	level.zombie_vars[ "zombie_use_failsafe" ] = 0;
 	level.zones = [];
 	level.zone_manager_init_func = ::working_zone_init;
+	init_zones = [];
 	if ( is_classic() )
 	{
 		init_zones[ 0 ] = "zone_start";
@@ -189,37 +204,34 @@ main()
 	level.speed_change_round = 15;
 	level.speed_change_max = 5;
 	level thread maps/mp/zm_alcatraz_weap_quest::init();
-	onplayerconnect_callback( ::maps/mp/zm_alcatraz_weap_quest::tomahawk_upgrade_quest );
+	onplayerconnect_callback( maps/mp/zm_alcatraz_weap_quest::tomahawk_upgrade_quest );
 	onplayerconnect_callback( ::riotshield_tutorial_hint );
 	onplayerconnect_callback( ::disable_powerup_if_player_on_bridge );
 	level thread enable_powerup_if_no_player_on_bridge();
 	onplayerconnect_callback( ::player_lightning_manager );
 	onplayerconnect_callback( ::player_shockbox_glowfx );
 	onplayerconnect_callback( ::player_portal_clue_vo );
-	onplayerconnect_callback( ::maps/mp/zm_alcatraz_grief_cellblock::magicbox_face_spawn );
+	onplayerconnect_callback( maps/mp/zm_alcatraz_grief_cellblock::magicbox_face_spawn );
 	maps/mp/_visionset_mgr::vsmgr_register_info( "visionset", "zm_audio_log", 9000, 200, 1, 1 );
 	maps/mp/_visionset_mgr::vsmgr_register_info( "visionset", "zm_electric_cherry", 9000, 121, 1, 1 );
+
 	level thread drop_all_barriers();
 	level thread check_solo_status();
 	level thread maps/mp/zm_prison_ffotd::main_end();
 	level thread title_update_main_end();
-	flag_wait( "start_zombie_round_logic" );
+	//flag_wait( "start_zombie_round_logic" ); //players can't join if this is uncommented
 }
 
-title_update_main_start()
+title_update_main_start() //checked matches cerberus output
 {
 }
 
-title_update_main_end()
+title_update_main_end() //checked changed to match cerberus output
 {
 	a_nodes = getanynodearray( ( 969, 6708, 239 ), 200 );
-	_a310 = a_nodes;
-	_k310 = getFirstArrayKey( _a310 );
-	while ( isDefined( _k310 ) )
+	foreach ( node in a_nodes )
 	{
-		node = _a310[ _k310 ];
 		node.no_teleport = 1;
-		_k310 = getNextArrayKey( _a310, _k310 );
 	}
 	level.equipment_tu_dead_zone_pos = [];
 	level.equipment_tu_dead_zone_rad2 = [];
@@ -260,19 +272,17 @@ givecustomloadout( takeallweapons, alreadyspawned )
 	self give_start_weapon( 1 );
 }
 
-custom_vending_precaching()
+custom_vending_precaching() //checked changed to match cerberus output
 {
-	while ( level._custom_perks.size > 0 )
+	if ( level._custom_perks.size > 0 )
 	{
 		a_keys = getarraykeys( level._custom_perks );
-		i = 0;
-		while ( i < a_keys.size )
+		for ( i = 0; i < a_keys.size; i++ )
 		{
 			if ( isDefined( level._custom_perks[ a_keys[ i ] ].precache_func ) )
 			{
 				level [[ level._custom_perks[ a_keys[ i ] ].precache_func ]]();
 			}
-			i++;
 		}
 	}
 	if ( isDefined( level.zombiemode_using_pack_a_punch ) && level.zombiemode_using_pack_a_punch )
@@ -431,17 +441,17 @@ custom_vending_precaching()
 	}
 }
 
-custom_vending_power_on()
+custom_vending_power_on() //checked matches cerberus output
 {
 	self setclientfield( "toggle_perk_machine_power", 2 );
 }
 
-custom_vending_power_off()
+custom_vending_power_off() //checked matches cerberus output
 {
 	self setclientfield( "toggle_perk_machine_power", 1 );
 }
 
-precache_personality_characters()
+precache_personality_characters() //checked matches cerberus output
 {
 	character/c_zom_arlington::precache();
 	character/c_zom_deluca::precache();
@@ -453,7 +463,7 @@ precache_personality_characters()
 	precachemodel( "c_zom_oleary_shortsleeve_viewhands" );
 }
 
-give_personality_characters()
+give_personality_characters() //checked matches cerberus output
 {
 	if ( isDefined( level.hotjoin_player_setup ) && [[ level.hotjoin_player_setup ]]( "c_zom_arlington_coat_viewhands" ) )
 	{
@@ -465,12 +475,14 @@ give_personality_characters()
 		self.characterindex = assign_lowest_unused_character_index();
 	}
 	self.favorite_wall_weapons_list = [];
+	/*
 /#
 	if ( getDvar( #"40772CF1" ) != "" )
 	{
 		self.characterindex = getDvarInt( #"40772CF1" );
 #/
 	}
+	*/
 	switch( self.characterindex )
 	{
 		case 0:
@@ -512,7 +524,7 @@ give_personality_characters()
 	self thread set_exert_id();
 }
 
-set_exert_id()
+set_exert_id() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait_network_frame();
@@ -520,7 +532,7 @@ set_exert_id()
 	self maps/mp/zombies/_zm_audio::setexertvoice( self.characterindex + 1 );
 }
 
-assign_lowest_unused_character_index()
+assign_lowest_unused_character_index() //checked changed to match cerberus output
 {
 	charindexarray = [];
 	charindexarray[ 0 ] = 0;
@@ -540,17 +552,13 @@ assign_lowest_unused_character_index()
 	else
 	{
 		n_characters_defined = 0;
-		_a698 = players;
-		_k698 = getFirstArrayKey( _a698 );
-		while ( isDefined( _k698 ) )
+		foreach ( player in players )
 		{
-			player = _a698[ _k698 ];
 			if ( isDefined( player.characterindex ) )
 			{
 				arrayremovevalue( charindexarray, player.characterindex, 0 );
 				n_characters_defined++;
 			}
-			_k698 = getNextArrayKey( _a698, _k698 );
 		}
 		if ( charindexarray.size > 0 )
 		{
@@ -573,18 +581,18 @@ assign_lowest_unused_character_index()
 	return 0;
 }
 
-initcharacterstartindex()
+initcharacterstartindex() //checked matches cerberus output
 {
 	level.characterstartindex = randomint( 4 );
 }
 
-zombie_init_done()
+zombie_init_done() //checked matches cerberus output
 {
 	self.allowpain = 0;
 	self setphysparams( 15, 0, 48 );
 }
 
-zm_player_fake_death_cleanup()
+zm_player_fake_death_cleanup() //checked matches cerberus output
 {
 	if ( isDefined( self._fall_down_anchor ) )
 	{
@@ -593,7 +601,7 @@ zm_player_fake_death_cleanup()
 	}
 }
 
-zm_player_fake_death( vdir )
+zm_player_fake_death( vdir ) //checked matches cerberus output
 {
 	level notify( "fake_death" );
 	self notify( "fake_death" );
@@ -607,7 +615,7 @@ zm_player_fake_death( vdir )
 		self allowprone( 1 );
 		self allowcrouch( 0 );
 		self allowstand( 0 );
-		wait 0,25;
+		wait 0.25;
 		self freezecontrols( 1 );
 	}
 	else
@@ -618,7 +626,7 @@ zm_player_fake_death( vdir )
 	}
 }
 
-fall_down( vdir, stance )
+fall_down( vdir, stance ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_module_ended" );
@@ -645,7 +653,7 @@ fall_down( vdir, stance )
 		eye = self get_eye();
 		floor_height = ( 10 + origin[ 2 ] ) - eye[ 2 ];
 		origin += ( 0, 0, floor_height );
-		lerptime = 0,5;
+		lerptime = 0.5;
 		linker moveto( origin, lerptime, lerptime );
 		linker rotateto( angles, lerptime, lerptime );
 	}
@@ -659,11 +667,11 @@ fall_down( vdir, stance )
 	if ( falling )
 	{
 		bounce = randomint( 4 ) + 8;
-		origin = ( origin + ( 0, 0, bounce ) ) - ( xyspeed * 0,1 );
+		origin = ( origin + ( 0, 0, bounce ) ) - ( xyspeed * 0.1 );
 		lerptime = bounce / 50;
 		linker moveto( origin, lerptime, 0, lerptime );
 		linker waittill( "movedone" );
-		origin = ( origin + ( 0, 0, bounce * -1 ) ) + ( xyspeed * 0,1 );
+		origin = ( origin + ( 0, 0, bounce * -1 ) ) + ( xyspeed * 0.1 );
 		lerptime /= 2;
 		linker moveto( origin, lerptime, lerptime );
 		linker waittill( "movedone" );
@@ -673,12 +681,12 @@ fall_down( vdir, stance )
 	linker delete();
 }
 
-initial_round_wait_func()
+initial_round_wait_func() //checked matches cerberus output
 {
 	flag_wait( "initial_blackscreen_passed" );
 }
 
-offhand_weapon_overrride()
+offhand_weapon_overrride() //checked matches cerberus output
 {
 	register_lethal_grenade_for_level( "frag_grenade_zm" );
 	level.zombie_lethal_grenade_player_init = "frag_grenade_zm";
@@ -695,20 +703,18 @@ offhand_weapon_overrride()
 	level.equipment_safe_to_drop = ::equipment_safe_to_drop;
 }
 
-equipment_safe_to_drop( weapon )
+equipment_safe_to_drop( weapon ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.origin ) )
 	{
 		return 1;
 	}
-	i = 0;
-	while ( i < level.equipment_tu_dead_zone_pos.size )
+	for ( i = 0; i < level.equipment_tu_dead_zone_pos.size; i++ )
 	{
 		if ( distancesquared( level.equipment_tu_dead_zone_pos[ i ], weapon.origin ) < level.equipment_tu_dead_zone_rad2[ i ] )
 		{
 			return 0;
 		}
-		i++;
 	}
 	s_check = getstruct( "plane_equipment_safe_check", "targetname" );
 	if ( distance2dsquared( self.origin, s_check.origin ) < 65536 && self.origin[ 2 ] > s_check.origin[ 2 ] )
@@ -718,7 +724,7 @@ equipment_safe_to_drop( weapon )
 	return 1;
 }
 
-offhand_weapon_give_override( str_weapon )
+offhand_weapon_give_override( str_weapon ) //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( is_tactical_grenade( str_weapon ) && isDefined( self get_player_tactical_grenade() ) && !self is_player_tactical_grenade( str_weapon ) )
@@ -729,7 +735,7 @@ offhand_weapon_give_override( str_weapon )
 	return 0;
 }
 
-custom_add_weapons()
+custom_add_weapons() //checked changed to match cerberus output
 {
 	add_zombie_weapon_prison( "m1911_zm", "m1911_upgraded_zm", &"ZOMBIE_WEAPON_M1911", 50, "wpck_crappy", "", undefined );
 	add_zombie_weapon_prison( "judge_zm", "judge_upgraded_zm", &"ZOMBIE_WEAPON_JUDGE", 50, "wpck_pistol", "", undefined, 1 );
@@ -760,9 +766,13 @@ custom_add_weapons()
 	add_zombie_weapon_prison( "usrpg_zm", "usrpg_upgraded_zm", &"ZOMBIE_WEAPON_USRPG", 50, "wpck_rpg", "", undefined, 1 );
 	add_zombie_weapon_prison( "bouncing_tomahawk_zm", "upgraded_tomahawk_zm", &"ZOMBIE_WEAPON_SATCHEL_2000", 2000, "", "", undefined, 1 );
 	add_zombie_weapon_prison( "ray_gun_zm", "ray_gun_upgraded_zm", &"ZOMBIE_WEAPON_RAYGUN", 10000, "wpck_ray", "", undefined, 1 );
+	if ( isdefined( level.raygun2_included ) && level.raygun2_included )
+	{
+		add_zombie_weapon_prison( "raygun_mark2_zm", "raygun_mark2_upgraded_zm", &"ZOMBIE_WEAPON_RAYGUN_MARK2", 10000, "raygun_mark2", "", undefined );
+	}
 }
 
-include_weapons()
+include_weapons() //checked changed to match cerberus output
 {
 	include_weapon( "knife_zm", 0 );
 	include_weapon( "knife_zm_alcatraz", 0 );
@@ -840,9 +850,17 @@ include_weapons()
 	add_limited_weapon( "ray_gun_upgraded_zm", 4 );
 	include_weapon( "tower_trap_zm", 0 );
 	include_weapon( "tower_trap_upgraded_zm", 0 );
+	if ( isdefined( level.raygun2_included ) && level.raygun2_included )
+	{
+		include_weapon( "raygun_mark2_zm" );
+		include_weapon( "raygun_mark2_upgraded_zm", 0 );
+		add_weapon_to_content( "raygun_mark2_zm", "dlc3" );
+		add_limited_weapon( "raygun_mark2_zm", 1);
+		add_limited_weapon( "raygun_mark2_upgraded_zm", 1 );
+	}
 }
 
-add_zombie_weapon_prison( weapon_name, upgrade_name, hint, cost, weaponvo, weaponvoresp, ammo_cost, create_vox )
+add_zombie_weapon_prison( weapon_name, upgrade_name, hint, cost, weaponvo, weaponvoresp, ammo_cost, create_vox ) //checked matches cerberus output
 {
 	if ( isDefined( level.zombie_include_weapons ) && !isDefined( level.zombie_include_weapons[ weapon_name ] ) )
 	{
@@ -875,13 +893,15 @@ add_zombie_weapon_prison( weapon_name, upgrade_name, hint, cost, weaponvo, weapo
 	struct.cost = cost;
 	struct.vox = weaponvo;
 	struct.vox_response = weaponvoresp;
+	/*
 /#
 	println( "ZM >> Looking for weapon - " + weapon_name );
 #/
+	*/
 	struct.is_in_box = level.zombie_include_weapons[ weapon_name ];
 	if ( !isDefined( ammo_cost ) )
 	{
-		ammo_cost = round_up_to_ten( int( cost * 0,5 ) );
+		ammo_cost = round_up_to_ten( int( cost * 0.5 ) );
 	}
 	struct.ammo_cost = ammo_cost;
 	level.zombie_weapons[ weapon_name ] = struct;
@@ -893,15 +913,17 @@ add_zombie_weapon_prison( weapon_name, upgrade_name, hint, cost, weaponvo, weapo
 	{
 		level.vox maps/mp/zombies/_zm_audio::zmbvoxadd( "player", "weapon_pickup", weapon_name, weaponvo, undefined );
 	}
+	/*
 /#
 	if ( isDefined( level.devgui_add_weapon ) )
 	{
 		[[ level.devgui_add_weapon ]]( weapon_name, upgrade_name, hint, cost, weaponvo, weaponvoresp, ammo_cost );
 #/
 	}
+	*/
 }
 
-include_powerups()
+include_powerups() //checked matches cerberus output
 {
 	include_powerup( "nuke" );
 	include_powerup( "insta_kill" );
@@ -910,12 +932,12 @@ include_powerups()
 	include_powerup( "fire_sale" );
 }
 
-include_equipment_for_level()
+include_equipment_for_level() //checked matches cerberus output
 {
 	include_equipment( "alcatraz_shield_zm" );
 }
 
-setup_rex_starts()
+setup_rex_starts() //checked matches cerberus output
 {
 	add_gametype( "zclassic", ::dummy, "zclassic", ::dummy );
 	add_gametype( "zgrief", ::dummy, "zgrief", ::dummy );
@@ -923,27 +945,23 @@ setup_rex_starts()
 	add_gameloc( "cellblock", ::dummy, "cellblock", ::dummy );
 }
 
-dummy()
+dummy() //checked matches cerberus output
 {
 }
 
-working_zone_init()
+working_zone_init() //checked changed to match cerberus output
 {
 	flag_init( "always_on" );
 	flag_set( "always_on" );
-	while ( is_gametype_active( "zgrief" ) )
+	if ( maps/mp/zombies/_zm_utility::is_gametype_active( "zgrief" ) )
 	{
 		a_s_spawner = getstructarray( "zone_cellblock_west_roof_spawner", "targetname" );
-		_a1217 = a_s_spawner;
-		_k1217 = getFirstArrayKey( _a1217 );
-		while ( isDefined( _k1217 ) )
+		foreach ( spawner in a_s_spawner )
 		{
-			spawner = _a1217[ _k1217 ];
 			if ( isDefined( spawner.script_parameters ) && spawner.script_parameters == "zclassic_prison" )
 			{
 				spawner structdelete();
 			}
-			_k1217 = getNextArrayKey( _a1217, _k1217 );
 		}
 	}
 	if ( is_classic() )
@@ -1017,21 +1035,14 @@ working_zone_init()
 		add_adjacent_zone( "zone_cellblock_west_gondola", "zone_cellblock_west_gondola_dock", "activate_cellblock_gondola" );
 		add_adjacent_zone( "zone_cellblock_west_gondola", "zone_cellblock_west_gondola_dock", "gondola_dock_to_roof" );
 	}
-	else
+	if ( maps/mp/zombies/_zm_utility::is_gametype_active( "zgrief" ) )
 	{
-		while ( is_gametype_active( "zgrief" ) )
+		playable_area = getentarray( "player_volume", "script_noteworthy" );
+		foreach ( area in playable_area )
 		{
-			playable_area = getentarray( "player_volume", "script_noteworthy" );
-			_a1319 = playable_area;
-			_k1319 = getFirstArrayKey( _a1319 );
-			while ( isDefined( _k1319 ) )
+			if ( isDefined( area.script_parameters ) && area.script_parameters == "classic_only" )
 			{
-				area = _a1319[ _k1319 ];
-				if ( isDefined( area.script_parameters ) && area.script_parameters == "classic_only" )
-				{
-					area delete();
-				}
-				_k1319 = getNextArrayKey( _a1319, _k1319 );
+				area delete();
 			}
 		}
 	}
@@ -1042,9 +1053,9 @@ working_zone_init()
 	}
 }
 
-alcatraz_afterlife_doors()
+alcatraz_afterlife_doors() //checked changed to match cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	if ( !isDefined( level.shockbox_anim ) )
 	{
 		level.shockbox_anim[ "on" ] = %fxanim_zom_al_shock_box_on_anim;
@@ -1053,18 +1064,22 @@ alcatraz_afterlife_doors()
 	if ( isDefined( self.script_noteworthy ) && self.script_noteworthy == "afterlife_door" )
 	{
 		self sethintstring( &"ZM_PRISON_AFTERLIFE_DOOR" );
+		/*
 /#
 		self thread afterlife_door_open_sesame();
 #/
+		*/
 		s_struct = getstruct( self.target, "targetname" );
 		if ( !isDefined( s_struct ) )
 		{
+			/*
 /#
 			iprintln( "Afterlife Door was not targeting a valid struct" );
 #/
+			*/
 			return;
 		}
-		else m_shockbox = getent( s_struct.target, "targetname" );
+		m_shockbox = getent( s_struct.target, "targetname" );
 		m_shockbox.health = 5000;
 		m_shockbox setcandamage( 1 );
 		m_shockbox useanimtree( -1 );
@@ -1089,7 +1104,7 @@ alcatraz_afterlife_doors()
 						playfxontag( level._effect[ "box_activated" ], m_shockbox, "tag_origin" );
 						m_shockbox setmodel( "p6_zm_al_shock_box_on" );
 						m_shockbox setanim( level.shockbox_anim[ "on" ] );
-						if ( isDefined( m_shockbox.script_string ) || m_shockbox.script_string == "wires_shower_door" && m_shockbox.script_string == "wires_admin_door" )
+						if ( ( m_shockbox.script_string == "wires_shower_door" || m_shockbox.script_string == "wires_admin_door" ) && isDefined( m_shockbox.script_string ) )
 						{
 							array_delete( getentarray( m_shockbox.script_string, "script_noteworthy" ) );
 						}
@@ -1098,45 +1113,42 @@ alcatraz_afterlife_doors()
 					}
 				}
 			}
-			else
-			{
-			}
 		}
 	}
-	else while ( 1 )
+	while ( 1 )
 	{
-		while ( !self maps/mp/zombies/_zm_blockers::door_buy() )
+		if ( !self maps/mp/zombies/_zm_blockers::door_buy() )
 		{
+			wait 0.05;
 			continue;
 		}
+		break;
 	}
 }
 
-afterlife_door_open_sesame()
+afterlife_door_open_sesame() //checked matches cerberus output
 {
+	/*
 /#
 	level waittill( "open_sesame" );
 	self maps/mp/zombies/_zm_blockers::door_opened( 0 );
 #/
+	*/
 }
 
-delete_perk_machine_clip()
+delete_perk_machine_clip() //checked changed to match cerberus output
 {
 	perk_machines = getentarray( "zombie_vending", "targetname" );
-	_a1450 = perk_machines;
-	_k1450 = getFirstArrayKey( _a1450 );
-	while ( isDefined( _k1450 ) )
+	foreach ( perk_machine in perk_machines )
 	{
-		perk_machine = _a1450[ _k1450 ];
 		if ( isDefined( perk_machine.clip ) )
 		{
 			perk_machine.clip delete();
 		}
-		_k1450 = getNextArrayKey( _a1450, _k1450 );
 	}
 }
 
-alcatraz_round_spawn_failsafe()
+alcatraz_round_spawn_failsafe() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	prevorigin = self.origin;
@@ -1151,9 +1163,9 @@ alcatraz_round_spawn_failsafe()
 		{
 			continue;
 		}
-		while ( isDefined( self.lastchunk_destroy_time ) )
+		if ( isDefined( self.lastchunk_destroy_time ) )
 		{
-			while ( ( getTime() - self.lastchunk_destroy_time ) < 8000 )
+			if ( ( getTime() - self.lastchunk_destroy_time ) < 8000 )
 			{
 				continue;
 			}
@@ -1165,12 +1177,10 @@ alcatraz_round_spawn_failsafe()
 				level.zombie_total++;
 				level.zombie_total_subtract++;
 			}
-/#
-#/
 			self dodamage( self.health + 100, ( 0, 0, 0 ) );
-			return;
+			break;
 		}
-		else if ( distancesquared( self.origin, prevorigin ) < 576 )
+		if ( distancesquared( self.origin, prevorigin ) < 576 )
 		{
 			if ( isDefined( level.put_timed_out_zombies_back_in_queue ) && level.put_timed_out_zombies_back_in_queue && !flag( "dog_round" ) )
 			{
@@ -1181,8 +1191,6 @@ alcatraz_round_spawn_failsafe()
 				}
 			}
 			level.zombies_timeout_playspace++;
-/#
-#/
 			if ( isDefined( self.is_brutus ) && self.is_brutus )
 			{
 				self.suppress_brutus_powerup_drop = 1;
@@ -1191,10 +1199,7 @@ alcatraz_round_spawn_failsafe()
 			self dodamage( self.health + 100, ( 0, 0, 0 ) );
 			return;
 		}
-		else
-		{
-			prevorigin = self.origin;
-		}
+		prevorigin = self.origin;
 	}
 }
 
@@ -1204,20 +1209,17 @@ player_shockbox_glowfx()
 	a_afterlife_interacts = getentarray( "afterlife_interact", "targetname" );
 	a_afterlife_door_interacts = getentarray( "afterlife_door_shock_box", "script_noteworthy" );
 	a_combine = arraycombine( a_afterlife_interacts, a_afterlife_door_interacts, 0, 0 );
-	_a1581 = a_combine;
-	_k1581 = getFirstArrayKey( _a1581 );
-	while ( isDefined( _k1581 ) )
+	foreach ( shockbox in a_combine )
 	{
-		shockbox = _a1581[ _k1581 ];
 		if ( issubstr( shockbox.model, "shock_box" ) )
 		{
 			shockbox setclientfield( "afterlife_shockbox_glow", 1 );
 		}
-		_k1581 = getNextArrayKey( _a1581, _k1581 );
 	}
 }
 
-is_gametype_active( a_gametypes )
+/*
+is_gametype_active( a_gametypes ) //not in cerberus output 
 {
 	is_gametype_active = 0;
 	if ( !isarray( a_gametypes ) )
@@ -1235,3 +1237,4 @@ is_gametype_active( a_gametypes )
 	}
 	return is_gametype_active;
 }
+*/

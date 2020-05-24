@@ -1,5 +1,6 @@
 ### The following scripts compile and run successfully with no known errors:
 ```
+zm_prison_patch/maps/mp/zm_prison.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 ```
@@ -18,7 +19,6 @@
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
-zm_prison_patch/maps/mp/zm_prison.gsc
 ```
 
 
