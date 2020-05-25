@@ -1,3 +1,4 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zm_prison_sq_wth;
 #include maps/mp/zm_prison_sq_fc;
 #include maps/mp/zm_prison_sq_final;
@@ -7,15 +8,21 @@
 #include maps/mp/zm_alcatraz_traps;
 #include maps/mp/zm_prison;
 #include maps/mp/zm_alcatraz_sq;
+#include maps/mp/zm_prison_sq_bg;
+#include maps/mp/zm_prison_spoon;
+#include maps/mp/zm_prison_achievement;
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/gametypes_zm/_zm_gametype;
+#include maps/mp/zombies/_zm_afterlife;
+#include maps/mp/zombies/_zm_ai_brutus;
 #include maps/mp/zm_alcatraz_craftables;
+#include maps/mp/zombies/_zm_craftables;
 #include maps/mp/zm_alcatraz_utility;
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 	if ( isDefined( level.createfx_enabled ) && level.createfx_enabled )
 	{
@@ -30,7 +37,7 @@ precache()
 	level._effect[ "powerup_on" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_powerup" );
 }
 
-main()
+main() //checked changed to match cerberus output
 {
 	level thread sq_main_controller();
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "zclassic" );
@@ -41,14 +48,10 @@ main()
 	level thread maps/mp/zm_prison_spoon::init();
 	level thread maps/mp/zm_prison_sq_bg::init();
 	a_grief_clips = getentarray( "grief_clips", "targetname" );
-	_a54 = a_grief_clips;
-	_k54 = getFirstArrayKey( _a54 );
-	while ( isDefined( _k54 ) )
+	foreach ( clip in a_grief_clips )
 	{
-		clip = _a54[ _k54 ];
 		clip connectpaths();
 		clip delete();
-		_k54 = getNextArrayKey( _a54, _k54 );
 	}
 	level thread give_afterlife();
 	level thread maps/mp/zm_alcatraz_sq::start_alcatraz_sidequest();
@@ -69,7 +72,7 @@ main()
 	level thread blundergat_upgrade_station();
 }
 
-zm_treasure_chest_init()
+zm_treasure_chest_init() //checked matches cerberus output
 {
 	chest1 = getstruct( "start_chest", "script_noteworthy" );
 	level.chests = [];
@@ -77,28 +80,24 @@ zm_treasure_chest_init()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 }
 
-give_afterlife()
+give_afterlife() //checked changed to match cerberus output
 {
 	onplayerconnect_callback( ::maps/mp/zombies/_zm_afterlife::init_player );
 	flag_wait( "initial_players_connected" );
-	wait 0,5;
+	wait 0.5;
 	n_start_pos = 1;
 	a_players = getplayers();
-	_a128 = a_players;
-	_k128 = getFirstArrayKey( _a128 );
-	while ( isDefined( _k128 ) )
+	foreach ( player in a_players )
 	{
-		player = _a128[ _k128 ];
 		if ( isDefined( player.afterlife ) && !player.afterlife )
 		{
 			player thread fake_kill_player( n_start_pos );
 			n_start_pos++;
 		}
-		_k128 = getNextArrayKey( _a128, _k128 );
 	}
 }
 
-fake_kill_player( n_start_pos )
+fake_kill_player( n_start_pos ) //checked changed to match cerberus output
 {
 	self afterlife_remove();
 	self.afterlife = 1;
@@ -107,8 +106,8 @@ fake_kill_player( n_start_pos )
 	self thread afterlife_tutorial();
 	e_corpse_location = getstruct( "corpse_starting_point_" + n_start_pos, "targetname" );
 	trace_start = e_corpse_location.origin;
-	trace_end = e_corpse_location.origin + vectorScale( ( 0, 0, 1 ), 100 );
-	corpse_trace = physicstrace( trace_start, trace_end, vectorScale( ( 0, 0, 1 ), 10 ), vectorScale( ( 0, 0, 1 ), 10 ), self.e_afterlife_corpse );
+	trace_end = e_corpse_location.origin + vectorScale( ( 0, 0, -1 ), 100 );
+	corpse_trace = physicstrace( trace_start, trace_end, vectorScale( ( -1, -1, 0 ), 10 ), vectorScale( ( 1, 1, 0 ), 10 ), self.e_afterlife_corpse );
 	self.e_afterlife_corpse.origin = corpse_trace[ "position" ];
 	vec_to_target = self.e_afterlife_corpse.origin - self.origin;
 	vec_to_target = vectorToAngle( vec_to_target );
@@ -117,7 +116,7 @@ fake_kill_player( n_start_pos )
 	self notify( "al_all_setup" );
 }
 
-afterlife_tutorial()
+afterlife_tutorial() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "end_game" );
@@ -137,31 +136,31 @@ afterlife_tutorial()
 	}
 }
 
-afterlife_tutorial_attack_watch()
+afterlife_tutorial_attack_watch() //checked matches cerberus output
 {
 	self endon( "stop_tutorial" );
 	self endon( "disconnect" );
 	while ( isDefined( self.afterlife ) && self.afterlife && !self isfiring() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
-	wait 0,2;
+	wait 0.2;
 	self notify( "stop_tutorial" );
 }
 
-afterlife_tutorial_jump_watch()
+afterlife_tutorial_jump_watch() //checked matches cerberus output
 {
 	self endon( "stop_tutorial" );
 	self endon( "disconnect" );
 	while ( isDefined( self.afterlife ) && self.afterlife && !self is_jumping() )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
-	wait 0,2;
+	wait 0.2;
 	self notify( "stop_tutorial" );
 }
 
-afterlife_powerups()
+afterlife_powerups() //checked matches cerberus output
 {
 	level._powerup_grab_check = ::cell_grab_check;
 	s_powerup_loc = getstruct( "powerup_start", "targetname" );
@@ -186,7 +185,7 @@ afterlife_powerups()
 	}
 }
 
-cell_grab_check( player )
+cell_grab_check( player ) //checked matches cerberus output
 {
 	cell_powerup = getstruct( "powerup_start", "targetname" );
 	if ( self.origin == ( cell_powerup.origin + vectorScale( ( 0, 0, 1 ), 40 ) ) )
@@ -218,7 +217,7 @@ cell_grab_check( player )
 	return 1;
 }
 
-afterlife_intro_door()
+afterlife_intro_door() //checked matches cerberus output
 {
 	m_door = getent( "powerup_door", "targetname" );
 	level waittill( "intro_powerup_activate" );
@@ -232,7 +231,7 @@ afterlife_intro_door()
 	spawn_infinite_powerup_drop( s_powerup_loc.origin );
 }
 
-afterlife_cell_door_1()
+afterlife_cell_door_1() //checked matches cerberus output
 {
 	m_door = getent( "powerup_cell_door_1", "targetname" );
 	level waittill( "cell_1_powerup_activate" );
@@ -243,7 +242,7 @@ afterlife_cell_door_1()
 	m_door playsound( "zmb_jail_door" );
 }
 
-afterlife_cell_door_2()
+afterlife_cell_door_2() //checked matches cerberus output
 {
 	m_door = getent( "powerup_cell_door_2", "targetname" );
 	level waittill( "cell_2_powerup_activate" );
@@ -254,7 +253,7 @@ afterlife_cell_door_2()
 	m_door playsound( "zmb_jail_door" );
 }
 
-spawn_infinite_powerup_drop( v_origin, str_type )
+spawn_infinite_powerup_drop( v_origin, str_type ) //checked matches cerberus output
 {
 	level._powerup_timeout_override = ::powerup_infinite_time;
 	if ( isDefined( str_type ) )
@@ -268,26 +267,22 @@ spawn_infinite_powerup_drop( v_origin, str_type )
 	level._powerup_timeout_override = undefined;
 }
 
-powerup_infinite_time()
+powerup_infinite_time() //checked matches cerberus output
 {
 }
 
-power_on_perk_machines()
+power_on_perk_machines() //checked changed to match cerberus output
 {
 	level waittill_any( "unlock_all_perk_machines", "open_sesame" );
 	a_shockboxes = getentarray( "perk_afterlife_trigger", "script_noteworthy" );
-	_a365 = a_shockboxes;
-	_k365 = getFirstArrayKey( _a365 );
-	while ( isDefined( _k365 ) )
+	foreach ( e_shockbox in a_shockboxes )
 	{
-		e_shockbox = _a365[ _k365 ];
 		e_shockbox notify( "damage" );
 		wait 1;
-		_k365 = getNextArrayKey( _a365, _k365 );
 	}
 }
 
-sq_main_controller()
+sq_main_controller() //checked matches cerberus output
 {
 	precacheshader( "zm_al_wth_zombie" );
 	onplayerconnect_callback( ::maps/mp/zm_prison_sq_final::onplayerconnect_sq_final );
@@ -297,7 +292,7 @@ sq_main_controller()
 	onplayerconnect_callback( ::maps/mp/zm_prison_sq_wth::onplayerconnect_sq_wth );
 }
 
-player_quest_vfx()
+player_quest_vfx() //checked matches cerberus output
 {
 	flag_wait( "initial_blackscreen_passed" );
 	wait 1;
@@ -306,3 +301,4 @@ player_quest_vfx()
 		exploder( 2000 );
 	}
 }
+
