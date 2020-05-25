@@ -82,7 +82,7 @@ zm_treasure_chest_init() //checked matches cerberus output
 
 give_afterlife() //checked changed to match cerberus output
 {
-	onplayerconnect_callback( ::maps/mp/zombies/_zm_afterlife::init_player );
+	onplayerconnect_callback( maps/mp/zombies/_zm_afterlife::init_player );
 	flag_wait( "initial_players_connected" );
 	wait 0.5;
 	n_start_pos = 1;
@@ -110,7 +110,7 @@ fake_kill_player( n_start_pos ) //checked changed to match cerberus output
 	corpse_trace = physicstrace( trace_start, trace_end, vectorScale( ( -1, -1, 0 ), 10 ), vectorScale( ( 1, 1, 0 ), 10 ), self.e_afterlife_corpse );
 	self.e_afterlife_corpse.origin = corpse_trace[ "position" ];
 	vec_to_target = self.e_afterlife_corpse.origin - self.origin;
-	vec_to_target = vectorToAngle( vec_to_target );
+	vec_to_target = vectorToAngles( vec_to_target );
 	vec_to_target = ( 0, vec_to_target[ 1 ], 0 );
 	self setplayerangles( vec_to_target );
 	self notify( "al_all_setup" );
@@ -285,11 +285,11 @@ power_on_perk_machines() //checked changed to match cerberus output
 sq_main_controller() //checked matches cerberus output
 {
 	precacheshader( "zm_al_wth_zombie" );
-	onplayerconnect_callback( ::maps/mp/zm_prison_sq_final::onplayerconnect_sq_final );
+	onplayerconnect_callback( maps/mp/zm_prison_sq_final::onplayerconnect_sq_final );
 	level thread maps/mp/zm_prison_sq_final::stage_one();
-	onplayerconnect_callback( ::maps/mp/zm_prison_sq_fc::onplayerconnect_sq_fc );
+	onplayerconnect_callback( maps/mp/zm_prison_sq_fc::onplayerconnect_sq_fc );
 	level thread maps/mp/zm_prison_sq_fc::watch_for_trigger_condition();
-	onplayerconnect_callback( ::maps/mp/zm_prison_sq_wth::onplayerconnect_sq_wth );
+	onplayerconnect_callback( maps/mp/zm_prison_sq_wth::onplayerconnect_sq_wth );
 }
 
 player_quest_vfx() //checked matches cerberus output
