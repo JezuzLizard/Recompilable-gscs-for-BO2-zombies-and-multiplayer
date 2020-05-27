@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/animscripts/zm_shared;
 #include maps/mp/zombies/_zm_spawner;
 #include maps/mp/zombies/_zm_weapons;
@@ -6,7 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !maps/mp/zombies/_zm_weapons::is_weapon_included( "blundergat_zm" ) )
 	{
@@ -24,13 +25,13 @@ init()
 	onplayerconnect_callback( ::blundersplat_on_player_connect );
 }
 
-blundersplat_on_player_connect()
+blundersplat_on_player_connect() //checked matches cerberus output
 {
 	self thread wait_for_blundersplat_fired();
 	self thread wait_for_blundersplat_upgraded_fired();
 }
 
-zombie_wait_for_blundersplat_hit()
+zombie_wait_for_blundersplat_hit() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -46,11 +47,8 @@ zombie_wait_for_blundersplat_hit()
 					continue;
 				}
 				self.titus_tagged = 1;
-				_a66 = a_grenades;
-				_k66 = getFirstArrayKey( _a66 );
-				while ( isDefined( _k66 ) )
+				foreach ( e_grenade in a_grenades )
 				{
-					e_grenade = _a66[ _k66 ];
 					if ( isDefined( e_grenade.model ) && e_grenade.model == "t6_wpn_zmb_projectile_blundergat" )
 					{
 						if ( e_grenade islinkedto( self ) )
@@ -60,17 +58,16 @@ zombie_wait_for_blundersplat_hit()
 								if ( !isDefined( e_grenade.fuse_time ) )
 								{
 									wait_network_frame();
-									continue;
 								}
 								else
 								{
+									break;
 								}
 							}
 							n_fuse_timer = e_grenade.fuse_time;
 							e_grenade thread _titus_grenade_detonate_on_target_death( self );
 						}
 					}
-					_k66 = getNextArrayKey( _a66, _k66 );
 				}
 				self thread _titus_target_animate_and_die( n_fuse_timer, inflictor );
 				self thread _titus_target_check_for_grenade_hits();
@@ -79,7 +76,7 @@ zombie_wait_for_blundersplat_hit()
 	}
 }
 
-wait_for_blundersplat_fired()
+wait_for_blundersplat_fired() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "spawned_player" );
@@ -95,11 +92,11 @@ wait_for_blundersplat_fired()
 			wait_network_frame();
 			_titus_locate_target( 1 );
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-wait_for_blundersplat_upgraded_fired()
+wait_for_blundersplat_upgraded_fired() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "spawned_player" );
@@ -118,7 +115,7 @@ wait_for_blundersplat_upgraded_fired()
 	}
 }
 
-_titus_locate_target( is_not_upgraded )
+_titus_locate_target( is_not_upgraded ) //checked changed to match cerberus output
 {
 	if ( !isDefined( is_not_upgraded ) )
 	{
@@ -130,17 +127,14 @@ _titus_locate_target( is_not_upgraded )
 	a_targets = get_array_of_closest( self.origin, a_targets, undefined, undefined, 1500 );
 	if ( is_not_upgraded )
 	{
-		n_fuse_timer = randomfloatrange( 1, 2,5 );
+		n_fuse_timer = randomfloatrange( 1, 2.5 );
 	}
 	else
 	{
 		n_fuse_timer = randomfloatrange( 3, 4 );
 	}
-	_a161 = a_targets;
-	_k161 = getFirstArrayKey( _a161 );
-	while ( isDefined( _k161 ) )
+	foreach ( target in a_targets )
 	{
-		target = _a161[ _k161 ];
 		if ( within_fov( fire_origin, fire_angles, target.origin, cos( 30 ) ) )
 		{
 			if ( isai( target ) )
@@ -167,7 +161,6 @@ _titus_locate_target( is_not_upgraded )
 				}
 			}
 		}
-		_k161 = getNextArrayKey( _a161, _k161 );
 	}
 	vec = anglesToForward( fire_angles );
 	trace_end = fire_origin + ( vec * 20000 );
@@ -177,7 +170,7 @@ _titus_locate_target( is_not_upgraded )
 	e_dart thread _titus_reset_grenade_fuse( n_fuse_timer );
 }
 
-_titus_get_spread( n_spread )
+_titus_get_spread( n_spread ) //checked matches cerberus output
 {
 	n_x = randomintrange( n_spread * -1, n_spread );
 	n_y = randomintrange( n_spread * -1, n_spread );
@@ -185,7 +178,7 @@ _titus_get_spread( n_spread )
 	return ( n_x, n_y, n_z );
 }
 
-_titus_marked()
+_titus_marked() //checked matches cerberus output
 {
 	self endon( "death" );
 	self.titusmarked = 1;
@@ -193,7 +186,7 @@ _titus_marked()
 	self.titusmarked = undefined;
 }
 
-_titus_target_animate_and_die( n_fuse_timer, inflictor )
+_titus_target_animate_and_die( n_fuse_timer, inflictor ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "titus_target_timeout" );
@@ -205,21 +198,18 @@ _titus_target_animate_and_die( n_fuse_timer, inflictor )
 	self dodamage( self.health + 1000, self.origin );
 }
 
-_titus_target_check_for_grenade_hits()
+_titus_target_check_for_grenade_hits() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "titus_target_timeout" );
 	while ( 1 )
 	{
 		self waittill( "damage", amount, inflictor, direction, point, type, tagname, modelname, partname, weaponname, idflags );
-		while ( weaponname == "blundersplat_bullet_zm" )
+		if ( weaponname == "blundersplat_bullet_zm" )
 		{
 			a_grenades = getentarray( "grenade", "classname" );
-			_a317 = a_grenades;
-			_k317 = getFirstArrayKey( _a317 );
-			while ( isDefined( _k317 ) )
+			foreach ( e_grenade in a_grenades )
 			{
-				e_grenade = _a317[ _k317 ];
 				if ( isDefined( e_grenade.model ) && e_grenade.model == "t6_wpn_zmb_projectile_blundergat" )
 				{
 					if ( e_grenade islinkedto( self ) )
@@ -227,36 +217,35 @@ _titus_target_check_for_grenade_hits()
 						e_grenade thread _titus_grenade_detonate_on_target_death( self );
 					}
 				}
-				_k317 = getNextArrayKey( _a317, _k317 );
 			}
 		}
 	}
 }
 
-_titus_target_timeout( n_fuse_timer )
+_titus_target_timeout( n_fuse_timer ) //checked matches cerberus output
 {
 	self endon( "death" );
 	wait n_fuse_timer;
 	self notify( "titus_target_timeout" );
 }
 
-_titus_check_for_target_death( inflictor )
+_titus_check_for_target_death( inflictor ) //checked changed to match cerberus output
 {
 	self waittill( "death" );
-	self notify( "killed_by_a_blundersplat" );
+	self notify( "killed_by_a_blundersplat", inflictor );
 	self notify( "titus_target_killed" );
 }
 
-_titus_grenade_detonate_on_target_death( target )
+_titus_grenade_detonate_on_target_death( target ) //checked matches cerberus output
 {
 	self endon( "death" );
 	target endon( "titus_target_timeout" );
 	target waittill( "titus_target_killed" );
 	self.fuse_reset = 1;
-	self resetmissiledetonationtime( 0,05 );
+	self resetmissiledetonationtime( 0.05 );
 }
 
-_titus_reset_grenade_fuse( n_fuse_timer, is_not_upgraded )
+_titus_reset_grenade_fuse( n_fuse_timer, is_not_upgraded ) //checked changed to match cerberus output
 {
 	if ( !isDefined( is_not_upgraded ) )
 	{
@@ -268,11 +257,8 @@ _titus_reset_grenade_fuse( n_fuse_timer, is_not_upgraded )
 	}
 	self waittill( "death" );
 	a_grenades = getentarray( "grenade", "classname" );
-	_a375 = a_grenades;
-	_k375 = getFirstArrayKey( _a375 );
-	while ( isDefined( _k375 ) )
+	foreach ( e_grenade in a_grenades )
 	{
-		e_grenade = _a375[ _k375 ];
 		if ( isDefined( e_grenade.model ) && e_grenade.model == "t6_wpn_zmb_projectile_blundergat" && !isDefined( e_grenade.fuse_reset ) )
 		{
 			e_grenade.fuse_reset = 1;
@@ -288,11 +274,10 @@ _titus_reset_grenade_fuse( n_fuse_timer, is_not_upgraded )
 			}
 			return;
 		}
-		_k375 = getNextArrayKey( _a375, _k375 );
 	}
 }
 
-gib_on_blundergat_damage( refs, point, weaponname )
+gib_on_blundergat_damage( refs, point, weaponname ) //checked changed to match cerberus output
 {
 	new_gib_ref = [];
 	if ( isDefined( level.no_gib_in_wolf_area ) )
@@ -306,18 +291,15 @@ gib_on_blundergat_damage( refs, point, weaponname )
 	{
 		return refs;
 	}
-	else
+	else if ( weaponname == "blundergat_zm" || weaponname == "blundergat_upgraded_zm" )
 	{
-		if ( weaponname == "blundergat_zm" || weaponname == "blundergat_upgraded_zm" )
-		{
-			new_gib_ref = self maps/mp/zombies/_zm_spawner::derive_damage_refs( point );
-			return new_gib_ref;
-		}
+		new_gib_ref = self maps/mp/zombies/_zm_spawner::derive_damage_refs( point );
+		return new_gib_ref;
 	}
 	return refs;
 }
 
-_blundersplat_target_acid_stun_anim()
+_blundersplat_target_acid_stun_anim() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -338,3 +320,4 @@ _blundersplat_target_acid_stun_anim()
 		self maps/mp/animscripts/zm_shared::donotetracks( "blundersplat_stunned_anim" );
 	}
 }
+
