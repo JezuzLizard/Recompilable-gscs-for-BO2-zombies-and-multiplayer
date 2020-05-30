@@ -38,6 +38,7 @@ patch_mp/maps/mp/gametypes/_copter.gsc
 patch_mp/maps/mp/gametypes/_damagefeedback.gsc
 patch_mp/maps/mp/gametypes/_deathicons.gsc
 patch_mp/maps/mp/gametypes/_friendicons.gsc
+patch_mp/maps/mp/gametypes/_gameobjects.gsc
 patch_mp/maps/mp/gametypes/_globallogic.gsc
 patch_mp/maps/mp/gametypes/_globallogic_actor.gsc
 patch_mp/maps/mp/gametypes/_globallogic_audio.gsc
@@ -59,10 +60,12 @@ patch_mp/maps/mp/gametypes/_persistence.gsc
 patch_mp/maps/mp/gametypes/_pregame.gsc
 patch_mp/maps/mp/gametypes/_rank.gsc
 patch_mp/maps/mp/gametypes/_serversettings.gsc
+patch_mp/maps/mp/gametypes/_spawnlogic.gsc
 patch_mp/maps/mp/gametypes/_spectating.gsc
 patch_mp/maps/mp/gametypes/_tweakables.gsc
 patch_mp/maps/mp/gametypes/_wager.gsc
 patch_mp/maps/mp/gametypes/_weapons.gsc
+patch_mp/maps/mp/gametypes/_weaponobjects.gsc
 patch_mp/maps/mp/gametypes/_weapon_utils.gsc
 patch_mp/maps/mp/gametypes/conf.gsc
 patch_mp/maps/mp/gametypes/ctf.gsc
@@ -174,12 +177,9 @@ patch_mp/maps/mp/mp_uplink.gsc
 patch_mp/maps/mp/mp_vertigo.gsc
 patch_mp/maps/mp/mp_village.gsc
 
-patch_mp/maps/mp/gametypes/_gameobjects.gsc
 patch_mp/maps/mp/gametypes/_hud_message.gsc
 patch_mp/maps/mp/gametypes/_hud_util.gsc
 patch_mp/maps/mp/gametypes/_spawning.gsc
-patch_mp/maps/mp/gametypes/_spawnlogic.gsc
-patch_mp/maps/mp/gametypes/_weaponobjects.gsc
 
 patch_mp/maps/mp/killstreaks/_ai_tank.gsc
 patch_mp/maps/mp/killstreaks/_airsupport.gsc

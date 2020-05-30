@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_tweakables;
 #include maps/mp/killstreaks/_radar;
 #include maps/mp/killstreaks/_killstreaks;
@@ -8,77 +9,71 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main( allowed )
+main( allowed ) //checked changed to match cerberus output
 {
 	level.vehiclesenabled = getgametypesetting( "vehiclesEnabled" );
 	level.vehiclestimed = getgametypesetting( "vehiclesTimed" );
 	level.objectivepingdelay = getgametypesetting( "objectivePingTime" );
 	level.nonteambasedteam = "allies";
+	/*
 /#
 	if ( level.script == "mp_vehicle_test" )
 	{
 		level.vehiclesenabled = 1;
 #/
 	}
+	*/
 	if ( level.vehiclesenabled )
 	{
 		allowed[ allowed.size ] = "vehicle";
 		filter_script_vehicles_from_vehicle_descriptors( allowed );
 	}
 	entities = getentarray();
-	entity_index = entities.size - 1;
-	while ( entity_index >= 0 )
+	for ( entity_index = entities.size - 1; entity_index >= 0; entity_index-- )
 	{
 		entity = entities[ entity_index ];
 		if ( !entity_is_allowed( entity, allowed ) )
 		{
 			entity delete();
 		}
-		entity_index--;
 
 	}
 	return;
 }
 
-entity_is_allowed( entity, allowed_game_modes )
+entity_is_allowed( entity, allowed_game_modes ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.createfx_enabled ) && level.createfx_enabled )
 	{
 		return 1;
 	}
 	allowed = 1;
-	while ( isDefined( entity.script_gameobjectname ) && entity.script_gameobjectname != "[all_modes]" )
+	if ( isDefined( entity.script_gameobjectname ) && entity.script_gameobjectname != "[all_modes]" )
 	{
 		allowed = 0;
 		gameobjectnames = strtok( entity.script_gameobjectname, " " );
-		i = 0;
-		while ( i < allowed_game_modes.size && !allowed )
+		for ( i = 0; i < allowed_game_modes.size && !allowed; i++ )
 		{
-			j = 0;
-			while ( j < gameobjectnames.size && !allowed )
+			for ( j = 0; j < gameobjectnames.size && !allowed; j++ )
 			{
 				allowed = gameobjectnames[ j ] == allowed_game_modes[ i ];
-				j++;
 			}
-			i++;
 		}
 	}
 	return allowed;
 }
 
-filter_script_vehicles_from_vehicle_descriptors( allowed_game_modes )
+filter_script_vehicles_from_vehicle_descriptors( allowed_game_modes ) //checked changed to match cerberus output
 {
 	vehicle_descriptors = getentarray( "vehicle_descriptor", "targetname" );
 	script_vehicles = getentarray( "script_vehicle", "classname" );
 	vehicles_to_remove = [];
-	descriptor_index = 0;
-	while ( descriptor_index < vehicle_descriptors.size )
+	for ( descriptor_index = 0; descriptor_index < vehicle_descriptors.size; descriptor_index++ )
 	{
 		descriptor = vehicle_descriptors[ descriptor_index ];
 		closest_distance_sq = 1E+12;
 		closest_vehicle = undefined;
-		vehicle_index = 0;
-		while ( vehicle_index < script_vehicles.size )
+		for ( vehicle_index = 0; vehicle_index < script_vehicles.size; vehicle_index++ )
 		{
 			vehicle = script_vehicles[ vehicle_index ];
 			dsquared = distancesquared( vehicle getorigin(), descriptor getorigin() );
@@ -87,7 +82,6 @@ filter_script_vehicles_from_vehicle_descriptors( allowed_game_modes )
 				closest_distance_sq = dsquared;
 				closest_vehicle = vehicle;
 			}
-			vehicle_index++;
 		}
 		if ( isDefined( closest_vehicle ) )
 		{
@@ -96,18 +90,15 @@ filter_script_vehicles_from_vehicle_descriptors( allowed_game_modes )
 				vehicles_to_remove[ vehicles_to_remove.size ] = closest_vehicle;
 			}
 		}
-		descriptor_index++;
 	}
-	vehicle_index = 0;
-	while ( vehicle_index < vehicles_to_remove.size )
+	for ( vehicle_index = 0; vehicle_index < vehicles_to_remove.size; vehicle_index++ )
 	{
 		vehicles_to_remove[ vehicle_index ] delete();
-		vehicle_index++;
 	}
 	return;
 }
 
-init()
+init() //checked matches cerberus output
 {
 	level.numgametypereservedobjectives = 0;
 	level.releasedobjectives = [];
@@ -119,7 +110,7 @@ init()
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	for ( ;; )
@@ -130,7 +121,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -147,7 +138,7 @@ onplayerspawned()
 	}
 }
 
-ondeath()
+ondeath() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self waittill( "death" );
@@ -157,7 +148,7 @@ ondeath()
 	}
 }
 
-ondisconnect()
+ondisconnect() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self waittill( "disconnect" );
@@ -167,7 +158,7 @@ ondisconnect()
 	}
 }
 
-createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
+createcarryobject( ownerteam, trigger, visuals, offset, objectivename ) //checked changed to match cerberus output
 {
 	carryobject = spawnstruct();
 	carryobject.type = "carryObject";
@@ -187,7 +178,7 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 	carryobject.useweapon = undefined;
 	if ( !isDefined( offset ) )
 	{
-		offset = ( 0, 0, 1 );
+		offset = ( 0, 0, 0 );
 	}
 	carryobject.offset3d = offset;
 	carryobject.newstyle = 0;
@@ -199,25 +190,19 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 	{
 		objectivename = &"";
 	}
-	index = 0;
-	while ( index < visuals.size )
+	for ( index = 0; index < visuals.size; index++ )
 	{
 		visuals[ index ].baseorigin = visuals[ index ].origin;
 		visuals[ index ].baseangles = visuals[ index ].angles;
-		index++;
 	}
 	carryobject.visuals = visuals;
 	carryobject.compassicons = [];
 	carryobject.objid = [];
-	while ( !carryobject.newstyle )
+	if ( !carryobject.newstyle )
 	{
-		_a269 = level.teams;
-		_k269 = getFirstArrayKey( _a269 );
-		while ( isDefined( _k269 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a269[ _k269 ];
 			carryobject.objid[ team ] = getnextobjid();
-			_k269 = getNextArrayKey( _a269, _k269 );
 		}
 	}
 	carryobject.objidpingfriendly = 0;
@@ -227,21 +212,20 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 	{
 		if ( level.teambased )
 		{
-			_a283 = level.teams;
-			_k283 = getFirstArrayKey( _a283 );
-			while ( isDefined( _k283 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a283[ _k283 ];
 				objective_add( carryobject.objid[ team ], "invisible", carryobject.curorigin );
 				objective_team( carryobject.objid[ team ], team );
 				carryobject.objpoints[ team ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + team + "_" + carryobject.entnum, carryobject.curorigin + offset, team, undefined );
 				carryobject.objpoints[ team ].alpha = 0;
-				_k283 = getNextArrayKey( _a283, _k283 );
 			}
 		}
-		else objective_add( carryobject.objid[ level.nonteambasedteam ], "invisible", carryobject.curorigin );
-		carryobject.objpoints[ level.nonteambasedteam ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + level.nonteambasedteam + "_" + carryobject.entnum, carryobject.curorigin + offset, "all", undefined );
-		carryobject.objpoints[ level.nonteambasedteam ].alpha = 0;
+		else 
+		{
+			objective_add( carryobject.objid[ level.nonteambasedteam ], "invisible", carryobject.curorigin );
+			carryobject.objpoints[ level.nonteambasedteam ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + level.nonteambasedteam + "_" + carryobject.entnum, carryobject.curorigin + offset, "all", undefined );
+			carryobject.objpoints[ level.nonteambasedteam ].alpha = 0;
+		}
 	}
 	carryobject.objectiveid = getnextobjid();
 	objective_add( carryobject.objectiveid, "invisible", carryobject.curorigin, objectivename );
@@ -268,14 +252,10 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 		carryobject.numtouching[ "none" ] = 0;
 		carryobject.touchlist[ "neutral" ] = [];
 		carryobject.touchlist[ "none" ] = [];
-		_a339 = level.teams;
-		_k339 = getFirstArrayKey( _a339 );
-		while ( isDefined( _k339 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a339[ _k339 ];
 			carryobject.numtouching[ team ] = 0;
 			carryobject.touchlist[ team ] = [];
-			_k339 = getNextArrayKey( _a339, _k339 );
 		}
 		carryobject.curprogress = 0;
 		carryobject.usetime = 0;
@@ -298,18 +278,18 @@ createcarryobject( ownerteam, trigger, visuals, offset, objectivename )
 	return carryobject;
 }
 
-carryobjectusethink()
+carryobjectusethink() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
 	while ( 1 )
 	{
 		self.trigger waittill( "trigger", player );
-		while ( self.isresetting )
+		if ( self.isresetting )
 		{
 			continue;
 		}
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
@@ -317,31 +297,31 @@ carryobjectusethink()
 		{
 			continue;
 		}
-		while ( !self caninteractwith( player ) )
+		if ( !self caninteractwith( player ) )
 		{
 			continue;
 		}
-		while ( !player.canpickupobject )
+		if ( !player.canpickupobject )
 		{
 			continue;
 		}
-		while ( player.throwinggrenade )
+		if ( player.throwinggrenade )
 		{
 			continue;
 		}
-		while ( isDefined( self.carrier ) )
+		if ( isDefined( self.carrier ) )
 		{
 			continue;
 		}
-		while ( player isinvehicle() )
+		if ( player isinvehicle() )
 		{
 			continue;
 		}
-		while ( player isweaponviewonlylinked() )
+		if ( player isweaponviewonlylinked() )
 		{
 			continue;
 		}
-		while ( !player istouching( self.trigger ) )
+		if ( !player istouching( self.trigger ) )
 		{
 			continue;
 		}
@@ -349,18 +329,18 @@ carryobjectusethink()
 	}
 }
 
-carryobjectproxthink()
+carryobjectproxthink() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
 	while ( 1 )
 	{
 		self.trigger waittill( "trigger", player );
-		while ( self.isresetting )
+		if ( self.isresetting )
 		{
 			continue;
 		}
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
@@ -368,31 +348,31 @@ carryobjectproxthink()
 		{
 			continue;
 		}
-		while ( !self caninteractwith( player ) )
+		if ( !self caninteractwith( player ) )
 		{
 			continue;
 		}
-		while ( !player.canpickupobject )
+		if ( !player.canpickupobject )
 		{
 			continue;
 		}
-		while ( player.throwinggrenade )
+		if ( player.throwinggrenade )
 		{
 			continue;
 		}
-		while ( isDefined( self.carrier ) )
+		if ( isDefined( self.carrier ) )
 		{
 			continue;
 		}
-		while ( player isinvehicle() )
+		if ( player isinvehicle() )
 		{
 			continue;
 		}
-		while ( player isweaponviewonlylinked() )
+		if ( player isweaponviewonlylinked() )
 		{
 			continue;
 		}
-		while ( !player istouching( self.trigger ) )
+		if ( !player istouching( self.trigger ) )
 		{
 			continue;
 		}
@@ -400,7 +380,7 @@ carryobjectproxthink()
 	}
 }
 
-pickupobjectdelay( origin )
+pickupobjectdelay( origin ) //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	self endon( "death" );
@@ -412,15 +392,12 @@ pickupobjectdelay( origin )
 		{
 			break;
 		}
-		else
-		{
-			wait 0,2;
-		}
+		wait 0.2;
 	}
 	self.canpickupobject = 1;
 }
 
-setpickedup( player )
+setpickedup( player ) //checked changed to match cerberus output
 {
 	if ( !isalive( player ) )
 	{
@@ -432,22 +409,17 @@ setpickedup( player )
 		{
 			player.carryobject thread setdropped();
 		}
-		else
+		else if ( isDefined( self.onpickupfailed ) )
 		{
-			if ( isDefined( self.onpickupfailed ) )
-			{
-				self [[ self.onpickupfailed ]]( player );
-			}
-			return;
+			self [[ self.onpickupfailed ]]( player );
 		}
+		return;
 	}
 	player giveobject( self );
 	self setcarrier( player );
-	index = 0;
-	while ( index < self.visuals.size )
+	for ( index = 0; index < self.visuals.size; index++ )
 	{
 		self.visuals[ index ] thread hideobject();
-		index++;
 	}
 	self.trigger.origin += vectorScale( ( 0, 0, 1 ), 10000 );
 	self notify( "pickup_object" );
@@ -460,7 +432,7 @@ setpickedup( player )
 	self updateobjective();
 }
 
-hideobject()
+hideobject() //checked changed to match cerberus output
 {
 	radius = 32;
 	origin = self.origin;
@@ -469,8 +441,7 @@ hideobject()
 	linkedgrenades = [];
 	linkedgrenadesindex = 0;
 	self hide();
-	i = 0;
-	while ( i < grenades.size )
+	for ( i = 0; i < grenades.size; i++ )
 	{
 		if ( distancesquared( origin, grenades[ i ].origin ) < radiussq )
 		{
@@ -481,19 +452,16 @@ hideobject()
 				linkedgrenadesindex++;
 			}
 		}
-		i++;
 	}
 	self.origin += vectorScale( ( 0, 0, 1 ), 10000 );
 	waittillframeend;
-	i = 0;
-	while ( i < linkedgrenadesindex )
+	for ( i = 0; i < linkedgrenadesindex; i++ )
 	{
-		linkedgrenades[ i ] launch( vectorScale( ( 0, 0, 1 ), 5 ) );
-		i++;
+		linkedgrenades[ i ] launch( vectorScale( ( 1, 1, 1 ), 5 ) );
 	}
 }
 
-updatecarryobjectorigin()
+updatecarryobjectorigin() //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
@@ -507,21 +475,14 @@ updatecarryobjectorigin()
 		if ( isDefined( self.carrier ) && level.teambased )
 		{
 			self.curorigin = self.carrier.origin + vectorScale( ( 0, 0, 1 ), 75 );
-			_a606 = level.teams;
-			_k606 = getFirstArrayKey( _a606 );
-			while ( isDefined( _k606 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a606[ _k606 ];
 				self.objpoints[ team ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin );
-				_k606 = getNextArrayKey( _a606, _k606 );
 			}
-			while ( self.visibleteam != "friendly" && self.visibleteam == "any" && self.objidpingfriendly )
+			if ( ( self.visibleteam == "friendly" || self.visibleteam == "any" ) && self.objidpingfriendly )
 			{
-				_a613 = level.teams;
-				_k613 = getFirstArrayKey( _a613 );
-				while ( isDefined( _k613 ) )
+				foreach ( team in level.teams )
 				{
-					team = _a613[ _k613 ];
 					if ( self isfriendlyteam( team ) )
 					{
 						if ( self.objpoints[ team ].isshown )
@@ -532,10 +493,9 @@ updatecarryobjectorigin()
 						}
 						objective_position( self.objid[ team ], self.curorigin );
 					}
-					_k613 = getNextArrayKey( _a613, _k613 );
 				}
 			}
-			if ( self.visibleteam != "enemy" && self.visibleteam == "any" && self.objidpingenemy )
+			if ( ( self.visibleteam == "enemy" && self.visibleteam == "any" ) && self.objidpingenemy )
 			{
 				if ( !self isfriendlyteam( team ) )
 				{
@@ -549,39 +509,34 @@ updatecarryobjectorigin()
 				}
 			}
 			self wait_endon( objpingdelay, "dropped", "reset" );
-			continue;
+		}
+		else if ( isDefined( self.carrier ) )
+		{
+			self.curorigin = self.carrier.origin + vectorScale( ( 0, 0, 1 ), 75 );
+			self.objpoints[ level.nonteambasedteam ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin );
+			objective_position( self.objid[ level.nonteambasedteam ], self.curorigin );
+			wait 0.05;
 		}
 		else
 		{
-			if ( isDefined( self.carrier ) )
+			if ( level.teambased )
 			{
-				self.curorigin = self.carrier.origin + vectorScale( ( 0, 0, 1 ), 75 );
-				self.objpoints[ level.nonteambasedteam ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin );
-				objective_position( self.objid[ level.nonteambasedteam ], self.curorigin );
-				wait 0,05;
-				break;
-			}
-			else
-			{
-				if ( level.teambased )
+				foreach ( team in level.teams )
 				{
-					_a656 = level.teams;
-					_k656 = getFirstArrayKey( _a656 );
-					while ( isDefined( _k656 ) )
-					{
-						team = _a656[ _k656 ];
-						self.objpoints[ team ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
-						_k656 = getNextArrayKey( _a656, _k656 );
-					}
+					self.objpoints[ team ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
+					_k656 = getNextArrayKey( _a656, _k656 );
 				}
-				else self.objpoints[ level.nonteambasedteam ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
-				wait 0,05;
 			}
+			else 
+			{
+				self.objpoints[ level.nonteambasedteam ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
+			}
+			wait 0.05;
 		}
 	}
 }
 
-updatecarryobjectobjectiveorigin()
+updatecarryobjectobjectiveorigin() //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
@@ -597,21 +552,22 @@ updatecarryobjectobjectiveorigin()
 			self.curorigin = self.carrier.origin;
 			objective_position( self.objectiveid, self.curorigin );
 			self wait_endon( objpingdelay, "dropped", "reset" );
-			continue;
 		}
 		else
 		{
 			objective_position( self.objectiveid, self.curorigin );
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 }
 
-giveobject( object )
+giveobject( object ) //checked changed to match beta dump
 {
+	/*
 /#
 	assert( !isDefined( self.carryobject ) );
 #/
+	*/
 	self.carryobject = object;
 	self thread trackcarrier();
 	if ( !object.allowweapons )
@@ -636,36 +592,37 @@ giveobject( object )
 				self.carryicon.horzalign = "right";
 				self.carryicon.vertalign = "bottom";
 			}
-			else self.carryicon = createicon( object.carryicon, 50, 50 );
-			if ( !object.allowweapons )
+			else 
 			{
-				self.carryicon setpoint( "CENTER", "CENTER", 0, 60 );
+				self.carryicon = createicon( object.carryicon, 50, 50 );
+				if ( !object.allowweapons )
+				{
+					self.carryicon setpoint( "CENTER", "CENTER", 0, 60 );
+				}
+				else
+				{
+					self.carryicon.x = 130;
+					self.carryicon.y = -60;
+					self.carryicon.horzalign = "user_left";
+					self.carryicon.vertalign = "user_bottom";
+				}
 			}
-			else
-			{
-				self.carryicon.x = 130;
-				self.carryicon.y = -60;
-				self.carryicon.horzalign = "user_left";
-				self.carryicon.vertalign = "user_bottom";
-			}
-			self.carryicon.alpha = 0,75;
+			self.carryicon.alpha = 0.75;
 			self.carryicon.hidewhileremotecontrolling = 1;
 			self.carryicon.hidewheninkillcam = 1;
 		}
 	}
 }
 
-returnhome()
+returnhome() //checked changed to match cerberus output
 {
 	self.isresetting = 1;
 	self notify( "reset" );
-	index = 0;
-	while ( index < self.visuals.size )
+	for ( index = 0; index < self.visuals.size; index++ )
 	{
 		self.visuals[ index ].origin = self.visuals[ index ].baseorigin;
 		self.visuals[ index ].angles = self.visuals[ index ].baseangles;
 		self.visuals[ index ] show();
-		index++;
 	}
 	self.trigger.origin = self.trigger.baseorigin;
 	self.curorigin = self.trigger.origin;
@@ -680,7 +637,7 @@ returnhome()
 	self.isresetting = 0;
 }
 
-isobjectawayfromhome()
+isobjectawayfromhome() //checked matches cerberus output
 {
 	if ( isDefined( self.carrier ) )
 	{
@@ -693,17 +650,15 @@ isobjectawayfromhome()
 	return 0;
 }
 
-setposition( origin, angles )
+setposition( origin, angles ) //checked changed to match cerberus output
 {
 	self.isresetting = 1;
-	index = 0;
-	while ( index < self.visuals.size )
+	for ( index = 0; index < self.visuals.size; index++ )
 	{
 		visual = self.visuals[ index ];
 		visual.origin = origin;
 		visual.angles = angles;
 		visual show();
-		index++;
 	}
 	self.trigger.origin = origin;
 	self.curorigin = self.trigger.origin;
@@ -714,7 +669,7 @@ setposition( origin, angles )
 	self.isresetting = 0;
 }
 
-onplayerlaststand()
+onplayerlaststand() //checked matches cerberus output
 {
 	if ( isDefined( self.carryobject ) )
 	{
@@ -722,12 +677,12 @@ onplayerlaststand()
 	}
 }
 
-setdropped()
+setdropped() //checked changed to match cerberus output
 {
 	self.isresetting = 1;
 	self notify( "dropped" );
-	startorigin = ( 0, 0, 1 );
-	endorigin = ( 0, 0, 1 );
+	startorigin = ( 0, 0, 0 );
+	endorigin = ( 0, 0, 0 );
 	body = undefined;
 	if ( isDefined( self.carrier ) && self.carrier.team != "spectator" )
 	{
@@ -758,13 +713,11 @@ setdropped()
 		{
 			dropangles = ( 0, tempangle, 0 );
 		}
-		index = 0;
-		while ( index < self.visuals.size )
+		for ( index = 0; index < self.visuals.size; index++ ) 
 		{
 			self.visuals[ index ].origin = droporigin;
 			self.visuals[ index ].angles = dropangles;
 			self.visuals[ index ] show();
-			index++;
 		}
 		self.trigger.origin = droporigin;
 		self.curorigin = self.trigger.origin;
@@ -772,13 +725,11 @@ setdropped()
 	}
 	else
 	{
-		index = 0;
-		while ( index < self.visuals.size )
+		for ( index = 0; index < self.visuals.size; index++ )
 		{
 			self.visuals[ index ].origin = self.visuals[ index ].baseorigin;
 			self.visuals[ index ].angles = self.visuals[ index ].baseangles;
 			self.visuals[ index ] show();
-			index++;
 		}
 		self.trigger.origin = self.trigger.baseorigin;
 		self.curorigin = self.trigger.baseorigin;
@@ -794,14 +745,14 @@ setdropped()
 	self.isresetting = 0;
 }
 
-setcarrier( carrier )
+setcarrier( carrier ) //checked matches cerberus output
 {
 	self.carrier = carrier;
 	objective_setplayerusing( self.objectiveid, carrier );
 	self thread updatevisibilityaccordingtoradar();
 }
 
-clearcarrier()
+clearcarrier() //checked matches cerberus output
 {
 	if ( !isDefined( self.carrier ) )
 	{
@@ -813,49 +764,45 @@ clearcarrier()
 	self notify( "carrier_cleared" );
 }
 
-shouldbereset( minz, maxz )
+shouldbereset( minz, maxz ) //checked changed to match cerberus output
 {
 	minetriggers = getentarray( "minefield", "targetname" );
 	hurttriggers = getentarray( "trigger_hurt", "classname" );
 	elevators = getentarray( "script_elevator", "targetname" );
-	index = 0;
-	while ( index < minetriggers.size )
+	for ( index = 0; index < minetriggers.size; index++ )
 	{
 		if ( self.visuals[ 0 ] istouchingswept( minetriggers[ index ], minz, maxz ) )
 		{
 			return 1;
 		}
-		index++;
 	}
-	index = 0;
-	while ( index < hurttriggers.size )
+	for ( index = 0; index < hurttriggers.size; index++ )
 	{
 		if ( self.visuals[ 0 ] istouchingswept( hurttriggers[ index ], minz, maxz ) )
 		{
 			return 1;
 		}
-		index++;
 	}
-	index = 0;
-	while ( index < elevators.size )
+	for ( index = 0; index < elevators.size; index++ )
 	{
+		/*
 /#
 		assert( isDefined( elevators[ index ].occupy_volume ) );
 #/
+		*/
 		if ( self.visuals[ 0 ] istouchingswept( elevators[ index ].occupy_volume, minz, maxz ) )
 		{
 			return 1;
 		}
-		index++;
 	}
 	return 0;
 }
 
-pickuptimeout( minz, maxz )
+pickuptimeout( minz, maxz ) //checked matches cerberus output
 {
 	self endon( "pickup_object" );
 	self endon( "stop_pickup_timeout" );
-	wait 0,05;
+	wait 0.05;
 	if ( self shouldbereset( minz, maxz ) )
 	{
 		self returnhome();
@@ -871,7 +818,7 @@ pickuptimeout( minz, maxz )
 	}
 }
 
-takeobject( object )
+takeobject( object ) //checked matches cerberus output
 {
 	if ( isDefined( self.carryicon ) )
 	{
@@ -902,7 +849,7 @@ takeobject( object )
 	}
 }
 
-trackcarrier()
+trackcarrier() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "disconnect" );
@@ -918,11 +865,11 @@ trackcarrier()
 				self.carryobject.safeorigin = trace[ "position" ];
 			}
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-manualdropthink()
+manualdropthink() //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	self endon( "disconnect" );
@@ -930,13 +877,13 @@ manualdropthink()
 	self endon( "drop_object" );
 	for ( ;; )
 	{
-		while ( !self attackbuttonpressed() && !self fragbuttonpressed() || self secondaryoffhandbuttonpressed() && self meleebuttonpressed() )
+		while ( self attackbuttonpressed() || self fragbuttonpressed() || self secondaryoffhandbuttonpressed() || self meleebuttonpressed() )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 		while ( !self attackbuttonpressed() && !self fragbuttonpressed() && !self secondaryoffhandbuttonpressed() && !self meleebuttonpressed() )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 		if ( isDefined( self.carryobject ) && !self usebuttonpressed() )
 		{
@@ -945,7 +892,7 @@ manualdropthink()
 	}
 }
 
-createuseobject( ownerteam, trigger, visuals, offset, objectivename )
+createuseobject( ownerteam, trigger, visuals, offset, objectivename ) //checked changed to match cerberus output
 {
 	useobject = spawnstruct();
 	useobject.type = "useObject";
@@ -962,17 +909,15 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 		useobject.triggertype = "proximity";
 	}
 	useobject.trigger = trigger;
-	index = 0;
-	while ( index < visuals.size )
+	for ( index = 0; index < visuals.size; index++ )
 	{
 		visuals[ index ].baseorigin = visuals[ index ].origin;
 		visuals[ index ].baseangles = visuals[ index ].angles;
-		index++;
 	}
 	useobject.visuals = visuals;
 	if ( !isDefined( offset ) )
 	{
-		offset = ( 0, 0, 1 );
+		offset = ( 0, 0, 0 );
 	}
 	useobject.offset3d = offset;
 	useobject.newstyle = 0;
@@ -988,27 +933,22 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 	useobject.objid = [];
 	if ( !useobject.newstyle )
 	{
-		_a1172 = level.teams;
-		_k1172 = getFirstArrayKey( _a1172 );
-		while ( isDefined( _k1172 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1172[ _k1172 ];
 			useobject.objid[ team ] = getnextobjid();
-			_k1172 = getNextArrayKey( _a1172, _k1172 );
 		}
 		if ( level.teambased )
 		{
-			_a1179 = level.teams;
-			_k1179 = getFirstArrayKey( _a1179 );
-			while ( isDefined( _k1179 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a1179[ _k1179 ];
 				objective_add( useobject.objid[ team ], "invisible", useobject.curorigin );
 				objective_team( useobject.objid[ team ], team );
-				_k1179 = getNextArrayKey( _a1179, _k1179 );
 			}
 		}
-		else objective_add( useobject.objid[ level.nonteambasedteam ], "invisible", useobject.curorigin );
+		else 
+		{
+			objective_add( useobject.objid[ level.nonteambasedteam ], "invisible", useobject.curorigin );
+		}
 	}
 	useobject.objectiveid = getnextobjid();
 	objective_add( useobject.objectiveid, "invisible", useobject.curorigin + offset, objectivename );
@@ -1016,18 +956,17 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 	{
 		if ( level.teambased )
 		{
-			_a1203 = level.teams;
-			_k1203 = getFirstArrayKey( _a1203 );
-			while ( isDefined( _k1203 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a1203[ _k1203 ];
 				useobject.objpoints[ team ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_" + team + "_" + useobject.entnum, useobject.curorigin + offset, team, undefined );
 				useobject.objpoints[ team ].alpha = 0;
-				_k1203 = getNextArrayKey( _a1203, _k1203 );
 			}
 		}
-		else useobject.objpoints[ level.nonteambasedteam ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_allies_" + useobject.entnum, useobject.curorigin + offset, "all", undefined );
-		useobject.objpoints[ level.nonteambasedteam ].alpha = 0;
+		else 
+		{
+			useobject.objpoints[ level.nonteambasedteam ] = maps/mp/gametypes/_objpoints::createteamobjpoint( "objpoint_allies_" + useobject.entnum, useobject.curorigin + offset, "all", undefined );
+			useobject.objpoints[ level.nonteambasedteam ].alpha = 0;
+		}
 	}
 	useobject.interactteam = "none";
 	useobject.worldicons = [];
@@ -1045,14 +984,10 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 		useobject.numtouching[ "none" ] = 0;
 		useobject.touchlist[ "neutral" ] = [];
 		useobject.touchlist[ "none" ] = [];
-		_a1242 = level.teams;
-		_k1242 = getFirstArrayKey( _a1242 );
-		while ( isDefined( _k1242 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1242[ _k1242 ];
 			useobject.numtouching[ team ] = 0;
 			useobject.touchlist[ team ] = [];
-			_k1242 = getNextArrayKey( _a1242, _k1242 );
 		}
 		useobject.teamusetimes = [];
 		useobject.teamusetexts = [];
@@ -1074,7 +1009,7 @@ createuseobject( ownerteam, trigger, visuals, offset, objectivename )
 	return useobject;
 }
 
-setkeyobject( object )
+setkeyobject( object ) //checked matches cerberus output
 {
 	if ( !isDefined( object ) )
 	{
@@ -1088,44 +1023,42 @@ setkeyobject( object )
 	self.keyobject[ self.keyobject.size ] = object;
 }
 
-haskeyobject( use )
+haskeyobject( use ) //checked changed to match cerberus output
 {
-	x = 0;
-	while ( x < use.keyobject.size )
+	for ( x = 0; x < use.keyobject.size; x++ )
 	{
 		if ( isDefined( self.carryobject ) && isDefined( use.keyobject[ x ] ) && self.carryobject == use.keyobject[ x ] )
 		{
 			return 1;
 		}
-		x++;
 	}
 	return 0;
 }
 
-useobjectusethink()
+useobjectusethink() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
 	while ( 1 )
 	{
 		self.trigger waittill( "trigger", player );
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
-		while ( !self caninteractwith( player ) )
+		if ( !self caninteractwith( player ) )
 		{
 			continue;
 		}
-		while ( !player isonground() )
+		if ( !player isonground() )
 		{
 			continue;
 		}
-		while ( player isinvehicle() )
+		if ( player isinvehicle() )
 		{
 			continue;
 		}
-		while ( isDefined( self.keyobject ) || !isDefined( player.carryobject ) && !player haskeyobject( self ) )
+		if ( isDefined( self.keyobject ) && !isDefined( player.carryobject ) || !player haskeyobject( self ) )
 		{
 			if ( isDefined( self.oncantuse ) )
 			{
@@ -1146,7 +1079,7 @@ useobjectusethink()
 				self [[ self.onenduse ]]( team, player, result );
 			}
 		}
-		while ( !result )
+		if ( !result )
 		{
 			continue;
 		}
@@ -1157,19 +1090,20 @@ useobjectusethink()
 	}
 }
 
-getearliestclaimplayer()
+getearliestclaimplayer() //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( self.claimteam != "none" );
 #/
+	*/
 	team = self.claimteam;
 	earliestplayer = self.claimplayer;
-	while ( self.touchlist[ team ].size > 0 )
+	if ( self.touchlist[ team ].size > 0 )
 	{
 		earliesttime = undefined;
 		players = getarraykeys( self.touchlist[ team ] );
-		index = 0;
-		while ( index < players.size )
+		for ( index = 0; index < players.size; index++ )
 		{
 			touchdata = self.touchlist[ team ][ players[ index ] ];
 			if ( !isDefined( earliesttime ) || touchdata.starttime < earliesttime )
@@ -1177,13 +1111,12 @@ getearliestclaimplayer()
 				earliestplayer = touchdata.player;
 				earliesttime = touchdata.starttime;
 			}
-			index++;
 		}
 	}
 	return earliestplayer;
 }
 
-useobjectproxthink()
+useobjectproxthink() //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
@@ -1220,41 +1153,41 @@ useobjectproxthink()
 				self.claimplayer = undefined;
 				self clearprogress();
 			}
-			else if ( self.usetime || !self.mustmaintainclaim && self getownerteam() != self getclaimteam() )
+			else 
 			{
-				if ( self.decayprogress && !self.numtouching[ self.claimteam ] )
+				if ( !self.mustmaintainclaim || self getownerteam() != self getclaimteam() && self.usetime )
 				{
-					if ( isDefined( self.claimplayer ) )
+					if ( self.decayprogress && !self.numtouching[ self.claimteam ] )
 					{
-						if ( isDefined( self.onenduse ) )
+						if ( isDefined( self.claimplayer ) )
 						{
-							self [[ self.onenduse ]]( self getclaimteam(), self.claimplayer, 0 );
+							if ( isDefined( self.onenduse ) )
+							{
+								self [[ self.onenduse ]]( self getclaimteam(), self.claimplayer, 0 );
+							}
+							self.claimplayer = undefined;
 						}
-						self.claimplayer = undefined;
+						decayscale = 0;
+						if ( self.decaytime )
+						{
+							decayscale = self.usetime / self.decaytime;
+						}
+						self.curprogress -= 50 * self.userate * decayscale;
+						if ( self.curprogress <= 0 )
+						{
+							self clearprogress();
+						}
+						self updatecurrentprogress();
+						if ( isDefined( self.onuseupdate ) )
+						{
+							self [[ self.onuseupdate ]]( self getclaimteam(), self.curprogress / self.usetime, ( 50 * self.userate * decayscale ) / self.usetime );
+						}
+						if ( self.curprogress == 0 )
+						{
+							self setclaimteam( "none" );
+						}
 					}
-					decayscale = 0;
-					if ( self.decaytime )
-					{
-						decayscale = self.usetime / self.decaytime;
-					}
-					self.curprogress -= 50 * self.userate * decayscale;
-					if ( self.curprogress <= 0 )
-					{
-						self clearprogress();
-					}
-					self updatecurrentprogress();
-					if ( isDefined( self.onuseupdate ) )
-					{
-						self [[ self.onuseupdate ]]( self getclaimteam(), self.curprogress / self.usetime, ( 50 * self.userate * decayscale ) / self.usetime );
-					}
-					if ( self.curprogress == 0 )
-					{
-						self setclaimteam( "none" );
-					}
-				}
-				else
-				{
-					if ( !self.numtouching[ self.claimteam ] )
+					else if ( !self.numtouching[ self.claimteam ] )
 					{
 						if ( isDefined( self.onenduse ) )
 						{
@@ -1274,10 +1207,7 @@ useobjectproxthink()
 						}
 					}
 				}
-			}
-			else
-			{
-				if ( !self.mustmaintainclaim )
+				else if ( !self.mustmaintainclaim )
 				{
 					if ( isDefined( self.onuse ) )
 					{
@@ -1288,7 +1218,6 @@ useobjectproxthink()
 						self setclaimteam( "none" );
 						self.claimplayer = undefined;
 					}
-					break;
 				}
 				else if ( !self.numtouching[ self.claimteam ] )
 				{
@@ -1298,22 +1227,18 @@ useobjectproxthink()
 					}
 					self setclaimteam( "none" );
 					self.claimplayer = undefined;
-					break;
 				}
-				else
+				else if ( self.cancontestclaim )
 				{
-					if ( self.cancontestclaim )
+					numother = getnumtouchingexceptteam( self.claimteam );
+					if ( numother > 0 )
 					{
-						numother = getnumtouchingexceptteam( self.claimteam );
-						if ( numother > 0 )
+						if ( isDefined( self.oncontested ) )
 						{
-							if ( isDefined( self.oncontested ) )
-							{
-								self [[ self.oncontested ]]();
-							}
-							self setclaimteam( "none" );
-							self.claimplayer = undefined;
+							self [[ self.oncontested ]]();
 						}
+						self setclaimteam( "none" );
+						self.claimplayer = undefined;
 					}
 				}
 			}
@@ -1330,29 +1255,25 @@ useobjectproxthink()
 				{
 					self [[ self.onunoccupied ]]();
 				}
-				break;
 			}
-			else
+			else if ( self.cancontestclaim && self.lastclaimteam != "none" && self.numtouching[ self.lastclaimteam ] )
 			{
-				if ( self.cancontestclaim && self.lastclaimteam != "none" && self.numtouching[ self.lastclaimteam ] )
+				numother = getnumtouchingexceptteam( self.lastclaimteam );
+				if ( numother == 0 )
 				{
-					numother = getnumtouchingexceptteam( self.lastclaimteam );
-					if ( numother == 0 )
+					if ( isDefined( self.onuncontested ) )
 					{
-						if ( isDefined( self.onuncontested ) )
-						{
-							self [[ self.onuncontested ]]( self.lastclaimteam );
-						}
+						self [[ self.onuncontested ]]( self.lastclaimteam );
 					}
 				}
 			}
 		}
-		wait 0,05;
+		wait 0.05;
 		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 }
 
-useobjectlockedforteam( team )
+useobjectlockedforteam( team ) //checked matches cerberus output
 {
 	if ( isDefined( self.teamlock ) && isDefined( level.teams[ team ] ) )
 	{
@@ -1361,7 +1282,7 @@ useobjectlockedforteam( team )
 	return 0;
 }
 
-canclaim( player )
+canclaim( player ) //checked matches cerberus output
 {
 	if ( isDefined( self.carrier ) )
 	{
@@ -1382,7 +1303,7 @@ canclaim( player )
 	return 0;
 }
 
-proxtriggerthink()
+proxtriggerthink() //checked changed to match cerberus output
 {
 	level endon( "game_ended" );
 	self.trigger endon( "destroyed" );
@@ -1394,15 +1315,15 @@ proxtriggerthink()
 		{
 			continue;
 		}
-		while ( player.spawntime == getTime() )
+		if ( player.spawntime == getTime() )
 		{
 			continue;
 		}
-		while ( player isweaponviewonlylinked() )
+		if ( player isweaponviewonlylinked() )
 		{
 			continue;
 		}
-		while ( self isexcluded( player ) )
+		if ( self isexcluded( player ) )
 		{
 			continue;
 		}
@@ -1421,14 +1342,10 @@ proxtriggerthink()
 				{
 					self [[ self.onbeginuse ]]( self.claimplayer );
 				}
-				break;
 			}
-			else
+			else if ( isDefined( self.oncantuse ) )
 			{
-				if ( isDefined( self.oncantuse ) )
-				{
-					self [[ self.oncantuse ]]( player );
-				}
+				self [[ self.oncantuse ]]( player );
 			}
 		}
 		if ( isalive( player ) && !isDefined( player.touchtriggers[ entitynumber ] ) )
@@ -1438,27 +1355,23 @@ proxtriggerthink()
 	}
 }
 
-isexcluded( player )
+isexcluded( player ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.exclusions ) )
 	{
 		return 0;
 	}
-	_a1676 = self.exclusions;
-	_k1676 = getFirstArrayKey( _a1676 );
-	while ( isDefined( _k1676 ) )
+	foreach ( exclusion in self.exclusions )
 	{
-		exclusion = _a1676[ _k1676 ];
 		if ( exclusion istouching( player ) )
 		{
 			return 1;
 		}
-		_k1676 = getNextArrayKey( _a1676, _k1676 );
 	}
 	return 0;
 }
 
-clearprogress()
+clearprogress() //checked matches cerberus output
 {
 	self.curprogress = 0;
 	self updatecurrentprogress();
@@ -1468,21 +1381,20 @@ clearprogress()
 	}
 }
 
-setclaimteam( newteam )
+setclaimteam( newteam ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( newteam != self.claimteam );
 #/
+	*/
 	if ( self.claimteam == "none" && ( getTime() - self.lastclaimtime ) > ( self.claimgraceperiod * 1000 ) )
 	{
 		self clearprogress();
 	}
-	else
+	else if ( newteam != "none" && newteam != self.lastclaimteam )
 	{
-		if ( newteam != "none" && newteam != self.lastclaimteam )
-		{
-			self clearprogress();
-		}
+		self clearprogress();
 	}
 	self.lastclaimteam = self.claimteam;
 	self.lastclaimtime = getTime();
@@ -1490,12 +1402,12 @@ setclaimteam( newteam )
 	self updateuserate();
 }
 
-getclaimteam()
+getclaimteam() //checked matches cerberus output
 {
 	return self.claimteam;
 }
 
-continuetriggertouchthink( team, object )
+continuetriggertouchthink( team, object ) //checked matches cerberus output
 {
 	if ( !isalive( self ) )
 	{
@@ -1512,7 +1424,7 @@ continuetriggertouchthink( team, object )
 	return 1;
 }
 
-triggertouchthink( object )
+triggertouchthink( object ) //checked changed to match cerberus output
 {
 	team = self.pers[ "team" ];
 	score = 1;
@@ -1538,7 +1450,7 @@ triggertouchthink( object )
 		{
 			self updateproxbar( object, 0 );
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 	if ( isDefined( self ) )
 	{
@@ -1546,12 +1458,14 @@ triggertouchthink( object )
 		{
 			self updateproxbar( object, 1 );
 		}
+		self.touchtriggers[object.entnum] = undefined;
 		objective_clearplayerusing( object.objectiveid, self );
 	}
 	if ( level.gameended )
 	{
 		return;
 	}
+	object.touchlist[team][touchname] = undefined;
 	object.numtouching[ team ] -= score;
 	if ( object.numtouching[ team ] < 1 )
 	{
@@ -1572,7 +1486,7 @@ triggertouchthink( object )
 	object updateuserate();
 }
 
-updateproxbar( object, forceremove )
+updateproxbar( object, forceremove ) //checked changed to match beta dump
 {
 	if ( object.newstyle )
 	{
@@ -1592,42 +1506,42 @@ updateproxbar( object, forceremove )
 			}
 			return;
 		}
-		else if ( !isDefined( self.proxbar ) )
+		else 
 		{
-			self.proxbar = createprimaryprogressbar();
-			self.proxbar.lastuserate = -1;
-		}
-		if ( self.pers[ "team" ] == object.claimteam )
-		{
-			if ( self.proxbar.bar.color != ( 0, 0, 1 ) )
+			if ( !isDefined( self.proxbar ) )
 			{
-				self.proxbar.bar.color = ( 0, 0, 1 );
+				self.proxbar = createprimaryprogressbar();
 				self.proxbar.lastuserate = -1;
 			}
-		}
-		else
-		{
-			if ( self.proxbar.bar.color != ( 0, 0, 1 ) )
+			if ( self.pers[ "team" ] == object.claimteam )
 			{
-				self.proxbar.bar.color = ( 0, 0, 1 );
-				self.proxbar.lastuserate = -1;
+				if ( self.proxbar.bar.color != ( 1, 1, 1 ) )
+				{
+					self.proxbar.bar.color = ( 1, 1, 1 );
+					self.proxbar.lastuserate = -1;
+				}
+			}
+			else
+			{
+				if ( self.proxbar.bar.color != ( 1, 0, 0 ) )
+				{
+					self.proxbar.bar.color = ( 1, 0, 0 );
+					self.proxbar.lastuserate = -1;
+				}
 			}
 		}
 	}
-	else
+	else if ( !forceremove || !object caninteractwith( self ) || self.pers[ "team" ] != object.claimteam )
 	{
-		if ( !forceremove || !object caninteractwith( self ) && self.pers[ "team" ] != object.claimteam )
+		if ( isDefined( self.proxbar ) )
 		{
-			if ( isDefined( self.proxbar ) )
-			{
-				self.proxbar hideelem();
-			}
-			if ( isDefined( self.proxbartext ) )
-			{
-				self.proxbartext hideelem();
-			}
-			return;
+			self.proxbar hideelem();
 		}
+		if ( isDefined( self.proxbartext ) )
+		{
+			self.proxbartext hideelem();
+		}
+		return;
 	}
 	if ( !isDefined( self.proxbar ) )
 	{
@@ -1685,14 +1599,11 @@ updateproxbar( object, forceremove )
 	}
 }
 
-getnumtouchingexceptteam( ignoreteam )
+getnumtouchingexceptteam( ignoreteam ) //checked partially changed to match cerberus output see github for more info
 {
 	numtouching = 0;
-	_a1944 = level.teams;
-	_k1944 = getFirstArrayKey( _a1944 );
-	while ( isDefined( _k1944 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a1944[ _k1944 ];
 		if ( ignoreteam == team )
 		{
 		}
@@ -1700,12 +1611,11 @@ getnumtouchingexceptteam( ignoreteam )
 		{
 			numtouching += self.numtouching[ team ];
 		}
-		_k1944 = getNextArrayKey( _a1944, _k1944 );
 	}
 	return numtouching;
 }
 
-updateuserate()
+updateuserate() //checked changed to match beta dump
 {
 	numclaimants = self.numtouching[ self.claimteam ];
 	numother = 0;
@@ -1717,19 +1627,13 @@ updateuserate()
 		{
 			self.userate = numclaimants;
 		}
-		else
+		else if ( !numclaimants && numother )
 		{
-			if ( !numclaimants && numother )
-			{
-				self.userate = numother;
-			}
-			else
-			{
-				if ( !numclaimants && !numother )
-				{
-					self.userate = 0;
-				}
-			}
+			self.userate = numother;
+		}
+		else if ( !numclaimants && !numother )
+		{
+			self.userate = 0;
 		}
 	}
 	else
@@ -1745,7 +1649,7 @@ updateuserate()
 	}
 }
 
-useholdthink( player )
+useholdthink( player ) //checked changed to match cerberus output
 {
 	player notify( "use_hold" );
 	if ( !is_true( self.dontlinkplayertotrigger ) )
@@ -1759,19 +1663,25 @@ useholdthink( player )
 	lastweapon = player getcurrentweapon();
 	if ( isDefined( useweapon ) )
 	{
+		/*
 /#
 		assert( isDefined( lastweapon ) );
 #/
+		*/
 		if ( lastweapon == useweapon )
 		{
+			/*
 /#
 			assert( isDefined( player.lastnonuseweapon ) );
 #/
+			*/
 			lastweapon = player.lastnonuseweapon;
 		}
+		/*
 /#
 		assert( lastweapon != useweapon );
 #/
+		*/
 		player.lastnonuseweapon = lastweapon;
 		player giveweapon( useweapon );
 		player setweaponammostock( useweapon, 0 );
@@ -1823,12 +1733,9 @@ useholdthink( player )
 				player switchtolastnonkillstreakweapon();
 			}
 		}
-		else
+		else if ( isalive( player ) )
 		{
-			if ( isalive( player ) )
-			{
-				player _enableweapon();
-			}
+			player _enableweapon();
 		}
 		if ( !is_true( self.dontlinkplayertotrigger ) )
 		{
@@ -1851,7 +1758,7 @@ useholdthink( player )
 	return 0;
 }
 
-takeuseweapon( useweapon )
+takeuseweapon( useweapon ) //checked changed to match cerberus output
 {
 	self endon( "use_hold" );
 	self endon( "death" );
@@ -1859,14 +1766,14 @@ takeuseweapon( useweapon )
 	level endon( "game_ended" );
 	while ( self getcurrentweapon() == useweapon && !self.throwinggrenade )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self takeweapon( useweapon );
 }
 
-continueholdthinkloop( player, waitforweapon, timedout, usetime )
+continueholdthinkloop( player, waitforweapon, timedout, usetime ) //checked matches cerberus output
 {
-	maxwaittime = 1,5;
+	maxwaittime = 1.5;
 	if ( !isalive( player ) )
 	{
 		return 0;
@@ -1918,7 +1825,7 @@ continueholdthinkloop( player, waitforweapon, timedout, usetime )
 	return 1;
 }
 
-updatecurrentprogress()
+updatecurrentprogress() //checked matches cerberus output
 {
 	if ( self.usetime )
 	{
@@ -1934,7 +1841,7 @@ updatecurrentprogress()
 	}
 }
 
-useholdthinkloop( player, lastweapon )
+useholdthinkloop( player, lastweapon ) //checked changed to match beta dump
 {
 	level endon( "game_ended" );
 	self endon( "disabled" );
@@ -1944,7 +1851,7 @@ useholdthinkloop( player, lastweapon )
 	usetime = self.usetime;
 	while ( self continueholdthinkloop( player, waitforweapon, timedout, usetime ) )
 	{
-		timedout += 0,05;
+		timedout += 0.05;
 		if ( !isDefined( useweapon ) || player getcurrentweapon() == useweapon )
 		{
 			self.curprogress += 50 * self.userate;
@@ -1963,7 +1870,7 @@ useholdthinkloop( player, lastweapon )
 			player.claimtrigger = undefined;
 			if ( isDefined( useweapon ) )
 			{
-				if ( lastweapon != "none" && !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( lastweapon ) && isweaponequipment( lastweapon ) && player getweaponammoclip( lastweapon ) != 0 )
+				if ( lastweapon != "none" && !maps/mp/killstreaks/_killstreaks::iskillstreakweapon( lastweapon ) && !( isweaponequipment( lastweapon ) && player getweaponammoclip( lastweapon ) == 0 ) )
 				{
 					player switchtoweapon( lastweapon );
 				}
@@ -1981,16 +1888,16 @@ useholdthinkloop( player, lastweapon )
 			{
 				player unlink();
 			}
-			wait 0,05;
+			wait 0.05;
 			return isalive( player );
 		}
-		wait 0,05;
+		wait 0.05;
 		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 	return 0;
 }
 
-personalusebar( object )
+personalusebar( object ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( object.newstyle )
@@ -2051,13 +1958,13 @@ personalusebar( object )
 		}
 		lastrate = object.userate;
 		lasthostmigrationstate = isDefined( level.hostmigrationtimer );
-		wait 0,05;
+		wait 0.05;
 	}
 	self.usebar destroyelem();
 	self.usebartext destroyelem();
 }
 
-updatetrigger()
+updatetrigger() //checked changed to match cerberus output
 {
 	if ( self.triggertype != "use" )
 	{
@@ -2072,33 +1979,26 @@ updatetrigger()
 		self.trigger.origin = self.curorigin;
 		self.trigger setteamfortrigger( "none" );
 	}
-	else
+	else if ( self.interactteam == "friendly" )
 	{
-		if ( self.interactteam == "friendly" )
+		self.trigger.origin = self.curorigin;
+		if ( isDefined( level.teams[ self.ownerteam ] ) )
 		{
-			self.trigger.origin = self.curorigin;
-			if ( isDefined( level.teams[ self.ownerteam ] ) )
-			{
-				self.trigger setteamfortrigger( self.ownerteam );
-			}
-			else
-			{
-				self.trigger.origin -= vectorScale( ( 0, 0, 1 ), 50000 );
-			}
-			return;
+			self.trigger setteamfortrigger( self.ownerteam );
 		}
 		else
 		{
-			if ( self.interactteam == "enemy" )
-			{
-				self.trigger.origin = self.curorigin;
-				self.trigger setexcludeteamfortrigger( self.ownerteam );
-			}
+			self.trigger.origin -= vectorScale( ( 0, 0, 1 ), 50000 );
 		}
+	}
+	else if ( self.interactteam == "enemy" )
+	{
+		self.trigger.origin = self.curorigin;
+		self.trigger setexcludeteamfortrigger( self.ownerteam );
 	}
 }
 
-updateobjective()
+updateobjective() //checked matches cerberus output
 {
 	if ( !self.newstyle )
 	{
@@ -2139,7 +2039,7 @@ updateobjective()
 	}
 }
 
-updateworldicons()
+updateworldicons() //checked matches cerberus output
 {
 	if ( self.visibleteam == "any" )
 	{
@@ -2163,7 +2063,7 @@ updateworldicons()
 	}
 }
 
-updateworldicon( relativeteam, showicon )
+updateworldicon( relativeteam, showicon ) //checked partially changed to match cerberus output see info.md
 {
 	if ( self.newstyle )
 	{
@@ -2191,7 +2091,7 @@ updateworldicon( relativeteam, showicon )
 			if ( showicon )
 			{
 				objpoint setshader( self.worldicons[ relativeteam ], level.objpointsize, level.objpointsize );
-				objpoint fadeovertime( 0,05 );
+				objpoint fadeovertime( 0.05 );
 				objpoint.alpha = objpoint.basealpha;
 				objpoint.isshown = 1;
 				iswaypoint = 1;
@@ -2222,19 +2122,16 @@ updateworldicon( relativeteam, showicon )
 				index++;
 				continue;
 			}
-			else
-			{
-				objpoint fadeovertime( 0,05 );
-				objpoint.alpha = 0;
-				objpoint.isshown = 0;
-				objpoint cleartargetent();
-			}
+			objpoint fadeovertime( 0,05 );
+			objpoint.alpha = 0;
+			objpoint.isshown = 0;
+			objpoint cleartargetent();
 		}
 		index++;
 	}
 }
 
-updatecompassicons()
+updatecompassicons() //checked matches cerberus output
 {
 	if ( self.visibleteam == "any" )
 	{
@@ -2258,7 +2155,7 @@ updatecompassicons()
 	}
 }
 
-updatecompassicon( relativeteam, showicon )
+updatecompassicon( relativeteam, showicon ) //checked partially changed to match cerberus output see info.md
 {
 	if ( self.newstyle )
 	{
@@ -2287,90 +2184,76 @@ updatecompassicon( relativeteam, showicon )
 			index++;
 			continue;
 		}
-		else
+		objective_icon( objid, self.compassicons[ relativeteam ] );
+		objective_state( objid, "active" );
+		if ( self.type == "carryObject" )
 		{
-			objective_icon( objid, self.compassicons[ relativeteam ] );
-			objective_state( objid, "active" );
-			if ( self.type == "carryObject" )
+			if ( isalive( self.carrier ) && !shouldpingobject( relativeteam ) )
 			{
-				if ( isalive( self.carrier ) && !shouldpingobject( relativeteam ) )
-				{
-					objective_onentity( objid, self.carrier );
-					index++;
-					continue;
-				}
-				else
-				{
-					objective_position( objid, self.curorigin );
-				}
+				objective_onentity( objid, self.carrier );
+				index++;
+				continue;
 			}
+			objective_position( objid, self.curorigin );
 		}
 		index++;
 	}
 }
 
-shouldpingobject( relativeteam )
+shouldpingobject( relativeteam ) //checked changed to match cerberus output
 {
 	if ( relativeteam == "friendly" && self.objidpingfriendly )
 	{
 		return 1;
 	}
-	else
+	else if ( relativeteam == "enemy" && self.objidpingenemy )
 	{
-		if ( relativeteam == "enemy" && self.objidpingenemy )
-		{
-			return 1;
-		}
+		return 1;
 	}
 	return 0;
 }
 
-getupdateteams( relativeteam )
+getupdateteams( relativeteam ) //checked changed to match beta dump
 {
 	updateteams = [];
 	if ( level.teambased )
 	{
 		if ( relativeteam == "friendly" )
 		{
-			_a2569 = level.teams;
-			_k2569 = getFirstArrayKey( _a2569 );
-			while ( isDefined( _k2569 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a2569[ _k2569 ];
 				if ( self isfriendlyteam( team ) )
 				{
 					updateteams[ updateteams.size ] = team;
 				}
-				_k2569 = getNextArrayKey( _a2569, _k2569 );
 			}
 		}
-		else while ( relativeteam == "enemy" )
+		else if ( relativeteam == "enemy" )
 		{
-			_a2577 = level.teams;
-			_k2577 = getFirstArrayKey( _a2577 );
-			while ( isDefined( _k2577 ) )
+			foreach ( team in level.teams )
 			{
-				team = _a2577[ _k2577 ];
 				if ( !self isfriendlyteam( team ) )
 				{
 					updateteams[ updateteams.size ] = team;
 				}
-				_k2577 = getNextArrayKey( _a2577, _k2577 );
 			}
 		}
 	}
-	else if ( relativeteam == "friendly" )
+	else 
 	{
-		updateteams[ updateteams.size ] = level.nonteambasedteam;
-	}
-	else
-	{
-		updateteams[ updateteams.size ] = "axis";
+		if ( relativeteam == "friendly" )
+		{
+			updateteams[ updateteams.size ] = level.nonteambasedteam;
+		}
+		else
+		{
+			updateteams[ updateteams.size ] = "axis";
+		}
 	}
 	return updateteams;
 }
 
-shouldshowcompassduetoradar( team )
+shouldshowcompassduetoradar( team ) //checked matches cerberus output
 {
 	showcompass = 0;
 	if ( !isDefined( self.carrier ) )
@@ -2391,7 +2274,7 @@ shouldshowcompassduetoradar( team )
 	return showcompass;
 }
 
-updatevisibilityaccordingtoradar()
+updatevisibilityaccordingtoradar() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "carrier_cleared" );
@@ -2402,7 +2285,7 @@ updatevisibilityaccordingtoradar()
 	}
 }
 
-setownerteam( team )
+setownerteam( team ) //checked matches cerberus output
 {
 	self.ownerteam = team;
 	self updatetrigger();
@@ -2411,53 +2294,53 @@ setownerteam( team )
 	self updateobjective();
 }
 
-getownerteam()
+getownerteam() //checked matches cerberus output
 {
 	return self.ownerteam;
 }
 
-setdecaytime( time )
+setdecaytime( time ) //checked matches cerberus output
 {
 	self.decaytime = int( time * 1000 );
 }
 
-setusetime( time )
+setusetime( time ) //checked matches cerberus output
 {
 	self.usetime = int( time * 1000 );
 }
 
-setusetext( text )
+setusetext( text ) //checked matches cerberus output
 {
 	self.usetext = text;
 }
 
-setteamusetime( relativeteam, time )
+setteamusetime( relativeteam, time ) //checked matches cerberus output
 {
 	self.teamusetimes[ relativeteam ] = int( time * 1000 );
 }
 
-setteamusetext( relativeteam, text )
+setteamusetext( relativeteam, text ) //checked matches cerberus output
 {
 	self.teamusetexts[ relativeteam ] = text;
 }
 
-setusehinttext( text )
+setusehinttext( text ) //checked matches cerberus output
 {
 	self.trigger sethintstring( text );
 }
 
-allowcarry( relativeteam )
+allowcarry( relativeteam ) //checked matches cerberus output
 {
 	allowuse( relativeteam );
 }
 
-allowuse( relativeteam )
+allowuse( relativeteam ) //checked matches cerberus output
 {
 	self.interactteam = relativeteam;
 	updatetrigger();
 }
 
-setvisibleteam( relativeteam )
+setvisibleteam( relativeteam ) //checked matches cerberus output
 {
 	self.visibleteam = relativeteam;
 	if ( !maps/mp/gametypes/_tweakables::gettweakablevalue( "hud", "showobjicons" ) )
@@ -2469,51 +2352,45 @@ setvisibleteam( relativeteam )
 	updateobjective();
 }
 
-setmodelvisibility( visibility )
+setmodelvisibility( visibility ) //checked changed to match beta dump
 {
 	if ( visibility )
 	{
-		index = 0;
-		while ( index < self.visuals.size )
+		for ( index = 0; index < self.visuals.size; index++ )
 		{
 			self.visuals[ index ] show();
 			if ( self.visuals[ index ].classname == "script_brushmodel" || self.visuals[ index ].classname == "script_model" )
 			{
 				self.visuals[ index ] thread makesolid();
 			}
-			index++;
 		}
 	}
-	else index = 0;
-	while ( index < self.visuals.size )
+	else 
 	{
-		self.visuals[ index ] hide();
-		if ( self.visuals[ index ].classname == "script_brushmodel" || self.visuals[ index ].classname == "script_model" )
+		for ( index = 0; index < self.visuals.size; index++ )
 		{
-			self.visuals[ index ] notify( "changing_solidness" );
-			self.visuals[ index ] notsolid();
+			self.visuals[ index ] hide();
+			if ( self.visuals[ index ].classname == "script_brushmodel" || self.visuals[ index ].classname == "script_model" )
+			{
+				self.visuals[ index ] notify( "changing_solidness" );
+				self.visuals[ index ] notsolid();
+			}
 		}
-		index++;
 	}
 }
 
-makesolid()
+makesolid() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self notify( "changing_solidness" );
 	self endon( "changing_solidness" );
 	while ( 1 )
 	{
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			if ( level.players[ i ] istouching( self ) )
 			{
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 		if ( i == level.players.size )
@@ -2521,75 +2398,68 @@ makesolid()
 			self solid();
 			return;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 }
 
-setcarriervisible( relativeteam )
+setcarriervisible( relativeteam ) //checked matches cerberus output
 {
 	self.carriervisible = relativeteam;
 }
 
-setcanuse( relativeteam )
+setcanuse( relativeteam ) //checked matches cerberus output
 {
 	self.useteam = relativeteam;
 }
 
-set2dicon( relativeteam, shader )
+set2dicon( relativeteam, shader ) //checked matches cerberus output
 {
 	self.compassicons[ relativeteam ] = shader;
 	updatecompassicons();
 }
 
-set3dicon( relativeteam, shader )
+set3dicon( relativeteam, shader ) //checked matches cerberus output
 {
 	self.worldicons[ relativeteam ] = shader;
 	updateworldicons();
 }
 
-set3duseicon( relativeteam, shader )
+set3duseicon( relativeteam, shader ) //checked matches cerberus output
 {
 	self.worlduseicons[ relativeteam ] = shader;
 }
 
-set3diswaypoint( relativeteam, waypoint )
+set3diswaypoint( relativeteam, waypoint ) //checked matches cerberus output
 {
 	self.worldiswaypoint[ relativeteam ] = waypoint;
 }
 
-setcarryicon( shader )
+setcarryicon( shader ) //checked matches cerberus output
 {
 	self.carryicon = shader;
 }
 
-setvisiblecarriermodel( visiblemodel )
+setvisiblecarriermodel( visiblemodel ) //checked matches cerberus output
 {
 	self.visiblecarriermodel = visiblemodel;
 }
 
-getvisiblecarriermodel()
+getvisiblecarriermodel() //checked matches cerberus output
 {
 	return self.visiblecarriermodel;
 }
 
-destroyobject( deletetrigger, forcehide )
+destroyobject( deletetrigger, forcehide ) //checked changed to match cerberus output
 {
 	if ( !isDefined( forcehide ) )
 	{
 		forcehide = 1;
 	}
 	self disableobject( forcehide );
-	_a2795 = self.visuals;
-	_k2795 = getFirstArrayKey( _a2795 );
-	while ( isDefined( _k2795 ) )
+	foreach ( visual in self.visuals )
 	{
-		visual = _a2795[ _k2795 ];
 		visual hide();
 		visual delete();
-		_k2795 = getNextArrayKey( _a2795, _k2795 );
 	}
 	self.trigger notify( "destroyed" );
 	if ( is_true( deletetrigger ) )
@@ -2602,42 +2472,38 @@ destroyobject( deletetrigger, forcehide )
 	}
 }
 
-disableobject( forcehide )
+disableobject( forcehide ) //checked changed to match cerberus output
 {
 	self notify( "disabled" );
-	while ( self.type == "carryObject" || isDefined( forcehide ) && forcehide )
+	if ( self.type == "carryObject" || isDefined( forcehide ) && forcehide )
 	{
 		if ( isDefined( self.carrier ) )
 		{
 			self.carrier takeobject( self );
 		}
-		index = 0;
-		while ( index < self.visuals.size )
+		for ( index = 0; index < self.visuals.size; index++ )
 		{
 			self.visuals[ index ] hide();
-			index++;
 		}
 	}
 	self.trigger triggeroff();
 	self setvisibleteam( "none" );
 }
 
-enableobject( forceshow )
+enableobject( forceshow ) //checked changed to match cerberus output
 {
-	while ( self.type == "carryObject" || isDefined( forceshow ) && forceshow )
+	if ( self.type == "carryObject" || isDefined( forceshow ) && forceshow )
 	{
-		index = 0;
-		while ( index < self.visuals.size )
+		for ( index = 0; index < self.visuals.size; index++ )
 		{
 			self.visuals[ index ] show();
-			index++;
 		}
 	}
 	self.trigger triggeron();
 	self setvisibleteam( "any" );
 }
 
-getrelativeteam( team )
+getrelativeteam( team ) //checked changed to match cerberus output
 {
 	if ( self.ownerteam == "any" )
 	{
@@ -2647,16 +2513,13 @@ getrelativeteam( team )
 	{
 		return "friendly";
 	}
+	else if ( team == getenemyteam( self.ownerteam ) )
+	{
+		return "enemy";
+	}
 	else
 	{
-		if ( team == getenemyteam( self.ownerteam ) )
-		{
-			return "enemy";
-		}
-		else
-		{
-			return "neutral";
-		}
+		return "neutral";
 	}
 }
 
@@ -2677,7 +2540,7 @@ isfriendlyteam( team )
 	return 0;
 }
 
-caninteractwith( player )
+caninteractwith( player ) //checked changed to match beta dump
 {
 	team = player.pers[ "team" ];
 	switch( self.interactteam )
@@ -2716,16 +2579,13 @@ caninteractwith( player )
 				{
 					return 1;
 				}
+				else if ( isDefined( self.decayprogress ) && self.decayprogress && self.curprogress > 0 )
+				{
+					return 1;
+				}
 				else
 				{
-					if ( isDefined( self.decayprogress ) && self.decayprogress && self.curprogress > 0 )
-					{
-						return 1;
-					}
-					else
-					{
-						return 0;
-					}
+					return 0;
 				}
 			}
 			else
@@ -2740,14 +2600,16 @@ caninteractwith( player )
 			}
 		}
 		default:
+			/*
 /#
 			assert( 0, "invalid interactTeam" );
 #/
+			*/
 			return 0;
 	}
 }
 
-isteam( team )
+isteam( team ) //checked matches cerberus output
 {
 	if ( team == "neutral" )
 	{
@@ -2768,7 +2630,7 @@ isteam( team )
 	return 0;
 }
 
-isrelativeteam( relativeteam )
+isrelativeteam( relativeteam ) //checked matches cerberus output
 {
 	if ( relativeteam == "friendly" )
 	{
@@ -2789,26 +2651,23 @@ isrelativeteam( relativeteam )
 	return 0;
 }
 
-getenemyteam( team )
+getenemyteam( team ) //checked changed to match cerberus output
 {
 	if ( team == "neutral" )
 	{
 		return "none";
 	}
+	else if ( team == "allies" )
+	{
+		return "axis";
+	}
 	else
 	{
-		if ( team == "allies" )
-		{
-			return "axis";
-		}
-		else
-		{
-			return "allies";
-		}
+		return "allies";
 	}
 }
 
-getnextobjid()
+getnextobjid() //checked matches cerberus output
 {
 	nextid = 0;
 	if ( level.releasedobjectives.size > 0 )
@@ -2820,12 +2679,14 @@ getnextobjid()
 		nextid = level.numgametypereservedobjectives;
 		level.numgametypereservedobjectives++;
 	}
+	/*
 /#
 	if ( nextid >= 32 )
 	{
 		println( "^3SCRIPT WARNING: Ran out of objective IDs" );
 #/
 	}
+	*/
 	if ( nextid > 31 )
 	{
 		nextid = 31;
@@ -2833,27 +2694,29 @@ getnextobjid()
 	return nextid;
 }
 
-releaseobjid( objid )
+releaseobjid( objid ) //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( objid < level.numgametypereservedobjectives );
 #/
-	i = 0;
-	while ( i < level.releasedobjectives.size )
+	*/
+	for ( i = 0; i < level.releasedobjectives.size; i++ )
 	{
 		if ( objid == level.releasedobjectives[ i ] && objid == 31 )
 		{
 			return;
 		}
+		/*
 /#
 		assert( objid != level.releasedobjectives[ i ] );
 #/
-		i++;
+		*/
 	}
 	level.releasedobjectives[ level.releasedobjectives.size ] = objid;
 }
 
-getlabel()
+getlabel() //checked matches cerberus output
 {
 	label = self.trigger.script_label;
 	if ( !isDefined( label ) )
@@ -2868,22 +2731,24 @@ getlabel()
 	return label;
 }
 
-mustmaintainclaim( enabled )
+mustmaintainclaim( enabled ) //checked matches cerberus output
 {
 	self.mustmaintainclaim = enabled;
 }
 
-cancontestclaim( enabled )
+cancontestclaim( enabled ) //checked matches cerberus output
 {
 	self.cancontestclaim = enabled;
 }
 
-setflags( flags )
+setflags( flags ) //checked matches cerberus output
 {
 	objective_setgamemodeflags( self.objectiveid, flags );
 }
 
-getflags( flags )
+getflags( flags ) //checked matches cerberus output
 {
 	return objective_getgamemodeflags( self.objectiveid );
 }
+
+

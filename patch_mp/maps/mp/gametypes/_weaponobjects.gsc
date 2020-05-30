@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_dev;
 #include maps/mp/_vehicles;
 #include maps/mp/gametypes/_globallogic_audio;
@@ -21,11 +22,13 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
+	/*
 /#
 	debug = weapons_get_dvar_int( "scr_weaponobject_debug", "0" );
 #/
+	*/
 	coneangle = weapons_get_dvar_int( "scr_weaponobject_coneangle", "70" );
 	mindist = weapons_get_dvar_int( "scr_weaponobject_mindist", "20" );
 	graceperiod = weapons_get_dvar( "scr_weaponobject_graceperiod", "0.6" );
@@ -71,26 +74,22 @@ init()
 	level.weaponobjects_hacker_trigger_height = 32;
 }
 
-getwatchernames( weapons )
+getwatchernames( weapons ) //checked changed to match cerberus output
 {
 	names = [];
-	_a75 = weapons;
-	index = getFirstArrayKey( _a75 );
-	while ( isDefined( index ) )
+	foreach ( weapon in weapons )
 	{
-		weapon = _a75[ index ];
 		names[ index ] = getsubstr( weapon, 0, weapon.size - 3 );
-		index = getNextArrayKey( _a75, index );
 	}
 	return names;
 }
 
-weapons_get_dvar_int( dvar, def )
+weapons_get_dvar_int( dvar, def ) //checked matches cerberus output
 {
 	return int( weapons_get_dvar( dvar, def ) );
 }
 
-weapons_get_dvar( dvar, def )
+weapons_get_dvar( dvar, def ) //checked matches cerberus output
 {
 	if ( getDvar( dvar ) != "" )
 	{
@@ -103,7 +102,7 @@ weapons_get_dvar( dvar, def )
 	}
 }
 
-setupretrievablehintstrings()
+setupretrievablehintstrings() //checked matches cerberus output
 {
 	createretrievablehint( "hatchet", &"MP_HATCHET_PICKUP" );
 	createretrievablehint( "claymore", &"MP_CLAYMORE_PICKUP" );
@@ -125,7 +124,7 @@ setupretrievablehintstrings()
 	createhackerhint( "scrambler_mp", &"MP_SCRAMBLER_HACKING" );
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	if ( isDefined( level._weaponobjects_on_player_connect_override ) )
 	{
@@ -141,7 +140,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -172,47 +171,34 @@ onplayerspawned()
 	}
 }
 
-resetwatchers()
+resetwatchers() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.weaponobjectwatcherarray ) )
 	{
 		return undefined;
 	}
 	team = self.team;
-	_a203 = self.weaponobjectwatcherarray;
-	_k203 = getFirstArrayKey( _a203 );
-	while ( isDefined( _k203 ) )
+	foreach ( watcher in self.weaponobjectwatcherarray )
 	{
-		watcher = _a203[ _k203 ];
 		resetweaponobjectwatcher( watcher, team );
-		_k203 = getNextArrayKey( _a203, _k203 );
 	}
 }
 
-createbasewatchers()
+createbasewatchers() //checked changed to match cerberus output
 {
-	_a212 = level.watcherweapons;
-	index = getFirstArrayKey( _a212 );
-	while ( isDefined( index ) )
+	foreach ( weapon in level.watcherweapons )
 	{
-		weapon = _a212[ index ];
 		self createweaponobjectwatcher( level.watcherweaponnames[ index ], weapon, self.team );
-		index = getNextArrayKey( _a212, index );
 	}
-	_a218 = level.retrievableweapons;
-	index = getFirstArrayKey( _a218 );
-	while ( isDefined( index ) )
+	foreach ( weapon in level.retrievableweapons )
 	{
-		weapon = _a218[ index ];
 		self createweaponobjectwatcher( level.retrievableweaponnames[ index ], weapon, self.team );
-		index = getNextArrayKey( _a218, index );
 	}
 }
 
-setupretrievablewatcher()
+setupretrievablewatcher() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < level.retrievableweapons.size )
+	for ( i = 0; i < level.retrievableweapons.size; i++ )
 	{
 		watcher = getweaponobjectwatcherbyweapon( level.retrievableweapons[ i ] );
 		if ( !isDefined( watcher.onspawnretrievetriggers ) )
@@ -227,11 +213,10 @@ setupretrievablewatcher()
 		{
 			watcher.pickup = ::pickup;
 		}
-		i++;
 	}
 }
 
-createballisticknifewatcher()
+createballisticknifewatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "knife_ballistic", "knife_ballistic_mp", self.team );
 	watcher.onspawn = ::maps/mp/_ballistic_knife::onspawn;
@@ -240,7 +225,7 @@ createballisticknifewatcher()
 	watcher.storedifferentobject = 1;
 }
 
-createhatchetwatcher()
+createhatchetwatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "hatchet", "hatchet_mp", self.team );
 	watcher.detonate = ::deleteent;
@@ -249,13 +234,13 @@ createhatchetwatcher()
 	watcher.onspawnretrievetriggers = ::onspawnhatchettrigger;
 }
 
-createtactinsertwatcher()
+createtactinsertwatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "tactical_insertion", "tactical_insertion_mp", self.team );
 	watcher.playdestroyeddialog = 0;
 }
 
-creatercbombwatcher()
+creatercbombwatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "rcbomb", "rcbomb_mp", self.team );
 	watcher.altdetonate = 0;
@@ -268,7 +253,7 @@ creatercbombwatcher()
 	watcher.stuntime = 1;
 }
 
-createqrdronewatcher()
+createqrdronewatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "qrdrone", "qrdrone_turret_mp", self.team );
 	watcher.altdetonate = 0;
@@ -282,14 +267,14 @@ createqrdronewatcher()
 	watcher.stuntime = 5;
 }
 
-createplayerhelicopterwatcher()
+createplayerhelicopterwatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "helicopter_player", "helicopter_player_mp", self.team );
 	watcher.altdetonate = 1;
 	watcher.headicon = 0;
 }
 
-createclaymorewatcher()
+createclaymorewatcher() //checked matches cerberus output
 {
 	watcher = self createproximityweaponobjectwatcher( "claymore", "claymore_mp", self.team );
 	watcher.watchforfire = 1;
@@ -309,49 +294,45 @@ createclaymorewatcher()
 	watcher.stuntime = 1;
 }
 
-waittillnotmoving_and_notstunned()
+waittillnotmoving_and_notstunned() //checked changed to match cerberus output
 {
 	prevorigin = self.origin;
 	while ( 1 )
 	{
-		wait 0,15;
+		wait 0.15;
 		if ( self.origin == prevorigin && !self isstunned() )
 		{
-			return;
+			break;
 		}
-		else
-		{
-			prevorigin = self.origin;
-		}
+		prevorigin = self.origin;
 	}
 }
 
-voidonspawn( unused0, unused1 )
+voidonspawn( unused0, unused1 ) //checked matches cerberus output
 {
 }
 
-voidondamage( unused0 )
+voidondamage( unused0 ) //checked matches cerberus output
 {
 }
 
-deleteent( attacker, emp )
+deleteent( attacker, emp ) //checked matches cerberus output
 {
 	self delete();
 }
 
-clearfxondeath( fx )
+clearfxondeath( fx ) //checked matches cerberus output
 {
 	fx endon( "death" );
 	self waittill_any( "death", "hacked" );
 	fx delete();
 }
 
-deleteweaponobjectarray()
+deleteweaponobjectarray() //checked changed to match cerberus output
 {
-	while ( isDefined( self.objectarray ) )
+	if ( isDefined( self.objectarray ) )
 	{
-		i = 0;
-		while ( i < self.objectarray.size )
+		for ( i = 0; i < self.objectarray.size; i++ )
 		{
 			if ( isDefined( self.objectarray[ i ] ) )
 			{
@@ -365,13 +346,12 @@ deleteweaponobjectarray()
 				}
 				self.objectarray[ i ] delete();
 			}
-			i++;
 		}
 	}
 	self.objectarray = [];
 }
 
-claymoredetonate( attacker, weaponname )
+claymoredetonate( attacker, weaponname ) //checked matches cerberus output
 {
 	from_emp = maps/mp/killstreaks/_emp::isempkillstreakweapon( weaponname );
 	if ( !isDefined( from_emp ) || !from_emp )
@@ -388,7 +368,7 @@ claymoredetonate( attacker, weaponname )
 	maps/mp/gametypes/_weaponobjects::weapondetonate( attacker, weaponname );
 }
 
-weapondetonate( attacker, weaponname )
+weapondetonate( attacker, weaponname ) //checked matches cerberus output
 {
 	from_emp = maps/mp/killstreaks/_emp::isempweapon( weaponname );
 	if ( from_emp )
@@ -422,18 +402,18 @@ weapondetonate( attacker, weaponname )
 	}
 }
 
-waitanddetonate( object, delay, attacker, weaponname )
+waitanddetonate( object, delay, attacker, weaponname ) //checked changed to match cerberus output
 {
 	object endon( "death" );
 	object endon( "hacked" );
 	from_emp = maps/mp/killstreaks/_emp::isempweapon( weaponname );
-	if ( from_emp && isDefined( object.name ) && object.name != "qrdrone_turret_mp" )
+	if ( from_emp && !( isDefined( object.name ) && object.name == "qrdrone_turret_mp" ) )
 	{
 		object setclientflag( 15 );
 		object setclientflag( 9 );
 		object.stun_fx = 1;
 		playfx( level._equipment_emp_destroy_fx, object.origin + vectorScale( ( 0, 0, 1 ), 5 ), ( 0, randomfloat( 360 ), 0 ) );
-		delay = 1,1;
+		delay = 1.1;
 	}
 	if ( delay )
 	{
@@ -456,22 +436,19 @@ waitanddetonate( object, delay, attacker, weaponname )
 				attacker notify( "destroyed_explosive" );
 			}
 		}
-		else
+		else if ( attacker != object.owner )
 		{
-			if ( attacker != object.owner )
-			{
-				attacker notify( "destroyed_explosive" );
-			}
+			attacker notify( "destroyed_explosive" );
 		}
 	}
 	object.detonated = 1;
 	object [[ self.detonate ]]( attacker, weaponname );
 }
 
-detonateweaponobjectarray( forcedetonation, weapon )
+detonateweaponobjectarray( forcedetonation, weapon ) //checked partially changed to match cerberus output see info.md
 {
 	undetonated = [];
-	while ( isDefined( self.objectarray ) )
+	if ( isDefined( self.objectarray ) )
 	{
 		i = 0;
 		while ( i < self.objectarray.size )
@@ -484,28 +461,22 @@ detonateweaponobjectarray( forcedetonation, weapon )
 					i++;
 					continue;
 				}
-				else
+				if ( isDefined( weapon ) )
 				{
-					if ( isDefined( weapon ) )
+					if ( weapon ishacked() && weapon.name != self.objectarray[ i ].name )
 					{
-						if ( weapon ishacked() && weapon.name != self.objectarray[ i ].name )
-						{
-							undetonated[ undetonated.size ] = self.objectarray[ i ];
-							i++;
-							continue;
-						}
-						else if ( self.objectarray[ i ] ishacked() && weapon.name != self.objectarray[ i ].name )
-						{
-							undetonated[ undetonated.size ] = self.objectarray[ i ];
-							i++;
-							continue;
-						}
+						undetonated[ undetonated.size ] = self.objectarray[ i ];
+						i++;
+						continue;
 					}
-					else
+					else if ( self.objectarray[ i ] ishacked() && weapon.name != self.objectarray[ i ].name )
 					{
-						self thread waitanddetonate( self.objectarray[ i ], 0,1, undefined, weapon );
+						undetonated[ undetonated.size ] = self.objectarray[ i ];
+						i++;
+						continue;
 					}
 				}
+				self thread waitanddetonate( self.objectarray[ i ], 0,1, undefined, weapon );
 			}
 			i++;
 		}
@@ -513,16 +484,18 @@ detonateweaponobjectarray( forcedetonation, weapon )
 	self.objectarray = undetonated;
 }
 
-addweaponobjecttowatcher( watchername, weapon )
+addweaponobjecttowatcher( watchername, weapon ) //checked matches cerberus output
 {
 	watcher = getweaponobjectwatcher( watchername );
+	/*
 /#
 	assert( isDefined( watcher ), "Weapon object watcher " + watchername + " does not exist" );
 #/
+	*/
 	self addweaponobject( watcher, weapon );
 }
 
-addweaponobject( watcher, weapon )
+addweaponobject( watcher, weapon ) //checked matches cerberus output
 {
 	if ( !isDefined( watcher.storedifferentobject ) )
 	{
@@ -583,7 +556,7 @@ addweaponobject( watcher, weapon )
 	}
 }
 
-watchscramble( watcher )
+watchscramble( watcher ) //checked changed to match beta dump
 {
 	self endon( "death" );
 	self endon( "hacked" );
@@ -603,22 +576,18 @@ watchscramble( watcher )
 		{
 			continue;
 		}
+		if ( self maps/mp/_scrambler::checkscramblerstun() )
+		{
+			self thread stunstart( watcher );
+		}
 		else
 		{
-			if ( self maps/mp/_scrambler::checkscramblerstun() )
-			{
-				self thread stunstart( watcher );
-				break;
-			}
-			else
-			{
-				self stunstop();
-			}
+			self stunstop();
 		}
 	}
 }
 
-deleteweaponobjecthelper( weapon_ent )
+deleteweaponobjecthelper( weapon_ent ) //checked matches cerberus output
 {
 	if ( !isDefined( weapon_ent.name ) )
 	{
@@ -632,7 +601,7 @@ deleteweaponobjecthelper( weapon_ent )
 	watcher.objectarray = deleteweaponobject( watcher, weapon_ent );
 }
 
-deleteweaponobject( watcher, weapon_ent )
+deleteweaponobject( watcher, weapon_ent ) //checked partially changed to match cerberus output see info.md
 {
 	temp_objectarray = watcher.objectarray;
 	watcher.objectarray = [];
@@ -645,17 +614,14 @@ deleteweaponobject( watcher, weapon_ent )
 			i++;
 			continue;
 		}
-		else
-		{
-			watcher.objectarray[ j ] = temp_objectarray[ i ];
-			j++;
-		}
+		watcher.objectarray[ j ] = temp_objectarray[ i ];
+		j++;
 		i++;
 	}
 	return watcher.objectarray;
 }
 
-weaponobjectdamage( watcher )
+weaponobjectdamage( watcher ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "hacked" );
@@ -685,21 +651,17 @@ weaponobjectdamage( watcher )
 							{
 								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 							}
-							continue;
 						}
-						else
+						else if ( !level.teambased && self.owner != attacker )
 						{
-							if ( !level.teambased && self.owner != attacker )
+							if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 							{
-								if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
-								{
-									attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
-								}
+								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 							}
 						}
-					}
+						continue;
 					case "willy_pete_mp":
-					}
+						continue;
 					case "emp_grenade_mp":
 						if ( level.teambased && self.owner.team != attacker.team )
 						{
@@ -716,17 +678,16 @@ weaponobjectdamage( watcher )
 							}
 						}
 						break;
-					break;
 					default:
-					}
+						break;
 				}
 				if ( !isplayer( attacker ) && isDefined( attacker.owner ) )
 				{
 					attacker = attacker.owner;
 				}
-				while ( level.teambased && isplayer( attacker ) )
+				if ( level.teambased && isplayer( attacker ) )
 				{
-					while ( !level.hardcoremode && self.owner.team == attacker.pers[ "team" ] && self.owner != attacker )
+					if ( !level.hardcoremode && self.owner.team == attacker.pers[ "team" ] && self.owner != attacker )
 					{
 						continue;
 					}
@@ -739,12 +700,16 @@ weaponobjectdamage( watcher )
 				{
 					continue;
 				}
+				break;
 			}
 			if ( level.weaponobjectexplodethisframe )
 			{
-				wait ( 0,1 + randomfloat( 0,4 ) );
+				wait ( 0.1 + randomfloat( 0.4 ) );
 			}
-			else wait 0,05;
+			else
+			{
+				wait 0.05;
+			}
 			if ( !isDefined( self ) )
 			{
 				return;
@@ -752,7 +717,7 @@ weaponobjectdamage( watcher )
 			level.weaponobjectexplodethisframe = 1;
 			thread resetweaponobjectexplodethisframe();
 			self maps/mp/_entityheadicons::setentityheadicon( "none" );
-			if ( isDefined( type ) && !issubstr( type, "MOD_GRENADE_SPLASH" ) || issubstr( type, "MOD_GRENADE" ) && issubstr( type, "MOD_EXPLOSIVE" ) )
+			if ( ( issubstr( type, "MOD_GRENADE_SPLASH" ) || issubstr( type, "MOD_GRENADE" ) ) && isDefined( type ) || isDefined( type ) && issubstr( type, "MOD_EXPLOSIVE" ) )
 			{
 				self.waschained = 1;
 			}
@@ -766,7 +731,7 @@ weaponobjectdamage( watcher )
 	}
 }
 
-playdialogondeath( owner )
+playdialogondeath( owner ) //checked matches cerberus output
 {
 	owner endon( "death" );
 	owner endon( "disconnect" );
@@ -778,7 +743,7 @@ playdialogondeath( owner )
 	}
 }
 
-watchobjectdamage( owner )
+watchobjectdamage( owner ) //checked changed to match cerberus output
 {
 	owner endon( "death" );
 	owner endon( "disconnect" );
@@ -790,7 +755,6 @@ watchobjectdamage( owner )
 		if ( isDefined( attacker ) && isplayer( attacker ) && attacker != owner )
 		{
 			self.playdialog = 1;
-			continue;
 		}
 		else
 		{
@@ -799,7 +763,7 @@ watchobjectdamage( owner )
 	}
 }
 
-stunstart( watcher, time )
+stunstart( watcher, time ) //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( self isstunned() )
@@ -834,7 +798,7 @@ stunstart( watcher, time )
 	self stunstop();
 }
 
-stunstop()
+stunstop() //checked matches cerberus output
 {
 	self notify( "not_stunned" );
 	if ( isDefined( self.camerahead ) )
@@ -844,7 +808,7 @@ stunstop()
 	self clearclientflag( 9 );
 }
 
-weaponstun()
+weaponstun() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "not_stunned" );
@@ -856,55 +820,52 @@ weaponstun()
 	self.stun_fx = spawn( "script_model", origin );
 	self.stun_fx setmodel( "tag_origin" );
 	self thread stunfxthink( self.stun_fx );
-	wait 0,1;
+	wait 0.1;
 	playfxontag( level._equipment_spark_fx, self.stun_fx, "tag_origin" );
 	self.stun_fx playsound( "dst_disable_spark" );
 }
 
-stunfxthink( fx )
+stunfxthink( fx ) //checked matches cerberus output
 {
 	fx endon( "death" );
 	self waittill_any( "death", "not_stunned" );
 	fx delete();
 }
 
-isstunned()
+isstunned() //checked matches cerberus output
 {
 	return isDefined( self.stun_fx );
 }
 
-resetweaponobjectexplodethisframe()
+resetweaponobjectexplodethisframe() //checked matches cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	level.weaponobjectexplodethisframe = 0;
 }
 
-getweaponobjectwatcher( name )
+getweaponobjectwatcher( name ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.weaponobjectwatcherarray ) )
 	{
 		return undefined;
 	}
-	watcher = 0;
-	while ( watcher < self.weaponobjectwatcherarray.size )
+	for ( watcher = 0; watcher < self.weaponobjectwatcherarray.size; watcher++ )
 	{
 		if ( self.weaponobjectwatcherarray[ watcher ].name == name )
 		{
 			return self.weaponobjectwatcherarray[ watcher ];
 		}
-		watcher++;
 	}
 	return undefined;
 }
 
-getweaponobjectwatcherbyweapon( weapon )
+getweaponobjectwatcherbyweapon( weapon ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.weaponobjectwatcherarray ) )
 	{
 		return undefined;
 	}
-	watcher = 0;
-	while ( watcher < self.weaponobjectwatcherarray.size )
+	for ( watcher = 0; watcher < self.weaponobjectwatcherarray.size; watcher++ ) 
 	{
 		if ( isDefined( self.weaponobjectwatcherarray[ watcher ].weapon ) && self.weaponobjectwatcherarray[ watcher ].weapon == weapon )
 		{
@@ -914,12 +875,11 @@ getweaponobjectwatcherbyweapon( weapon )
 		{
 			return self.weaponobjectwatcherarray[ watcher ];
 		}
-		watcher++;
 	}
 	return undefined;
 }
 
-resetweaponobjectwatcher( watcher, ownerteam )
+resetweaponobjectwatcher( watcher, ownerteam ) //checked matches cerberus output
 {
 	if ( level.deleteexplosivesonspawn == 1 )
 	{
@@ -929,7 +889,7 @@ resetweaponobjectwatcher( watcher, ownerteam )
 	watcher.ownerteam = ownerteam;
 }
 
-createweaponobjectwatcher( name, weapon, ownerteam )
+createweaponobjectwatcher( name, weapon, ownerteam ) //checked matches cerberus output
 {
 	if ( !isDefined( self.weaponobjectwatcherarray ) )
 	{
@@ -979,7 +939,7 @@ createweaponobjectwatcher( name, weapon, ownerteam )
 	return weaponobjectwatcher;
 }
 
-createuseweaponobjectwatcher( name, weapon, ownerteam )
+createuseweaponobjectwatcher( name, weapon, ownerteam ) //checked matches cerberus output
 {
 	weaponobjectwatcher = createweaponobjectwatcher( name, weapon, ownerteam );
 	weaponobjectwatcher.type = "use";
@@ -987,7 +947,7 @@ createuseweaponobjectwatcher( name, weapon, ownerteam )
 	return weaponobjectwatcher;
 }
 
-createproximityweaponobjectwatcher( name, weapon, ownerteam )
+createproximityweaponobjectwatcher( name, weapon, ownerteam ) //checked matches cerberus output
 {
 	weaponobjectwatcher = createweaponobjectwatcher( name, weapon, ownerteam );
 	weaponobjectwatcher.type = "proximity";
@@ -1000,7 +960,7 @@ createproximityweaponobjectwatcher( name, weapon, ownerteam )
 	return weaponobjectwatcher;
 }
 
-commononspawnuseweaponobject( watcher, owner )
+commononspawnuseweaponobject( watcher, owner ) //checked matches cerberus output
 {
 	if ( watcher.detectable )
 	{
@@ -1028,24 +988,26 @@ commononspawnuseweaponobject( watcher, owner )
 	}
 }
 
-onspawnuseweaponobject( watcher, owner )
+onspawnuseweaponobject( watcher, owner ) //checked matches cerberus output
 {
 	self commononspawnuseweaponobject( watcher, owner );
 }
 
-onspawnproximityweaponobject( watcher, owner )
+onspawnproximityweaponobject( watcher, owner ) //checked matches cerberus output dvar taken from beta dump
 {
 	self thread commononspawnuseweaponobject( watcher, owner );
 	self thread proximityweaponobjectdetonation( watcher );
+	/*
 /#
-	if ( getDvarInt( #"38868733" ) )
+	if ( getDvarInt( "scr_weaponobject_debug" ) )
 	{
 		self thread proximityweaponobjectdebug( watcher );
 #/
 	}
+	*/
 }
 
-watchweaponobjectusage()
+watchweaponobjectusage() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( !isDefined( self.weaponobjectwatcherarray ) )
@@ -1060,7 +1022,7 @@ watchweaponobjectusage()
 	self thread deleteweaponobjectson();
 }
 
-watchweaponobjectspawn()
+watchweaponobjectspawn() //checked partially changed to match cerberus output see info.md
 {
 	self notify( "watchWeaponObjectSpawn" );
 	self endon( "watchWeaponObjectSpawn" );
@@ -1090,35 +1052,31 @@ watchweaponobjectspawn()
 						i++;
 						continue;
 					}
-					else
+					objectarray_size = self.weaponobjectwatcherarray[ i ].objectarray.size;
+					for ( j = 0; j < objectarray_size; j++ )
 					{
-						objectarray_size = self.weaponobjectwatcherarray[ i ].objectarray.size;
-						j = 0;
-						while ( j < objectarray_size )
+						if ( !isDefined( self.weaponobjectwatcherarray[ i ].objectarray[ j ] ) )
 						{
-							if ( !isDefined( self.weaponobjectwatcherarray[ i ].objectarray[ j ] ) )
-							{
-								self.weaponobjectwatcherarray[ i ].objectarray = deleteweaponobject( self.weaponobjectwatcherarray[ i ], weapon );
-							}
-							j++;
-						}
-						numallowed = 2;
-						if ( weapname == "proximity_grenade_mp" )
-						{
-							numallowed = weapons_get_dvar_int( "scr_proximityGrenadeMaxInstances" );
-						}
-						if ( isDefined( self.weaponobjectwatcherarray[ i ].detonate ) && self.weaponobjectwatcherarray[ i ].objectarray.size > ( numallowed - 1 ) )
-						{
-							self.weaponobjectwatcherarray[ i ] thread waitanddetonate( self.weaponobjectwatcherarray[ i ].objectarray[ 0 ], 0,1, undefined, weapname );
+							self.weaponobjectwatcherarray[ i ].objectarray = deleteweaponobject( self.weaponobjectwatcherarray[ i ], weapon );
 						}
 					}
+					numallowed = 2;
+					if ( weapname == "proximity_grenade_mp" )
+					{
+						numallowed = weapons_get_dvar_int( "scr_proximityGrenadeMaxInstances" );
+					}
+					if ( isDefined( self.weaponobjectwatcherarray[ i ].detonate ) && self.weaponobjectwatcherarray[ i ].objectarray.size > ( numallowed - 1 ) )
+					{
+						self.weaponobjectwatcherarray[ i ] thread waitanddetonate( self.weaponobjectwatcherarray[ i ].objectarray[ 0 ], 0.1, undefined, weapname );
+					}
 					i++;
+					break;
 				}
 				default:
-				}
+					break;
 				if ( !self ishacked() )
 				{
-					if ( weapname != "claymore_mp" || weapname == "satchel_charge_mp" && weapname == "bouncingbetty_mp" )
+					if ( weapname == "claymore_mp" || weapname == "satchel_charge_mp" || weapname == "bouncingbetty_mp" )
 					{
 						self addweaponstat( weapname, "used", 1 );
 					}
@@ -1128,12 +1086,11 @@ watchweaponobjectspawn()
 				{
 					self addweaponobject( watcher, weapon );
 				}
-			}
 		}
 	}
 }
 
-anyobjectsinworld( weapon )
+anyobjectsinworld( weapon ) //checked partially changed to match cerberus output see info.md
 {
 	objectsinworld = 0;
 	i = 0;
@@ -1144,23 +1101,17 @@ anyobjectsinworld( weapon )
 			i++;
 			continue;
 		}
-		else
+		if ( isDefined( self.weaponobjectwatcherarray[ i ].detonate ) && self.weaponobjectwatcherarray[ i ].objectarray.size > 0 )
 		{
-			if ( isDefined( self.weaponobjectwatcherarray[ i ].detonate ) && self.weaponobjectwatcherarray[ i ].objectarray.size > 0 )
-			{
-				objectsinworld = 1;
-				break;
-			}
+			objectsinworld = 1;
+			break;
 		}
-		else
-		{
-			i++;
-		}
+		i++;
 	}
 	return objectsinworld;
 }
 
-watchweaponprojectileobjectspawn()
+watchweaponprojectileobjectspawn() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -1171,14 +1122,12 @@ watchweaponprojectileobjectspawn()
 		{
 			self addweaponobject( watcher, weapon );
 			objectarray_size = watcher.objectarray.size;
-			j = 0;
-			while ( j < objectarray_size )
+			for ( j = 0; j < objectarray_size; j++ )
 			{
 				if ( !isDefined( watcher.objectarray[ j ] ) )
 				{
 					watcher.objectarray = deleteweaponobject( watcher, weapon );
 				}
-				j++;
 			}
 			if ( isDefined( watcher.detonate ) && watcher.objectarray.size > 3 )
 			{
@@ -1188,24 +1137,29 @@ watchweaponprojectileobjectspawn()
 	}
 }
 
-proximityweaponobjectdebug( watcher )
+proximityweaponobjectdebug( watcher ) //checked changed to match cerberus output
 {
+	/*
 /#
 	self waittillnotmoving();
-	self thread showcone( acos( watcher.detectiondot ), watcher.detonateradius, ( 1, 0,85, 0 ) );
-	self thread showcone( 60, 256, ( 0, 0, 1 ) );
+	self thread showcone( acos( watcher.detectiondot ), watcher.detonateradius, ( 1, 0.85, 0 ) );
+	self thread showcone( 60, 256, ( 1, 0, 0 ) );
 #/
+	*/
 }
 
-vectorcross( v1, v2 )
+vectorcross( v1, v2 ) //checked matches cerberus output
 {
+	/*
 /#
 	return ( ( v1[ 1 ] * v2[ 2 ] ) - ( v1[ 2 ] * v2[ 1 ] ), ( v1[ 2 ] * v2[ 0 ] ) - ( v1[ 0 ] * v2[ 2 ] ), ( v1[ 0 ] * v2[ 1 ] ) - ( v1[ 1 ] * v2[ 0 ] ) );
 #/
+	*/
 }
 
-showcone( angle, range, color )
+showcone( angle, range, color ) //checked changed to match cerberus output
 {
+	/*
 /#
 	self endon( "death" );
 	start = self.origin;
@@ -1217,8 +1171,7 @@ showcone( angle, range, color )
 	while ( 1 )
 	{
 		prevpoint = ( 0, 0, 1 );
-		i = 0;
-		while ( i <= 20 )
+		for ( i = 0; i <= 20; i++ )
 		{
 			coneangle = ( i / 20 ) * 360;
 			point = ( start + fullforward ) + ( sideamnt * ( ( right * cos( coneangle ) ) + ( up * sin( coneangle ) ) ) );
@@ -1228,14 +1181,14 @@ showcone( angle, range, color )
 				line( prevpoint, point, color );
 			}
 			prevpoint = point;
-			i++;
 		}
-		wait 0,05;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-weaponobjectdetectionmovable( ownerteam )
+weaponobjectdetectionmovable( ownerteam ) //checked partially changed to match cerberus output see info.md
 {
 	self endon( "end_detection" );
 	level endon( "game_ended" );
@@ -1263,7 +1216,7 @@ weaponobjectdetectionmovable( ownerteam )
 				i++;
 				continue;
 			}
-			else if ( isDefined( self.model_name ) && player hasperk( "specialty_detectexplosive" ) )
+			if ( isDefined( self.model_name ) && player hasperk( "specialty_detectexplosive" ) )
 			{
 				switch( self.model_name )
 				{
@@ -1271,32 +1224,36 @@ weaponobjectdetectionmovable( ownerteam )
 					case "t6_wpn_claymore_world_detect":
 						break;
 					default:
-					}
+						continue;
 				}
-				else if ( player.team == ownerteam )
-				{
-					i++;
-					continue;
-				}
-				else if ( isDefined( player.bombsquadids[ self.detectid ] ) )
-				{
-					i++;
-					continue;
-				}
-				i++;
 			}
+			else 
+			{
+				continue;
+			}
+			if ( player.team == ownerteam )
+			{
+				i++;
+				continue;
+			}
+			if ( isDefined( player.bombsquadids[ self.detectid ] ) )
+			{
+				i++;
+				continue;
+			}
+			i++;
 		}
 	}
 }
 
-seticonpos( item, icon, heightincrease )
+seticonpos( item, icon, heightincrease ) //checked matches cerberus output
 {
 	icon.x = item.origin[ 0 ];
 	icon.y = item.origin[ 1 ];
 	icon.z = item.origin[ 2 ] + heightincrease;
 }
 
-weaponobjectdetectiontrigger_wait( ownerteam )
+weaponobjectdetectiontrigger_wait( ownerteam ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "hacked" );
@@ -1308,7 +1265,7 @@ weaponobjectdetectiontrigger_wait( ownerteam )
 	self thread weaponobjectdetectiontrigger( ownerteam );
 }
 
-weaponobjectdetectiontrigger( ownerteam )
+weaponobjectdetectiontrigger( ownerteam ) //checked matches cerberus output
 {
 	trigger = spawn( "trigger_radius", self.origin - vectorScale( ( 0, 0, 1 ), 128 ), 0, 512, 256 );
 	trigger.detectid = "trigger" + getTime() + randomint( 1000000 );
@@ -1322,12 +1279,14 @@ weaponobjectdetectiontrigger( ownerteam )
 	trigger delete();
 }
 
-hackertriggersetvisibility( owner )
+hackertriggersetvisibility( owner ) //checked matches beta dump
 {
 	self endon( "death" );
+	/*
 /#
 	assert( isplayer( owner ) );
 #/
+	*/
 	ownerteam = owner.pers[ "team" ];
 	for ( ;; )
 	{
@@ -1349,14 +1308,14 @@ hackertriggersetvisibility( owner )
 	}
 }
 
-hackernotmoving()
+hackernotmoving() //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittillnotmoving();
 	self notify( "landed" );
 }
 
-hackerinit( watcher )
+hackerinit( watcher ) //checked matches cerberus output
 {
 	self thread hackernotmoving();
 	event = self waittill_any_return( "death", "landed" );
@@ -1370,8 +1329,6 @@ hackerinit( watcher )
 		triggerorigin = self gettagorigin( "tag_fx" );
 	}
 	self.hackertrigger = spawn( "trigger_radius_use", triggerorigin, level.weaponobjects_hacker_trigger_width, level.weaponobjects_hacker_trigger_height );
-/#
-#/
 	self.hackertrigger sethintlowpriority( 1 );
 	self.hackertrigger setcursorhint( "HINT_NOICON", self );
 	self.hackertrigger setignoreentfortrigger( self );
@@ -1390,7 +1347,7 @@ hackerinit( watcher )
 	self thread hackerthink( self.hackertrigger, watcher );
 }
 
-hackerthink( trigger, watcher )
+hackerthink( trigger, watcher ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	for ( ;; )
@@ -1400,58 +1357,53 @@ hackerthink( trigger, watcher )
 		{
 			continue;
 		}
+		self.owner hackerremoveweapon( self );
+		self.owner maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "hacked_equip", "item_destroyed" );
+		self.hacked = 1;
+		self setmissileowner( player );
+		self setteam( player.pers[ "team" ] );
+		self.owner = player;
+		if ( isweaponequipment( self.name ) || self.name == "proximity_grenade_mp" )
+		{
+			maps/mp/_scoreevents::processscoreevent( "hacked", player );
+			player addweaponstat( "pda_hack_mp", "CombatRecordStat", 1 );
+			player maps/mp/_challenges::hackedordestroyedequipment();
+		}
+		if ( self.name == "satchel_charge_mp" && isDefined( player.lowermessage ) )
+		{
+			player.lowermessage settext( &"PLATFORM_SATCHEL_CHARGE_DOUBLE_TAP" );
+			player.lowermessage.alpha = 1;
+			player.lowermessage fadeovertime( 2 );
+			player.lowermessage.alpha = 0;
+		}
+		self notify( "hacked", player );
+		level notify( "hacked", self, player );
+		if ( self.name == "camera_spike_mp" && isDefined( self.camerahead ) )
+		{
+			self.camerahead notify( "hacked" );
+		}
+		if ( isDefined( watcher.stun ) )
+		{
+			self thread stunstart( watcher, 0.75 );
+			wait 0.75;
+		}
 		else
 		{
-			self.owner hackerremoveweapon( self );
-			self.owner maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "hacked_equip", "item_destroyed" );
-			self.hacked = 1;
-			self setmissileowner( player );
-			self setteam( player.pers[ "team" ] );
-			self.owner = player;
-			if ( isweaponequipment( self.name ) || self.name == "proximity_grenade_mp" )
-			{
-				maps/mp/_scoreevents::processscoreevent( "hacked", player );
-				player addweaponstat( "pda_hack_mp", "CombatRecordStat", 1 );
-				player maps/mp/_challenges::hackedordestroyedequipment();
-			}
-			if ( self.name == "satchel_charge_mp" && isDefined( player.lowermessage ) )
-			{
-				player.lowermessage settext( &"PLATFORM_SATCHEL_CHARGE_DOUBLE_TAP" );
-				player.lowermessage.alpha = 1;
-				player.lowermessage fadeovertime( 2 );
-				player.lowermessage.alpha = 0;
-			}
-			self notify( "hacked" );
-			level notify( "hacked" );
-			if ( self.name == "camera_spike_mp" && isDefined( self.camerahead ) )
-			{
-				self.camerahead notify( "hacked" );
-			}
-/#
-#/
-			if ( isDefined( watcher.stun ) )
-			{
-				self thread stunstart( watcher, 0,75 );
-				wait 0,75;
-			}
-			else
-			{
-				wait 0,05;
-			}
-			if ( isDefined( player ) && player.sessionstate == "playing" )
-			{
-				player notify( "grenade_fire" );
-			}
-			else
-			{
-				watcher thread waitanddetonate( self, 0 );
-			}
-			return;
+			wait 0.05;
 		}
+		if ( isDefined( player ) && player.sessionstate == "playing" )
+		{
+			player notify( "grenade_fire", self, self.name, 1 );
+		}
+		else
+		{
+			watcher thread waitanddetonate( self, 0 );
+		}
+		return;
 	}
 }
 
-hackerunfreezeplayer( player )
+hackerunfreezeplayer( player ) //checked matches cerberus output
 {
 	self endon( "hack_done" );
 	self waittill( "death" );
@@ -1462,7 +1414,7 @@ hackerunfreezeplayer( player )
 	}
 }
 
-hackerresult( player, owner )
+hackerresult( player, owner ) //checked matches cerberus output
 {
 	success = 1;
 	time = getTime();
@@ -1479,33 +1431,30 @@ hackerresult( player, owner )
 			success = 0;
 			break;
 		}
-		else if ( !player usebuttonpressed() )
+		if ( !player usebuttonpressed() )
 		{
 			success = 0;
 			break;
 		}
-		else if ( !isDefined( self ) )
+		if ( !isDefined( self ) )
 		{
 			success = 0;
 			break;
 		}
-		else
+		player freeze_player_controls( 1 );
+		player disableweapons();
+		if ( !isDefined( self.progressbar ) )
 		{
-			player freeze_player_controls( 1 );
-			player disableweapons();
-			if ( !isDefined( self.progressbar ) )
-			{
-				self.progressbar = player createprimaryprogressbar();
-				self.progressbar.lastuserate = -1;
-				self.progressbar showelem();
-				self.progressbar updatebar( 0,01, 1 / hacktime );
-				self.progresstext = player createprimaryprogressbartext();
-				self.progresstext settext( &"MP_HACKING" );
-				self.progresstext showelem();
-				player playlocalsound( "evt_hacker_hacking" );
-			}
-			wait 0,05;
+			self.progressbar = player createprimaryprogressbar();
+			self.progressbar.lastuserate = -1;
+			self.progressbar showelem();
+			self.progressbar updatebar( 0.01, 1 / hacktime );
+			self.progresstext = player createprimaryprogressbartext();
+			self.progresstext settext( &"MP_HACKING" );
+			self.progresstext showelem();
+			player playlocalsound( "evt_hacker_hacking" );
 		}
+		wait 0.05;
 	}
 	if ( isDefined( player ) )
 	{
@@ -1524,7 +1473,7 @@ hackerresult( player, owner )
 	return success;
 }
 
-canhack( player, owner, weapon_check )
+canhack( player, owner, weapon_check ) //checked matches cerberus output
 {
 	if ( !isDefined( player ) )
 	{
@@ -1625,7 +1574,7 @@ canhack( player, owner, weapon_check )
 	return 1;
 }
 
-hackerremoveweapon( weapon )
+hackerremoveweapon( weapon ) //checked partially changed to match cerberus output see info.md
 {
 	i = 0;
 	while ( i < self.weaponobjectwatcherarray.size )
@@ -1635,22 +1584,17 @@ hackerremoveweapon( weapon )
 			i++;
 			continue;
 		}
-		else
+		objectarray_size = self.weaponobjectwatcherarray[ i ].objectarray.size;
+		for ( j = 0; j < objectarray_size; j++ )
 		{
-			objectarray_size = self.weaponobjectwatcherarray[ i ].objectarray.size;
-			j = 0;
-			while ( j < objectarray_size )
-			{
-				self.weaponobjectwatcherarray[ i ].objectarray = deleteweaponobject( self.weaponobjectwatcherarray[ i ], weapon );
-				j++;
-			}
-			return;
+			self.weaponobjectwatcherarray[ i ].objectarray = deleteweaponobject( self.weaponobjectwatcherarray[ i ], weapon );
 		}
+		return;
 		i++;
 	}
 }
 
-proximityweaponobjectdetonation( watcher )
+proximityweaponobjectdetonation( watcher ) //checked changed to match cerberus output dvar taken from beta dump
 {
 	self endon( "death" );
 	self endon( "hacked" );
@@ -1668,17 +1612,17 @@ proximityweaponobjectdetonation( watcher )
 	while ( 1 )
 	{
 		damagearea waittill( "trigger", ent );
-		while ( getDvarInt( #"38868733" ) != 1 )
+		if ( getDvarInt( "scr_weaponobject_debug" ) != 1 )
 		{
 			if ( isDefined( self.owner ) && ent == self.owner )
 			{
 				continue;
 			}
-			while ( isDefined( self.owner ) && isvehicle( ent ) && isDefined( ent.owner ) && self.owner == ent.owner )
+			if ( isDefined( self.owner ) && isvehicle( ent ) && isDefined( ent.owner ) && self.owner == ent.owner )
 			{
 				continue;
 			}
-			while ( !friendlyfirecheck( self.owner, ent, 0 ) )
+			if ( !friendlyfirecheck( self.owner, ent, 0 ) )
 			{
 				continue;
 			}
@@ -1687,11 +1631,11 @@ proximityweaponobjectdetonation( watcher )
 		{
 			continue;
 		}
-		while ( !ent shouldaffectweaponobject( self, watcher ) )
+		if ( !ent shouldaffectweaponobject( self, watcher ) )
 		{
 			continue;
 		}
-		while ( self isstunned() )
+		if ( self isstunned() )
 		{
 			continue;
 		}
@@ -1702,9 +1646,6 @@ proximityweaponobjectdetonation( watcher )
 		if ( ent damageconetrace( traceorigin, self ) > 0 )
 		{
 			break;
-		}
-		else
-		{
 		}
 	}
 	if ( isDefined( watcher.activatesound ) )
@@ -1727,10 +1668,13 @@ proximityweaponobjectdetonation( watcher )
 	{
 		self [[ watcher.detonate ]]( self.owner );
 	}
-	else self [[ watcher.detonate ]]();
+	else 
+	{
+		self [[ watcher.detonate ]]();
+	}
 }
 
-shouldaffectweaponobject( object, watcher )
+shouldaffectweaponobject( object, watcher ) //checked matches cerberus output
 {
 	radius = getweaponexplosionradius( watcher.weapon );
 	distancesqr = distancesquared( self.origin, object.origin );
@@ -1755,53 +1699,48 @@ shouldaffectweaponobject( object, watcher )
 	return dot > watcher.detectiondot;
 }
 
-deathdodger( graceperiod )
+deathdodger( graceperiod ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
-	wait ( 0,2 + graceperiod );
+	wait ( 0.2 + graceperiod );
 	self notify( "death_dodger" );
 }
 
-deleteondeath( ent )
+deleteondeath( ent ) //checked matches cerberus output
 {
 	self waittill_any( "death", "hacked" );
-	wait 0,05;
+	wait 0.05;
 	if ( isDefined( ent ) )
 	{
 		ent delete();
 	}
 }
 
-testkillbrushonstationary( killbrusharray, player )
+testkillbrushonstationary( killbrusharray, player ) //checked changed to match cerberus output
 {
 	player endon( "disconnect" );
 	self endon( "death" );
 	self waittill( "stationary" );
-	wait 0,1;
-	i = 0;
-	while ( i < killbrusharray.size )
+	wait 0.1;
+	for ( i = 0; i < killbrusharray.size; i++ )
 	{
 		if ( self istouching( killbrusharray[ i ] ) )
 		{
 			if ( self.origin[ 2 ] > player.origin[ 2 ] )
 			{
-				return;
+				break;
 			}
-			else
+			if ( isDefined( self ) )
 			{
-				if ( isDefined( self ) )
-				{
-					self delete();
-				}
-				return;
+				self delete();
 			}
-			i++;
+			return;
 		}
 	}
 }
 
-deleteonkillbrush( player )
+deleteonkillbrush( player ) //checked changed to match cerberus output
 {
 	player endon( "disconnect" );
 	self endon( "death" );
@@ -1810,8 +1749,7 @@ deleteonkillbrush( player )
 	self thread testkillbrushonstationary( killbrushes, player );
 	while ( 1 )
 	{
-		i = 0;
-		while ( i < killbrushes.size )
+		for ( i = 0; i < killbrushes.size; i++ )
 		{
 			if ( self istouching( killbrushes[ i ] ) )
 			{
@@ -1819,44 +1757,38 @@ deleteonkillbrush( player )
 				{
 					break;
 				}
-				else
+				if ( isDefined( self ) )
 				{
-					if ( isDefined( self ) )
-					{
-						self delete();
-					}
-					return;
+					self delete();
 				}
-				i++;
+				return;
 			}
 		}
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-watchweaponobjectaltdetonation()
+watchweaponobjectaltdetonation() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
 	{
 		self waittill( "alt_detonate" );
-		while ( !isalive( self ) )
+		if ( !isalive( self ) )
 		{
 			continue;
 		}
-		watcher = 0;
-		while ( watcher < self.weaponobjectwatcherarray.size )
+		for ( watcher = 0; watcher < self.weaponobjectwatcherarray.size; watcher++ )
 		{
 			if ( self.weaponobjectwatcherarray[ watcher ].altdetonate )
 			{
 				self.weaponobjectwatcherarray[ watcher ] detonateweaponobjectarray( 0 );
 			}
-			watcher++;
 		}
 	}
 }
 
-watchweaponobjectaltdetonate()
+watchweaponobjectaltdetonate() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "detonated" );
@@ -1869,15 +1801,12 @@ watchweaponobjectaltdetonate()
 		{
 			continue;
 		}
-		else
-		{
-			self notify( "alt_detonate" );
-			wait 0,05;
-		}
+		self notify( "alt_detonate" );
+		wait 0.05;
 	}
 }
 
-watchweaponobjectdetonation()
+watchweaponobjectdetonation() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -1899,12 +1828,12 @@ watchweaponobjectdetonation()
 	}
 }
 
-deleteweaponobjectson()
+deleteweaponobjectson() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		msg = self waittill_any_return( "disconnect", "joined_team", "joined_spectators", "death" );
-		while ( msg == "death" )
+		if ( msg == "death" )
 		{
 			continue;
 		}
@@ -1913,8 +1842,7 @@ deleteweaponobjectson()
 			return;
 		}
 		watchers = [];
-		watcher = 0;
-		while ( watcher < self.weaponobjectwatcherarray.size )
+		for ( watcher = 0; watcher < self.weaponobjectwatcherarray.size; watcher++ )
 		{
 			weaponobjectwatcher = spawnstruct();
 			watchers[ watchers.size ] = weaponobjectwatcher;
@@ -1923,14 +1851,11 @@ deleteweaponobjectson()
 			{
 				weaponobjectwatcher.objectarray = self.weaponobjectwatcherarray[ watcher ].objectarray;
 			}
-			watcher++;
 		}
-		wait 0,05;
-		watcher = 0;
-		while ( watcher < watchers.size )
+		wait 0.05;
+		for ( watcher = 0; watcher < watchers.size; watcher++ )
 		{
 			watchers[ watcher ] deleteweaponobjectarray();
-			watcher++;
 		}
 		if ( msg == "disconnect" )
 		{
@@ -1939,25 +1864,24 @@ deleteweaponobjectson()
 	}
 }
 
-saydamaged( orig, amount )
+saydamaged( orig, amount ) //checked changed to match cerberus output
 {
+	/*
 /#
-	i = 0;
-	while ( i < 60 )
+	for ( i = 0; i < 60; i++ )
 	{
 		print3d( orig, "damaged! " + amount );
-		wait 0,05;
-		i++;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-showheadicon( trigger )
+showheadicon( trigger ) //checked changed to match cerberus output
 {
 	triggerdetectid = trigger.detectid;
 	useid = -1;
-	index = 0;
-	while ( index < 4 )
+	for ( index = 0; index < 4; index++ )
 	{
 		detectid = self.bombsquadicons[ index ].detectid;
 		if ( detectid == triggerdetectid )
@@ -1968,7 +1892,6 @@ showheadicon( trigger )
 		{
 			useid = index;
 		}
-		index++;
 	}
 	if ( useid < 0 )
 	{
@@ -1983,7 +1906,7 @@ showheadicon( trigger )
 	self.bombsquadicons[ useid ].detectid = trigger.detectid;
 	while ( isalive( self ) && isDefined( trigger ) && self istouching( trigger ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	if ( !isDefined( self ) )
 	{
@@ -1992,9 +1915,10 @@ showheadicon( trigger )
 	self.bombsquadicons[ useid ].detectid = "";
 	self.bombsquadicons[ useid ] fadeovertime( 0,25 );
 	self.bombsquadicons[ useid ].alpha = 0;
+	self.bombsquadids[ triggerdetectid ] = undefined;
 }
 
-friendlyfirecheck( owner, attacker, forcedfriendlyfirerule )
+friendlyfirecheck( owner, attacker, forcedfriendlyfirerule ) //checked changed to match cerberus output
 {
 	if ( !isDefined( owner ) )
 	{
@@ -2028,41 +1952,35 @@ friendlyfirecheck( owner, attacker, forcedfriendlyfirerule )
 			return 1;
 		}
 	}
-	else
+	else if ( isai( attacker ) )
 	{
-		if ( isai( attacker ) )
+		if ( attacker.aiteam != owner.pers[ "team" ] )
 		{
-			if ( attacker.aiteam != owner.pers[ "team" ] )
+			return 1;
+		}
+	}
+	else if ( isvehicle( attacker ) )
+	{
+		if ( isDefined( attacker.owner ) && isplayer( attacker.owner ) )
+		{
+			if ( attacker.owner.pers[ "team" ] != owner.pers[ "team" ] )
 			{
 				return 1;
 			}
 		}
 		else
 		{
-			if ( isvehicle( attacker ) )
+			occupant_team = attacker maps/mp/_vehicles::vehicle_get_occupant_team();
+			if ( occupant_team != owner.pers[ "team" ] )
 			{
-				if ( isDefined( attacker.owner ) && isplayer( attacker.owner ) )
-				{
-					if ( attacker.owner.pers[ "team" ] != owner.pers[ "team" ] )
-					{
-						return 1;
-					}
-				}
-				else
-				{
-					occupant_team = attacker maps/mp/_vehicles::vehicle_get_occupant_team();
-					if ( occupant_team != owner.pers[ "team" ] )
-					{
-						return 1;
-					}
-				}
+				return 1;
 			}
 		}
 	}
 	return 0;
 }
 
-onspawnhatchettrigger( watcher, player )
+onspawnhatchettrigger( watcher, player ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self setowner( player );
@@ -2086,7 +2004,7 @@ onspawnhatchettrigger( watcher, player )
 				triggerparentent = self;
 				self unlink();
 				self.angles = self.oldangles;
-				self launch( vectorScale( ( 0, 0, 1 ), 5 ) );
+				self launch( vectorScale( ( 1, 1, 1 ), 5 ) );
 				self waittillnotmoving();
 				waittillframeend;
 			}
@@ -2112,24 +2030,26 @@ onspawnhatchettrigger( watcher, player )
 		self.hatchetpickuptrigger linkto( triggerparentent );
 	}
 	self thread watchhatchettrigger( self.hatchetpickuptrigger, watcher.pickup, watcher.pickupsoundplayer, watcher.pickupsound );
+	/*
 /#
 	thread switch_team( self, watcher.weapon, player );
 #/
+	*/
 	self thread watchshutdown( player );
 }
 
-watchhatchettrigger( trigger, callback, playersoundonuse, npcsoundonuse )
+watchhatchettrigger( trigger, callback, playersoundonuse, npcsoundonuse ) //checked changed to match cerberus output
 {
 	self endon( "delete" );
 	self endon( "hacked" );
 	while ( 1 )
 	{
 		trigger waittill( "trigger", player );
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
-		while ( !player isonground() )
+		if ( !player isonground() )
 		{
 			continue;
 		}
@@ -2137,7 +2057,7 @@ watchhatchettrigger( trigger, callback, playersoundonuse, npcsoundonuse )
 		{
 			continue;
 		}
-		while ( !player hasweapon( self.name ) )
+		if ( !player hasweapon( self.name ) )
 		{
 			continue;
 		}
@@ -2147,14 +2067,11 @@ watchhatchettrigger( trigger, callback, playersoundonuse, npcsoundonuse )
 		{
 			maxammo = player.grenadetypeprimarycount;
 		}
-		else
+		else if ( isDefined( player.grenadetypesecondary ) && player.grenadetypesecondary == "hatchet_mp" )
 		{
-			if ( isDefined( player.grenadetypesecondary ) && player.grenadetypesecondary == "hatchet_mp" )
-			{
-				maxammo = player.grenadetypesecondarycount;
-			}
+			maxammo = player.grenadetypesecondarycount;
 		}
-		while ( curr_ammo >= maxammo )
+		if ( curr_ammo >= maxammo )
 		{
 			continue;
 		}
@@ -2170,7 +2087,7 @@ watchhatchettrigger( trigger, callback, playersoundonuse, npcsoundonuse )
 	}
 }
 
-onspawnretrievableweaponobject( watcher, player )
+onspawnretrievableweaponobject( watcher, player ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "hacked" );
@@ -2265,9 +2182,11 @@ onspawnretrievableweaponobject( watcher, player )
 		self thread watchusetrigger( self.enemytrigger, watcher.ondestroyed );
 	}
 	self thread watchusetrigger( self.pickuptrigger, watcher.pickup, watcher.pickupsoundplayer, watcher.pickupsound );
+	/*
 /#
 	thread switch_team( self, watcher.weapon, player );
 #/
+	*/
 	if ( isDefined( watcher.pickup_trigger_listener ) )
 	{
 		self thread [[ watcher.pickup_trigger_listener ]]( self.pickuptrigger, player );
@@ -2275,7 +2194,7 @@ onspawnretrievableweaponobject( watcher, player )
 	self thread watchshutdown( player );
 }
 
-watch_trigger_visibility( triggers, weap_name )
+watch_trigger_visibility( triggers, weap_name ) //checked partially changed to match cerberus output see info.md
 {
 	self notify( "watchTriggerVisibility" );
 	self endon( "watchTriggerVisibility" );
@@ -2287,8 +2206,7 @@ watch_trigger_visibility( triggers, weap_name )
 	while ( 1 )
 	{
 		players = level.players;
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
 			if ( players[ i ] hasweapon( weap_name ) )
 			{
@@ -2311,41 +2229,41 @@ watch_trigger_visibility( triggers, weap_name )
 						triggers[ "enemy_pickup" ] setinvisibletoplayer( players[ i ] );
 					}
 				}
-				else curr_ammo = players[ i ] getweaponammostock( weap_name ) + players[ i ] getweaponammoclip( weap_name );
-				if ( weap_name == "hatchet_mp" )
+				else 
 				{
-					curr_ammo = players[ i ] getweaponammostock( weap_name );
+					curr_ammo = players[ i ] getweaponammostock( weap_name ) + players[ i ] getweaponammoclip( weap_name );
+					if ( weap_name == "hatchet_mp" )
+					{
+						curr_ammo = players[ i ] getweaponammostock( weap_name );
+					}
+					if ( curr_ammo < ammo_to_check )
+					{
+						triggers[ "owner_pickup" ] setinvisibletoplayer( players[ i ] );
+						triggers[ "enemy_pickup" ] setvisibletoplayer( players[ i ] );
+					}
+					else
+					{
+						triggers[ "owner_pickup" ] setinvisibletoplayer( players[ i ] );
+						triggers[ "enemy_pickup" ] setinvisibletoplayer( players[ i ] );
+					}
 				}
-				if ( curr_ammo < ammo_to_check )
-				{
-					triggers[ "owner_pickup" ] setinvisibletoplayer( players[ i ] );
-					triggers[ "enemy_pickup" ] setvisibletoplayer( players[ i ] );
-				}
-				else
-				{
-					triggers[ "owner_pickup" ] setinvisibletoplayer( players[ i ] );
-					triggers[ "enemy_pickup" ] setinvisibletoplayer( players[ i ] );
-				}
-				i++;
-				continue;
 			}
 			else
 			{
 				triggers[ "owner_pickup" ] setinvisibletoplayer( players[ i ] );
 				triggers[ "enemy_pickup" ] setinvisibletoplayer( players[ i ] );
 			}
-			i++;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-destroyent()
+destroyent() //checked matches cerberus output
 {
 	self delete();
 }
 
-pickup( player )
+pickup( player ) //checked matches cerberus output
 {
 	if ( self.name != "hatchet_mp" && isDefined( self.owner ) && self.owner != player )
 	{
@@ -2364,7 +2282,7 @@ pickup( player )
 	player setweaponammoclip( self.name, clip_ammo );
 }
 
-ondestroyed( attacker )
+ondestroyed( attacker ) //checked matches cerberus output
 {
 	playfx( level._effect[ "tacticalInsertionFizzle" ], self.origin );
 	self playsound( "dst_tac_insert_break" );
@@ -2372,7 +2290,7 @@ ondestroyed( attacker )
 	self delete();
 }
 
-watchshutdown( player )
+watchshutdown( player ) //checked matches cerberus output
 {
 	self waittill_any( "death", "hacked" );
 	pickuptrigger = self.pickuptrigger;
@@ -2402,18 +2320,18 @@ watchshutdown( player )
 	}
 }
 
-watchusetrigger( trigger, callback, playersoundonuse, npcsoundonuse )
+watchusetrigger( trigger, callback, playersoundonuse, npcsoundonuse ) //checked changed to match cerberus output
 {
 	self endon( "delete" );
 	self endon( "hacked" );
 	while ( 1 )
 	{
 		trigger waittill( "trigger", player );
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
-		while ( !player isonground() )
+		if ( !player isonground() )
 		{
 			continue;
 		}
@@ -2450,7 +2368,7 @@ watchusetrigger( trigger, callback, playersoundonuse, npcsoundonuse )
 	}
 }
 
-createretrievablehint( name, hint )
+createretrievablehint( name, hint ) //checked matches cerberus output
 {
 	retrievehint = spawnstruct();
 	retrievehint.name = name;
@@ -2458,7 +2376,7 @@ createretrievablehint( name, hint )
 	level.retrievehints[ name ] = retrievehint;
 }
 
-createhackerhint( name, hint )
+createhackerhint( name, hint ) //checked matches cerberus output
 {
 	hackerhint = spawnstruct();
 	hackerhint.name = name;
@@ -2466,7 +2384,7 @@ createhackerhint( name, hint )
 	level.hackerhints[ name ] = hackerhint;
 }
 
-createdestroyhint( name, hint )
+createdestroyhint( name, hint ) //checked matches cerberus output
 {
 	destroyhint = spawnstruct();
 	destroyhint.name = name;
@@ -2474,7 +2392,7 @@ createdestroyhint( name, hint )
 	level.destroyhints[ name ] = destroyhint;
 }
 
-attachreconmodel( modelname, owner )
+attachreconmodel( modelname, owner ) //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -2493,7 +2411,7 @@ attachreconmodel( modelname, owner )
 	self.reconmodelentity = reconmodel;
 }
 
-resetreconmodelvisibility( owner )
+resetreconmodelvisibility( owner ) //checked partially changed to match beta dump see info.md
 {
 	if ( !isDefined( self ) )
 	{
@@ -2513,83 +2431,79 @@ resetreconmodelvisibility( owner )
 			i++;
 			continue;
 		}
-		else
+		if ( level.players[ i ].team == "spectator" )
 		{
-			if ( level.players[ i ].team == "spectator" )
+			i++;
+			continue;
+		}
+		hasreconmodel = 0;
+		if ( level.players[ i ] hasperk( "specialty_detectexplosive" ) )
+		{
+			switch( self.model_name )
 			{
-				i++;
-				continue;
+				case "t6_wpn_c4_world_detect":
+				case "t6_wpn_claymore_world_detect":
+					hasreconmodel = 1;
+					break;
+				break;
+				default:
+					break;
 			}
-			else hasreconmodel = 0;
-			if ( level.players[ i ] hasperk( "specialty_detectexplosive" ) )
+			if ( level.players[ i ] hasperk( "specialty_showenemyequipment" ) )
 			{
 				switch( self.model_name )
 				{
+					case "t5_weapon_scrambler_world_detect":
+					case "t6_wpn_bouncing_betty_world_detect":
 					case "t6_wpn_c4_world_detect":
 					case "t6_wpn_claymore_world_detect":
+					case "t6_wpn_motion_sensor_world_detect":
+					case "t6_wpn_tac_insert_detect":
+					case "t6_wpn_taser_mine_world_detect":
+					case "t6_wpn_trophy_system_world_detect":
 						hasreconmodel = 1;
 						break;
-					break;
 					default:
-					}
-				}
-				if ( level.players[ i ] hasperk( "specialty_showenemyequipment" ) )
-				{
-					switch( self.model_name )
-					{
-						case "t5_weapon_scrambler_world_detect":
-						case "t6_wpn_bouncing_betty_world_detect":
-						case "t6_wpn_c4_world_detect":
-						case "t6_wpn_claymore_world_detect":
-						case "t6_wpn_motion_sensor_world_detect":
-						case "t6_wpn_tac_insert_detect":
-						case "t6_wpn_taser_mine_world_detect":
-						case "t6_wpn_trophy_system_world_detect":
-							hasreconmodel = 1;
-							break;
 						break;
-						default:
-						}
-					}
-					if ( !hasreconmodel )
+				}
+				if ( !hasreconmodel )
+				{
+					i++;
+					continue;
+				}
+				isenemy = 1;
+				if ( level.teambased )
+				{
+					if ( level.players[ i ].team == owner.team )
 					{
-						i++;
-						continue;
-					}
-					else isenemy = 1;
-					if ( level.teambased )
-					{
-						if ( level.players[ i ].team == owner.team )
-						{
-							isenemy = 0;
-						}
-					}
-					else
-					{
-						if ( level.players[ i ] == owner )
-						{
-							isenemy = 0;
-						}
-					}
-					if ( isenemy )
-					{
-						self setvisibletoplayer( level.players[ i ] );
+						isenemy = 0;
 					}
 				}
-				i++;
+				else
+				{
+					if ( level.players[ i ] == owner )
+					{
+						isenemy = 0;
+					}
+				}
+				if ( isenemy )
+				{
+					self setvisibletoplayer( level.players[ i ] );
+				}
 			}
 		}
+		i++;
 	}
 }
 
-watchreconmodelfordeath( parentent )
+watchreconmodelfordeath( parentent ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	parentent waittill_any( "death", "hacked" );
 	self delete();
 }
 
-resetreconmodelonevent( eventname, owner )
+resetreconmodelonevent( eventname, owner ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	for ( ;; )
@@ -2603,8 +2517,9 @@ resetreconmodelonevent( eventname, owner )
 	}
 }
 
-switch_team( entity, weapon_name, owner )
+switch_team( entity, weapon_name, owner ) //checked changed to match cerberus output
 {
+	/*
 /#
 	self notify( "stop_disarmthink" );
 	self endon( "stop_disarmthink" );
@@ -2612,13 +2527,13 @@ switch_team( entity, weapon_name, owner )
 	setdvar( "scr_switch_team", "" );
 	while ( 1 )
 	{
-		wait 0,5;
+		wait 0.5;
 		devgui_int = getDvarInt( "scr_switch_team" );
 		if ( devgui_int != 0 )
 		{
 			team = "autoassign";
 			player = maps/mp/gametypes/_dev::getormakebot( team );
-			while ( !isDefined( player ) )
+			if ( !isDefined( player ) )
 			{
 				println( "Could not add test client" );
 				wait 1;
@@ -2628,19 +2543,21 @@ switch_team( entity, weapon_name, owner )
 			entity setowner( player );
 			entity setteam( player.pers[ "team" ] );
 			entity.owner = player;
-			entity notify( "hacked" );
-			level notify( "hacked" );
+			entity notify( "hacked", player );
+			level notify( "hacked", entity, player );
 			if ( entity.name == "camera_spike_mp" && isDefined( entity.camerahead ) )
 			{
 				entity.camerahead notify( "hacked" );
 			}
-			wait 0,05;
+			wait 0.05;
 			if ( isDefined( player ) && player.sessionstate == "playing" )
 			{
-				player notify( "grenade_fire" );
+				player notify( "grenade_fire", self, self.name );
 			}
 			setdvar( "scr_switch_team", "0" );
 		}
 #/
 	}
+	*/
 }
+
