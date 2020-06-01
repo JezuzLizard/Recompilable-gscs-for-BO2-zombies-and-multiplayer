@@ -45,7 +45,20 @@ zm_prison_patch/maps/mp/zm_prison_sq_fc.gsc
 zm_prison_patch/maps/mp/zm_prison_sq_final.gsc
 zm_prison_patch/maps/mp/zm_prison_sq_wth.gsc
 
-
+zm_prison_patch/maps/mp/zombies/_zm_afterlife.gsc
+zm_prison_patch/maps/mp/zombies/_zm_ai_brutus.gsc
+zm_prison_patch/maps/mp/zombies/_zm_craftables.gsc
+zm_prison_patch/maps/mp/zombies/_zm_game_module_grief.gsc
+zm_prison_patch/maps/mp/zombies/_zm_game_module_meat.gsc
+zm_prison_patch/maps/mp/zombies/_zm_game_module_meat_utility.gsc
+zm_prison_patch/maps/mp/zombies/_zm_game_module_utility.gsc
+zm_prison_patch/maps/mp/zombies/_zm_magicbox_prison.gsc
+zm_prison_patch/maps/mp/zombies/_zm_melee_weapon.gsc
+zm_prison_patch/maps/mp/zombies/_zm_riotshield_prison.gsc
+zm_prison_patch/maps/mp/zombies/_zm_weap_ballistic_knife.gsc
+zm_prison_patch/maps/mp/zombies/_zm_weap_claymore.gsc
+zm_prison_patch/maps/mp/zombies/_zm_weap_riotshield_prison.gsc
+zm_prison_patch/maps/mp/zombies/_zm_weap_tomahawk.gsc
 ```
 
 
