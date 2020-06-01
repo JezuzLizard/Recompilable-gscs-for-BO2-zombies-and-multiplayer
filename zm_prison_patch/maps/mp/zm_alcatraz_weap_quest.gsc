@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_powerups;
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_zonemgr;
@@ -9,9 +10,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props" );
-
-init()
+init() //checked changed to match cerberus output
 {
 	flag_init( "soul_catchers_charged" );
 	level.soul_catchers = [];
@@ -19,13 +18,9 @@ init()
 	level.no_gib_in_wolf_area = ::check_for_zombie_in_wolf_area;
 	level.soul_catcher_clip[ "rune_2" ] = getent( "wolf_clip_docks", "targetname" );
 	level.soul_catcher_clip[ "rune_3" ] = getent( "wolf_clip_infirmary", "targetname" );
-	_a24 = level.soul_catcher_clip;
-	_k24 = getFirstArrayKey( _a24 );
-	while ( isDefined( _k24 ) )
+	foreach ( e_clip in level.soul_catcher_clip )
 	{
-		e_clip = _a24[ _k24 ];
 		e_clip setinvisibletoall();
-		_k24 = getNextArrayKey( _a24, _k24 );
 	}
 	level thread create_anim_references_on_server();
 	registerclientfield( "actor", "make_client_clone", 9000, 4, "int" );
@@ -33,16 +28,13 @@ init()
 	onplayerconnect_callback( ::hellhole_projectile_watch );
 	onplayerconnect_callback( ::hellhole_tomahawk_watch );
 	level.a_wolf_structs = getstructarray( "wolf_position", "targetname" );
-	i = 0;
-	while ( i < level.a_wolf_structs.size )
+	for ( i = 0; i < level.a_wolf_structs.size; i++ )
 	{
 		registerclientfield( "world", level.a_wolf_structs[ i ].script_parameters, 9000, 3, "int" );
 		level.soul_catchers[ i ] = level.a_wolf_structs[ i ];
 		level.soul_catchers_vol[ i ] = getent( level.a_wolf_structs[ i ].target, "targetname" );
-		i++;
 	}
-	i = 0;
-	while ( i < level.soul_catchers.size )
+	for ( i = 0; i < level.soul_catchers.size; i++ )
 	{
 		level.soul_catchers[ i ].souls_received = 0;
 		level.soul_catchers[ i ].is_eating = 0;
@@ -57,14 +49,13 @@ init()
 		}
 		level.soul_catchers[ i ] thread wolf_head_removal( "tomahawk_door_sign_" + ( i + 1 ) );
 		level.soul_catchers_vol[ i ] = getent( level.soul_catchers[ i ].target, "targetname" );
-		i++;
 	}
 	level.soul_catchers_charged = 0;
 	level thread soul_catchers_charged();
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::zombie_spawn_func );
 }
 
-create_anim_references_on_server()
+create_anim_references_on_server() //checked matches cerberus output
 {
 	root = %root;
 	wolfhead_intro_anim = %o_zombie_dreamcatcher_intro;
@@ -89,7 +80,7 @@ create_anim_references_on_server()
 	wolfhead_body_anims[ "front" ] = %ai_zombie_dreamcatcher_wallconsume_align_f;
 }
 
-soul_catcher_state_manager()
+soul_catcher_state_manager() //checked changed to match cerberus output
 {
 	wait 1;
 	if ( self.script_noteworthy == "rune_3" )
@@ -97,13 +88,10 @@ soul_catcher_state_manager()
 		trigger = getent( "wolf_hurt_trigger", "targetname" );
 		trigger hide();
 	}
-	else
+	else if ( self.script_noteworthy == "rune_2" )
 	{
-		if ( self.script_noteworthy == "rune_2" )
-		{
-			trigger = getent( "wolf_hurt_trigger_docks", "targetname" );
-			trigger hide();
-		}
+		trigger = getent( "wolf_hurt_trigger_docks", "targetname" );
+		trigger hide();
 	}
 	level setclientfield( self.script_parameters, 0 );
 	self waittill( "first_zombie_killed_in_zone" );
@@ -112,13 +100,10 @@ soul_catcher_state_manager()
 		trigger = getent( "wolf_hurt_trigger", "targetname" );
 		trigger show();
 	}
-	else
+	else if ( self.script_noteworthy == "rune_2" )
 	{
-		if ( self.script_noteworthy == "rune_2" )
-		{
-			trigger = getent( "wolf_hurt_trigger_docks", "targetname" );
-			trigger show();
-		}
+		trigger = getent( "wolf_hurt_trigger_docks", "targetname" );
+		trigger show();
 	}
 	if ( isDefined( level.soul_catcher_clip[ self.script_noteworthy ] ) )
 	{
@@ -144,18 +129,15 @@ soul_catcher_state_manager()
 		trigger = getent( "wolf_hurt_trigger", "targetname" );
 		trigger delete();
 	}
-	else
+	else if ( self.script_noteworthy == "rune_2" )
 	{
-		if ( self.script_noteworthy == "rune_2" )
-		{
-			trigger = getent( "wolf_hurt_trigger_docks", "targetname" );
-			trigger delete();
-		}
+		trigger = getent( "wolf_hurt_trigger_docks", "targetname" );
+		trigger delete();
 	}
 	level setclientfield( self.script_parameters, 7 );
 }
 
-grief_soul_catcher_state_manager()
+grief_soul_catcher_state_manager() //checked matches cerberus output
 {
 	wait 1;
 	while ( 1 )
@@ -188,7 +170,7 @@ grief_soul_catcher_state_manager()
 	}
 }
 
-wolf_spit_out_powerup()
+wolf_spit_out_powerup() //checked changed to match cerberus output
 {
 	if ( isDefined( level.enable_magic ) && !level.enable_magic )
 	{
@@ -197,8 +179,7 @@ wolf_spit_out_powerup()
 	power_origin_struct = getstruct( "wolf_puke_powerup_origin", "targetname" );
 	if ( randomint( 100 ) < 20 )
 	{
-		i = 0;
-		while ( i < level.zombie_powerup_array.size )
+		for ( i = 0; i < level.zombie_powerup_array.size; i++ )
 		{
 			if ( level.zombie_powerup_array[ i ] == "meat_stink" )
 			{
@@ -206,19 +187,17 @@ wolf_spit_out_powerup()
 				found = 1;
 				break;
 			}
-			else
-			{
-				i++;
-			}
 		}
 	}
-	else while ( 1 )
+	while ( 1 )
 	{
 		level.zombie_powerup_index = randomint( level.zombie_powerup_array.size );
-		while ( level.zombie_powerup_array[ level.zombie_powerup_index ] == "nuke" )
+		if ( level.zombie_powerup_array[ level.zombie_powerup_index ] == "nuke" )
 		{
-			wait 0,05;
+			wait 0.05;
+			continue;
 		}
+		break;
 	}
 	spawn_infinite_powerup_drop( power_origin_struct.origin, level.zombie_powerup_array[ level.zombie_powerup_index ] );
 	power_ups = get_array_of_closest( power_origin_struct.origin, level.active_powerups, undefined, undefined, 100 );
@@ -228,21 +207,20 @@ wolf_spit_out_powerup()
 	}
 }
 
-zombie_spawn_func()
+zombie_spawn_func() //checked matches cerberus output
 {
 	self.actor_killed_override = ::zombie_killed_override;
 }
 
-zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime )
+zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime ) //checked changed to match cerberus output
 {
 	if ( !is_true( self.has_legs ) )
 	{
 		return;
 	}
-	while ( isplayer( attacker ) )
+	if ( isplayer( attacker ) )
 	{
-		i = 0;
-		while ( i < level.soul_catchers.size )
+		for ( i = 0; i < level.soul_catchers.size; i++ )
 		{
 			if ( self istouching( level.soul_catchers_vol[ i ] ) )
 			{
@@ -252,15 +230,13 @@ zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, v
 					self.my_soul_catcher = level.soul_catchers[ i ];
 				}
 			}
-			i++;
 		}
 	}
 }
 
-check_for_zombie_in_wolf_area()
+check_for_zombie_in_wolf_area() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < level.soul_catchers.size )
+	for ( i = 0; i < level.soul_catchers.size; i++ )
 	{
 		if ( self istouching( level.soul_catchers_vol[ i ] ) )
 		{
@@ -269,12 +245,11 @@ check_for_zombie_in_wolf_area()
 				return 1;
 			}
 		}
-		i++;
 	}
 	return 0;
 }
 
-zombie_soul_catcher_death()
+zombie_soul_catcher_death() //checked matches cerberus output
 {
 	self thread maps/mp/zombies/_zm_spawner::zombie_death_animscript();
 	if ( isDefined( self._race_team ) )
@@ -319,16 +294,16 @@ zombie_soul_catcher_death()
 	{
 		total_wait_time = 3 + getanimlength( %ai_zombie_dreamcatcher_wallconsume_align_l );
 	}
-	wait ( total_wait_time - 0,5 );
+	wait ( total_wait_time - 0.5 );
 	self.my_soul_catcher.souls_received++;
-	wait 0,5;
+	wait 0.5;
 	self.my_soul_catcher notify( "finished_eating" );
 	self.my_soul_catcher.is_eating = 0;
 	self delete();
 	return 1;
 }
 
-get_correct_model_array()
+get_correct_model_array() //checked matches cerberus output
 {
 	mod = 0;
 	if ( self.model == "c_zom_guard_body" && isDefined( self.hatmodel ) && self.hatmodel == "c_zom_guard_hat" )
@@ -354,18 +329,18 @@ get_correct_model_array()
 	return 5;
 }
 
-notify_wolf_intro_anim_complete()
+notify_wolf_intro_anim_complete() //checked matches cerberus output
 {
 	anim_length = getanimlength( %o_zombie_dreamcatcher_intro );
 	wait anim_length;
 	self notify( "wolf_intro_anim_complete" );
 }
 
-which_eating_anim()
+which_eating_anim() //checked matches cerberus output
 {
 	soul_catcher = self.my_soul_catcher;
 	forward_dot = vectordot( anglesToForward( soul_catcher.angles ), vectornormalize( self.origin - soul_catcher.origin ) );
-	if ( forward_dot > 0,85 )
+	if ( forward_dot > 0.85 )
 	{
 		return 3;
 	}
@@ -383,7 +358,7 @@ which_eating_anim()
 	}
 }
 
-soul_catcher_check()
+soul_catcher_check() //checked changed to match cerberus output
 {
 	self.is_charged = 0;
 	while ( 1 )
@@ -396,25 +371,19 @@ soul_catcher_check()
 			self notify( "fully_charged" );
 			break;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 	if ( level.soul_catchers_charged == 1 )
 	{
 		self thread first_wolf_complete_vo();
 	}
-	else
+	else if ( level.soul_catchers_charged >= level.soul_catchers.size )
 	{
-		if ( level.soul_catchers_charged >= level.soul_catchers.size )
-		{
-			self thread final_wolf_complete_vo();
-		}
+		self thread final_wolf_complete_vo();
 	}
 }
 
-wolf_head_removal( wolf_head_model_string )
+wolf_head_removal( wolf_head_model_string ) //checked matches cerberus output
 {
 	wolf_head_model = getent( wolf_head_model_string, "targetname" );
 	wolf_head_model setmodel( "p6_zm_al_dream_catcher_off" );
@@ -422,7 +391,7 @@ wolf_head_removal( wolf_head_model_string )
 	wolf_head_model setmodel( "p6_zm_al_dream_catcher" );
 }
 
-soul_catchers_charged()
+soul_catchers_charged() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -430,16 +399,13 @@ soul_catchers_charged()
 		{
 			flag_set( "soul_catchers_charged" );
 			level notify( "soul_catchers_charged" );
-			return;
+			break;
 		}
-		else
-		{
-			wait 1;
-		}
+		wait 1;
 	}
 }
 
-first_wolf_encounter_vo()
+first_wolf_encounter_vo() //checked changed to match cerberus output
 {
 	if ( !is_classic() )
 	{
@@ -448,82 +414,65 @@ first_wolf_encounter_vo()
 	wait 2;
 	a_players = getplayers();
 	a_closest = get_array_of_closest( self.origin, a_players );
-	i = 0;
-	while ( i < a_closest.size )
+	for ( i = 0; i < a_closest.size; i++ )
 	{
 		if ( isDefined( a_closest[ i ].dontspeak ) && !a_closest[ i ].dontspeak )
 		{
 			a_closest[ i ] thread do_player_general_vox( "general", "wolf_encounter" );
 			level.wolf_encounter_vo_played = 1;
-			return;
-		}
-		else
-		{
-			i++;
+			break;
 		}
 	}
 }
 
-first_wolf_complete_vo()
+first_wolf_complete_vo() //checked changed to match cerberus output
 {
 	if ( !is_classic() )
 	{
 		return;
 	}
-	wait 3,5;
+	wait 3.5;
 	a_players = getplayers();
 	a_closest = get_array_of_closest( self.origin, a_players );
-	i = 0;
-	while ( i < a_closest.size )
+	for ( i = 0; i < a_closest.size; i++ )
 	{
 		if ( isDefined( a_closest[ i ].dontspeak ) && !a_closest[ i ].dontspeak )
 		{
 			a_closest[ i ] thread do_player_general_vox( "general", "wolf_complete" );
-			return;
-		}
-		else
-		{
-			i++;
+			break;
 		}
 	}
 }
 
-final_wolf_complete_vo()
+final_wolf_complete_vo() //checked changed to match cerberus output
 {
 	if ( !is_classic() )
 	{
 		return;
 	}
-	wait 3,5;
+	wait 3.5;
 	a_players = getplayers();
 	a_closest = get_array_of_closest( self.origin, a_players );
-	i = 0;
-	while ( i < a_closest.size )
+	for ( i = 0; i < a_closest.size; i++ )
 	{
 		if ( isDefined( a_closest[ i ].dontspeak ) && !a_closest[ i ].dontspeak )
 		{
 			a_closest[ i ] thread do_player_general_vox( "general", "wolf_final" );
-			return;
-		}
-		else
-		{
-			i++;
+			break;
 		}
 	}
 }
 
-tomahawk_upgrade_quest()
+tomahawk_upgrade_quest() //checked changed to match cerberus output
 {
 	if ( isDefined( level.gamedifficulty ) && level.gamedifficulty == 0 )
 	{
 		return;
 	}
 	self endon( "disconnect" );
-	self.tomahawk_upgrade_kills = 0;
-	while ( self.tomahawk_upgrade_kills < 15 )
+	for ( self.tomahawk_upgrade_kills = 0; self.tomahawk_upgrade_kills < 15; self.tomahawk_upgrade_kills++ )
 	{
 		self waittill( "got_a_tomahawk_kill" );
-		self.tomahawk_upgrade_kills++;
 	}
 	wait 1;
 	level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "quest_generic" );
@@ -533,7 +482,7 @@ tomahawk_upgrade_quest()
 	e_org delete();
 	while ( level.round_number < 10 )
 	{
-		wait 0,5;
+		wait 0.5;
 	}
 	self ent_flag_init( "gg_round_done" );
 	while ( !self ent_flag( "gg_round_done" ) )
@@ -541,7 +490,7 @@ tomahawk_upgrade_quest()
 		level waittill( "between_round_over" );
 		self.killed_with_only_tomahawk = 1;
 		self.killed_something_thq = 0;
-		while ( !self maps/mp/zombies/_zm_zonemgr::is_player_in_zone( "zone_golden_gate_bridge" ) )
+		if ( !self maps/mp/zombies/_zm_zonemgr::is_player_in_zone( "zone_golden_gate_bridge" ) )
 		{
 			continue;
 		}
@@ -550,7 +499,7 @@ tomahawk_upgrade_quest()
 		{
 			continue;
 		}
-		while ( !self maps/mp/zombies/_zm_zonemgr::is_player_in_zone( "zone_golden_gate_bridge" ) )
+		if ( !self maps/mp/zombies/_zm_zonemgr::is_player_in_zone( "zone_golden_gate_bridge" ) )
 		{
 			continue;
 		}
@@ -587,7 +536,7 @@ tomahawk_upgrade_quest()
 	self.current_tomahawk_weapon = "upgraded_tomahawk_zm";
 }
 
-toggle_redeemer_trigger()
+toggle_redeemer_trigger() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	flag_wait( "tomahawk_pickup_complete" );
@@ -600,7 +549,10 @@ toggle_redeemer_trigger()
 		{
 			break;
 		}
-		else wait 1;
+		else 
+		{
+			wait 1;
+		}
 	}
 	while ( 1 )
 	{
@@ -618,7 +570,7 @@ toggle_redeemer_trigger()
 	}
 }
 
-hellhole_projectile_watch()
+hellhole_projectile_watch() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -631,7 +583,7 @@ hellhole_projectile_watch()
 	}
 }
 
-hellhole_tomahawk_watch()
+hellhole_tomahawk_watch() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "hellhole_time" );
@@ -645,13 +597,13 @@ hellhole_tomahawk_watch()
 	}
 }
 
-hellhole_grenades( grenade )
+hellhole_grenades( grenade ) //checked matches cerberus output
 {
 	grenade endon( "death" );
 	trig_hellhole = getent( "trig_cellblock_hellhole", "targetname" );
 	while ( !grenade istouching( trig_hellhole ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self maps/mp/zombies/_zm_score::add_to_player_score( 20 );
 	playfx( level._effect[ "tomahawk_hellhole" ], grenade.origin );
@@ -659,13 +611,13 @@ hellhole_grenades( grenade )
 	grenade delete();
 }
 
-hellhole_tomahawk( grenade )
+hellhole_tomahawk( grenade ) //checked matches cerberus output
 {
 	grenade endon( "death" );
 	trig_hellhole = getent( "trig_cellblock_hellhole", "targetname" );
 	while ( !grenade istouching( trig_hellhole ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self notify( "tomahawk_in_hellhole" );
 	grenade notify( "in_hellhole" );
@@ -674,7 +626,7 @@ hellhole_tomahawk( grenade )
 	grenade delete();
 }
 
-spawn_infinite_powerup_drop( v_origin, str_type )
+spawn_infinite_powerup_drop( v_origin, str_type ) //checked matches cerberus output
 {
 	if ( isDefined( str_type ) )
 	{
@@ -685,3 +637,4 @@ spawn_infinite_powerup_drop( v_origin, str_type )
 		intro_powerup = maps/mp/zombies/_zm_powerups::powerup_drop( v_origin );
 	}
 }
+

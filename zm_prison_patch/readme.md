@@ -18,10 +18,34 @@ zm_prison_patch/maps/mp/zombies/_zm_perk_divetonuke.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+zm_prison_patch/maps/mp/zm_alcatraz_weap_quest.gsc
 zm_prison_patch/maps/mp/zombies/_zm_weap_blundersplat.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
+zm_prison_patch/maps/mp/_sticky_grenade.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_amb.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_craftables.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_distance_tracking.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_gamemodes.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_grief_cellblock.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_sq.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_sq_nixie.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_sq_vo.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_standard.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_traps.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_travel.gsc
+zm_prison_patch/maps/mp/zm_alcatraz_utility.gsc
+zm_prison_patch/maps/mp/zm_prison_achievement.gsc
+zm_prison_patch/maps/mp/zm_prison_ffotd.gsc
+zm_prison_patch/maps/mp/zm_prison_fx.gsc
+zm_prison_patch/maps/mp/zm_prison_spoon.gsc
+zm_prison_patch/maps/mp/zm_prison_sq_bg.gsc
+zm_prison_patch/maps/mp/zm_prison_sq_fc.gsc
+zm_prison_patch/maps/mp/zm_prison_sq_final.gsc
+zm_prison_patch/maps/mp/zm_prison_sq_wth.gsc
+
+
 ```
 
 
