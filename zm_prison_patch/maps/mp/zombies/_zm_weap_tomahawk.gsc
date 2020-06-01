@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_weapons;
@@ -6,7 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	registerclientfield( "toplayer", "tomahawk_in_use", 9000, 2, "int" );
 	registerclientfield( "toplayer", "upgraded_tomahawk_in_use", 9000, 1, "int" );
@@ -25,7 +26,7 @@ init()
 	level.a_tomahawk_pickup_funcs = [];
 }
 
-tomahawk_on_player_connect()
+tomahawk_on_player_connect() //checked matches cerberus output
 {
 	self.current_tomahawk_weapon = "bouncing_tomahawk_zm";
 	self.current_tactical_grenade = "bouncing_tomahawk_zm";
@@ -33,13 +34,13 @@ tomahawk_on_player_connect()
 	self thread watch_for_tomahawk_charge();
 }
 
-watch_for_tomahawk_throw()
+watch_for_tomahawk_throw() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
 	{
 		self waittill( "grenade_fire", grenade, weapname );
-		while ( !issubstr( weapname, "tomahawk_zm" ) )
+		if ( !issubstr( weapname, "tomahawk_zm" ) )
 		{
 			continue;
 		}
@@ -61,13 +62,13 @@ watch_for_tomahawk_throw()
 	}
 }
 
-watch_for_tomahawk_charge()
+watch_for_tomahawk_charge() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
 	{
 		self waittill( "grenade_pullback", weaponname );
-		while ( !issubstr( weaponname, "tomahawk_zm" ) )
+		if ( !issubstr( weaponname, "tomahawk_zm" ) )
 		{
 			continue;
 		}
@@ -75,12 +76,12 @@ watch_for_tomahawk_charge()
 		self thread play_charge_fx();
 		self.n_tomahawk_cooking_time = getTime();
 		self waittill_either( "grenade_fire", "grenade_throw_cancelled" );
-		wait 0,1;
+		wait 0.1;
 		self.n_tomahawk_cooking_time = undefined;
 	}
 }
 
-watch_for_grenade_cancel()
+watch_for_grenade_cancel() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -94,7 +95,7 @@ watch_for_grenade_cancel()
 	self notify( "grenade_throw_cancelled" );
 }
 
-play_charge_fx()
+play_charge_fx() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -122,60 +123,45 @@ play_charge_fx()
 		{
 			return;
 		}
-		else
+		if ( time_to_pulse >= 3400 )
 		{
-			if ( time_to_pulse >= 3400 )
-			{
-				return;
-			}
-			else
-			{
-				wait 0,05;
-			}
+			return;
 		}
+		wait 0.05;
 	}
 }
 
-get_grenade_charge_power( player )
+get_grenade_charge_power( player ) //checked changed to match cerberus output
 {
 	player endon( "disconnect" );
 	if ( self.n_cookedtime > 1000 && self.n_cookedtime < 2000 )
 	{
 		if ( player.current_tomahawk_weapon == "upgraded_tomahawk_zm" )
 		{
-			return 4,5;
+			return 4.5;
 		}
-		return 1,5;
+		return 1.5;
 	}
-	else
+	else if ( self.n_cookedtime > 2000 && self.n_cookedtime < 3000 )
 	{
-		if ( self.n_cookedtime > 2000 && self.n_cookedtime < 3000 )
+		if ( player.current_tomahawk_weapon == "upgraded_tomahawk_zm" )
 		{
-			if ( player.current_tomahawk_weapon == "upgraded_tomahawk_zm" )
-			{
-				return 6;
-			}
-			return 2;
+			return 6;
 		}
-		else
-		{
-			if ( self.n_cookedtime >= 3000 && player.current_tomahawk_weapon != "upgraded_tomahawk_zm" )
-			{
-				return 2;
-			}
-			else
-			{
-				if ( self.n_cookedtime >= 3000 )
-				{
-					return 3;
-				}
-			}
-		}
+		return 2;
+	}
+	else if ( self.n_cookedtime >= 3000 && player.current_tomahawk_weapon != "upgraded_tomahawk_zm" )
+	{
+		return 2;
+	}
+	else if ( self.n_cookedtime >= 3000 )
+	{
+		return 3;
 	}
 	return 1;
 }
 
-tomahawk_thrown( grenade )
+tomahawk_thrown( grenade ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	grenade endon( "in_hellhole" );
@@ -192,33 +178,25 @@ tomahawk_thrown( grenade )
 	n_grenade_charge_power = grenade get_grenade_charge_power( self );
 	a_zombies = get_array_of_closest( grenade_origin, a_zombies, undefined, undefined, 200 );
 	a_powerups = get_array_of_closest( grenade_origin, level.active_powerups, undefined, undefined, 200 );
-	while ( isDefined( level.a_tomahawk_pickup_funcs ) )
+	if ( isDefined( level.a_tomahawk_pickup_funcs ) )
 	{
-		_a243 = level.a_tomahawk_pickup_funcs;
-		_k243 = getFirstArrayKey( _a243 );
-		while ( isDefined( _k243 ) )
+		foreach ( tomahawk_func in level.a_tomahawk_pickup_funcs )
 		{
-			tomahawk_func = _a243[ _k243 ];
 			if ( [[ tomahawk_func ]]( grenade, n_grenade_charge_power ) )
 			{
 				return;
 			}
-			_k243 = getNextArrayKey( _a243, _k243 );
 		}
 	}
-	if ( isDefined( a_powerups ) && a_powerups.size > 0 )
+	else if ( isDefined( a_powerups ) && a_powerups.size > 0 )
 	{
 		m_tomahawk = tomahawk_spawn( grenade_origin, n_grenade_charge_power );
 		m_tomahawk.n_grenade_charge_power = n_grenade_charge_power;
-		_a256 = a_powerups;
-		_k256 = getFirstArrayKey( _a256 );
-		while ( isDefined( _k256 ) )
+		foreach ( powerup in a_powerups )
 		{
-			powerup = _a256[ _k256 ];
 			powerup.origin = grenade_origin;
 			powerup linkto( m_tomahawk );
 			m_tomahawk.a_has_powerup = a_powerups;
-			_k256 = getNextArrayKey( _a256, _k256 );
 		}
 		self thread tomahawk_return_player( m_tomahawk, 0 );
 		return;
@@ -230,16 +208,9 @@ tomahawk_thrown( grenade )
 		self thread tomahawk_return_player( m_tomahawk, 0 );
 		return;
 	}
-	else
+	foreach ( ai_zombie in a_zombies )
 	{
-		_a276 = a_zombies;
-		_k276 = getFirstArrayKey( _a276 );
-		while ( isDefined( _k276 ) )
-		{
-			ai_zombie = _a276[ _k276 ];
-			ai_zombie.hit_by_tomahawk = 0;
-			_k276 = getNextArrayKey( _a276, _k276 );
-		}
+		ai_zombie.hit_by_tomahawk = 0;
 	}
 	if ( isDefined( a_zombies[ 0 ] ) && isalive( a_zombies[ 0 ] ) )
 	{
@@ -272,15 +243,15 @@ tomahawk_thrown( grenade )
 	}
 }
 
-check_for_time_out( grenade )
+check_for_time_out( grenade ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	grenade endon( "death" );
-	wait 0,5;
+	wait 0.5;
 	grenade notify( "time_out" );
 }
 
-tomahawk_ricochet_attack( grenade_origin, tomahawk_charge_power )
+tomahawk_ricochet_attack( grenade_origin, tomahawk_charge_power ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	a_zombies = getaispeciesarray( "axis", "all" );
@@ -298,7 +269,7 @@ tomahawk_ricochet_attack( grenade_origin, tomahawk_charge_power )
 	self thread tomahawk_attack_zombies( m_tomahawk, a_zombies );
 }
 
-tomahawk_attack_zombies( m_tomahawk, a_zombies )
+tomahawk_attack_zombies( m_tomahawk, a_zombies ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	if ( !isDefined( a_zombies ) )
@@ -314,8 +285,7 @@ tomahawk_attack_zombies( m_tomahawk, a_zombies )
 	{
 		n_attack_limit = 4;
 	}
-	i = 0;
-	while ( i < n_attack_limit )
+	for ( i = 0; i < n_attack_limit; i++ )
 	{
 		if ( isDefined( a_zombies[ i ] ) && isalive( a_zombies[ i ] ) )
 		{
@@ -327,7 +297,7 @@ tomahawk_attack_zombies( m_tomahawk, a_zombies )
 			if ( isDefined( a_zombies[ i ].hit_by_tomahawk ) && !a_zombies[ i ].hit_by_tomahawk )
 			{
 				v_target = a_zombies[ i ] gettagorigin( tag );
-				m_tomahawk moveto( v_target, 0,3 );
+				m_tomahawk moveto( v_target, 0.3 );
 				m_tomahawk waittill( "movedone" );
 				if ( isDefined( a_zombies[ i ] ) && isalive( a_zombies[ i ] ) )
 				{
@@ -348,13 +318,12 @@ tomahawk_attack_zombies( m_tomahawk, a_zombies )
 				}
 			}
 		}
-		wait 0,2;
-		i++;
+		wait 0.2;
 	}
 	self thread tomahawk_return_player( m_tomahawk, n_attack_limit );
 }
 
-tomahawk_return_player( m_tomahawk, num_zombie_hit )
+tomahawk_return_player( m_tomahawk, num_zombie_hit ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	n_dist = distance2dsquared( m_tomahawk.origin, self.origin );
@@ -364,27 +333,23 @@ tomahawk_return_player( m_tomahawk, num_zombie_hit )
 	}
 	while ( n_dist > 4096 )
 	{
-		m_tomahawk moveto( self geteye(), 0,25 );
+		m_tomahawk moveto( self geteye(), 0.25 );
 		if ( num_zombie_hit < 5 )
 		{
 			self tomahawk_check_for_zombie( m_tomahawk );
 			num_zombie_hit++;
 		}
-		wait 0,1;
+		wait 0.1;
 		n_dist = distance2dsquared( m_tomahawk.origin, self geteye() );
 	}
-	while ( isDefined( m_tomahawk.a_has_powerup ) )
+	if ( isDefined( m_tomahawk.a_has_powerup ) )
 	{
-		_a470 = m_tomahawk.a_has_powerup;
-		_k470 = getFirstArrayKey( _a470 );
-		while ( isDefined( _k470 ) )
+		foreach ( powerup in m_tomahawk.a_has_powerup )
 		{
-			powerup = _a470[ _k470 ];
 			if ( isDefined( powerup ) )
 			{
 				powerup.origin = self.origin;
 			}
-			_k470 = getNextArrayKey( _a470, _k470 );
 		}
 	}
 	m_tomahawk delete();
@@ -394,18 +359,14 @@ tomahawk_return_player( m_tomahawk, num_zombie_hit )
 	self playsoundtoplayer( "wpn_tomahawk_cooldown_done", self );
 	self givemaxammo( self.current_tomahawk_weapon );
 	a_zombies = getaispeciesarray( "axis", "all" );
-	_a490 = a_zombies;
-	_k490 = getFirstArrayKey( _a490 );
-	while ( isDefined( _k490 ) )
+	foreach ( ai_zombie in a_zombies )
 	{
-		ai_zombie = _a490[ _k490 ];
 		ai_zombie.hit_by_tomahawk = 0;
-		_k490 = getNextArrayKey( _a490, _k490 );
 	}
 	self setclientfieldtoplayer( "tomahawk_in_use", 3 );
 }
 
-tomahawk_check_for_zombie( grenade )
+tomahawk_check_for_zombie( grenade ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	grenade endon( "death" );
@@ -420,7 +381,7 @@ tomahawk_check_for_zombie( grenade )
 	}
 }
 
-tomahawk_hit_zombie( ai_zombie, grenade )
+tomahawk_hit_zombie( ai_zombie, grenade ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( isDefined( ai_zombie ) && isalive( ai_zombie ) )
@@ -452,7 +413,7 @@ tomahawk_hit_zombie( ai_zombie, grenade )
 	}
 }
 
-tomahawk_spawn( grenade_origin, charged )
+tomahawk_spawn( grenade_origin, charged ) //checked matches cerberus output
 {
 	m_tomahawk = spawn( "script_model", grenade_origin );
 	m_tomahawk setmodel( "t6_wpn_zmb_tomahawk_world" );
@@ -474,17 +435,17 @@ tomahawk_spawn( grenade_origin, charged )
 	return m_tomahawk;
 }
 
-tomahawk_spin()
+tomahawk_spin() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( isDefined( self ) )
 	{
-		self rotatepitch( 90, 0,2 );
-		wait 0,15;
+		self rotatepitch( 90, 0.2 );
+		wait 0.15;
 	}
 }
 
-tomahawk_pickup()
+tomahawk_pickup() //checked matches cerberus output
 {
 	flag_wait( "soul_catchers_charged" );
 	flag_init( "tomahawk_pickup_complete" );
@@ -511,47 +472,51 @@ tomahawk_pickup()
 	trigger_upgraded.script_noteworthy = "redeemer_pickup_trigger";
 	trigger_upgraded sethintstring( &"ZM_PRISON_TOMAHAWK_UPGRADED_PICKUP" );
 	trigger_upgraded setcursorhint( "HINT_NOICON" );
+	/*
 /#
 	iprintlnbold( "GO FIND THE TOMAHAWK" );
 #/
+	*/
 	trigger thread tomahawk_pickup_trigger();
 	trigger_upgraded thread tomahawk_pickup_trigger();
 	flag_set( "tomahawk_pickup_complete" );
 }
 
-tomahawk_pickup_trigger()
+tomahawk_pickup_trigger() //checked changed to match cerberus output
 {
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		self waittill( "trigger", player );
+		if ( isDefined( player.current_tactical_grenade ) && !issubstr( player.current_tactical_grenade, "tomahawk_zm" ) )
 		{
-			self waittill( "trigger", player );
-			if ( isDefined( player.current_tactical_grenade ) && !issubstr( player.current_tactical_grenade, "tomahawk_zm" ) )
+			player takeweapon( player.current_tactical_grenade );
+		}
+		if ( player.current_tomahawk_weapon == "upgraded_tomahawk_zm" )
+		{
+			if ( !is_true( player.afterlife ) )
 			{
-				player takeweapon( player.current_tactical_grenade );
+				continue;
 			}
-			while ( player.current_tomahawk_weapon == "upgraded_tomahawk_zm" )
+			else 
 			{
-				if ( !is_true( player.afterlife ) )
+				player disable_player_move_states( 1 );
+				gun = player getcurrentweapon();
+				level notify( "bouncing_tomahawk_zm_aquired" );
+				player maps/mp/zombies/_zm_stats::increment_client_stat( "prison_tomahawk_acquired", 0 );
+				player giveweapon( "zombie_tomahawk_flourish" );
+				player thread tomahawk_update_hud_on_last_stand();
+				player switchtoweapon( "zombie_tomahawk_flourish" );
+				player waittill_any( "player_downed", "weapon_change_complete" );
+				if ( self.script_noteworthy == "redeemer_pickup_trigger" )
 				{
+					player.redeemer_trigger = self;
+					player setclientfieldtoplayer( "upgraded_tomahawk_in_use", 1 );
 				}
+				player switchtoweapon( gun );
+				player enable_player_move_states();
+				player.loadout.hastomahawk = 1;
+				continue;
 			}
-			else player disable_player_move_states( 1 );
-			gun = player getcurrentweapon();
-			level notify( "bouncing_tomahawk_zm_aquired" );
-			player maps/mp/zombies/_zm_stats::increment_client_stat( "prison_tomahawk_acquired", 0 );
-			player giveweapon( "zombie_tomahawk_flourish" );
-			player thread tomahawk_update_hud_on_last_stand();
-			player switchtoweapon( "zombie_tomahawk_flourish" );
-			player waittill_any( "player_downed", "weapon_change_complete" );
-			if ( self.script_noteworthy == "redeemer_pickup_trigger" )
-			{
-				player.redeemer_trigger = self;
-				player setclientfieldtoplayer( "upgraded_tomahawk_in_use", 1 );
-			}
-			player switchtoweapon( gun );
-			player enable_player_move_states();
-			player.loadout.hastomahawk = 1;
 		}
 		if ( !player hasweapon( "bouncing_tomahawk_zm" ) && !player hasweapon( "upgraded_tomahawk_zm" ) )
 		{
@@ -582,50 +547,44 @@ tomahawk_pickup_trigger()
 				player switchtoweapon( gun );
 			}
 			player enable_player_move_states();
-			wait 0,1;
+			wait 0.1;
 		}
 	}
 }
 
-tomahawk_pickup_spin()
+tomahawk_pickup_spin() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
 	{
 		self rotateyaw( 90, 1 );
-		wait 0,15;
+		wait 0.15;
 	}
 }
 
-calculate_tomahawk_damage( n_target_zombie, n_tomahawk_power, tomahawk )
+calculate_tomahawk_damage( n_target_zombie, n_tomahawk_power, tomahawk ) //checked changed to match cerberus output
 {
 	if ( n_tomahawk_power > 2 )
 	{
 		return n_target_zombie.health + 1;
 	}
+	else if ( level.round_number >= 10 && level.round_number < 13 && tomahawk.low_level_instant_kill_charge <= 3 )
+	{
+		tomahawk.low_level_instant_kill_charge += 1;
+		return n_target_zombie.health + 1;
+	}
+	else if ( level.round_number >= 13 && level.round_number < 15 && tomahawk.low_level_instant_kill_charge <= 2 )
+	{
+		tomahawk.low_level_instant_kill_charge += 1;
+		return n_target_zombie.health + 1;
+	}
 	else
 	{
-		if ( level.round_number >= 10 && level.round_number < 13 && tomahawk.low_level_instant_kill_charge <= 3 )
-		{
-			tomahawk.low_level_instant_kill_charge += 1;
-			return n_target_zombie.health + 1;
-		}
-		else
-		{
-			if ( level.round_number >= 13 && level.round_number < 15 && tomahawk.low_level_instant_kill_charge <= 2 )
-			{
-				tomahawk.low_level_instant_kill_charge += 1;
-				return n_target_zombie.health + 1;
-			}
-			else
-			{
-				return 1000 * n_tomahawk_power;
-			}
-		}
+		return 1000 * n_tomahawk_power;
 	}
 }
 
-setting_tutorial_hud()
+setting_tutorial_hud() //checked matches cerberus output
 {
 	client_hint = newclienthudelem( self );
 	client_hint.alignx = "center";
@@ -635,13 +594,13 @@ setting_tutorial_hud()
 	client_hint.y = -120;
 	client_hint.foreground = 1;
 	client_hint.font = "default";
-	client_hint.fontscale = 1,5;
+	client_hint.fontscale = 1.5;
 	client_hint.alpha = 1;
 	client_hint.color = ( 1, 1, 1 );
 	return client_hint;
 }
 
-tomahawk_tutorial_hint()
+tomahawk_tutorial_hint() //checked matches cerberus output
 {
 	hud = setting_tutorial_hud();
 	hud settext( &"ZM_PRISON_TOMAHAWK_TUTORIAL" );
@@ -650,7 +609,7 @@ tomahawk_tutorial_hint()
 	hud destroy();
 }
 
-tomahawk_update_hud_on_last_stand()
+tomahawk_update_hud_on_last_stand() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "bled_out" );
@@ -662,7 +621,7 @@ tomahawk_update_hud_on_last_stand()
 		self waittill( "player_revived" );
 		if ( isalive( self ) )
 		{
-			wait 0,1;
+			wait 0.1;
 			self setclientfieldtoplayer( "tomahawk_in_use", 1 );
 			self giveweapon( self.current_tomahawk_weapon );
 			self givemaxammo( self.current_tomahawk_weapon );
@@ -670,3 +629,4 @@ tomahawk_update_hud_on_last_stand()
 		}
 	}
 }
+

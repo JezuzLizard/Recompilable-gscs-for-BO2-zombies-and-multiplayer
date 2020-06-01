@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_game_module_meat;
 #include maps/mp/zombies/_zm_game_module_meat_utility;
 #include maps/mp/zombies/_zm_utility;
@@ -5,32 +6,28 @@
 #include maps/mp/gametypes_zm/_hud_util;
 #include maps/mp/_utility;
 
-init_item_meat()
+init_item_meat() //checked matches cerberus output
 {
 	level.item_meat_name = "item_meat_zm";
 	precacheitem( level.item_meat_name );
 }
 
-move_ring( ring )
+move_ring( ring ) //checked changed to match cerberus output
 {
 	positions = getstructarray( ring.target, "targetname" );
 	positions = array_randomize( positions );
 	level endon( "end_game" );
 	while ( 1 )
 	{
-		_a23 = positions;
-		_k23 = getFirstArrayKey( _a23 );
-		while ( isDefined( _k23 ) )
+		foreach ( position in positions )
 		{
-			position = _a23[ _k23 ];
 			self moveto( position.origin, randomintrange( 30, 45 ) );
 			self waittill( "movedone" );
-			_k23 = getNextArrayKey( _a23, _k23 );
 		}
 	}
 }
 
-rotate_ring( forward )
+rotate_ring( forward ) //checked matches cerberus output
 {
 	level endon( "end_game" );
 	dir = -360;
