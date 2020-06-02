@@ -392,7 +392,7 @@ tomahawk_hit_zombie( ai_zombie, grenade ) //checked matches cerberus output
 			tag = "J_Spine1";
 		}
 		v_target = ai_zombie gettagorigin( tag );
-		grenade moveto( v_target, 0,3 );
+		grenade moveto( v_target, 0.3 );
 		grenade waittill( "movedone" );
 		if ( isDefined( ai_zombie ) && isalive( ai_zombie ) )
 		{

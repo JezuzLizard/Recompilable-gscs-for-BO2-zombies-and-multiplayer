@@ -53,7 +53,6 @@ zm_prison_patch/maps/mp/gametypes_zm/zgrief.gsc
 zm_prison_patch/maps/mp/gametypes_zm/zmeat.gsc
 zm_prison_patch/maps/mp/gametypes_zm/zstandard.gsc
 
-
 zm_prison_patch/maps/mp/zombies/_zm_afterlife.gsc
 zm_prison_patch/maps/mp/zombies/_zm_ai_brutus.gsc
 zm_prison_patch/maps/mp/zombies/_zm_craftables.gsc
