@@ -1,10 +1,11 @@
+//checked includes match cerberus output
 #include maps/mp/_utility;
 #include maps/mp/gametypes/_globallogic_audio;
 #include maps/mp/_music;
 #include maps/mp/gametypes/_hud_message;
 #include maps/mp/gametypes/_hud_util;
 
-init()
+init() //checked matches cerberus output
 {
 	precachestring( &"MENU_POINTS" );
 	precachestring( &"MP_FIRSTPLACE_NAME" );
@@ -41,7 +42,7 @@ init()
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -53,16 +54,16 @@ onplayerconnect()
 	}
 }
 
-initcustomgametypeheader()
+initcustomgametypeheader() //checked matches cerberus output
 {
 	font = "default";
-	titlesize = 2,5;
+	titlesize = 2.5;
 	self.customgametypeheader = createfontstring( font, titlesize );
 	self.customgametypeheader setpoint( "TOP", undefined, 0, 30 );
 	self.customgametypeheader.glowalpha = 1;
 	self.customgametypeheader.hidewheninmenu = 1;
 	self.customgametypeheader.archived = 0;
-	self.customgametypeheader.color = ( 1, 1, 0,6 );
+	self.customgametypeheader.color = ( 1, 1, 0.6 );
 	self.customgametypeheader.alpha = 1;
 	titlesize = 2;
 	self.customgametypesubheader = createfontstring( font, titlesize );
@@ -71,11 +72,11 @@ initcustomgametypeheader()
 	self.customgametypesubheader.glowalpha = 1;
 	self.customgametypesubheader.hidewheninmenu = 1;
 	self.customgametypesubheader.archived = 0;
-	self.customgametypesubheader.color = ( 1, 1, 0,6 );
+	self.customgametypesubheader.color = ( 1, 1, 0.6 );
 	self.customgametypesubheader.alpha = 1;
 }
 
-hintmessage( hinttext, duration )
+hintmessage( hinttext, duration ) //checked matches cerberus output
 {
 	notifydata = spawnstruct();
 	notifydata.notifytext = hinttext;
@@ -83,33 +84,31 @@ hintmessage( hinttext, duration )
 	notifymessage( notifydata );
 }
 
-hintmessageplayers( players, hinttext, duration )
+hintmessageplayers( players, hinttext, duration ) //checked changed to match cerberus output
 {
 	notifydata = spawnstruct();
 	notifydata.notifytext = hinttext;
 	notifydata.duration = duration;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] notifymessage( notifydata );
-		i++;
 	}
 }
 
-showinitialfactionpopup( team )
+showinitialfactionpopup( team ) //checked matches cerberus output
 {
 	self luinotifyevent( &"faction_popup", 1, game[ "strings" ][ team + "_name" ] );
 	maps/mp/gametypes/_hud_message::oldnotifymessage( undefined, undefined, undefined, undefined );
 }
 
-initnotifymessage()
+initnotifymessage() //checked matches cerberus output
 {
 	if ( !sessionmodeiszombiesgame() )
 	{
 		if ( self issplitscreen() )
 		{
 			titlesize = 2;
-			textsize = 1,4;
+			textsize = 1.4;
 			iconsize = 24;
 			font = "big";
 			point = "TOP";
@@ -119,8 +118,8 @@ initnotifymessage()
 		}
 		else
 		{
-			titlesize = 2,5;
-			textsize = 1,75;
+			titlesize = 2.5;
+			textsize = 1.75;
 			iconsize = 30;
 			font = "big";
 			point = "TOP";
@@ -132,7 +131,7 @@ initnotifymessage()
 	else if ( self issplitscreen() )
 	{
 		titlesize = 2;
-		textsize = 1,4;
+		textsize = 1.4;
 		iconsize = 24;
 		font = "big";
 		point = "TOP";
@@ -142,8 +141,8 @@ initnotifymessage()
 	}
 	else
 	{
-		titlesize = 2,5;
-		textsize = 1,75;
+		titlesize = 2.5;
+		textsize = 1.75;
 		iconsize = 30;
 		font = "big";
 		point = "BOTTOM LEFT";
@@ -181,7 +180,7 @@ initnotifymessage()
 	self.notifyqueue = [];
 }
 
-oldnotifymessage( titletext, notifytext, iconname, glowcolor, sound, duration )
+oldnotifymessage( titletext, notifytext, iconname, glowcolor, sound, duration ) //checked matches cerberus output
 {
 	if ( level.wagermatch && !level.teambased )
 	{
@@ -197,7 +196,7 @@ oldnotifymessage( titletext, notifytext, iconname, glowcolor, sound, duration )
 	self notify( "received award" );
 }
 
-notifymessage( notifydata )
+notifymessage( notifydata ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -205,9 +204,9 @@ notifymessage( notifydata )
 	self notify( "received award" );
 }
 
-playnotifyloop( duration )
+playnotifyloop( duration ) //checked changed to match cerberus output
 {
-	playnotifyloop = spawn( "script_origin", ( 1, 1, 1 ) );
+	playnotifyloop = spawn( "script_origin", ( 0, 0, 0 ) );
 	playnotifyloop playloopsound( "uin_notify_data_loop" );
 	duration -= 4;
 	if ( duration < 1 )
@@ -218,7 +217,7 @@ playnotifyloop( duration )
 	playnotifyloop delete();
 }
 
-shownotifymessage( notifydata, duration )
+shownotifymessage( notifydata, duration ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.doingnotify = 1;
@@ -243,7 +242,7 @@ shownotifymessage( notifydata, duration )
 	}
 	else
 	{
-		glowcolor = ( 1, 1, 1 );
+		glowcolor = ( 0, 0, 0 );
 	}
 	if ( isDefined( notifydata.color ) )
 	{
@@ -362,9 +361,9 @@ shownotifymessage( notifydata, duration )
 	self.doingnotify = 0;
 }
 
-waitrequirevisibility( waittime )
+waitrequirevisibility( waittime ) //checked matches cerberus output
 {
-	interval = 0,05;
+	interval = 0.05;
 	while ( !self canreadtext() )
 	{
 		wait interval;
@@ -379,7 +378,7 @@ waitrequirevisibility( waittime )
 	}
 }
 
-canreadtext()
+canreadtext() //checked matches cerberus output
 {
 	if ( self maps/mp/_utility::isflashbanged() )
 	{
@@ -388,7 +387,7 @@ canreadtext()
 	return 1;
 }
 
-resetondeath()
+resetondeath() //checked matches cerberus output
 {
 	self endon( "notifyMessageDone" );
 	self endon( "disconnect" );
@@ -397,7 +396,7 @@ resetondeath()
 	resetnotify();
 }
 
-resetoncancel()
+resetoncancel() //checked matches cerberus output
 {
 	self notify( "resetOnCancel" );
 	self endon( "resetOnCancel" );
@@ -407,7 +406,7 @@ resetoncancel()
 	resetnotify();
 }
 
-resetnotify()
+resetnotify() //checked matches cerberus output
 {
 	self.notifytitle.alpha = 0;
 	self.notifytext.alpha = 0;
@@ -415,7 +414,7 @@ resetnotify()
 	self.doingnotify = 0;
 }
 
-hintmessagedeaththink()
+hintmessagedeaththink() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -428,7 +427,7 @@ hintmessagedeaththink()
 	}
 }
 
-lowermessagethink()
+lowermessagethink() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	messagetexty = level.lowertexty;
@@ -440,10 +439,10 @@ lowermessagethink()
 	self.lowermessage setpoint( "CENTER", level.lowertextyalign, 0, messagetexty );
 	self.lowermessage settext( "" );
 	self.lowermessage.archived = 0;
-	timerfontsize = 1,5;
+	timerfontsize = 1.5;
 	if ( self issplitscreen() )
 	{
-		timerfontsize = 1,4;
+		timerfontsize = 1.4;
 	}
 	self.lowertimer = createfontstring( "default", timerfontsize );
 	self.lowertimer setparent( self.lowermessage );
@@ -452,7 +451,7 @@ lowermessagethink()
 	self.lowertimer.archived = 0;
 }
 
-setmatchscorehudelemforteam( team )
+setmatchscorehudelemforteam( team ) //checked matches cerberus output
 {
 	if ( level.roundscorecarry )
 	{
@@ -464,24 +463,19 @@ setmatchscorehudelemforteam( team )
 	}
 }
 
-teamoutcomenotify( winner, isround, endreasontext )
+teamoutcomenotify( winner, isround, endreasontext ) //checked partially changed to match cerberus output see info.md
 {
 	self endon( "disconnect" );
 	self notify( "reset_outcome" );
 	team = self.pers[ "team" ];
-	while ( isDefined( team ) && team == "spectator" )
+	if ( isDefined( team ) && team == "spectator" )
 	{
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			if ( self.currentspectatingclient == level.players[ i ].clientid )
 			{
 				team = level.players[ i ].pers[ "team" ];
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 	}
@@ -491,7 +485,7 @@ teamoutcomenotify( winner, isround, endreasontext )
 	}
 	while ( self.doingnotify )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self endon( "reset_outcome" );
 	headerfont = "extrabig";
@@ -499,7 +493,7 @@ teamoutcomenotify( winner, isround, endreasontext )
 	if ( self issplitscreen() )
 	{
 		titlesize = 2;
-		textsize = 1,5;
+		textsize = 1.5;
 		iconsize = 30;
 		spacing = 10;
 	}
@@ -560,7 +554,7 @@ teamoutcomenotify( winner, isround, endreasontext )
 		{
 			outcometitle settext( game[ "strings" ][ "draw" ] );
 		}
-		outcometitle.color = ( 0,29, 0,61, 0,7 );
+		outcometitle.color = ( 0.29, 0.61, 0.7 );
 		winner = "allies";
 	}
 	else if ( isDefined( self.pers[ "team" ] ) && winner == team )
@@ -573,7 +567,7 @@ teamoutcomenotify( winner, isround, endreasontext )
 		{
 			outcometitle settext( game[ "strings" ][ "victory" ] );
 		}
-		outcometitle.color = ( 0,42, 0,68, 0,46 );
+		outcometitle.color = ( 0.42, 0.68, 0.46 );
 		if ( isDefined( level.endvictoryreasontext ) )
 		{
 			endreasontext = level.endvictoryreasontext;
@@ -589,7 +583,7 @@ teamoutcomenotify( winner, isround, endreasontext )
 		{
 			outcometitle settext( game[ "strings" ][ "defeat" ] );
 		}
-		outcometitle.color = ( 0,73, 0,29, 0,19 );
+		outcometitle.color = ( 0.73, 0.29, 0.19 );
 		if ( isDefined( level.enddefeatreasontext ) )
 		{
 			endreasontext = level.enddefeatreasontext;
@@ -612,11 +606,8 @@ teamoutcomenotify( winner, isround, endreasontext )
 	teamicons[ team ] fadeovertime( 0,5 );
 	teamicons[ team ].alpha = 1;
 	currentx += iconspacing;
-	_a650 = level.teams;
-	_k650 = getFirstArrayKey( _a650 );
-	while ( isDefined( _k650 ) )
+	foreach ( enemyteam in level.teams )
 	{
-		enemyteam = _a650[ _k650 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -634,7 +625,6 @@ teamoutcomenotify( winner, isround, endreasontext )
 			teamicons[ enemyteam ].alpha = 1;
 			currentx += iconspacing;
 		}
-		_k650 = getNextArrayKey( _a650, _k650 );
 	}
 	teamscores = [];
 	teamscores[ team ] = createfontstring( font, titlesize );
@@ -654,11 +644,8 @@ teamoutcomenotify( winner, isround, endreasontext )
 	teamscores[ team ].immunetodemogamehudsettings = 1;
 	teamscores[ team ].immunetodemofreecamera = 1;
 	teamscores[ team ] setpulsefx( 100, duration, 1000 );
-	_a688 = level.teams;
-	_k688 = getFirstArrayKey( _a688 );
-	while ( isDefined( _k688 ) )
+	foreach ( enemyteam in level.teams )
 	{
-		enemyteam = _a688[ _k688 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -682,7 +669,6 @@ teamoutcomenotify( winner, isround, endreasontext )
 			teamscores[ enemyteam ].immunetodemofreecamera = 1;
 			teamscores[ enemyteam ] setpulsefx( 100, duration, 1000 );
 		}
-		_k688 = getNextArrayKey( _a688, _k688 );
 	}
 	font = "objective";
 	matchbonus = undefined;
@@ -706,24 +692,19 @@ teamoutcomenotify( winner, isround, endreasontext )
 	self thread resetoutcomenotify( teamicons, teamscores, outcometitle, outcometext );
 }
 
-teamoutcomenotifyzombie( winner, isround, endreasontext )
+teamoutcomenotifyzombie( winner, isround, endreasontext ) //checked changed to match beta dump
 {
 	self endon( "disconnect" );
 	self notify( "reset_outcome" );
 	team = self.pers[ "team" ];
-	while ( isDefined( team ) && team == "spectator" )
+	if ( isDefined( team ) && team == "spectator" )
 	{
-		i = 0;
-		while ( i < level.players.size )
+		for ( i = 0; i < level.players.size; i++ )
 		{
 			if ( self.currentspectatingclient == level.players[ i ].clientid )
 			{
 				team = level.players[ i ].pers[ "team" ];
 				break;
-			}
-			else
-			{
-				i++;
 			}
 		}
 	}
@@ -733,7 +714,7 @@ teamoutcomenotifyzombie( winner, isround, endreasontext )
 	}
 	while ( self.doingnotify )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self endon( "reset_outcome" );
 	if ( level.splitscreen )
@@ -760,27 +741,25 @@ teamoutcomenotifyzombie( winner, isround, endreasontext )
 	self thread resetoutcomenotify( undefined, undefined, outcometitle );
 }
 
-isintop( players, topn )
+isintop( players, topn ) //checkee changed to match cerberus output
 {
-	i = 0;
-	while ( i < topn )
+	for ( i = 0; i < topn; i++ )
 	{
 		if ( isDefined( players[ i ] ) && self == players[ i ] )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-outcomenotify( winner, isroundend, endreasontext )
+outcomenotify( winner, isroundend, endreasontext ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "reset_outcome" );
 	while ( self.doingnotify )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self endon( "reset_outcome" );
 	headerfont = "extrabig";
@@ -788,8 +767,8 @@ outcomenotify( winner, isroundend, endreasontext )
 	if ( self issplitscreen() )
 	{
 		titlesize = 2;
-		winnersize = 1,5;
-		othersize = 1,5;
+		winnersize = 1.5;
+		othersize = 1.5;
 		iconsize = 30;
 		spacing = 10;
 	}
@@ -797,7 +776,7 @@ outcomenotify( winner, isroundend, endreasontext )
 	{
 		titlesize = 3;
 		winnersize = 2;
-		othersize = 1,5;
+		othersize = 1.5;
 		iconsize = 30;
 		spacing = 20;
 	}
@@ -818,12 +797,12 @@ outcomenotify( winner, isroundend, endreasontext )
 		else if ( self isintop( players, 3 ) )
 		{
 			outcometitle settext( game[ "strings" ][ "victory" ] );
-			outcometitle.color = ( 0,42, 0,68, 0,46 );
+			outcometitle.color = ( 0.42, 0.68, 0.46 );
 		}
 		else
 		{
 			outcometitle settext( game[ "strings" ][ "defeat" ] );
-			outcometitle.color = ( 0,73, 0,29, 0,19 );
+			outcometitle.color = ( 0.73, 0.29, 0.19 );
 		}
 	}
 	outcometitle.glowalpha = 1;
@@ -905,13 +884,13 @@ outcomenotify( winner, isroundend, endreasontext )
 	self thread resetoutcomenotify( undefined, undefined, outcometitle, outcometext, firsttitle, secondtitle, thirdtitle, matchbonus );
 }
 
-wageroutcomenotify( winner, endreasontext )
+wageroutcomenotify( winner, endreasontext ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self notify( "reset_outcome" );
 	while ( self.doingnotify )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	setmatchflag( "enable_popups", 0 );
 	self endon( "reset_outcome" );
@@ -920,8 +899,8 @@ wageroutcomenotify( winner, endreasontext )
 	if ( self issplitscreen() )
 	{
 		titlesize = 2;
-		winnersize = 1,5;
-		othersize = 1,5;
+		winnersize = 1.5;
+		othersize = 1.5;
 		iconsize = 30;
 		spacing = 2;
 	}
@@ -929,7 +908,7 @@ wageroutcomenotify( winner, endreasontext )
 	{
 		titlesize = 3;
 		winnersize = 2;
-		othersize = 1,5;
+		othersize = 1.5;
 		iconsize = 30;
 		spacing = 20;
 	}
@@ -945,25 +924,25 @@ wageroutcomenotify( winner, endreasontext )
 	if ( halftime )
 	{
 		outcometitle settext( game[ "strings" ][ "intermission" ] );
-		outcometitle.color = ( 1, 1, 1 );
-		outcometitle.glowcolor = ( 1, 1, 1 );
+		outcometitle.color = ( 1, 1, 0 );
+		outcometitle.glowcolor = ( 1, 0, 0 );
 	}
 	else if ( isDefined( level.dontcalcwagerwinnings ) && level.dontcalcwagerwinnings == 1 )
 	{
 		outcometitle settext( game[ "strings" ][ "wager_topwinners" ] );
-		outcometitle.color = ( 0,42, 0,68, 0,46 );
+		outcometitle.color = ( 0.42, 0.68, 0.46 );
 	}
 	else
 	{
 		if ( isDefined( self.wagerwinnings ) && self.wagerwinnings > 0 )
 		{
 			outcometitle settext( game[ "strings" ][ "wager_inthemoney" ] );
-			outcometitle.color = ( 0,42, 0,68, 0,46 );
+			outcometitle.color = ( 0.42, 0.68, 0.46 );
 		}
 		else
 		{
 			outcometitle settext( game[ "strings" ][ "wager_loss" ] );
-			outcometitle.color = ( 0,73, 0,29, 0,19 );
+			outcometitle.color = ( 0.73, 0.29, 0.19 );
 		}
 	}
 	outcometitle.glowalpha = 1;
@@ -984,8 +963,7 @@ wageroutcomenotify( winner, endreasontext )
 	playernamehudelems = [];
 	playercphudelems = [];
 	numplayers = players.size;
-	i = 0;
-	while ( i < numplayers )
+	for ( i = 0; i < numplayers; i++ )
 	{
 		if ( !halftime && isDefined( players[ i ] ) )
 		{
@@ -1029,12 +1007,11 @@ wageroutcomenotify( winner, endreasontext )
 			}
 			if ( secondcp.targetvalue > 0 )
 			{
-				secondcp.color = ( 0,42, 0,68, 0,46 );
+				secondcp.color = ( 0.42, 0.68, 0.46 );
 			}
 			secondcp setvalue( 0 );
 			playercphudelems[ playercphudelems.size ] = secondcp;
 		}
-		i++;
 	}
 	self thread updatewageroutcome( playernamehudelems, playercphudelems );
 	self thread resetwageroutcomenotify( playernamehudelems, playercphudelems, outcometitle, outcometext );
@@ -1047,7 +1024,7 @@ wageroutcomenotify( winner, endreasontext )
 	cpincrement = 9999;
 	if ( isDefined( playercphudelems[ 0 ] ) )
 	{
-		cpincrement = int( playercphudelems[ 0 ].targetvalue / ( countupduration / 0,05 ) );
+		cpincrement = int( playercphudelems[ 0 ].targetvalue / ( countupduration / 0.05 ) );
 		if ( cpincrement < 1 )
 		{
 			cpincrement = 1;
@@ -1056,8 +1033,7 @@ wageroutcomenotify( winner, endreasontext )
 	while ( stillupdating )
 	{
 		stillupdating = 0;
-		i = 0;
-		while ( i < playercphudelems.size )
+		for ( i = 0; i < playercphudelems.size; i++ )
 		{
 			if ( isDefined( playercphudelems[ i ] ) && playercphudelems[ i ].currentvalue < playercphudelems[ i ].targetvalue )
 			{
@@ -1069,13 +1045,12 @@ wageroutcomenotify( winner, endreasontext )
 				playercphudelems[ i ] setvalue( playercphudelems[ i ].currentvalue );
 				stillupdating = 1;
 			}
-			i++;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-teamwageroutcomenotify( winner, isroundend, endreasontext )
+teamwageroutcomenotify( winner, isroundend, endreasontext ) //checked partially changed to match cerberus output see info.md
 {
 	self endon( "disconnect" );
 	self notify( "reset_outcome" );
@@ -1084,10 +1059,10 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	{
 		team = "allies";
 	}
-	wait 0,05;
+	wait 0.05;
 	while ( self.doingnotify )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self endon( "reset_outcome" );
 	headerfont = "extrabig";
@@ -1095,7 +1070,7 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	if ( self issplitscreen() )
 	{
 		titlesize = 2;
-		textsize = 1,5;
+		textsize = 1.5;
 		iconsize = 30;
 		spacing = 10;
 	}
@@ -1155,7 +1130,7 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 		{
 			outcometitle settext( game[ "strings" ][ "victory" ] );
 		}
-		outcometitle.color = ( 0,42, 0,68, 0,46 );
+		outcometitle.color = ( 0.42, 0.68, 0.46 );
 	}
 	else
 	{
@@ -1167,7 +1142,7 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 		{
 			outcometitle settext( game[ "strings" ][ "defeat" ] );
 		}
-		outcometitle.color = ( 0,73, 0,29, 0,19 );
+		outcometitle.color = ( 0.73, 0.29, 0.19 );
 	}
 	if ( !isDefined( level.dontshowendreason ) || !level.dontshowendreason )
 	{
@@ -1182,15 +1157,12 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	teamicons[ team ].hidewheninmenu = 0;
 	teamicons[ team ].archived = 0;
 	teamicons[ team ].alpha = 0;
-	teamicons[ team ] fadeovertime( 0,5 );
+	teamicons[ team ] fadeovertime( 0.5 );
 	teamicons[ team ].alpha = 1;
 	teamicons[ team ].immunetodemogamehudsettings = 1;
 	teamicons[ team ].immunetodemofreecamera = 1;
-	_a1269 = level.teams;
-	_k1269 = getFirstArrayKey( _a1269 );
-	while ( isDefined( _k1269 ) )
+	foreach ( enemyteam in level.teams )
 	{
-		enemyteam = _a1269[ _k1269 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -1202,12 +1174,11 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 			teamicons[ enemyteam ].hidewheninmenu = 0;
 			teamicons[ enemyteam ].archived = 0;
 			teamicons[ enemyteam ].alpha = 0;
-			teamicons[ enemyteam ] fadeovertime( 0,5 );
+			teamicons[ enemyteam ] fadeovertime( 0.5 );
 			teamicons[ enemyteam ].alpha = 1;
 			teamicons[ enemyteam ].immunetodemogamehudsettings = 1;
 			teamicons[ enemyteam ].immunetodemofreecamera = 1;
 		}
-		_k1269 = getNextArrayKey( _a1269, _k1269 );
 	}
 	teamscores = [];
 	teamscores[ team ] = createfontstring( font, titlesize );
@@ -1220,11 +1191,8 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	teamscores[ team ].immunetodemogamehudsettings = 1;
 	teamscores[ team ].immunetodemofreecamera = 1;
 	teamscores[ team ] setpulsefx( 100, duration, 1000 );
-	_a1299 = level.teams;
-	_k1299 = getFirstArrayKey( _a1299 );
-	while ( isDefined( _k1299 ) )
+	foreach ( enemyteam in level.teams )
 	{
-		enemyteam = _a1299[ _k1299 ];
 		if ( team == enemyteam )
 		{
 		}
@@ -1241,7 +1209,6 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 			teamscores[ enemyteam ].immunetodemofreecamera = 1;
 			teamscores[ enemyteam ] setpulsefx( 100, duration, 1000 );
 		}
-		_k1299 = getNextArrayKey( _a1299, _k1299 );
 	}
 	matchbonus = undefined;
 	sidebetwinnings = undefined;
@@ -1274,7 +1241,7 @@ teamwageroutcomenotify( winner, isroundend, endreasontext )
 	self thread resetoutcomenotify( teamicons, teamscores, outcometitle, outcometext, matchbonus, sidebetwinnings );
 }
 
-destroyhudelem( hudelem )
+destroyhudelem( hudelem ) //checked matches cerberus output
 {
 	if ( isDefined( hudelem ) )
 	{
@@ -1282,7 +1249,7 @@ destroyhudelem( hudelem )
 	}
 }
 
-resetoutcomenotify( hudelemlist1, hudelemlist2, hudelem3, hudelem4, hudelem5, hudelem6, hudelem7, hudelem8, hudelem9, hudelem10 )
+resetoutcomenotify( hudelemlist1, hudelemlist2, hudelem3, hudelem4, hudelem5, hudelem6, hudelem7, hudelem8, hudelem9, hudelem10 ) //checked changed to match beta dump
 {
 	self endon( "disconnect" );
 	self waittill( "reset_outcome" );
@@ -1294,53 +1261,39 @@ resetoutcomenotify( hudelemlist1, hudelemlist2, hudelem3, hudelem4, hudelem5, hu
 	destroyhudelem( hudelem8 );
 	destroyhudelem( hudelem9 );
 	destroyhudelem( hudelem10 );
-	while ( isDefined( hudelemlist1 ) )
+	if ( isDefined( hudelemlist1 ) )
 	{
-		_a1371 = hudelemlist1;
-		_k1371 = getFirstArrayKey( _a1371 );
-		while ( isDefined( _k1371 ) )
+		foreach ( elem in hudelemlist1 )
 		{
-			elem = _a1371[ _k1371 ];
 			destroyhudelem( elem );
-			_k1371 = getNextArrayKey( _a1371, _k1371 );
 		}
 	}
-	while ( isDefined( hudelemlist2 ) )
+	if ( isDefined( hudelemlist2 ) )
 	{
-		_a1379 = hudelemlist2;
-		_k1379 = getFirstArrayKey( _a1379 );
-		while ( isDefined( _k1379 ) )
+		foreach ( elem in hudelemlist2 )
 		{
-			elem = _a1379[ _k1379 ];
 			destroyhudelem( elem );
-			_k1379 = getNextArrayKey( _a1379, _k1379 );
 		}
 	}
 }
 
-resetwageroutcomenotify( playernamehudelems, playercphudelems, outcometitle, outcometext )
+resetwageroutcomenotify( playernamehudelems, playercphudelems, outcometitle, outcometext ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "reset_outcome" );
-	i = playernamehudelems.size - 1;
-	while ( i >= 0 )
+	for ( i = playernamehudelems.size - 1; i >= 0; i-- )
 	{
 		if ( isDefined( playernamehudelems[ i ] ) )
 		{
 			playernamehudelems[ i ] destroy();
 		}
-		i--;
-
 	}
-	i = playercphudelems.size - 1;
-	while ( i >= 0 )
+	for ( i = playercphudelems.size - 1; i >= 0; i-- )
 	{
 		if ( isDefined( playercphudelems[ i ] ) )
 		{
 			playercphudelems[ i ] destroy();
 		}
-		i--;
-
 	}
 	if ( isDefined( outcometext ) )
 	{
@@ -1352,7 +1305,7 @@ resetwageroutcomenotify( playernamehudelems, playercphudelems, outcometitle, out
 	}
 }
 
-updateoutcome( firsttitle, secondtitle, thirdtitle )
+updateoutcome( firsttitle, secondtitle, thirdtitle ) //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "reset_outcome" );
@@ -1364,40 +1317,30 @@ updateoutcome( firsttitle, secondtitle, thirdtitle )
 		{
 			firsttitle setplayernamestring( players[ 0 ] );
 		}
-		else
+		else if ( isDefined( firsttitle ) )
 		{
-			if ( isDefined( firsttitle ) )
-			{
-				firsttitle.alpha = 0;
-			}
+			firsttitle.alpha = 0;
 		}
 		if ( isDefined( secondtitle ) && isDefined( players[ 1 ] ) )
 		{
 			secondtitle setplayernamestring( players[ 1 ] );
 		}
-		else
+		else if ( isDefined( secondtitle ) )
 		{
-			if ( isDefined( secondtitle ) )
-			{
-				secondtitle.alpha = 0;
-			}
+			secondtitle.alpha = 0;
 		}
 		if ( isDefined( thirdtitle ) && isDefined( players[ 2 ] ) )
 		{
 			thirdtitle setplayernamestring( players[ 2 ] );
-			continue;
 		}
-		else
+		else if ( isDefined( thirdtitle ) )
 		{
-			if ( isDefined( thirdtitle ) )
-			{
-				thirdtitle.alpha = 0;
-			}
+			thirdtitle.alpha = 0;
 		}
 	}
 }
 
-updatewageroutcome( playernamehudelems, playercphudelems )
+updatewageroutcome( playernamehudelems, playercphudelems ) //checked changed to match betad ump
 {
 	self endon( "disconnect" );
 	self endon( "reset_outcome" );
@@ -1405,14 +1348,11 @@ updatewageroutcome( playernamehudelems, playercphudelems )
 	{
 		self waittill( "update_outcome" );
 		players = level.placement[ "all" ];
-		i = 0;
-		while ( i < playernamehudelems.size )
+		for ( i = 0; i < playernamehudelems.size; i++ )
 		{
 			if ( isDefined( playernamehudelems[ i ] ) && isDefined( players[ playernamehudelems[ i ].playernum ] ) )
 			{
 				playernamehudelems[ i ] setplayernamestring( players[ playernamehudelems[ i ].playernum ] );
-				i++;
-				continue;
 			}
 			else
 			{
@@ -1425,16 +1365,15 @@ updatewageroutcome( playernamehudelems, playercphudelems )
 					playercphudelems[ i ].alpha = 0;
 				}
 			}
-			i++;
 		}
 	}
 }
 
-setshoutcasterwaitingmessage()
+setshoutcasterwaitingmessage() //checked matches cerberus output
 {
 	if ( !isDefined( self.waitingforplayerstext ) )
 	{
-		self.waitingforplayerstext = createfontstring( "objective", 2,5 );
+		self.waitingforplayerstext = createfontstring( "objective", 2.5 );
 		self.waitingforplayerstext setpoint( "CENTER", "CENTER", 0, -80 );
 		self.waitingforplayerstext.sort = 1001;
 		self.waitingforplayerstext settext( &"MP_WAITING_FOR_PLAYERS_SHOUTCASTER" );
@@ -1443,7 +1382,7 @@ setshoutcasterwaitingmessage()
 	}
 }
 
-clearshoutcasterwaitingmessage()
+clearshoutcasterwaitingmessage() //checked matches cerberus output
 {
 	if ( isDefined( self.waitingforplayerstext ) )
 	{
@@ -1451,3 +1390,4 @@ clearshoutcasterwaitingmessage()
 		self.waitingforplayerstext = undefined;
 	}
 }
+

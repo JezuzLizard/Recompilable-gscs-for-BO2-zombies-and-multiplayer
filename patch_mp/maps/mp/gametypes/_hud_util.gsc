@@ -1,6 +1,7 @@
+//checked includes match cerberus output
 #include maps/mp/_utility;
 
-setparent( element )
+setparent( element ) //checked matches cerberus output
 {
 	if ( isDefined( self.parent ) && self.parent == element )
 	{
@@ -22,18 +23,18 @@ setparent( element )
 	}
 }
 
-getparent()
+getparent() //checked matches cerberus output
 {
 	return self.parent;
 }
 
-addchild( element )
+addchild( element ) //checked matches cerberus output
 {
 	element.index = self.children.size;
 	self.children[ self.children.size ] = element;
 }
 
-removechild( element )
+removechild( element ) //checked matches cerberus output
 {
 	element.parent = undefined;
 	if ( self.children[ self.children.size - 1 ] != element )
@@ -44,7 +45,7 @@ removechild( element )
 	element.index = undefined;
 }
 
-setpoint( point, relativepoint, xoffset, yoffset, movetime )
+setpoint( point, relativepoint, xoffset, yoffset, movetime ) //checked matches cerberus output
 {
 	if ( !isDefined( movetime ) )
 	{
@@ -109,9 +110,11 @@ setpoint( point, relativepoint, xoffset, yoffset, movetime )
 			self.alignx = "left";
 			break;
 		default:
+			/*
 /#
 			println( "^3Warning: unknown point passed to setPoint(): " + point );
 #/
+			*/
 			break;
 	}
 	if ( !isDefined( relativepoint ) )
@@ -162,9 +165,11 @@ setpoint( point, relativepoint, xoffset, yoffset, movetime )
 			relativex = "left";
 			break;
 		default:
+			/*
 /#
 			println( "^3Warning: unknown relativePoint passed to setPoint(): " + relativepoint );
 #/
+			*/
 			break;
 	}
 	if ( element == level.uiparent )
@@ -250,7 +255,7 @@ setpoint( point, relativepoint, xoffset, yoffset, movetime )
 	self updatechildren();
 }
 
-setpointbar( point, relativepoint, xoffset, yoffset )
+setpointbar( point, relativepoint, xoffset, yoffset ) //checked changed to match cerberus output
 {
 	self.bar.horzalign = self.horzalign;
 	self.bar.vertalign = self.vertalign;
@@ -273,17 +278,14 @@ setpointbar( point, relativepoint, xoffset, yoffset )
 	{
 		self.bar.y = self.y;
 	}
-	else
+	else if ( self.aligny == "bottom" )
 	{
-		if ( self.aligny == "bottom" )
-		{
-			self.bar.y = self.y;
-		}
+		self.bar.y = self.y;
 	}
 	self updatebar( self.bar.frac );
 }
 
-updatebar( barfrac, rateofchange )
+updatebar( barfrac, rateofchange ) //checked matches cerberus output
 {
 	if ( self.elemtype == "bar" )
 	{
@@ -291,43 +293,46 @@ updatebar( barfrac, rateofchange )
 	}
 }
 
-updatebarscale( barfrac, rateofchange )
+updatebarscale( barfrac, rateofchange ) //checked changed to match cerberus output
 {
-	barwidth = int( ( self.width * barfrac ) + 0,5 );
+	barwidth = int( ( self.width * barfrac ) + 0.5 );
 	if ( !barwidth )
 	{
 		barwidth = 1;
 	}
 	self.bar.frac = barfrac;
 	self.bar setshader( self.bar.shader, barwidth, self.height );
+	/*
 /#
 	assert( barwidth <= self.width, "barWidth <= self.width: " + barwidth + " <= " + self.width + " - barFrac was " + barfrac );
 #/
+	*/
 	if ( isDefined( rateofchange ) && barwidth < self.width )
 	{
 		if ( rateofchange > 0 )
 		{
+			/*
 /#
 			assert( ( ( 1 - barfrac ) / rateofchange ) > 0, "barFrac: " + barfrac + "rateOfChange: " + rateofchange );
 #/
+			*/
 			self.bar scaleovertime( ( 1 - barfrac ) / rateofchange, self.width, self.height );
 		}
-		else
+		else if ( rateofchange < 0 )
 		{
-			if ( rateofchange < 0 )
-			{
+			/*
 /#
-				assert( ( barfrac / ( -1 * rateofchange ) ) > 0, "barFrac: " + barfrac + "rateOfChange: " + rateofchange );
+			assert( ( barfrac / ( -1 * rateofchange ) ) > 0, "barFrac: " + barfrac + "rateOfChange: " + rateofchange );
 #/
-				self.bar scaleovertime( barfrac / ( -1 * rateofchange ), 1, self.height );
-			}
+			*/
+			self.bar scaleovertime( barfrac / ( -1 * rateofchange ), 1, self.height );
 		}
 	}
 	self.bar.rateofchange = rateofchange;
 	self.bar.lastupdatetime = getTime();
 }
 
-createfontstring( font, fontscale )
+createfontstring( font, fontscale ) //checked matches cerberus output
 {
 	fontelem = newclienthudelem( self );
 	fontelem.elemtype = "font";
@@ -345,7 +350,7 @@ createfontstring( font, fontscale )
 	return fontelem;
 }
 
-createserverfontstring( font, fontscale, team )
+createserverfontstring( font, fontscale, team ) //checked matches cerberus output
 {
 	if ( isDefined( team ) )
 	{
@@ -370,7 +375,7 @@ createserverfontstring( font, fontscale, team )
 	return fontelem;
 }
 
-createservertimer( font, fontscale, team )
+createservertimer( font, fontscale, team ) //checked matches cerberus output
 {
 	if ( isDefined( team ) )
 	{
@@ -395,7 +400,7 @@ createservertimer( font, fontscale, team )
 	return timerelem;
 }
 
-createclienttimer( font, fontscale )
+createclienttimer( font, fontscale ) //checked matches cerberus output
 {
 	timerelem = newclienthudelem( self );
 	timerelem.elemtype = "timer";
@@ -413,7 +418,7 @@ createclienttimer( font, fontscale )
 	return timerelem;
 }
 
-createicon( shader, width, height )
+createicon( shader, width, height ) //checked matches cerberus output
 {
 	iconelem = newclienthudelem( self );
 	iconelem.elemtype = "icon";
@@ -433,7 +438,7 @@ createicon( shader, width, height )
 	return iconelem;
 }
 
-createservericon( shader, width, height, team )
+createservericon( shader, width, height, team ) //checked matches cerberus output
 {
 	if ( isDefined( team ) )
 	{
@@ -460,7 +465,7 @@ createservericon( shader, width, height, team )
 	return iconelem;
 }
 
-createserverbar( color, width, height, flashfrac, team, selected )
+createserverbar( color, width, height, flashfrac, team, selected ) //checked changed to match cerberus output
 {
 	if ( isDefined( team ) )
 	{
@@ -501,7 +506,7 @@ createserverbar( color, width, height, flashfrac, team, selected )
 	barelemframe.barframe = barelemframe;
 	barelemframe.children = [];
 	barelemframe.sort = -1;
-	barelemframe.color = ( 1, 0, 0 );
+	barelemframe.color = ( 1, 1, 1 );
 	barelemframe setparent( level.uiparent );
 	if ( isDefined( selected ) )
 	{
@@ -531,15 +536,15 @@ createserverbar( color, width, height, flashfrac, team, selected )
 	barelembg.barframe = barelemframe;
 	barelembg.children = [];
 	barelembg.sort = -3;
-	barelembg.color = ( 1, 0, 0 );
-	barelembg.alpha = 0,5;
+	barelembg.color = ( 0, 0, 0 );
+	barelembg.alpha = 0.5;
 	barelembg setparent( level.uiparent );
 	barelembg setshader( "progress_bar_bg", width, height );
 	barelembg.hidden = 0;
 	return barelembg;
 }
 
-createbar( color, width, height, flashfrac )
+createbar( color, width, height, flashfrac ) //checked changed to match cerberus output
 {
 	barelem = newclienthudelem( self );
 	barelem.x = 0;
@@ -566,7 +571,7 @@ createbar( color, width, height, flashfrac )
 	barelemframe.barframe = barelemframe;
 	barelemframe.children = [];
 	barelemframe.sort = -1;
-	barelemframe.color = ( 1, 0, 0 );
+	barelemframe.color = ( 1, 1, 1 );
 	barelemframe setparent( level.uiparent );
 	barelemframe.hidden = 0;
 	barelembg = newclienthudelem( self );
@@ -584,8 +589,8 @@ createbar( color, width, height, flashfrac )
 	barelembg.barframe = barelemframe;
 	barelembg.children = [];
 	barelembg.sort = -3;
-	barelembg.color = ( 1, 0, 0 );
-	barelembg.alpha = 0,5;
+	barelembg.color = ( 0, 0, 0 );
+	barelembg.alpha = 0.5;
 	barelembg setparent( level.uiparent );
 	if ( !level.splitscreen )
 	{
@@ -599,7 +604,7 @@ createbar( color, width, height, flashfrac )
 	return barelembg;
 }
 
-getcurrentfraction()
+getcurrentfraction() //checked matches cerberus output
 {
 	frac = self.bar.frac;
 	if ( isDefined( self.bar.rateofchange ) )
@@ -617,9 +622,9 @@ getcurrentfraction()
 	return frac;
 }
 
-createprimaryprogressbar()
+createprimaryprogressbar() //checked changed to match cerberus output
 {
-	bar = createbar( ( 1, 0, 0 ), level.primaryprogressbarwidth, level.primaryprogressbarheight );
+	bar = createbar( ( 1, 1, 1 ), level.primaryprogressbarwidth, level.primaryprogressbarheight );
 	if ( level.splitscreen )
 	{
 		bar setpoint( "TOP", undefined, level.primaryprogressbarx, level.primaryprogressbary );
@@ -631,7 +636,7 @@ createprimaryprogressbar()
 	return bar;
 }
 
-createprimaryprogressbartext()
+createprimaryprogressbartext() //checked matches cerberus output
 {
 	text = createfontstring( "objective", level.primaryprogressbarfontsize );
 	if ( level.splitscreen )
@@ -646,12 +651,12 @@ createprimaryprogressbartext()
 	return text;
 }
 
-createsecondaryprogressbar()
+createsecondaryprogressbar() //checked changed to match cerberus output
 {
 	secondaryprogressbarheight = getdvarintdefault( "scr_secondaryProgressBarHeight", level.secondaryprogressbarheight );
 	secondaryprogressbarx = getdvarintdefault( "scr_secondaryProgressBarX", level.secondaryprogressbarx );
 	secondaryprogressbary = getdvarintdefault( "scr_secondaryProgressBarY", level.secondaryprogressbary );
-	bar = createbar( ( 1, 0, 0 ), level.secondaryprogressbarwidth, secondaryprogressbarheight );
+	bar = createbar( ( 1, 1, 1 ), level.secondaryprogressbarwidth, secondaryprogressbarheight );
 	if ( level.splitscreen )
 	{
 		bar setpoint( "TOP", undefined, secondaryprogressbarx, secondaryprogressbary );
@@ -663,7 +668,7 @@ createsecondaryprogressbar()
 	return bar;
 }
 
-createsecondaryprogressbartext()
+createsecondaryprogressbartext() //checked matches cerberus output
 {
 	secondaryprogressbartextx = getdvarintdefault( "scr_btx", level.secondaryprogressbartextx );
 	secondaryprogressbartexty = getdvarintdefault( "scr_bty", level.secondaryprogressbartexty );
@@ -680,26 +685,26 @@ createsecondaryprogressbartext()
 	return text;
 }
 
-createteamprogressbar( team )
+createteamprogressbar( team ) //checked matches cerberus output
 {
 	bar = createserverbar( ( 1, 0, 0 ), level.teamprogressbarwidth, level.teamprogressbarheight, undefined, team );
 	bar setpoint( "TOP", undefined, 0, level.teamprogressbary );
 	return bar;
 }
 
-createteamprogressbartext( team )
+createteamprogressbartext( team ) //checked matches cerberus output
 {
 	text = createserverfontstring( "default", level.teamprogressbarfontsize, team );
 	text setpoint( "TOP", undefined, 0, level.teamprogressbartexty );
 	return text;
 }
 
-setflashfrac( flashfrac )
+setflashfrac( flashfrac ) //checked matches cerberus output
 {
 	self.bar.flashfrac = flashfrac;
 }
 
-hideelem()
+hideelem() //checked matches cerberus output
 {
 	if ( self.hidden )
 	{
@@ -725,7 +730,7 @@ hideelem()
 	}
 }
 
-showelem()
+showelem() //checked changed to match cerberus output
 {
 	if ( !self.hidden )
 	{
@@ -734,9 +739,9 @@ showelem()
 	self.hidden = 0;
 	if ( self.elemtype == "bar" || self.elemtype == "bar_shader" )
 	{
-		if ( self.alpha != 0,5 )
+		if ( self.alpha != 0.5 )
 		{
-			self.alpha = 0,5;
+			self.alpha = 0.5;
 		}
 		self.bar.hidden = 0;
 		if ( self.bar.alpha != 1 )
@@ -749,16 +754,13 @@ showelem()
 			self.barframe.alpha = 1;
 		}
 	}
-	else
+	else if ( self.alpha != 1 )
 	{
-		if ( self.alpha != 1 )
-		{
-			self.alpha = 1;
-		}
+		self.alpha = 1;
 	}
 }
 
-flashthread()
+flashthread() //checked changed to match beta dump
 {
 	self endon( "death" );
 	if ( !self.hidden )
@@ -771,14 +773,13 @@ flashthread()
 		{
 			if ( !self.hidden )
 			{
-				self fadeovertime( 0,3 );
-				self.alpha = 0,2;
-				wait 0,35;
-				self fadeovertime( 0,3 );
+				self fadeovertime( 0.3 );
+				self.alpha = 0.2;
+				wait 0.35;
+				self fadeovertime( 0.3 );
 				self.alpha = 1;
 			}
-			wait 0,7;
-			continue;
+			wait 0.7;
 		}
 		else
 		{
@@ -786,28 +787,24 @@ flashthread()
 			{
 				self.alpha = 1;
 			}
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 }
 
-destroyelem()
+destroyelem() //checked changed to match cerberus output
 {
 	tempchildren = [];
-	index = 0;
-	while ( index < self.children.size )
+	for ( index = 0; index < self.children.size; index++ )
 	{
 		if ( isDefined( self.children[ index ] ) )
 		{
 			tempchildren[ tempchildren.size ] = self.children[ index ];
 		}
-		index++;
 	}
-	index = 0;
-	while ( index < tempchildren.size )
+	for ( index = 0; index < tempchildren.size; index++ )
 	{
 		tempchildren[ index ] setparent( self getparent() );
-		index++;
 	}
 	if ( self.elemtype == "bar" || self.elemtype == "bar_shader" )
 	{
@@ -817,39 +814,37 @@ destroyelem()
 	self destroy();
 }
 
-seticonshader( shader )
+seticonshader( shader ) //checked matches cerberus output
 {
 	self setshader( shader, self.width, self.height );
 }
 
-setwidth( width )
+setwidth( width ) //checked matches cerberus output
 {
 	self.width = width;
 }
 
-setheight( height )
+setheight( height ) //checked matches cerberus output
 {
 	self.height = height;
 }
 
-setsize( width, height )
+setsize( width, height ) //checked matches cerberus output
 {
 	self.width = width;
 	self.height = height;
 }
 
-updatechildren()
+updatechildren() //checked changed to match cerberus output
 {
-	index = 0;
-	while ( index < self.children.size )
+	for ( index = 0; index < self.children.size; index++ )
 	{
 		child = self.children[ index ];
 		child setpoint( child.point, child.relativepoint, child.xoffset, child.yoffset );
-		index++;
 	}
 }
 
-createloadouticon( player, verindex, horindex, xpos, ypos )
+createloadouticon( player, verindex, horindex, xpos, ypos ) //checked matches cerberus output
 {
 	iconsize = 32;
 	if ( player issplitscreen() )
@@ -867,7 +862,7 @@ createloadouticon( player, verindex, horindex, xpos, ypos )
 	return icon;
 }
 
-setloadouticoncoords( player, verindex, horindex, xpos, ypos )
+setloadouticoncoords( player, verindex, horindex, xpos, ypos ) //checked matches cerberus output
 {
 	iconsize = 32;
 	if ( player issplitscreen() )
@@ -884,12 +879,12 @@ setloadouticoncoords( player, verindex, horindex, xpos, ypos )
 	self.alpha = 1;
 }
 
-setloadouttextcoords( xcoord )
+setloadouttextcoords( xcoord ) //checked matches cerberus output
 {
 	self setpoint( "RIGHT", "LEFT", xcoord, 0 );
 }
 
-createloadouttext( icon, xcoord )
+createloadouttext( icon, xcoord ) //checked matches cerberus output
 {
 	text = createfontstring( "small", 1 );
 	text setparent( icon );
@@ -901,7 +896,7 @@ createloadouttext( icon, xcoord )
 	return text;
 }
 
-showloadoutattribute( iconelem, icon, alpha, textelem, text )
+showloadoutattribute( iconelem, icon, alpha, textelem, text ) //checked matches cerberus output
 {
 	iconsize = 32;
 	iconelem.alpha = alpha;
@@ -919,7 +914,7 @@ showloadoutattribute( iconelem, icon, alpha, textelem, text )
 	}
 }
 
-hideloadoutattribute( iconelem, fadetime, textelem, hidetextonly )
+hideloadoutattribute( iconelem, fadetime, textelem, hidetextonly ) //checked matches cerberus output
 {
 	if ( isDefined( fadetime ) )
 	{
@@ -942,7 +937,7 @@ hideloadoutattribute( iconelem, fadetime, textelem, hidetextonly )
 	}
 }
 
-showperks()
+showperks() //checked matches cerberus output
 {
 	ypos = 40;
 	if ( self issplitscreen() )
@@ -960,16 +955,18 @@ showperks()
 	self.perkhudelem setperks( self );
 	self.perkhudelem.x = -20;
 	self.perkhudelem.alpha = 0;
-	self.perkhudelem fadeovertime( 0,4 );
+	self.perkhudelem fadeovertime( 0.4 );
 	self.perkhudelem.alpha = 1;
 	self.perkhudelem.hidewheninmenu = 1;
 }
 
-showperk( index, perk, ypos )
+showperk( index, perk, ypos ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( game[ "state" ] != "postgame" );
 #/
+	*/
 	if ( !isDefined( self.perkicon ) )
 	{
 		self.perkicon = [];
@@ -977,9 +974,11 @@ showperk( index, perk, ypos )
 	}
 	if ( !isDefined( self.perkicon[ index ] ) )
 	{
+		/*
 /#
 		assert( !isDefined( self.perkname[ index ] ) );
 #/
+		*/
 		self.perkicon[ index ] = createloadouticon( self, index, 0, 200, ypos );
 		self.perkname[ index ] = createloadouttext( self.perkicon[ index ], 160 );
 	}
@@ -994,46 +993,52 @@ showperk( index, perk, ypos )
 	}
 	else
 	{
+		/*
 /#
 		assert( isDefined( level.perknames[ perk ] ), perk );
 #/
+		*/
 		alpha = 1;
 	}
 	showloadoutattribute( self.perkicon[ index ], perk, alpha, self.perkname[ index ], level.perknames[ perk ] );
-	self.perkicon[ index ] moveovertime( 0,3 );
+	self.perkicon[ index ] moveovertime( 0.3 );
 	self.perkicon[ index ].x = -5;
 	self.perkicon[ index ].hidewheninmenu = 1;
-	self.perkname[ index ] moveovertime( 0,3 );
+	self.perkname[ index ] moveovertime( 0.3 );
 	self.perkname[ index ].x = -40;
 	self.perkname[ index ].hidewheninmenu = 1;
 }
 
-hideperks( fadetime )
+hideperks( fadetime ) //checked matches cerberus output
 {
 	if ( level.perksenabled == 1 )
 	{
 		if ( game[ "state" ] == "postgame" )
 		{
+			/*
 /#
 			assert( !isDefined( self.perkhudelem ) );
 #/
+			*/
 			return;
 		}
 	}
+	/*
 /#
 	assert( isDefined( self.perkhudelem ) );
 #/
+	*/
 	if ( isDefined( self.perkhudelem ) )
 	{
 		hideloadoutattribute( self.perkhudelem, fadetime );
 	}
 }
 
-hideperk( index, fadetime, hidetextonly )
+hideperk( index, fadetime, hidetextonly ) //checked matches cerberus output
 {
 	if ( !isDefined( fadetime ) )
 	{
-		fadetime = 0,05;
+		fadetime = 0.05;
 	}
 	if ( level.perksenabled == 1 )
 	{
@@ -1041,21 +1046,25 @@ hideperk( index, fadetime, hidetextonly )
 		{
 			if ( isDefined( self.perkicon ) )
 			{
+				/*
 /#
 				assert( !isDefined( self.perkicon[ index ] ) );
 #/
 /#
 				assert( !isDefined( self.perkname[ index ] ) );
 #/
+				*/
 			}
 			return;
 		}
+		/*
 /#
 		assert( isDefined( self.perkicon[ index ] ) );
 #/
 /#
 		assert( isDefined( self.perkname[ index ] ) );
 #/
+		*/
 		if ( isDefined( self.perkicon ) && isDefined( self.perkicon[ index ] ) && isDefined( self.perkname ) && isDefined( self.perkname[ index ] ) )
 		{
 			hideloadoutattribute( self.perkicon[ index ], fadetime, self.perkname[ index ], hidetextonly );
@@ -1063,7 +1072,7 @@ hideperk( index, fadetime, hidetextonly )
 	}
 }
 
-hideallperks( fadetime, hidetextonly )
+hideallperks( fadetime, hidetextonly ) //checked matches cerberus output
 {
 	if ( level.perksenabled == 1 )
 	{
@@ -1071,11 +1080,13 @@ hideallperks( fadetime, hidetextonly )
 	}
 }
 
-showkillstreak( index, killstreak, xpos, ypos )
+showkillstreak( index, killstreak, xpos, ypos ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( game[ "state" ] != "postgame" );
 #/
+	*/
 	if ( !isDefined( self.killstreakicon ) )
 	{
 		self.killstreakicon = [];
@@ -1090,33 +1101,39 @@ showkillstreak( index, killstreak, xpos, ypos )
 	}
 	else
 	{
+		/*
 /#
 		assert( isDefined( level.killstreakicons[ killstreak ] ), killstreak );
 #/
+		*/
 		alpha = 1;
 	}
 	showloadoutattribute( self.killstreakicon[ index ], level.killstreakicons[ killstreak ], alpha );
 }
 
-hidekillstreak( index, fadetime )
+hidekillstreak( index, fadetime ) //checked matches cerberus output
 {
 	if ( iskillstreaksenabled() )
 	{
 		if ( game[ "state" ] == "postgame" )
 		{
+			/*
 /#
 			assert( !isDefined( self.killstreakicon[ index ] ) );
 #/
+			*/
 			return;
 		}
+		/*
 /#
 		assert( isDefined( self.killstreakicon[ index ] ) );
 #/
+		*/
 		hideloadoutattribute( self.killstreakicon[ index ], fadetime );
 	}
 }
 
-setgamemodeinfopoint()
+setgamemodeinfopoint() //checked matches cerberus output
 {
 	self.x = 11;
 	self.y = 120;
@@ -1125,3 +1142,4 @@ setgamemodeinfopoint()
 	self.alignx = "left";
 	self.aligny = "top";
 }
+

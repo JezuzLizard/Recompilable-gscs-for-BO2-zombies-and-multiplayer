@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_spawnlogic;
 #include maps/mp/gametypes/_callbacksetup;
 #include maps/mp/_tacticalinsertion;
@@ -5,7 +6,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked changed to match cerberus output dvars taken from beta dump
 {
 	if ( !isDefined( level.gamemodespawndvars ) )
 	{
@@ -13,24 +14,21 @@ init()
 	}
 	level init_spawn_system();
 	level.recently_deceased = [];
-	_a74 = level.teams;
-	_k74 = getFirstArrayKey( _a74 );
-	while ( isDefined( _k74 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a74[ _k74 ];
 		level.recently_deceased[ team ] = spawn_array_struct();
-		_k74 = getNextArrayKey( _a74, _k74 );
 	}
 	level thread onplayerconnect();
-	if ( getDvar( #"AD6C19FE" ) == "" )
+	if ( getDvar( "scr_spawn_visibility_check_max" ) == "" )
 	{
 		level.spawn_visibility_check_max = 20;
 	}
 	else
 	{
-		level.spawn_visibility_check_max = getDvarInt( #"AD6C19FE" );
+		level.spawn_visibility_check_max = getDvarInt( "scr_spawn_visibility_check_max" );
 	}
 	level.spawnprotectiontime = getgametypesetting( "spawnprotectiontime" );
+	/*
 /#
 	setdvar( "scr_debug_spawn_player", "" );
 	setdvar( "scr_debug_render_spawn_data", "1" );
@@ -39,14 +37,15 @@ init()
 	level.test_spawn_point_index = 0;
 	setdvar( "scr_debug_render_spawn_text", "1" );
 #/
+	*/
 	return;
 }
 
-default_gamemodespawndvars( reset_dvars )
+default_gamemodespawndvars( reset_dvars ) //checked matches cerberus output
 {
 }
 
-init_spawn_system()
+init_spawn_system() //checked changed to match cerberus output
 {
 	level.spawnsystem = spawnstruct();
 	spawnsystem = level.spawnsystem;
@@ -71,20 +70,16 @@ init_spawn_system()
 	spawnsystem.ispawn_teammask[ "free" ] = spawnsystem.ispawn_teammask_free;
 	all = spawnsystem.ispawn_teammask_free;
 	count = 1;
-	_a146 = level.teams;
-	_k146 = getFirstArrayKey( _a146 );
-	while ( isDefined( _k146 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a146[ _k146 ];
-		spawnsystem.ispawn_teammask[ team ] = 1 << count;
+		//spawnsystem.ispawn_teammask[ team ] = 1 << count; //current compiler doesn't support bit shift left/right
 		all |= spawnsystem.ispawn_teammask[ team ];
 		count++;
-		_k146 = getNextArrayKey( _a146, _k146 );
 	}
 	spawnsystem.ispawn_teammask[ "all" ] = all;
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	for ( ;; )
@@ -98,7 +93,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -117,7 +112,7 @@ onplayerspawned()
 	}
 }
 
-monitorgpsjammer()
+monitorgpsjammer() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -137,10 +132,12 @@ monitorgpsjammer()
 	{
 		return;
 	}
+	/*
 /#
-	assert( timeperiodsec >= 0,05 );
+	assert( timeperiodsec >= 0.05 );
 #/
-	if ( timeperiodsec < 0,05 )
+	*/
+	if ( timeperiodsec < 0.05 )
 	{
 		return;
 	}
@@ -154,6 +151,7 @@ monitorgpsjammer()
 	gpsjammerprotection = 0;
 	while ( 1 )
 	{
+		/*
 /#
 		graceperiods = getdvarintdefault( "perk_gpsjammer_graceperiods", graceperiods );
 		minspeed = getdvarintdefault( "perk_gpsjammer_min_speed", minspeed );
@@ -163,32 +161,30 @@ monitorgpsjammer()
 		minspeedsq = minspeed * minspeed;
 		mindistancesq = mindistance * mindistance;
 #/
+		*/
 		gpsjammerprotection = 0;
-		if ( !isusingremote() || is_true( self.isplanting ) && is_true( self.isdefusing ) )
+		if ( isusingremote() || is_true( self.isplanting ) || is_true( self.isdefusing ) )
 		{
 			gpsjammerprotection = 1;
 		}
-		else
+		else if ( timesincedistancecheck > 1 )
 		{
-			if ( timesincedistancecheck > 1 )
+			timesincedistancecheck = 0;
+			if ( distancesquared( previousorigin, self.origin ) < mindistancesq )
 			{
-				timesincedistancecheck = 0;
-				if ( distancesquared( previousorigin, self.origin ) < mindistancesq )
-				{
-					faileddistancecheck = 1;
-				}
-				else
-				{
-					faileddistancecheck = 0;
-				}
-				previousorigin = self.origin;
+				faileddistancecheck = 1;
 			}
-			velocity = self getvelocity();
-			speedsq = lengthsquared( velocity );
-			if ( speedsq > minspeedsq && faileddistancecheck == 0 )
+			else
 			{
-				gpsjammerprotection = 1;
+				faileddistancecheck = 0;
 			}
+			previousorigin = self.origin;
+		}
+		velocity = self getvelocity();
+		speedsq = lengthsquared( velocity );
+		if ( speedsq > minspeedsq && faileddistancecheck == 0 )
+		{
+			gpsjammerprotection = 1;
 		}
 		if ( gpsjammerprotection == 1 )
 		{
@@ -219,7 +215,7 @@ monitorgpsjammer()
 	}
 }
 
-ondeath()
+ondeath() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -228,7 +224,7 @@ ondeath()
 	self create_body_influencers();
 }
 
-onteamchange()
+onteamchange() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -236,11 +232,11 @@ onteamchange()
 	{
 		self waittill( "joined_team" );
 		self player_influencers_set_team();
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-ongrenadethrow()
+ongrenadethrow() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_ended" );
@@ -248,17 +244,17 @@ ongrenadethrow()
 	{
 		self waittill( "grenade_fire", grenade, weaponname );
 		level thread create_grenade_influencers( self.pers[ "team" ], weaponname, grenade );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-ondisconnect()
+ondisconnect() //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self waittill( "disconnect" );
 }
 
-get_score_curve_index( curve )
+get_score_curve_index( curve ) //checked matches cerberus output
 {
 	switch( curve )
 	{
@@ -276,12 +272,13 @@ get_score_curve_index( curve )
 	}
 }
 
-get_influencer_type_index( curve )
+get_influencer_type_index( curve ) //checked matches cerberus output
 {
 }
 
-create_player_influencers()
+create_player_influencers() //checked changed to match cerberus output
 {
+	/*
 /#
 	assert( !isDefined( self.influencer_enemy_sphere ) );
 #/
@@ -300,6 +297,7 @@ create_player_influencers()
 		assert( !isDefined( self.influencer_friendly_cylinder ) );
 	}
 #/
+	*/
 	if ( !level.teambased )
 	{
 		team_mask = level.spawnsystem.ispawn_teammask_free;
@@ -325,8 +323,8 @@ create_player_influencers()
 	}
 	angles = self.angles;
 	origin = self.origin;
-	up = ( 0, 0, 0 );
-	forward = ( 0, 0, 0 );
+	up = ( 0, 0, 1 );
+	forward = ( 1, 0, 0 );
 	cylinder_forward = up;
 	cylinder_up = forward;
 	self.influencer_enemy_sphere = addsphereinfluencer( level.spawnsystem.einfluencer_type_player, origin, level.spawnsystem.enemy_influencer_radius, level.spawnsystem.enemy_influencer_score, other_team_mask, "enemy,r,s", get_score_curve_index( level.spawnsystem.enemy_influencer_score_curve ), 0, self );
@@ -342,7 +340,7 @@ create_player_influencers()
 	}
 }
 
-remove_player_influencers()
+remove_player_influencers() //checked matches cerberus output
 {
 	if ( level.teambased && isDefined( self.influencer_friendly_sphere ) )
 	{
@@ -366,7 +364,7 @@ remove_player_influencers()
 	}
 }
 
-enable_player_influencers( enabled )
+enable_player_influencers( enabled ) //checked matches cerberus output
 {
 	if ( !isDefined( self.spawn_influencers_created ) )
 	{
@@ -390,7 +388,7 @@ enable_player_influencers( enabled )
 	}
 }
 
-player_influencers_set_team()
+player_influencers_set_team() //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -427,7 +425,7 @@ player_influencers_set_team()
 	}
 }
 
-create_body_influencers()
+create_body_influencers() //checked matches cerberus output
 {
 	if ( level.teambased )
 	{
@@ -440,7 +438,7 @@ create_body_influencers()
 	addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, self.origin, level.spawnsystem.dead_friend_influencer_radius, level.spawnsystem.dead_friend_influencer_score, team_mask, "dead_friend,r,s", get_score_curve_index( level.spawnsystem.dead_friend_influencer_score_curve ), level.spawnsystem.dead_friend_influencer_timeout_seconds );
 }
 
-create_grenade_influencers( parent_team, weaponname, grenade )
+create_grenade_influencers( parent_team, weaponname, grenade ) //checked matches cerberus output
 {
 	pixbeginevent( "create_grenade_influencers" );
 	if ( !level.teambased )
@@ -479,7 +477,7 @@ create_grenade_influencers( parent_team, weaponname, grenade )
 	pixendevent();
 }
 
-create_napalm_fire_influencers( point, direction, parent_team, duration )
+create_napalm_fire_influencers( point, direction, parent_team, duration ) //checked matches cerberus output
 {
 	timeout = duration;
 	weapon_team_mask = 0;
@@ -490,7 +488,7 @@ create_napalm_fire_influencers( point, direction, parent_team, duration )
 	addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, point - offset, level.spawnsystem.napalm_influencer_radius, level.spawnsystem.napalm_influencer_score, weapon_team_mask, "napalm,r,s", get_score_curve_index( level.spawnsystem.napalm_influencer_score_curve ), timeout );
 }
 
-create_auto_turret_influencer( point, parent_team, angles )
+create_auto_turret_influencer( point, parent_team, angles ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -500,12 +498,12 @@ create_auto_turret_influencer( point, parent_team, angles )
 	{
 		weapon_team_mask = getotherteamsmask( parent_team );
 	}
-	projected_point = point + vectorScale( anglesToForward( angles ), level.spawnsystem.auto_turret_influencer_radius * 0,7 );
+	projected_point = point + vectorScale( anglesToForward( angles ), level.spawnsystem.auto_turret_influencer_radius * 0.7 );
 	influencerid = addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, projected_point, level.spawnsystem.auto_turret_influencer_radius, level.spawnsystem.auto_turret_influencer_score, weapon_team_mask, "auto_turret,r,s", get_score_curve_index( level.spawnsystem.auto_turret_influencer_score_curve ) );
 	return influencerid;
 }
 
-create_auto_turret_influencer_close( point, parent_team, angles )
+create_auto_turret_influencer_close( point, parent_team, angles ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -515,12 +513,12 @@ create_auto_turret_influencer_close( point, parent_team, angles )
 	{
 		weapon_team_mask = getotherteamsmask( parent_team );
 	}
-	projected_point = point + vectorScale( anglesToForward( angles ), level.spawnsystem.auto_turret_influencer_close_radius * 0,7 );
+	projected_point = point + vectorScale( anglesToForward( angles ), level.spawnsystem.auto_turret_influencer_close_radius * 0.7 );
 	influencerid = addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, projected_point, level.spawnsystem.auto_turret_influencer_close_radius, level.spawnsystem.auto_turret_influencer_close_score, weapon_team_mask, "auto_turret_close,r,s", get_score_curve_index( level.spawnsystem.auto_turret_influencer_close_score_curve ) );
 	return influencerid;
 }
 
-create_dog_influencers()
+create_dog_influencers() //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -533,7 +531,7 @@ create_dog_influencers()
 	addsphereinfluencer( level.spawnsystem.einfluencer_type_dog, self.origin, level.spawnsystem.dog_influencer_radius, level.spawnsystem.dog_influencer_score, dog_enemy_team_mask, "dog,r,s", get_score_curve_index( level.spawnsystem.dog_influencer_score_curve ), 0, self );
 }
 
-create_helicopter_influencers( parent_team )
+create_helicopter_influencers( parent_team ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -546,7 +544,7 @@ create_helicopter_influencers( parent_team )
 	self.influencer_helicopter_cylinder = addcylinderinfluencer( level.spawnsystem.einfluencer_type_normal, self.origin, ( 0, 0, 0 ), ( 0, 0, 0 ), level.spawnsystem.helicopter_influencer_radius, level.spawnsystem.helicopter_influencer_length, level.spawnsystem.helicopter_influencer_score, team_mask, "helicopter,r,s", get_score_curve_index( level.spawnsystem.helicopter_influencer_score_curve ), 0, self );
 }
 
-remove_helicopter_influencers()
+remove_helicopter_influencers() //checked matches cerberus output
 {
 	if ( isDefined( self.influencer_helicopter_cylinder ) )
 	{
@@ -555,7 +553,7 @@ remove_helicopter_influencers()
 	self.influencer_helicopter_cylinder = undefined;
 }
 
-create_tvmissile_influencers( parent_team )
+create_tvmissile_influencers( parent_team ) //checked matches cerberus output
 {
 	if ( !level.teambased || is_hardcore() )
 	{
@@ -568,7 +566,7 @@ create_tvmissile_influencers( parent_team )
 	self.influencer_tvmissile_cylinder = addcylinderinfluencer( level.spawnsystem.einfluencer_type_normal, self.origin, ( 0, 0, 0 ), ( 0, 0, 0 ), level.spawnsystem.tvmissile_influencer_radius, level.spawnsystem.tvmissile_influencer_length, level.spawnsystem.tvmissile_influencer_score, team_mask, "tvmissile,r,s", get_score_curve_index( level.spawnsystem.tvmissile_influencer_score_curve ), 0, self );
 }
 
-remove_tvmissile_influencers()
+remove_tvmissile_influencers() //checked matches cerberus output
 {
 	if ( isDefined( self.influencer_tvmissile_cylinder ) )
 	{
@@ -577,7 +575,7 @@ remove_tvmissile_influencers()
 	self.influencer_tvmissile_cylinder = undefined;
 }
 
-create_artillery_influencers( point, radius )
+create_artillery_influencers( point, radius ) //checked changed to match cerberus output
 {
 	weapon_team_mask = 0;
 	if ( radius < 0 )
@@ -588,22 +586,22 @@ create_artillery_influencers( point, radius )
 	{
 		thisradius = radius;
 	}
-	return addcylinderinfluencer( level.spawnsystem.einfluencer_type_normal, point + vectorScale( ( 0, 0, 0 ), 2000 ), ( 0, 0, 0 ), ( 0, 0, 0 ), thisradius, 5000, level.spawnsystem.artillery_influencer_score, weapon_team_mask, "artillery,s,r", get_score_curve_index( level.spawnsystem.artillery_influencer_score_curve ), 7 );
+	return addcylinderinfluencer( level.spawnsystem.einfluencer_type_normal, point + vectorScale( ( 0, 0, 0 ), 2000 ), ( 1, 0, 0 ), ( 0, 0, 1 ), thisradius, 5000, level.spawnsystem.artillery_influencer_score, weapon_team_mask, "artillery,s,r", get_score_curve_index( level.spawnsystem.artillery_influencer_score_curve ), 7 );
 }
 
-create_vehicle_influencers()
+create_vehicle_influencers() //checked changed to match cerberus output
 {
 	weapon_team_mask = 0;
 	vehicleradius = 144;
 	cylinderlength = level.spawnsystem.vehicle_influencer_lead_seconds;
-	up = ( 0, 0, 0 );
-	forward = ( 0, 0, 0 );
+	up = ( 0, 0, 1 );
+	forward = ( 1, 0, 0 );
 	cylinder_forward = up;
 	cylinder_up = forward;
 	return addcylinderinfluencer( level.spawnsystem.einfluencer_type_vehicle, self.origin, cylinder_forward, cylinder_up, vehicleradius, cylinderlength, level.spawnsystem.vehicle_influencer_score, weapon_team_mask, "vehicle,s", get_score_curve_index( level.spawnsystem.vehicle_influencer_score_curve ), 0, self );
 }
 
-create_rcbomb_influencers( team )
+create_rcbomb_influencers( team ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -616,7 +614,7 @@ create_rcbomb_influencers( team )
 	return addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, self.origin, level.spawnsystem.rcbomb_influencer_radius, level.spawnsystem.rcbomb_influencer_score, other_team_mask, "rcbomb,r,s", get_score_curve_index( level.spawnsystem.rcbomb_influencer_score_curve ), 0, self );
 }
 
-create_qrdrone_influencers( team )
+create_qrdrone_influencers( team ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -630,7 +628,7 @@ create_qrdrone_influencers( team )
 	return addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, self.origin, level.spawnsystem.qrdrone_influencer_radius, level.spawnsystem.qrdrone_influencer_score, other_team_mask, "qrdrone,r,s", get_score_curve_index( level.spawnsystem.qrdrone_influencer_score_curve ), 0, self );
 }
 
-create_aitank_influencers( team )
+create_aitank_influencers( team ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -643,7 +641,7 @@ create_aitank_influencers( team )
 	return addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, self.origin, level.spawnsystem.aitank_influencer_radius, level.spawnsystem.aitank_influencer_score, other_team_mask, "aitank,r,s", get_score_curve_index( level.spawnsystem.aitank_influencer_score_curve ), 0, self );
 }
 
-create_pegasus_influencer( origin, team )
+create_pegasus_influencer( origin, team ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -656,7 +654,7 @@ create_pegasus_influencer( origin, team )
 	return addsphereinfluencer( level.spawnsystem.einfluencer_type_normal, origin, level.spawnsystem.pegasus_influencer_radius, level.spawnsystem.pegasus_influencer_score, other_team_mask, "pegasus,r,s", get_score_curve_index( level.spawnsystem.pegasus_influencer_score_curve ), 0 );
 }
 
-create_map_placed_influencers()
+create_map_placed_influencers() //checked partially changed to match cerberus output see info.md
 {
 	staticinfluencerents = getentarray( "mp_uspawn_influencer", "classname" );
 	i = 0;
@@ -668,15 +666,12 @@ create_map_placed_influencers()
 			i++;
 			continue;
 		}
-		else
-		{
-			create_map_placed_influencer( staticinfluencerent );
-		}
+		create_map_placed_influencer( staticinfluencerent );
 		i++;
 	}
 }
 
-create_map_placed_influencer( influencer_entity, optional_score_override )
+create_map_placed_influencer( influencer_entity, optional_score_override ) //checked matches cerberus output
 {
 	influencer_id = -1;
 	if ( isDefined( influencer_entity.script_shape ) && isDefined( influencer_entity.script_score ) && isDefined( influencer_entity.script_score_curve ) )
@@ -698,9 +693,11 @@ create_map_placed_influencer( influencer_entity, optional_score_override )
 				}
 				else
 				{
+					/*
 /#
 					assertmsg( "Radiant-placed sphere spawn influencers require 'radius' parameter" );
 #/
+					*/
 				}
 				break;
 			case "cylinder":
@@ -718,28 +715,34 @@ create_map_placed_influencer( influencer_entity, optional_score_override )
 				}
 				else
 				{
+					/*
 /#
 					assertmsg( "Radiant-placed cylinder spawn influencers require 'radius' and 'height' parameters" );
-#/
+#/	
+					*/
 				}
 				break;
 			default:
+				/*
 /#
 				assertmsg( "Unsupported script_shape value ("" + influencer_entity.script_shape + "") for unified spawning system static influencer.  Supported shapes are "cylinder" and "sphere"." );
 #/
+				*/
 				break;
 		}
 	}
 	else
 	{
+		/*
 /#
 		assertmsg( "Radiant-placed spawn influencers require 'script_shape', 'script_score' and 'script_score_curve' parameters" );
 #/
+		*/
 	}
 	return influencer_id;
 }
 
-create_enemy_spawned_influencers( origin, team )
+create_enemy_spawned_influencers( origin, team ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -752,41 +755,33 @@ create_enemy_spawned_influencers( origin, team )
 	return addsphereinfluencer( level.spawnsystem.einfluencer_type_enemy_spawned, origin, level.spawnsystem.enemy_spawned_influencer_radius, level.spawnsystem.enemy_spawned_influencer_score, other_team_mask, "enemy_spawned,r,s", get_score_curve_index( level.spawnsystem.enemy_spawned_influencer_score_curve ), level.spawnsystem.enemy_spawned_influencer_timeout_seconds );
 }
 
-updateallspawnpoints()
+updateallspawnpoints() //checked changed to match beta dump
 {
-	_a1176 = level.teams;
-	_k1176 = getFirstArrayKey( _a1176 );
-	while ( isDefined( _k1176 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a1176[ _k1176 ];
 		gatherspawnentities( team );
-		_k1176 = getNextArrayKey( _a1176, _k1176 );
 	}
 	clearspawnpoints();
 	if ( level.teambased )
 	{
-		_a1185 = level.teams;
-		_k1185 = getFirstArrayKey( _a1185 );
-		while ( isDefined( _k1185 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1185[ _k1185 ];
 			addspawnpoints( team, level.unified_spawn_points[ team ].a );
-			_k1185 = getNextArrayKey( _a1185, _k1185 );
 		}
 	}
-	else _a1192 = level.teams;
-	_k1192 = getFirstArrayKey( _a1192 );
-	while ( isDefined( _k1192 ) )
+	else
 	{
-		team = _a1192[ _k1192 ];
-		addspawnpoints( "free", level.unified_spawn_points[ team ].a );
-		_k1192 = getNextArrayKey( _a1192, _k1192 );
+		foreach ( team in level.teams )
+		{
+			addspawnpoints( "free", level.unified_spawn_points[ team ].a );
+		}
 	}
 	remove_unused_spawn_entities();
 }
 
-initialize_player_spawning_dvars()
+initialize_player_spawning_dvars() //checked matches cerberus output
 {
+	/*
 /#
 	reset_dvars = 1;
 	while ( 1 )
@@ -796,9 +791,10 @@ initialize_player_spawning_dvars()
 		wait 2;
 #/
 	}
+	*/
 }
 
-get_player_spawning_dvars( reset_dvars )
+get_player_spawning_dvars( reset_dvars ) //checked matches cerberus output 
 {
 	k_player_height = get_player_height();
 	player_height_times_10 = "" + ( 10 * k_player_height );
@@ -910,16 +906,17 @@ get_player_spawning_dvars( reset_dvars )
 	setspawnpointrandomvariation( ss.randomness_range );
 }
 
-level_use_unified_spawning( use )
+level_use_unified_spawning( use ) //checked matches cerberus output
 {
 }
 
-onspawnplayer_unified( predictedspawn )
+onspawnplayer_unified( predictedspawn ) //checked changed to match cerberus output dvar taken from beta dump
 {
 	if ( !isDefined( predictedspawn ) )
 	{
 		predictedspawn = 0;
 	}
+	/*
 /#
 	if ( getDvarInt( "scr_spawn_point_test_mode" ) != 0 )
 	{
@@ -928,6 +925,7 @@ onspawnplayer_unified( predictedspawn )
 		return;
 #/
 	}
+	*/
 	use_new_spawn_system = 1;
 	initial_spawn = 1;
 	if ( isDefined( self.uspawn_already_spawned ) )
@@ -944,7 +942,7 @@ onspawnplayer_unified( predictedspawn )
 	}
 	set_dvar_if_unset( "scr_spawn_force_unified", "0" );
 	spawnoverride = self maps/mp/_tacticalinsertion::overridespawn( predictedspawn );
-	if ( use_new_spawn_system || getDvarInt( #"0BD11226" ) != 0 )
+	if ( use_new_spawn_system || getDvarInt( "scr_spawn_force_unified" ) != 0 )
 	{
 		if ( !spawnoverride )
 		{
@@ -963,18 +961,17 @@ onspawnplayer_unified( predictedspawn )
 			}
 			else
 			{
+				/*
 /#
 				println( "ERROR: unable to locate a usable spawn point for player" );
 #/
+				*/
 				maps/mp/gametypes/_callbacksetup::abortlevel();
 			}
 		}
-		else
+		else if ( predictedspawn && isDefined( self.tacticalinsertion ) )
 		{
-			if ( predictedspawn && isDefined( self.tacticalinsertion ) )
-			{
-				self predictspawnpoint( self.tacticalinsertion.origin, self.tacticalinsertion.angles );
-			}
+			self predictspawnpoint( self.tacticalinsertion.origin, self.tacticalinsertion.angles );
 		}
 		if ( !predictedspawn )
 		{
@@ -982,12 +979,9 @@ onspawnplayer_unified( predictedspawn )
 			self enable_player_influencers( 1 );
 		}
 	}
-	else
+	else if ( !spawnoverride )
 	{
-		if ( !spawnoverride )
-		{
-			[[ level.onspawnplayer ]]( predictedspawn );
-		}
+		[[ level.onspawnplayer ]]( predictedspawn );
 	}
 	if ( !predictedspawn )
 	{
@@ -996,7 +990,7 @@ onspawnplayer_unified( predictedspawn )
 	return;
 }
 
-getspawnpoint( player_entity, predictedspawn )
+getspawnpoint( player_entity, predictedspawn ) //checked matches cerberus output
 {
 	if ( !isDefined( predictedspawn ) )
 	{
@@ -1024,7 +1018,7 @@ getspawnpoint( player_entity, predictedspawn )
 	return best_spawn_entity;
 }
 
-get_debug_spawnpoint( player )
+get_debug_spawnpoint( player ) //checked changed to match beta dump
 {
 	if ( level.teambased )
 	{
@@ -1039,41 +1033,36 @@ get_debug_spawnpoint( player )
 	if ( team == "free" )
 	{
 		spawn_counts = 0;
-		_a1556 = level.teams;
-		_k1556 = getFirstArrayKey( _a1556 );
-		while ( isDefined( _k1556 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1556[ _k1556 ];
 			spawn_counts += level.unified_spawn_points[ team ].a.size;
-			_k1556 = getNextArrayKey( _a1556, _k1556 );
 		}
 		if ( level.test_spawn_point_index >= spawn_counts )
 		{
 			level.test_spawn_point_index = 0;
 		}
 		count = 0;
-		_a1567 = level.teams;
-		_k1567 = getFirstArrayKey( _a1567 );
-		while ( isDefined( _k1567 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1567[ _k1567 ];
 			size = level.unified_spawn_points[ team ].a.size;
 			if ( level.test_spawn_point_index < ( count + size ) )
 			{
 				return level.unified_spawn_points[ team ].a[ level.test_spawn_point_index - count ];
 			}
 			count += size;
-			_k1567 = getNextArrayKey( _a1567, _k1567 );
 		}
 	}
-	else if ( level.test_spawn_point_index >= level.unified_spawn_points[ team ].a.size )
+	else 
 	{
-		level.test_spawn_point_index = 0;
+		if ( level.test_spawn_point_index >= level.unified_spawn_points[ team ].a.size )
+		{
+			level.test_spawn_point_index = 0;
+		}
+		return level.unified_spawn_points[ team ].a[ level.test_spawn_point_index ];
 	}
-	return level.unified_spawn_points[ team ].a[ level.test_spawn_point_index ];
 }
 
-get_best_spawnpoint( point_team, influencer_team, player, predictedspawn )
+get_best_spawnpoint( point_team, influencer_team, player, predictedspawn ) //checked matches cerberus output
 {
 	if ( level.teambased )
 	{
@@ -1084,12 +1073,14 @@ get_best_spawnpoint( point_team, influencer_team, player, predictedspawn )
 		vis_team_mask = level.spawnsystem.ispawn_teammask_free;
 	}
 	scored_spawn_points = getsortedspawnpoints( point_team, influencer_team, vis_team_mask, player, predictedspawn );
+	/*
 /#
 	assert( scored_spawn_points.size > 0 );
 #/
 /#
 	assert( scored_spawn_points.size == 1 );
 #/
+	*/
 	if ( !predictedspawn )
 	{
 		bbprint( "mpspawnpointsused", "reason %s x %d y %d z %d", "point used", scored_spawn_points[ 0 ].origin );
@@ -1097,7 +1088,7 @@ get_best_spawnpoint( point_team, influencer_team, player, predictedspawn )
 	return scored_spawn_points[ 0 ];
 }
 
-gatherspawnentities( player_team )
+gatherspawnentities( player_team ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.unified_spawn_points ) )
 	{
@@ -1117,37 +1108,37 @@ gatherspawnentities( player_team )
 		spawn_entities_s.a = [];
 	}
 	legacy_spawn_points = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( player_team );
-	legacy_spawn_index = 0;
-	while ( legacy_spawn_index < legacy_spawn_points.size )
+	for ( legacy_spawn_index = 0; legacy_spawn_index < legacy_spawn_points.size; legacy_spawn_index++ )
 	{
 		spawn_entities_s.a[ spawn_entities_s.a.size ] = legacy_spawn_points[ legacy_spawn_index ];
-		legacy_spawn_index++;
 	}
 	level.unified_spawn_points[ player_team ] = spawn_entities_s;
 	return spawn_entities_s;
 }
 
-is_hardcore()
+is_hardcore() //checked changed at own discretion
 {
-	if ( isDefined( level.hardcoremode ) )
+	if ( isDefined( level.hardcoremode ) && level.hardcoremode )
 	{
-		return level.hardcoremode;
+		return 1;
 	}
+	return 0;
 }
 
 teams_have_enmity( team1, team2 )
 {
-	if ( isDefined( team1 ) || !isDefined( team2 ) && level.gametype == "dm" )
+	if ( isDefined( team1 ) || !isDefined( team2 ) || level.gametype == "dm" )
 	{
 		return 1;
 	}
-	if ( team1 != "neutral" && team2 != "neutral" )
+	if ( team1 != "neutral" && team2 != "neutral" && team1 != team2 )
 	{
-		return team1 != team2;
+		return 1;
 	}
+	return 0;
 }
 
-remove_unused_spawn_entities()
+remove_unused_spawn_entities() //checked partially changed to match cerberus output see info.md
 {
 	spawn_entity_types = [];
 	spawn_entity_types[ spawn_entity_types.size ] = "mp_dm_spawn";
@@ -1193,58 +1184,47 @@ remove_unused_spawn_entities()
 			i++;
 			continue;
 		}
-		else
-		{
-			spawnpoints = maps/mp/gametypes/_spawnlogic::getspawnpointarray( spawn_entity_types[ i ] );
-			delete_all_spawns( spawnpoints );
-		}
+		spawnpoints = maps/mp/gametypes/_spawnlogic::getspawnpointarray( spawn_entity_types[ i ] );
+		delete_all_spawns( spawnpoints );
 		i++;
 	}
 }
 
-delete_all_spawns( spawnpoints )
+delete_all_spawns( spawnpoints ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < spawnpoints.size )
+	for ( i = 0; i < spawnpoints.size; i++ )
 	{
 		spawnpoints[ i ] delete();
-		i++;
 	}
 }
 
-spawn_point_class_name_being_used( name )
+spawn_point_class_name_being_used( name ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.spawn_point_class_names ) )
 	{
 		return 0;
 	}
-	i = 0;
-	while ( i < level.spawn_point_class_names.size )
+	for ( i = 0; i < level.spawn_point_class_names.size; i++ )
 	{
 		if ( level.spawn_point_class_names[ i ] == name )
 		{
 			return 1;
 		}
-		i++;
 	}
 	return 0;
 }
 
-codecallback_updatespawnpoints()
+codecallback_updatespawnpoints() //checked changed to match cerberus output
 {
-	_a1788 = level.teams;
-	_k1788 = getFirstArrayKey( _a1788 );
-	while ( isDefined( _k1788 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a1788[ _k1788 ];
 		maps/mp/gametypes/_spawnlogic::rebuildspawnpoints( team );
-		_k1788 = getNextArrayKey( _a1788, _k1788 );
 	}
 	level.unified_spawn_points = undefined;
 	updateallspawnpoints();
 }
 
-initialspawnprotection()
+initialspawnprotection() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -1260,7 +1240,7 @@ initialspawnprotection()
 	self.specialty_nottargetedbyairsupport = undefined;
 }
 
-getteamstartspawnname( team, spawnpointnamebase )
+getteamstartspawnname( team, spawnpointnamebase ) //checked changed to match cerberus output
 {
 	spawn_point_team_name = team;
 	if ( !level.multiteam && game[ "switchedsides" ] )
@@ -1273,12 +1253,9 @@ getteamstartspawnname( team, spawnpointnamebase )
 		{
 			spawn_point_team_name = "team1";
 		}
-		else
+		else if ( team == "allies" )
 		{
-			if ( team == "allies" )
-			{
-				spawn_point_team_name = "team2";
-			}
+			spawn_point_team_name = "team2";
 		}
 		if ( !isoneround() )
 		{
@@ -1290,7 +1267,9 @@ getteamstartspawnname( team, spawnpointnamebase )
 	return ( spawnpointnamebase + "_" ) + spawn_point_team_name + "_start";
 }
 
-gettdmstartspawnname( team )
+gettdmstartspawnname( team ) //checked matches cerberus output
 {
 	return getteamstartspawnname( team, "mp_tdm_spawn" );
 }
+
+

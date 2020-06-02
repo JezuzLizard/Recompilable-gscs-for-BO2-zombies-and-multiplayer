@@ -52,6 +52,8 @@ patch_mp/maps/mp/gametypes/_globallogic_vehicle.gsc
 patch_mp/maps/mp/gametypes/_healthoverlay.gsc
 patch_mp/maps/mp/gametypes/_hostmigration.gsc
 patch_mp/maps/mp/gametypes/_hud.gsc
+patch_mp/maps/mp/gametypes/_hud_message.gsc
+patch_mp/maps/mp/gametypes/_hud_util.gsc
 patch_mp/maps/mp/gametypes/_killcam.gsc
 patch_mp/maps/mp/gametypes/_menus.gsc
 patch_mp/maps/mp/gametypes/_objpoints.gsc
@@ -60,6 +62,7 @@ patch_mp/maps/mp/gametypes/_persistence.gsc
 patch_mp/maps/mp/gametypes/_pregame.gsc
 patch_mp/maps/mp/gametypes/_rank.gsc
 patch_mp/maps/mp/gametypes/_serversettings.gsc
+patch_mp/maps/mp/gametypes/_spawning.gsc
 patch_mp/maps/mp/gametypes/_spawnlogic.gsc
 patch_mp/maps/mp/gametypes/_spectating.gsc
 patch_mp/maps/mp/gametypes/_tweakables.gsc
@@ -176,10 +179,6 @@ patch_mp/maps/mp/mp_turbine.gsc
 patch_mp/maps/mp/mp_uplink.gsc
 patch_mp/maps/mp/mp_vertigo.gsc
 patch_mp/maps/mp/mp_village.gsc
-
-patch_mp/maps/mp/gametypes/_hud_message.gsc
-patch_mp/maps/mp/gametypes/_hud_util.gsc
-patch_mp/maps/mp/gametypes/_spawning.gsc
 
 patch_mp/maps/mp/killstreaks/_ai_tank.gsc
 patch_mp/maps/mp/killstreaks/_airsupport.gsc
