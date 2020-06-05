@@ -1,39 +1,71 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_laststand;
 #include maps/mp/zombies/_zm_challenges;
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_devgui;
+#include maps/mp/zombies/_zm_powerup_zombie_blood;
+#include character/c_jap_takeo_dlc4;
+#include character/c_ger_richtofen_dlc4;
+#include character/c_rus_nikolai_dlc4;
+#include character/c_usa_dempsey_dlc4;
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/_visionset_mgr;
 #include maps/mp/zm_tomb_chamber;
 #include maps/mp/zombies/_zm_zonemgr;
+#include maps/mp/zm_tomb_ee_side;
+#include maps/mp/zm_tomb_ee_main;
 #include maps/mp/zm_tomb_main_quest;
 #include maps/mp/zm_tomb_dig;
 #include maps/mp/zm_tomb_ambient_scripts;
+#include maps/mp/zombies/_zm_weap_cymbal_monkey;
+#include maps/mp/zombies/_zm_weap_staff_revive;
+#include maps/mp/zombies/_zm_weap_riotshield_tomb;
+#include maps/mp/zombies/_zm_weap_claymore;
+#include maps/mp/zombies/_zm_weap_beacon;
+#include maps/mp/_sticky_grenade;
+#include maps/mp/zombies/_zm_perk_random;
 #include maps/mp/zm_tomb_challenges;
 #include maps/mp/zombies/_zm_spawner;
+#include maps/mp/zombies/_zm_magicbox_tomb;
 #include maps/mp/zm_tomb_distance_tracking;
+#include maps/mp/zm_tomb_achievement;
 #include maps/mp/zm_tomb;
+#include maps/mp/zombies/_zm_weap_staff_air;
+#include maps/mp/zombies/_zm_weap_staff_lightning;
+#include maps/mp/zombies/_zm_weap_staff_water;
+#include maps/mp/zombies/_zm_weap_staff_fire;
 #include maps/mp/zombies/_zm_weap_one_inch_punch;
 #include maps/mp/zombies/_zm_perk_electric_cherry;
 #include maps/mp/zombies/_zm_perks;
 #include maps/mp/zombies/_zm_perk_divetonuke;
 #include maps/mp/zm_tomb_vo;
 #include maps/mp/gametypes_zm/_spawning;
+#include maps/mp/zombies/_load;
+#include maps/mp/zombies/_zm_ai_quadrotor;
+#include maps/mp/zombies/_zm_ai_mechz;
+#include maps/mp/zm_tomb_amb;
 #include maps/mp/animscripts/zm_death;
+#include maps/mp/zombies/_zm;
+#include maps/mp/zm_tomb_giant_robot;
+#include maps/mp/zm_tomb_teleporter;
 #include maps/mp/zm_tomb_capture_zones;
+#include maps/mp/zm_tomb_quest_fire;
+#include maps/mp/zm_tomb_tank;
 #include maps/mp/zm_tomb_ffotd;
+#include maps/mp/zm_tomb_fx;
+#include maps/mp/zm_tomb_gamemodes;
 #include maps/mp/zm_tomb_utility;
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-gamemode_callback_setup()
+gamemode_callback_setup() //checked matches cerberus output
 {
 	maps/mp/zm_tomb_gamemodes::init();
 }
 
-survival_init()
+survival_init() //checked matches cerberus output
 {
 	level.force_team_characters = 1;
 	level.should_use_cia = 0;
@@ -46,25 +78,23 @@ survival_init()
 	flag_wait( "start_zombie_round_logic" );
 }
 
-zstandard_preinit()
+zstandard_preinit() //checked matches cerberus output
 {
 }
 
-createfx_callback()
+createfx_callback() //checked changed to match cerberus output
 {
 	ents = getentarray();
-	i = 0;
-	while ( i < ents.size )
+	for ( i = 0; i < ents.size; i++ )
 	{
 		if ( ents[ i ].classname != "info_player_start" )
 		{
 			ents[ i ] delete();
 		}
-		i++;
 	}
 }
 
-main()
+main() //checked matches cerberus output
 {
 	level._no_equipment_activated_clientfield = 1;
 	level._no_navcards = 1;
@@ -115,6 +145,7 @@ main()
 		return;
 	}
 	level_precache();
+
 	maps/mp/gametypes_zm/_spawning::level_use_unified_spawning( 1 );
 	level thread setup_tomb_spawn_groups();
 	spawner_main_chamber_capture_zombies = getent( "chamber_capture_zombie_spawner", "targetname" );
@@ -124,7 +155,7 @@ main()
 	level.precachecustomcharacters = ::precache_personality_characters;
 	level.givecustomcharacters = ::give_personality_characters;
 	level.setupcustomcharacterexerts = ::setup_personality_character_exerts;
-	level._zmbvoxlevelspecific = ::maps/mp/zm_tomb_vo::init_level_specific_audio;
+	level._zmbvoxlevelspecific = maps/mp/zm_tomb_vo::init_level_specific_audio;
 	level.custom_player_track_ammo_count = ::tomb_custom_player_track_ammo_count;
 	level.custom_player_fake_death = ::zm_player_fake_death;
 	level.custom_player_fake_death_cleanup = ::zm_player_fake_death_cleanup;
@@ -144,17 +175,17 @@ main()
 	level.zombiemode_using_random_perk = 1;
 	level.zombiemode_using_divetonuke_perk = 1;
 	maps/mp/zombies/_zm_perk_divetonuke::enable_divetonuke_perk_for_level();
-	level.custom_electric_cherry_perk_threads = maps/mp/zombies/_zm_perks::register_perk_threads( "specialty_grenadepulldeath", ::tomb_custom_electric_cherry_reload_attack, ::maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_perk_lost );
+	level.custom_electric_cherry_perk_threads = maps/mp/zombies/_zm_perks::register_perk_threads( "specialty_grenadepulldeath", ::tomb_custom_electric_cherry_reload_attack, maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_perk_lost );
 	level.zombiemode_using_electric_cherry_perk = 1;
 	maps/mp/zombies/_zm_perk_electric_cherry::enable_electric_cherry_perk_for_level();
 	level.flopper_network_optimized = 1;
-	level.perk_random_vo_func_usemachine = ::maps/mp/zm_tomb_vo::wunderfizz_used_vo;
+	level.perk_random_vo_func_usemachine = maps/mp/zm_tomb_vo::wunderfizz_used_vo;
 	maps/mp/zombies/_zm_weap_one_inch_punch::one_inch_precache();
 	maps/mp/zombies/_zm_weap_staff_fire::precache();
 	maps/mp/zombies/_zm_weap_staff_water::precache();
 	maps/mp/zombies/_zm_weap_staff_lightning::precache();
 	maps/mp/zombies/_zm_weap_staff_air::precache();
-	level._custom_turn_packapunch_on = ::maps/mp/zm_tomb_capture_zones::pack_a_punch_dummy_init;
+	level._custom_turn_packapunch_on = maps/mp/zm_tomb_capture_zones::pack_a_punch_dummy_init;
 	level.custom_vending_precaching = ::custom_vending_precaching;
 	level.register_offhand_weapons_for_level_defaults_override = ::offhand_weapon_overrride;
 	level.zombiemode_offhand_weapon_give_override = ::offhand_weapon_give_override;
@@ -185,6 +216,7 @@ main()
 	{
 		level.culldist = 5500;
 	}
+	
 	setculldist( level.culldist );
 	level thread maps/mp/zm_tomb_distance_tracking::zombie_tracking_init();
 	maps/mp/zombies/_zm_magicbox_tomb::init();
@@ -212,10 +244,11 @@ main()
 	level._melee_weapons = [];
 	maps/mp/zm_tomb_giant_robot::init_giant_robot_glows();
 	maps/mp/zm_tomb_giant_robot::init_giant_robot();
-	level.can_revive = ::maps/mp/zm_tomb_giant_robot::tomb_can_revive_override;
+	level.can_revive = maps/mp/zm_tomb_giant_robot::tomb_can_revive_override;
 	maps/mp/zm_tomb_capture_zones::init_capture_zones();
 	level.a_e_slow_areas = getentarray( "player_slow_area", "targetname" );
 	maps/mp/zm_tomb_ambient_scripts::init_tomb_ambient_scripts();
+	
 	level thread maps/mp/zombies/_zm_ai_mechz::init();
 	level thread maps/mp/zombies/_zm_perk_random::init_animtree();
 	level thread maps/mp/zombies/_zm_ai_quadrotor::init();
@@ -232,8 +265,10 @@ main()
 	level.validate_enemy_path_length = ::tomb_validate_enemy_path_length;
 	level thread maps/mp/zm_tomb_ee_main::init();
 	level thread maps/mp/zm_tomb_ee_side::init();
+
 	level.zones = [];
 	level.zone_manager_init_func = ::working_zone_init;
+	init_zones = [];
 	init_zones[ 0 ] = "zone_start";
 	level thread maps/mp/zombies/_zm_zonemgr::manage_zones( init_zones );
 	if ( isDefined( level.optimise_for_splitscreen ) && level.optimise_for_splitscreen )
@@ -251,6 +286,7 @@ main()
 	{
 		level.zombie_ai_limit = 24;
 	}
+	
 	level thread drop_all_barriers();
 	level thread traversal_blocker();
 	onplayerconnect_callback( ::on_player_connect );
@@ -268,14 +304,16 @@ main()
 	level thread clean_up_bunker_doors();
 	level setclientfield( "lantern_fx", 1 );
 	level thread maps/mp/zm_tomb_chamber::tomb_watch_chamber_player_activity();
+	/*
 /#
 	maps/mp/zm_tomb_utility::setup_devgui();
 #/
+	*/
 	init_weather_manager();
 	level thread maps/mp/zm_tomb_ffotd::main_end();
 }
 
-tomb_register_client_fields()
+tomb_register_client_fields() //checked matches cerberus output
 {
 	registerclientfield( "scriptmover", "stone_frozen", 14000, 1, "int" );
 	n_bits = getminbitcountfornum( 5 );
@@ -306,17 +344,17 @@ tomb_register_client_fields()
 	registerclientfield( "actor", "oneinchpunch_physics_launchragdoll", 14000, 1, "int" );
 }
 
-register_burn_overlay()
+register_burn_overlay() //checked matches cerberus output
 {
 	level.zm_transit_burn_max_duration = 2;
 	if ( !isDefined( level.vsmgr_prio_overlay_zm_transit_burn ) )
 	{
 		level.vsmgr_prio_overlay_zm_transit_burn = 20;
 	}
-	maps/mp/_visionset_mgr::vsmgr_register_info( "overlay", "zm_transit_burn", 14000, level.vsmgr_prio_overlay_zm_transit_burn, 15, 1, ::maps/mp/_visionset_mgr::vsmgr_duration_lerp_thread_per_player, 0 );
+	maps/mp/_visionset_mgr::vsmgr_register_info( "overlay", "zm_transit_burn", 14000, level.vsmgr_prio_overlay_zm_transit_burn, 15, 1, maps/mp/_visionset_mgr::vsmgr_duration_lerp_thread_per_player, 0 );
 }
 
-tomb_closest_player_override( v_zombie_origin, a_players_to_check )
+tomb_closest_player_override( v_zombie_origin, a_players_to_check ) //checked partially changed to match cerberus output see info.md
 {
 	e_player_to_attack = undefined;
 	while ( !isDefined( e_player_to_attack ) )
@@ -327,18 +365,14 @@ tomb_closest_player_override( v_zombie_origin, a_players_to_check )
 		{
 			e_player_closest_on_tank = undefined;
 			n_dist_tank_min = 99999999;
-			_a471 = a_players;
-			_k471 = getFirstArrayKey( _a471 );
-			while ( isDefined( _k471 ) )
+			foreach ( e_player in a_players )
 			{
-				e_player = _a471[ _k471 ];
 				n_dist_sq = distance2dsquared( self.origin, e_player.origin );
 				if ( n_dist_sq < n_dist_tank_min )
 				{
 					n_dist_tank_min = n_dist_sq;
 					e_player_closest_on_tank = e_player;
 				}
-				_k471 = getNextArrayKey( _a471, _k471 );
 			}
 			if ( is_player_valid( e_player_to_attack ) )
 			{
@@ -347,44 +381,36 @@ tomb_closest_player_override( v_zombie_origin, a_players_to_check )
 				{
 					e_player_to_attack = e_player_closest_on_tank;
 				}
-				break;
 			}
-			else
+			else if ( is_player_valid( e_player_closest_on_tank ) )
 			{
-				if ( is_player_valid( e_player_closest_on_tank ) )
-				{
-					e_player_to_attack = e_player_closest_on_tank;
-				}
+				e_player_to_attack = e_player_closest_on_tank;
 			}
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 	return e_player_to_attack;
 }
 
-zm_tomb_get_round_enemy_array()
+zm_tomb_get_round_enemy_array() //checked changed to match cerberus output see info.md
 {
 	enemies = [];
 	valid_enemies = [];
 	enemies = getaispeciesarray( level.zombie_team, "all" );
-	i = 0;
-	while ( i < enemies.size )
+	for ( i = 0; i < enemies.size; i++ )
 	{
-		if ( isDefined( enemies[ i ].ignore_enemy_count ) && enemies[ i ].ignore_enemy_count || !isDefined( enemies[ i ].script_noteworthy ) && enemies[ i ].script_noteworthy != "capture_zombie" )
+		if ( ( !isDefined( enemies[ i ].script_noteworthy ) || enemies[ i ].script_noteworthy != "capture_zombie" ) && isDefined( enemies[ i ].ignore_enemy_count ) && enemies[ i ].ignore_enemy_count )
 		{
-			i++;
-			continue;
 		}
 		else
 		{
 			valid_enemies[ valid_enemies.size ] = enemies[ i ];
 		}
-		i++;
 	}
 	return valid_enemies;
 }
 
-tomb_player_damage_callback( e_inflictor, e_attacker, n_damage, n_dflags, str_means_of_death, str_weapon, v_point, v_dir, str_hit_loc, psoffsettime, b_damage_from_underneath, n_model_index, str_part_name )
+tomb_player_damage_callback( e_inflictor, e_attacker, n_damage, n_dflags, str_means_of_death, str_weapon, v_point, v_dir, str_hit_loc, psoffsettime, b_damage_from_underneath, n_model_index, str_part_name ) //checked did not change to match cerberus output changed at own discretion
 {
 	if ( isDefined( str_weapon ) )
 	{
@@ -392,46 +418,31 @@ tomb_player_damage_callback( e_inflictor, e_attacker, n_damage, n_dflags, str_me
 		{
 			return 0;
 		}
-		else
+		if ( str_weapon == "t72_turret" )
 		{
-			if ( str_weapon == "t72_turret" )
-			{
-				return 0;
-			}
-			else
-			{
-				if ( str_weapon == "quadrotorturret_zm" || str_weapon == "quadrotorturret_upgraded_zm" )
-				{
-					return 0;
-				}
-				else
-				{
-					if ( str_weapon == "zombie_markiv_side_cannon" )
-					{
-						return 0;
-					}
-					else
-					{
-						if ( str_weapon == "zombie_markiv_turret" )
-						{
-							return 0;
-						}
-						else
-						{
-							if ( str_weapon == "zombie_markiv_cannon" )
-							{
-								return 0;
-							}
-						}
-					}
-				}
-			}
+			return 0;
+		}
+		if ( str_weapon == "quadrotorturret_zm" || str_weapon == "quadrotorturret_upgraded_zm" )
+		{
+			return 0;
+		}
+		if ( str_weapon == "zombie_markiv_side_cannon" )
+		{
+			return 0;
+		}
+		if ( str_weapon == "zombie_markiv_turret" )
+		{
+			return 0;
+		}
+		if ( str_weapon == "zombie_markiv_cannon" )
+		{
+			return 0;
 		}
 	}
 	return n_damage;
 }
 
-tomb_random_perk_weights()
+tomb_random_perk_weights() //checked matches cerberus output
 {
 	temp_array = [];
 	if ( randomint( 4 ) == 0 )
@@ -461,7 +472,7 @@ tomb_random_perk_weights()
 	return keys;
 }
 
-level_precache()
+level_precache() //checked matches cerberus output
 {
 	precacheshader( "specialty_zomblood_zombies" );
 	precachemodel( "c_zom_guard" );
@@ -473,7 +484,7 @@ level_precache()
 	precachemodel( "fxuse_sky_pillar_new" );
 }
 
-on_player_connect()
+on_player_connect() //checked matches cerberus output
 {
 	self thread revive_watcher();
 	wait_network_frame();
@@ -481,7 +492,7 @@ on_player_connect()
 	self thread sndmeleewpnsound();
 }
 
-sndmeleewpnsound()
+sndmeleewpnsound() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "end_game" );
@@ -489,17 +500,18 @@ sndmeleewpnsound()
 	{
 		while ( !self ismeleeing() )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 		current_melee_weapon = self get_player_melee_weapon();
 		current_weapon = self getcurrentweapon();
-		while ( current_weapon == "tomb_shield_zm" )
+		if ( current_weapon == "tomb_shield_zm" )
 		{
 			self playsound( "fly_riotshield_zm_swing" );
 			while ( self ismeleeing() )
 			{
-				wait 0,05;
+				wait 0.05;
 			}
+			continue;
 		}
 		alias = "zmb_melee_whoosh_";
 		if ( isDefined( self.is_player_zombie ) && self.is_player_zombie )
@@ -534,12 +546,9 @@ sndmeleewpnsound()
 		{
 			alias = "wpn_one_inch_punch_lightning_";
 		}
-		else
+		else if ( sndmeleewpn_isstaff( current_melee_weapon ) )
 		{
-			if ( sndmeleewpn_isstaff( current_melee_weapon ) )
-			{
-				alias = "zmb_melee_staff_upgraded_";
-			}
+			alias = "zmb_melee_staff_upgraded_";
 		}
 		self playsoundtoplayer( alias + "plr", self );
 		wait_network_frame();
@@ -549,13 +558,13 @@ sndmeleewpnsound()
 		}
 		while ( self ismeleeing() )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-sndmeleewpn_isstaff( weapon )
+sndmeleewpn_isstaff( weapon ) //checked matches cerberus output
 {
 	switch( weapon )
 	{
@@ -572,7 +581,7 @@ sndmeleewpn_isstaff( weapon )
 	return isstaff;
 }
 
-revive_watcher()
+revive_watcher() //checked matches cerberus output
 {
 	self endon( "death_or_disconnect" );
 	while ( 1 )
@@ -581,7 +590,6 @@ revive_watcher()
 		if ( self hasperk( "specialty_quickrevive" ) )
 		{
 			self notify( "quick_revived_player" );
-			continue;
 		}
 		else
 		{
@@ -590,7 +598,7 @@ revive_watcher()
 	}
 }
 
-setup_tomb_spawn_groups()
+setup_tomb_spawn_groups() //checked matches cerberus output
 {
 	level.use_multiple_spawns = 1;
 	level.spawner_int = 1;
@@ -615,14 +623,14 @@ setup_tomb_spawn_groups()
 	level.zones[ "zone_fire_stairs_1" ].script_int = 2;
 }
 
-chamber_capture_zombie_spawn_init()
+chamber_capture_zombie_spawn_init() //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittill( "completed_emerging_into_playable_area" );
 	self setclientfield( "zone_capture_zombie", 1 );
 }
 
-tomb_round_spawn_failsafe()
+tomb_round_spawn_failsafe() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	prevorigin = self.origin;
@@ -637,9 +645,9 @@ tomb_round_spawn_failsafe()
 		{
 			continue;
 		}
-		while ( isDefined( self.lastchunk_destroy_time ) )
+		if ( isDefined( self.lastchunk_destroy_time ) )
 		{
-			while ( ( getTime() - self.lastchunk_destroy_time ) < 8000 )
+			if ( ( getTime() - self.lastchunk_destroy_time ) < 8000 )
 			{
 				continue;
 			}
@@ -652,9 +660,9 @@ tomb_round_spawn_failsafe()
 				level.zombie_total_subtract++;
 			}
 			self dodamage( self.health + 100, ( 0, 0, 0 ) );
-			return;
+			break;
 		}
-		else if ( distancesquared( self.origin, prevorigin ) < 576 )
+		if ( distancesquared( self.origin, prevorigin ) < 576 )
 		{
 			if ( isDefined( level.put_timed_out_zombies_back_in_queue ) && level.put_timed_out_zombies_back_in_queue && !flag( "dog_round" ) )
 			{
@@ -666,22 +674,19 @@ tomb_round_spawn_failsafe()
 			}
 			level.zombies_timeout_playspace++;
 			self dodamage( self.health + 100, ( 0, 0, 0 ) );
-			return;
+			break;
 		}
-		else
-		{
-			prevorigin = self.origin;
-		}
+		prevorigin = self.origin;
 	}
 }
 
-givecustomloadout( takeallweapons, alreadyspawned )
+givecustomloadout( takeallweapons, alreadyspawned ) //checked matches cerberus output
 {
 	self giveweapon( "knife_zm" );
 	self give_start_weapon( 1 );
 }
 
-precache_team_characters()
+precache_team_characters() //checked matches cerberus output
 {
 	precachemodel( "c_zom_player_cdc_fb" );
 	precachemodel( "c_zom_hazmat_viewhands" );
@@ -689,7 +694,7 @@ precache_team_characters()
 	precachemodel( "c_zom_suit_viewhands" );
 }
 
-precache_personality_characters()
+precache_personality_characters() //checked matches cerberus output
 {
 	character/c_usa_dempsey_dlc4::precache();
 	character/c_rus_nikolai_dlc4::precache();
@@ -701,7 +706,7 @@ precache_personality_characters()
 	precachemodel( "c_zom_dempsey_viewhands" );
 }
 
-give_personality_characters()
+give_personality_characters() //checked matches cerberus output could not find dvar
 {
 	if ( isDefined( level.hotjoin_player_setup ) && [[ level.hotjoin_player_setup ]]( "c_zom_arlington_coat_viewhands" ) )
 	{
@@ -714,12 +719,14 @@ give_personality_characters()
 	}
 	self.favorite_wall_weapons_list = [];
 	self.talks_in_danger = 0;
+	/*
 /#
 	if ( getDvar( #"40772CF1" ) != "" )
 	{
 		self.characterindex = getDvarInt( #"40772CF1" );
 #/
 	}
+	*/
 	switch( self.characterindex )
 	{
 		case 0:
@@ -757,7 +764,7 @@ give_personality_characters()
 	self thread set_exert_id();
 }
 
-set_exert_id()
+set_exert_id() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait_network_frame();
@@ -765,7 +772,7 @@ set_exert_id()
 	self maps/mp/zombies/_zm_audio::setexertvoice( self.characterindex + 1 );
 }
 
-assign_lowest_unused_character_index()
+assign_lowest_unused_character_index() //checked changed to match cerberus output
 {
 	charindexarray = [];
 	charindexarray[ 0 ] = 0;
@@ -785,17 +792,13 @@ assign_lowest_unused_character_index()
 	else
 	{
 		n_characters_defined = 0;
-		_a1010 = players;
-		_k1010 = getFirstArrayKey( _a1010 );
-		while ( isDefined( _k1010 ) )
+		foreach ( player in players )
 		{
-			player = _a1010[ _k1010 ];
 			if ( isDefined( player.characterindex ) )
 			{
 				arrayremovevalue( charindexarray, player.characterindex, 0 );
 				n_characters_defined++;
 			}
-			_k1010 = getNextArrayKey( _a1010, _k1010 );
 		}
 		if ( charindexarray.size > 0 )
 		{
@@ -818,7 +821,7 @@ assign_lowest_unused_character_index()
 	return 0;
 }
 
-give_team_characters()
+give_team_characters() //checked matches cerberus output
 {
 	self detachall();
 	self set_player_is_female( 0 );
@@ -854,12 +857,12 @@ give_team_characters()
 	self setsprintcooldown( 0 );
 }
 
-initcharacterstartindex()
+initcharacterstartindex() //checked matches cerberus output
 {
 	level.characterstartindex = randomint( 4 );
 }
 
-zm_player_fake_death_cleanup()
+zm_player_fake_death_cleanup() //checked matches cerberus output
 {
 	if ( isDefined( self._fall_down_anchor ) )
 	{
@@ -868,7 +871,7 @@ zm_player_fake_death_cleanup()
 	}
 }
 
-zm_player_fake_death( vdir )
+zm_player_fake_death( vdir ) //checked matches cerberus output
 {
 	level notify( "fake_death" );
 	self notify( "fake_death" );
@@ -882,7 +885,7 @@ zm_player_fake_death( vdir )
 		self allowprone( 1 );
 		self allowcrouch( 0 );
 		self allowstand( 0 );
-		wait 0,25;
+		wait 0.25;
 		self freezecontrols( 1 );
 	}
 	else
@@ -893,7 +896,7 @@ zm_player_fake_death( vdir )
 	}
 }
 
-fall_down( vdir, stance )
+fall_down( vdir, stance ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level endon( "game_module_ended" );
@@ -920,7 +923,7 @@ fall_down( vdir, stance )
 		eye = self get_eye();
 		floor_height = ( 10 + origin[ 2 ] ) - eye[ 2 ];
 		origin += ( 0, 0, floor_height );
-		lerptime = 0,5;
+		lerptime = 0.5;
 		linker moveto( origin, lerptime, lerptime );
 		linker rotateto( angles, lerptime, lerptime );
 	}
@@ -934,11 +937,11 @@ fall_down( vdir, stance )
 	if ( falling )
 	{
 		bounce = randomint( 4 ) + 8;
-		origin = ( origin + ( 0, 0, bounce ) ) - ( xyspeed * 0,1 );
+		origin = ( origin + ( 0, 0, bounce ) ) - ( xyspeed * 0.1 );
 		lerptime = bounce / 50;
 		linker moveto( origin, lerptime, 0, lerptime );
 		linker waittill( "movedone" );
-		origin = ( origin + ( 0, 0, bounce * -1 ) ) + ( xyspeed * 0,1 );
+		origin = ( origin + ( 0, 0, bounce * -1 ) ) + ( xyspeed * 0.1 );
 		lerptime /= 2;
 		linker moveto( origin, lerptime, lerptime );
 		linker waittill( "movedone" );
@@ -948,12 +951,12 @@ fall_down( vdir, stance )
 	linker delete();
 }
 
-initial_round_wait_func()
+initial_round_wait_func() //checked matches cerberus output
 {
 	flag_wait( "initial_blackscreen_passed" );
 }
 
-offhand_weapon_overrride()
+offhand_weapon_overrride() //checked matches cerberus output
 {
 	register_lethal_grenade_for_level( "frag_grenade_zm" );
 	level.zombie_lethal_grenade_player_init = "frag_grenade_zm";
@@ -973,7 +976,7 @@ offhand_weapon_overrride()
 	level.equipment_safe_to_drop = ::equipment_safe_to_drop;
 }
 
-equipment_safe_to_drop( weapon )
+equipment_safe_to_drop( weapon ) //checked matches cerberus output
 {
 	if ( !isDefined( self.origin ) )
 	{
@@ -982,7 +985,7 @@ equipment_safe_to_drop( weapon )
 	return 1;
 }
 
-offhand_weapon_give_override( str_weapon )
+offhand_weapon_give_override( str_weapon ) //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( is_tactical_grenade( str_weapon ) && isDefined( self get_player_tactical_grenade() ) && !self is_player_tactical_grenade( str_weapon ) )
@@ -993,31 +996,31 @@ offhand_weapon_give_override( str_weapon )
 	return 0;
 }
 
-tomb_weaponobjects_on_player_connect_override()
+tomb_weaponobjects_on_player_connect_override() //checked matches cerberus output
 {
 	level.retrievable_knife_init_names = [];
 	onplayerconnect_callback( ::weaponobjects_on_player_connect_override_internal );
 }
 
-tomb_player_intersection_tracker_override( e_player )
+tomb_player_intersection_tracker_override( e_player ) //checked changed to match cerberus output
 {
-	if ( isDefined( e_player.b_already_on_tank ) || e_player.b_already_on_tank && isDefined( self.b_already_on_tank ) && self.b_already_on_tank )
+	if ( isDefined( e_player.b_already_on_tank ) && e_player.b_already_on_tank || isDefined( self.b_already_on_tank ) && self.b_already_on_tank )
 	{
 		return 1;
 	}
-	if ( isDefined( e_player.giant_robot_transition ) || e_player.giant_robot_transition && isDefined( self.giant_robot_transition ) && self.giant_robot_transition )
+	if ( isDefined( e_player.giant_robot_transition ) && e_player.giant_robot_transition || isDefined( self.giant_robot_transition ) && self.giant_robot_transition )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-init_tomb_stats()
+init_tomb_stats() //checked matches cerberus output
 {
 	self maps/mp/zm_tomb_achievement::init_player_achievement_stats();
 }
 
-custom_add_weapons()
+custom_add_weapons() //checked matches cerberus output
 {
 	level.laststandpistol = "c96_zm";
 	level.default_laststandpistol = "c96_zm";
@@ -1079,7 +1082,7 @@ custom_add_weapons()
 	add_shared_ammo_weapon( "beretta93r_extclip_zm", "beretta93r_zm" );
 }
 
-include_weapons()
+include_weapons() //checked matches cerberus output
 {
 	include_weapon( "hamr_zm" );
 	include_weapon( "hamr_upgraded_zm", 0 );
@@ -1188,7 +1191,7 @@ include_weapons()
 	}
 }
 
-include_powerups()
+include_powerups() //checked matches cerberus output
 {
 	include_powerup( "nuke" );
 	include_powerup( "insta_kill" );
@@ -1201,6 +1204,7 @@ include_powerups()
 	include_powerup( "bonus_points_team" );
 	level.level_specific_init_powerups = ::tomb_powerup_init;
 	level._zombiemode_powerup_grab = ::tomb_powerup_grab;
+	/*
 /#
 	setup_powerup_devgui();
 #/
@@ -1210,9 +1214,10 @@ include_powerups()
 /#
 	setup_tablet_devgui();
 #/
+	*/
 }
 
-include_perks_in_random_rotation()
+include_perks_in_random_rotation() //checked matches cerberus output
 {
 	include_perk_in_random_rotation( "specialty_armorvest" );
 	include_perk_in_random_rotation( "specialty_quickrevive" );
@@ -1226,12 +1231,12 @@ include_perks_in_random_rotation()
 	level.custom_random_perk_weights = ::tomb_random_perk_weights;
 }
 
-tomb_powerup_init()
+tomb_powerup_init() //checked matches cerberus output
 {
 	maps/mp/zombies/_zm_powerup_zombie_blood::init( "c_zom_tomb_german_player_fb" );
 }
 
-tomb_powerup_grab( s_powerup, e_player )
+tomb_powerup_grab( s_powerup, e_player ) //checked matches cerberus output
 {
 	if ( s_powerup.powerup_name == "zombie_blood" )
 	{
@@ -1239,17 +1244,20 @@ tomb_powerup_grab( s_powerup, e_player )
 	}
 }
 
-setup_powerup_devgui()
+setup_powerup_devgui() //checked matches cerberus output
 {
+	/*
 /#
 	setdvar( "zombie_blood", "off" );
 	adddebugcommand( "devgui_cmd "Zombies:2/Power Ups:2/Now:1/Drop Zombie Blood:1" "zombie_blood on"\n" );
 	level thread watch_devgui_zombie_blood();
 #/
+	*/
 }
 
-setup_oneinchpunch_devgui()
+setup_oneinchpunch_devgui() //checked matches cerberus output
 {
+	/*
 /#
 	setdvar( "test_oneinchpunch", "off" );
 	adddebugcommand( "devgui_cmd "Zombies:2/Tomb:1/OneInchPunch:2/OneInchPunch:1" "test_oneinchpunch on"\n" );
@@ -1265,10 +1273,12 @@ setup_oneinchpunch_devgui()
 	adddebugcommand( "devgui_cmd "Zombies:2/Tomb:1/OneInchPunch:2/OneInchPunch_Lightning:1" "test_oneinchpunch_lightning on"\n" );
 	level thread watch_devgui_oneinchpunch();
 #/
+	*/
 }
 
-watch_devgui_oneinchpunch()
+watch_devgui_oneinchpunch() //checked matches cerberus output
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -1321,13 +1331,15 @@ watch_devgui_oneinchpunch()
 				player thread maps/mp/zombies/_zm_weap_one_inch_punch::one_inch_punch_melee_attack();
 			}
 		}
-		wait 0,1;
+		wait 0.1;
 #/
 	}
+	*/
 }
 
-setup_tablet_devgui()
+setup_tablet_devgui() //checked matches cerberus output
 {
+	/*
 /#
 	setdvar( "test_player_tablet", "3" );
 	adddebugcommand( "devgui_cmd "Zombies:2/Tomb:1/Easter Ann:3/Tablet-None:1" "test_player_tablet 0"\n" );
@@ -1335,10 +1347,12 @@ setup_tablet_devgui()
 	adddebugcommand( "devgui_cmd "Zombies:2/Tomb:1/Easter Ann:3/Tablet-Dirty:1" "test_player_tablet 2"\n" );
 	level thread watch_devgui_tablet();
 #/
+	*/
 }
 
-watch_devgui_tablet()
+watch_devgui_tablet() //checked matches cerberus output
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -1349,13 +1363,15 @@ watch_devgui_tablet()
 			player setclientfieldtoplayer( "player_tablet_state", n_tablet_state );
 			setdvar( "test_player_tablet", "3" );
 		}
-		wait 0,1;
+		wait 0.1;
 #/
 	}
+	*/
 }
 
-watch_devgui_zombie_blood()
+watch_devgui_zombie_blood() //checked matches cerberus output
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -1364,13 +1380,15 @@ watch_devgui_zombie_blood()
 			setdvar( "zombie_blood", "off" );
 			level thread maps/mp/zombies/_zm_devgui::zombie_devgui_give_powerup( "zombie_blood", 1 );
 		}
-		wait 0,1;
+		wait 0.1;
 #/
 	}
+	*/
 }
 
-watch_devgui_double_points()
+watch_devgui_double_points() //checked matches cerberus output
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -1380,22 +1398,23 @@ watch_devgui_double_points()
 			level thread maps/mp/zombies/_zm_devgui::zombie_devgui_give_powerup( "double_points", 1 );
 			iprintlnbold( "change" );
 		}
-		wait 0,1;
+		wait 0.1;
 #/
 	}
+	*/
 }
 
-setup_rex_starts()
+setup_rex_starts() //checked matches cerberus output
 {
 	add_gametype( "zclassic", ::dummy, "zclassic", ::dummy );
 	add_gameloc( "tomb", ::dummy, "tomb", ::dummy );
 }
 
-dummy()
+dummy() //checked matches cerberus output
 {
 }
 
-working_zone_init()
+working_zone_init() //checked matches cerberus output
 {
 	flag_init( "always_on" );
 	flag_set( "always_on" );
@@ -1565,7 +1584,7 @@ working_zone_init()
 	add_adjacent_zone( "zone_bolt_stairs", "zone_bolt_stairs_1", "activate_zone_farm" );
 }
 
-activate_zone_trig( str_name, str_zone1, str_zone2 )
+activate_zone_trig( str_name, str_zone1, str_zone2 ) //checked matches cerberus output
 {
 	trig = getent( str_name, "targetname" );
 	trig waittill( "trigger" );
@@ -1580,7 +1599,7 @@ activate_zone_trig( str_name, str_zone1, str_zone2 )
 	trig delete();
 }
 
-check_tank_platform_zone()
+check_tank_platform_zone() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -1589,15 +1608,12 @@ check_tank_platform_zone()
 		{
 			break;
 		}
-		else
-		{
-			wait 1;
-		}
+		wait 1;
 	}
 	flag_set( "activate_zone_nml" );
 }
 
-tomb_vehicle_damage_override_wrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, damagefromunderneath, modelindex, partname )
+tomb_vehicle_damage_override_wrapper( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, damagefromunderneath, modelindex, partname ) //checked matches cerberus output
 {
 	if ( isDefined( level.a_func_vehicle_damage_override[ self.vehicletype ] ) )
 	{
@@ -1606,42 +1622,33 @@ tomb_vehicle_damage_override_wrapper( einflictor, eattacker, idamage, idflags, s
 	return idamage;
 }
 
-drop_all_barriers()
+drop_all_barriers() //checked changed to match cerberus output
 {
 	zkeys = getarraykeys( level.zones );
-	z = 0;
-	while ( z < level.zones.size )
+	for ( z = 0; z < level.zones.size; z++ )
 	{
 		zbarriers = get_all_zone_zbarriers( zkeys[ z ] );
 		if ( !isDefined( zbarriers ) )
 		{
-			z++;
-			continue;
+			break;
 		}
 		else
 		{
-			_a2041 = zbarriers;
-			_k2041 = getFirstArrayKey( _a2041 );
-			while ( isDefined( _k2041 ) )
+			foreach ( zbarrier in zbarriers )
 			{
-				zbarrier = _a2041[ _k2041 ];
 				zbarrier_pieces = zbarrier getnumzbarrierpieces();
-				i = 0;
-				while ( i < zbarrier_pieces )
+				for ( i = 0; i < zbarrier_pieces; i++ )
 				{
 					zbarrier hidezbarrierpiece( i );
 					zbarrier setzbarrierpiecestate( i, "open" );
-					i++;
 				}
-				wait 0,05;
-				_k2041 = getNextArrayKey( _a2041, _k2041 );
+				wait 0.05;
 			}
 		}
-		z++;
 	}
 }
 
-get_all_zone_zbarriers( zone_name )
+get_all_zone_zbarriers( zone_name ) //checked matches cerberus output
 {
 	if ( !isDefined( zone_name ) )
 	{
@@ -1651,7 +1658,7 @@ get_all_zone_zbarriers( zone_name )
 	return zone.zbarriers;
 }
 
-tomb_special_weapon_magicbox_check( weapon )
+tomb_special_weapon_magicbox_check( weapon ) //checked matches cerberus output
 {
 	if ( isDefined( level.raygun2_included ) && level.raygun2_included )
 	{
@@ -1695,19 +1702,17 @@ tomb_special_weapon_magicbox_check( weapon )
 	return 1;
 }
 
-custom_vending_precaching()
+custom_vending_precaching() //checked changed to match cerberus output
 {
-	while ( level._custom_perks.size > 0 )
+	if ( level._custom_perks.size > 0 )
 	{
 		a_keys = getarraykeys( level._custom_perks );
-		i = 0;
-		while ( i < a_keys.size )
+		for ( i = 0; i < a_keys.size; i++ )
 		{
 			if ( isDefined( level._custom_perks[ a_keys[ i ] ].precache_func ) )
 			{
 				level [[ level._custom_perks[ a_keys[ i ] ].precache_func ]]();
 			}
-			i++;
 		}
 	}
 	if ( isDefined( level.zombiemode_using_pack_a_punch ) && level.zombiemode_using_pack_a_punch )
@@ -1732,8 +1737,8 @@ custom_vending_precaching()
 		level.machine_assets[ "additionalprimaryweapon" ].weapon = "zombie_perk_bottle_additionalprimaryweapon";
 		level.machine_assets[ "additionalprimaryweapon" ].off_model = "p6_zm_tm_vending_three_gun";
 		level.machine_assets[ "additionalprimaryweapon" ].on_model = "p6_zm_tm_vending_three_gun";
-		level.machine_assets[ "additionalprimaryweapon" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "additionalprimaryweapon" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "additionalprimaryweapon" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "additionalprimaryweapon" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
 	{
@@ -1747,8 +1752,8 @@ custom_vending_precaching()
 		level.machine_assets[ "deadshot" ].weapon = "zombie_perk_bottle_deadshot";
 		level.machine_assets[ "deadshot" ].off_model = "zombie_vending_ads";
 		level.machine_assets[ "deadshot" ].on_model = "zombie_vending_ads_on";
-		level.machine_assets[ "deadshot" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "deadshot" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "deadshot" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "deadshot" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_divetonuke_perk ) && level.zombiemode_using_divetonuke_perk )
 	{
@@ -1762,8 +1767,8 @@ custom_vending_precaching()
 		level.machine_assets[ "divetonuke" ].weapon = "zombie_perk_bottle_nuke";
 		level.machine_assets[ "divetonuke" ].off_model = "zombie_vending_nuke";
 		level.machine_assets[ "divetonuke" ].on_model = "zombie_vending_nuke_on";
-		level.machine_assets[ "divetonuke" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "divetonuke" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "divetonuke" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "divetonuke" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
 	{
@@ -1777,8 +1782,8 @@ custom_vending_precaching()
 		level.machine_assets[ "doubletap" ].weapon = "zombie_perk_bottle_doubletap";
 		level.machine_assets[ "doubletap" ].off_model = "zombie_vending_doubletap2";
 		level.machine_assets[ "doubletap" ].on_model = "zombie_vending_doubletap2_on";
-		level.machine_assets[ "doubletap" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "doubletap" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "doubletap" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "doubletap" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
 	{
@@ -1792,8 +1797,8 @@ custom_vending_precaching()
 		level.machine_assets[ "juggernog" ].weapon = "zombie_perk_bottle_jugg";
 		level.machine_assets[ "juggernog" ].off_model = "zombie_vending_jugg";
 		level.machine_assets[ "juggernog" ].on_model = "zombie_vending_jugg_on";
-		level.machine_assets[ "juggernog" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "juggernog" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "juggernog" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "juggernog" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
 	{
@@ -1807,8 +1812,8 @@ custom_vending_precaching()
 		level.machine_assets[ "marathon" ].weapon = "zombie_perk_bottle_marathon";
 		level.machine_assets[ "marathon" ].off_model = "zombie_vending_marathon";
 		level.machine_assets[ "marathon" ].on_model = "zombie_vending_marathon_on";
-		level.machine_assets[ "marathon" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "marathon" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "marathon" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "marathon" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
 	{
@@ -1823,8 +1828,8 @@ custom_vending_precaching()
 		level.machine_assets[ "revive" ].weapon = "zombie_perk_bottle_revive";
 		level.machine_assets[ "revive" ].off_model = "p6_zm_tm_vending_revive";
 		level.machine_assets[ "revive" ].on_model = "p6_zm_tm_vending_revive_on";
-		level.machine_assets[ "revive" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "revive" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "revive" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "revive" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
 	{
@@ -1838,8 +1843,8 @@ custom_vending_precaching()
 		level.machine_assets[ "speedcola" ].weapon = "zombie_perk_bottle_sleight";
 		level.machine_assets[ "speedcola" ].off_model = "zombie_vending_sleight";
 		level.machine_assets[ "speedcola" ].on_model = "zombie_vending_sleight_on";
-		level.machine_assets[ "speedcola" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "speedcola" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "speedcola" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "speedcola" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
 	{
@@ -1854,8 +1859,8 @@ custom_vending_precaching()
 		level.machine_assets[ "tombstone" ].weapon = "zombie_perk_bottle_tombstone";
 		level.machine_assets[ "tombstone" ].off_model = "zombie_vending_tombstone";
 		level.machine_assets[ "tombstone" ].on_model = "zombie_vending_tombstone_on";
-		level.machine_assets[ "tombstone" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "tombstone" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "tombstone" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "tombstone" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 	if ( isDefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
 	{
@@ -1870,12 +1875,12 @@ custom_vending_precaching()
 		level.machine_assets[ "whoswho" ].weapon = "zombie_perk_bottle_whoswho";
 		level.machine_assets[ "whoswho" ].off_model = "p6_zm_vending_chugabud";
 		level.machine_assets[ "whoswho" ].on_model = "p6_zm_vending_chugabud_on";
-		level.machine_assets[ "whoswho" ].power_on_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
-		level.machine_assets[ "whoswho" ].power_off_callback = ::maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
+		level.machine_assets[ "whoswho" ].power_on_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_on;
+		level.machine_assets[ "whoswho" ].power_off_callback = maps/mp/zm_tomb_capture_zones::custom_vending_power_off;
 	}
 }
 
-tomb_actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex )
+tomb_actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked matches cerberus output
 {
 	if ( isDefined( self.b_zombie_blood_damage_only ) && self.b_zombie_blood_damage_only )
 	{
@@ -1902,35 +1907,36 @@ tomb_actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofd
 		{
 			self thread zombie_gib_guts();
 		}
-		else
+		else if ( isDefined( self.b_on_tank ) && self.b_on_tank || isDefined( self.b_climbing_tank ) && self.b_climbing_tank )
 		{
-			if ( isDefined( self.b_on_tank ) || self.b_on_tank && isDefined( self.b_climbing_tank ) && self.b_climbing_tank )
-			{
-				self maps/mp/zm_tomb_tank::zombie_on_tank_death_animscript_callback( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
-			}
+			self maps/mp/zm_tomb_tank::zombie_on_tank_death_animscript_callback( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 		}
 	}
 	return return_val;
 }
 
-tomb_zombie_death_event_callback()
+tomb_zombie_death_event_callback() //checked changed at own discretion
 {
 	if ( isDefined( self ) && isDefined( self.damagelocation ) && isDefined( self.damagemod ) && isDefined( self.damageweapon ) && isDefined( self.attacker ) && isplayer( self.attacker ) )
 	{
-		if ( is_headshot( self.damageweapon, self.damagelocation, self.damagemod ) && maps/mp/zombies/_zm_challenges::challenge_exists( "zc_headshots" ) && !isDefined( self.script_noteworthy ) && isDefined( "capture_zombie" ) && isDefined( self.script_noteworthy ) && isDefined( "capture_zombie" ) && self.script_noteworthy != "capture_zombie" )
+		if ( is_headshot( self.damageweapon, self.damagelocation, self.damagemod ) && maps/mp/zombies/_zm_challenges::challenge_exists( "zc_headshots" ) && !isDefined( self.script_noteworthy ) && isDefined( "capture_zombie" ) )
+		{
+			self.attacker maps/mp/zombies/_zm_challenges::increment_stat( "zc_headshots" );
+		}
+		else if ( is_headshot( self.damageweapon, self.damagelocation, self.damagemod ) && maps/mp/zombies/_zm_challenges::challenge_exists( "zc_headshots" ) && isDefined( self.script_noteworthy ) && isDefined( "capture_zombie" ) && self.script_noteworthy != "capture_zombie" )
 		{
 			self.attacker maps/mp/zombies/_zm_challenges::increment_stat( "zc_headshots" );
 		}
 	}
 }
 
-zombie_init_done()
+zombie_init_done() //checked matches cerberus output
 {
 	self.allowpain = 0;
 	self thread maps/mp/zm_tomb_distance_tracking::escaped_zombies_cleanup_init();
 }
 
-tomb_validate_enemy_path_length( player )
+tomb_validate_enemy_path_length( player ) //checked matches cerberus output
 {
 	max_dist = 1296;
 	d = distancesquared( self.origin, player.origin );
@@ -1941,7 +1947,7 @@ tomb_validate_enemy_path_length( player )
 	return 0;
 }
 
-show_zombie_count()
+show_zombie_count() //checked matches cerberus output
 {
 	self endon( "death_or_disconnect" );
 	flag_wait( "start_zombie_round_logic" );
@@ -1954,7 +1960,7 @@ show_zombie_count()
 	}
 }
 
-tomb_custom_divetonuke_explode( attacker, origin )
+tomb_custom_divetonuke_explode( attacker, origin ) //checked matches cerberus output
 {
 	radius = level.zombie_vars[ "zombie_perk_divetonuke_radius" ];
 	min_damage = level.zombie_vars[ "zombie_perk_divetonuke_min_damage" ];
@@ -1974,13 +1980,13 @@ tomb_custom_divetonuke_explode( attacker, origin )
 	maps/mp/_visionset_mgr::vsmgr_deactivate( "visionset", "zm_perk_divetonuke", attacker );
 }
 
-tomb_custom_divetonuke_explode_network_optimized( origin, radius, max_damage, min_damage, damage_mod )
+tomb_custom_divetonuke_explode_network_optimized( origin, radius, max_damage, min_damage, damage_mod ) //checked partially changed to match cerberus output see info.md
 {
 	self endon( "disconnect" );
 	a_all_zombies = getaispeciesarray( "axis", "all" );
 	a_zombies = get_array_of_closest( origin, a_all_zombies, undefined, undefined, radius );
 	network_stall_counter = 0;
-	while ( isDefined( a_zombies ) )
+	if ( isDefined( a_zombies ) )
 	{
 		i = 0;
 		while ( i < a_zombies.size )
@@ -1991,25 +1997,22 @@ tomb_custom_divetonuke_explode_network_optimized( origin, radius, max_damage, mi
 				i++;
 				continue;
 			}
-			else
-			{
-				dist = distance( e_zombie.origin, origin );
-				damage = min_damage + ( ( max_damage - min_damage ) * ( 1 - ( dist / radius ) ) );
-				e_zombie dodamage( damage, e_zombie.origin, self, self, 0, damage_mod );
-				network_stall_counter--;
+			dist = distance( e_zombie.origin, origin );
+			damage = min_damage + ( ( max_damage - min_damage ) * ( 1 - ( dist / radius ) ) );
+			e_zombie dodamage( damage, e_zombie.origin, self, self, 0, damage_mod );
+			network_stall_counter--;
 
-				if ( network_stall_counter <= 0 )
-				{
-					wait_network_frame();
-					network_stall_counter = randomintrange( 1, 3 );
-				}
+			if ( network_stall_counter <= 0 )
+			{
+				wait_network_frame();
+				network_stall_counter = randomintrange( 1, 3 );
 			}
 			i++;
 		}
 	}
 }
 
-tomb_custom_electric_cherry_laststand()
+tomb_custom_electric_cherry_laststand() //checked changed to match cerberus output
 {
 	visionsetlaststand( "zombie_last_stand", 1 );
 	if ( isDefined( self ) )
@@ -2017,11 +2020,10 @@ tomb_custom_electric_cherry_laststand()
 		playfx( level._effect[ "electric_cherry_explode" ], self.origin );
 		self playsound( "zmb_cherry_explode" );
 		self notify( "electric_cherry_start" );
-		wait 0,05;
+		wait 0.05;
 		a_zombies = getaispeciesarray( "axis", "all" );
 		a_zombies = get_array_of_closest( self.origin, a_zombies, undefined, undefined, 500 );
-		i = 0;
-		while ( i < a_zombies.size )
+		for ( i = 0; i < a_zombies.size; i++ )
 		{
 			if ( isalive( self ) )
 			{
@@ -2039,16 +2041,15 @@ tomb_custom_electric_cherry_laststand()
 					a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_stun();
 					a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_shock_fx();
 				}
-				wait 0,1;
+				wait 0.1;
 				a_zombies[ i ] dodamage( 1000, self.origin, self, self, "none" );
 			}
-			i++;
 		}
 		self notify( "electric_cherry_end" );
 	}
 }
 
-tomb_custom_electric_cherry_reload_attack()
+tomb_custom_electric_cherry_reload_attack() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -2059,7 +2060,7 @@ tomb_custom_electric_cherry_reload_attack()
 	{
 		self waittill( "reload_start" );
 		str_current_weapon = self getcurrentweapon();
-		while ( isinarray( self.wait_on_reload, str_current_weapon ) )
+		if ( isinarray( self.wait_on_reload, str_current_weapon ) )
 		{
 			continue;
 		}
@@ -2102,8 +2103,7 @@ tomb_custom_electric_cherry_reload_attack()
 			a_zombies = getaispeciesarray( "axis", "all" );
 			a_zombies = get_array_of_closest( self.origin, a_zombies, undefined, undefined, perk_radius );
 			n_zombies_hit = 0;
-			i = 0;
-			while ( i < a_zombies.size )
+			for ( i = 0; i < a_zombies.size; i++ )
 			{
 				if ( isalive( self ) && isalive( a_zombies[ i ] ) )
 				{
@@ -2112,10 +2112,13 @@ tomb_custom_electric_cherry_reload_attack()
 						if ( n_zombies_hit < n_zombie_limit )
 						{
 							n_zombies_hit++;
+						}
+						else 
+						{
 							break;
 						}
-						else }
-					else if ( a_zombies[ i ].health <= perk_dmg )
+					}
+					if ( a_zombies[ i ].health <= perk_dmg )
 					{
 						a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_death_fx();
 						if ( isDefined( self.cherry_kills ) )
@@ -2124,28 +2127,24 @@ tomb_custom_electric_cherry_reload_attack()
 						}
 						self maps/mp/zombies/_zm_score::add_to_player_score( 40 );
 					}
-					else
+					else if ( !isDefined( a_zombies[ i ].is_mechz ) )
 					{
-						if ( !isDefined( a_zombies[ i ].is_mechz ) )
-						{
-							a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_stun();
-						}
-						a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_shock_fx();
+						a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_stun();
 					}
-					wait 0,1;
+					a_zombies[ i ] thread maps/mp/zombies/_zm_perk_electric_cherry::electric_cherry_shock_fx();
+					wait 0.1;
 					if ( isalive( a_zombies[ i ] ) )
 					{
 						a_zombies[ i ] dodamage( perk_dmg, self.origin, self, self, "none" );
 					}
 				}
-				i++;
 			}
 			self notify( "electric_cherry_end" );
 		}
 	}
 }
 
-tomb_custom_player_track_ammo_count()
+tomb_custom_player_track_ammo_count() //checked changed to match cerberus output
 {
 	self notify( "stop_ammo_tracking" );
 	self endon( "disconnect" );
@@ -2154,13 +2153,13 @@ tomb_custom_player_track_ammo_count()
 	ammooutcount = 0;
 	while ( 1 )
 	{
-		wait 0,5;
+		wait 0.5;
 		weap = self getcurrentweapon();
-		while ( isDefined( weap ) || weap == "none" && !tomb_can_track_ammo_custom( weap ) )
+		if ( isDefined( weap ) || weap == "none" || !tomb_can_track_ammo_custom( weap ) )
 		{
 			continue;
 		}
-		while ( self getammocount( weap ) > 5 || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+		if ( self getammocount( weap ) > 5 || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
 			ammooutcount = 0;
 			ammolowcount = 0;
@@ -2173,13 +2172,10 @@ tomb_custom_player_track_ammo_count()
 				ammolowcount++;
 			}
 		}
-		else
+		else if ( ammooutcount < 1 )
 		{
-			if ( ammooutcount < 1 )
-			{
-				self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "ammo_out" );
-				ammooutcount++;
-			}
+			self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "ammo_out" );
+			ammooutcount++;
 		}
 		wait 20;
 	}
@@ -2229,10 +2225,11 @@ tomb_can_track_ammo_custom( weap )
 		case "zombie_tazer_flourish":
 			return 0;
 		default:
-			if ( !is_zombie_perk_bottle( weap ) && !is_placeable_mine( weap ) && !is_equipment( weap ) && !issubstr( weap, "knife_ballistic_" ) && getsubstr( weap, 0, 3 ) != "gl_" || weaponfuellife( weap ) > 0 && weap == level.revive_tool )
+			if ( is_zombie_perk_bottle( weap ) || is_placeable_mine( weap ) || is_equipment( weap ) || issubstr( weap, "knife_ballistic_" ) || getsubstr( weap, 0, 3 ) == "gl_" || weaponfuellife( weap ) > 0 || weap == level.revive_tool )
 			{
 				return 0;
 			}
 	}
 	return 1;
 }
+
