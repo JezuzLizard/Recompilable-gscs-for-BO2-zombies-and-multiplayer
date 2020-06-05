@@ -225,6 +225,7 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 		cdc_alive = 0;
 		cia_alive = 0;
 		players = get_players();
+		i = 0;
 		while ( i < players.size )
 		{
 			if ( !isDefined( players[ i ]._encounters_team ) )

@@ -1873,7 +1873,6 @@ onplayerspawned() //checked partially changed to cerberus output
 				self.characterindex = 0;
 				self._encounters_team = "A";
 				self._team_name = &"ZOMBIE_RACE_TEAM_1";
-				break;
 			}
 			else
 			{
