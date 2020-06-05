@@ -1,5 +1,6 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
+zm_buried_patch/maps/mp/zm_buried_maze.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 ```
@@ -36,7 +37,6 @@ zm_buried_patch/maps/mp/zm_buried_fx.gsc
 zm_buried_patch/maps/mp/zm_buried_gamemodes.gsc
 zm_buried_patch/maps/mp/zm_buried_grief_street.gsc
 zm_buried_patch/maps/mp/zm_buried_jail.gsc
-zm_buried_patch/maps/mp/zm_buried_maze.gsc
 zm_buried_patch/maps/mp/zm_buried_power.gsc
 zm_buried_patch/maps/mp/zm_buried_sq.gsc
 zm_buried_patch/maps/mp/zm_buried_sq_bt.gsc

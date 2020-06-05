@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zombies/_zm_weap_time_bomb;
 #include maps/mp/zombies/_zm_spawner;
@@ -8,124 +9,106 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-maze_precache()
+maze_precache() //checked changed to match cerberus output
 {
 	blocker_locations = getstructarray( "maze_blocker", "targetname" );
 	model_list = [];
-	i = 0;
-	while ( i < blocker_locations.size )
+	for ( i = 0; i < blocker_locations.size; i++ )
 	{
 		model_list[ blocker_locations[ i ].model ] = 1;
-		i++;
 	}
 	model_names = getarraykeys( model_list );
-	i = 0;
-	while ( i < model_names.size )
+	for ( i = 0; i < model_names.size; i++ )
 	{
 		precachemodel( model_names[ i ] );
-		i++;
 	}
 }
 
-maze_nodes_link_unlink_internal( func_ptr, bignorechangeonmigrate )
+maze_nodes_link_unlink_internal( func_ptr, bignorechangeonmigrate ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < self.blocked_nodes.size )
+	for ( i = 0; i < self.blocked_nodes.size; i++ )
 	{
-		j = 0;
-		while ( j < self.blocked_nodes[ i ].connected_nodes.size )
+		for ( j = 0; j < self.blocked_nodes[i].connected_nodes.size; j++ )
 		{
 			[[ func_ptr ]]( self.blocked_nodes[ i ], self.blocked_nodes[ i ].connected_nodes[ j ], bignorechangeonmigrate );
 			[[ func_ptr ]]( self.blocked_nodes[ i ].connected_nodes[ j ], self.blocked_nodes[ i ], bignorechangeonmigrate );
-			j++;
 		}
-		i++;
 	}
 }
 
-link_nodes_for_blocker_location()
+link_nodes_for_blocker_location() //checked matches cerberus output
 {
-	self maze_nodes_link_unlink_internal( ::maps/mp/zombies/_zm_utility::link_nodes, 1 );
+	self maze_nodes_link_unlink_internal( maps/mp/zombies/_zm_utility::link_nodes, 1 );
 }
 
-unlink_nodes_for_blocker_location()
+unlink_nodes_for_blocker_location() //checked matches cerberus output
 {
-	self maze_nodes_link_unlink_internal( ::maps/mp/zombies/_zm_utility::unlink_nodes, 0 );
+	self maze_nodes_link_unlink_internal( maps/mp/zombies/_zm_utility::unlink_nodes, 0 );
 }
 
-init_maze_clientfields()
+init_maze_clientfields() //checked changed to match cerberus output
 {
 	blocker_locations = getstructarray( "maze_blocker", "targetname" );
-	_a77 = blocker_locations;
-	_k77 = getFirstArrayKey( _a77 );
-	while ( isDefined( _k77 ) )
+	foreach ( blocker in blocker_locations ) 
 	{
-		blocker = _a77[ _k77 ];
 		registerclientfield( "world", "maze_blocker_" + blocker.script_noteworthy, 12000, 1, "int" );
-		_k77 = getNextArrayKey( _a77, _k77 );
 	}
 }
 
-init_maze_permutations()
+init_maze_permutations() //checked changed to match cerberus output
 {
 	blocker_locations = getstructarray( "maze_blocker", "targetname" );
 	level._maze._blocker_locations = [];
-	i = 0;
-	while ( i < blocker_locations.size )
+	for ( i = 0; i < blocker_locations.size; i++ )
 	{
 		if ( isDefined( blocker_locations[ i ].target ) )
 		{
 			blocker_locations[ i ].blocked_nodes = getnodearray( blocker_locations[ i ].target, "targetname" );
-			j = 0;
-			while ( j < blocker_locations[ i ].blocked_nodes.size )
+			for ( j = 0; j < blocker_locations[i].blocked_nodes.size; j++ )
 			{
 				blocker_locations[ i ].blocked_nodes[ j ].connected_nodes = getnodearray( blocker_locations[ i ].blocked_nodes[ j ].target, "targetname" );
-				j++;
 			}
 		}
-		else blocker_locations[ i ].blocked_nodes = [];
+		else
+		{
+			blocker_locations[ i ].blocked_nodes = [];
+		}
 		level._maze._blocker_locations[ blocker_locations[ i ].script_noteworthy ] = blocker_locations[ i ];
-		i++;
 	}
 	level._maze._perms = array( array( "blocker_1", "blocker_2", "blocker_3", "blocker_4" ), array( "blocker_5", "blocker_6", "blocker_7", "blocker_8", "blocker_9" ), array( "blocker_1", "blocker_10", "blocker_6", "blocker_4", "blocker_11" ), array( "blocker_1", "blocker_3", "blocker_4", "blocker_12" ), array( "blocker_5", "blocker_6", "blocker_12", "blocker_13" ), array( "blocker_4", "blocker_6", "blocker_14" ) );
 	randomize_maze_perms();
 	level._maze._active_perm_list = [];
 }
 
-init_maze_blocker_pool()
+init_maze_blocker_pool() //checked changed to match cerberus output
 {
 	pool_size = 0;
-	i = 0;
-	while ( i < level._maze._perms.size )
+	for ( i = 0; i < level._maze._perms.size; i++ )
 	{
 		if ( level._maze._perms[ i ].size > pool_size )
 		{
 			pool_size = level._maze._perms[ i ].size;
 		}
-		i++;
 	}
 	level._maze._blocker_pool = [];
-	i = 0;
-	while ( i < pool_size )
+	for ( i = 0; i < pool_size; i++ )
 	{
-		ent = spawn( "script_model", level._maze.players_in_maze_volume.origin - vectorScale( ( 0, 0, 0 ), 300 ) );
+		ent = spawn( "script_model", level._maze.players_in_maze_volume.origin - vectorScale( ( 0, 0, 1 ), 300 ) );
 		ent ghost();
 		ent.in_use = 0;
 		level._maze._blocker_pool[ i ] = ent;
-		i++;
 	}
 	level._maze._blocker_pool_num_free = pool_size;
 }
 
-free_blockers_available()
+free_blockers_available() //checked matches cerberus output
 {
 	return level._maze._blocker_pool_num_free > 0;
 }
 
-get_free_blocker_model_from_pool()
-{
-	i = 0;
-	while ( i < level._maze._blocker_pool.size )
+get_free_blocker_model_from_pool() //checked changed to match cerberus output
+{ 
+	for ( i = 0; i < level._maze._blocker_pool.size; i++ )
 	{
 		if ( !level._maze._blocker_pool[ i ].in_use )
 		{
@@ -134,30 +117,31 @@ get_free_blocker_model_from_pool()
 
 			return level._maze._blocker_pool[ i ];
 		}
-		i++;
 	}
+	/*
 /#
 	assertmsg( "zm_buried_maze : Blocker pool is empty." );
 #/
+	*/
 	return undefined;
 }
 
-return_blocker_model_to_pool( ent )
+return_blocker_model_to_pool( ent ) //checked changed to match cerberus output
 {
 	ent ghost();
-	ent.origin = level._maze.players_in_maze_volume.origin - vectorScale( ( 0, 0, 0 ), 300 );
+	ent.origin = level._maze.players_in_maze_volume.origin - vectorScale( ( 0, 0, 1 ), 300 );
 	ent dontinterpolate();
 	ent.in_use = 0;
 	level._maze._blocker_pool_num_free++;
 }
 
-randomize_maze_perms()
+randomize_maze_perms() //checked matches cerberus output
 {
 	level._maze._perms = array_randomize( level._maze._perms );
 	level._maze._cur_perm = 0;
 }
 
-init()
+init() //checked matches cerberus output
 {
 	level._maze = spawnstruct();
 	level._maze.players_in_maze_volume = getent( "maze_player_volume", "targetname" );
@@ -171,7 +155,7 @@ init()
 	level thread vo_in_maze();
 }
 
-maze_blocker_sinks_thread( blocker )
+maze_blocker_sinks_thread( blocker ) //checked changed to match cerberus output
 {
 	self waittill( "lower_" + self.script_noteworthy );
 	if ( flag( "start_zombie_round_logic" ) )
@@ -179,7 +163,7 @@ maze_blocker_sinks_thread( blocker )
 		level setclientfield( "maze_blocker_" + self.script_noteworthy, 1 );
 	}
 	blocker maps/mp/zombies/_zm_equip_headchopper::destroyheadchopperstouching();
-	blocker moveto( self.origin - vectorScale( ( 0, 0, 0 ), 96 ), 1 );
+	blocker moveto( self.origin - vectorScale( ( 0, 0, 1 ), 96 ), 1 );
 	blocker waittill( "movedone" );
 	if ( flag( "start_zombie_round_logic" ) )
 	{
@@ -189,43 +173,39 @@ maze_blocker_sinks_thread( blocker )
 	self link_nodes_for_blocker_location();
 }
 
-delay_destroy_corpses_near_blocker()
+delay_destroy_corpses_near_blocker() //checked changed to match cerberus output
 {
-	wait 0,2;
+	wait 0.2;
 	corpses = getcorpsearray();
-	while ( isDefined( corpses ) )
+	if ( isDefined( corpses ) )
 	{
-		_a247 = corpses;
-		_k247 = getFirstArrayKey( _a247 );
-		while ( isDefined( _k247 ) )
+		foreach ( corpse in corpses )
 		{
-			corpse = _a247[ _k247 ];
 			if ( distancesquared( corpse.origin, self.origin ) < 2304 )
 			{
 				corpse delete();
 			}
-			_k247 = getNextArrayKey( _a247, _k247 );
 		}
 	}
 }
 
-maze_blocker_rises_thread()
+maze_blocker_rises_thread() //checked changed to match cerberus output
 {
 	blocker = get_free_blocker_model_from_pool();
 	self thread maze_blocker_sinks_thread( blocker );
 	self unlink_nodes_for_blocker_location();
-	blocker.origin = self.origin - vectorScale( ( 0, 0, 0 ), 96 );
+	blocker.origin = self.origin - vectorScale( ( 0, 0, 1 ), 96 );
 	blocker.angles = self.angles;
 	blocker setmodel( self.model );
 	blocker dontinterpolate();
 	blocker show();
-	wait 0,05;
+	wait 0.05;
 	if ( flag( "start_zombie_round_logic" ) )
 	{
 		level setclientfield( "maze_blocker_" + self.script_noteworthy, 1 );
 	}
 	blocker maps/mp/zombies/_zm_equip_headchopper::destroyheadchopperstouching();
-	blocker moveto( self.origin, 0,65 );
+	blocker moveto( self.origin, 0.65 );
 	blocker thread delay_destroy_corpses_near_blocker();
 	blocker waittill( "movedone" );
 	if ( flag( "start_zombie_round_logic" ) )
@@ -234,7 +214,7 @@ maze_blocker_rises_thread()
 	}
 }
 
-maze_do_perm_change()
+maze_do_perm_change() //checked changed to match cerberus output
 {
 	level._maze._cur_perm++;
 	if ( level._maze._cur_perm == level._maze._perms.size )
@@ -244,12 +224,10 @@ maze_do_perm_change()
 	new_perm_list = level._maze._perms[ level._maze._cur_perm ];
 	blockers_raise_list = [];
 	blockers_lower_list = level._maze._active_perm_list;
-	i = 0;
-	while ( i < new_perm_list.size )
+	for ( i = 0; i < new_perm_list.size; i++ )
 	{
 		found = 0;
-		j = 0;
-		while ( j < level._maze._active_perm_list.size )
+		for ( j = 0; j < level._maze._active_perm_list.size; j++ )
 		{
 			if ( new_perm_list[ i ] == level._maze._active_perm_list[ j ] )
 			{
@@ -257,98 +235,83 @@ maze_do_perm_change()
 				blockers_lower_list[ j ] = "";
 				break;
 			}
-			else
-			{
-				j++;
-			}
 		}
 		if ( !found )
 		{
 			blockers_raise_list[ blockers_raise_list.size ] = new_perm_list[ i ];
 		}
-		i++;
 	}
 	level thread raise_new_perm_blockers( blockers_raise_list );
 	level thread lower_old_perm_blockers( blockers_lower_list );
 	level._maze._active_perm_list = level._maze._perms[ level._maze._cur_perm ];
 }
 
-raise_new_perm_blockers( list )
+raise_new_perm_blockers( list ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < list.size )
+	for ( i = 0; i < list.size; i++ )
 	{
 		while ( !free_blockers_available() )
 		{
-			wait 0,1;
+			wait 0.1;
 		}
 		level._maze._blocker_locations[ list[ i ] ] thread maze_blocker_rises_thread();
-		wait 0,25;
-		i++;
+		wait 0.25;
 	}
 }
 
-lower_old_perm_blockers( list )
+lower_old_perm_blockers( list ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < list.size )
+	for ( i = 0; i < list.size; i++ )
 	{
 		if ( list[ i ] != "" )
 		{
 			level._maze._blocker_locations[ list[ i ] ] notify( "lower_" + list[ i ] );
 		}
-		wait 0,25;
-		i++;
+		wait 0.25;
 	}
 }
 
-maze_debug_print( str )
+maze_debug_print( str ) //checked matches cerberus output could not find dvar
 {
+	/*
 /#
 	if ( getDvar( #"55B04A98" ) != "" )
 	{
 		println( "Maze : " + str );
 #/
 	}
+	*/
 }
 
-maze_can_change()
+maze_can_change() //checked changed to match cerberus output
 {
 	players = getplayers();
-	_a384 = players;
-	_k384 = getFirstArrayKey( _a384 );
-	while ( isDefined( _k384 ) )
+	foreach ( player in players )
 	{
-		player = _a384[ _k384 ];
 		if ( player.sessionstate != "spectator" && player istouching( level._maze.players_in_maze_volume ) )
 		{
 			maze_debug_print( "Player " + player getentitynumber() + " in maze volume.  Maze cannot change." );
 			return 0;
 		}
-		_k384 = getNextArrayKey( _a384, _k384 );
 	}
-	_a398 = players;
-	_k398 = getFirstArrayKey( _a398 );
-	while ( isDefined( _k398 ) )
+	foreach ( player in players )
 	{
-		player = _a398[ _k398 ];
 		if ( player.sessionstate != "spectator" && player istouching( level._maze.players_can_see_maze_volume ) )
 		{
-			if ( player maps/mp/zombies/_zm_utility::is_player_looking_at( level._maze.players_in_maze_volume.origin, 0,5, 0 ) )
+			if ( player maps/mp/zombies/_zm_utility::is_player_looking_at( level._maze.players_in_maze_volume.origin, 0.5, 0 ) )
 			{
 				maze_debug_print( "Player " + player getentitynumber() + " looking at maze.  Maze cannot change." );
 				return 0;
 			}
 		}
-		_k398 = getNextArrayKey( _a398, _k398 );
 	}
 	maze_debug_print( "Maze mutating." );
 	return 1;
 }
 
-maze_think()
+maze_think() //checked matches cerberus output
 {
-	wait 0,1;
+	wait 0.1;
 	while ( 1 )
 	{
 		if ( maze_can_change() )
@@ -360,19 +323,21 @@ maze_think()
 	}
 }
 
-init_hedge_maze_spawnpoints()
+init_hedge_maze_spawnpoints() //checked matches cerberus output
 {
 	level.maze_hedge_spawnpoints = getstructarray( "custom_spawner_entry hedge_location", "script_noteworthy" );
 }
 
-maze_do_zombie_spawn( spot )
+maze_do_zombie_spawn( spot ) //checked partially changed to match cerberus output see info.md
 {
 	self endon( "death" );
 	spots = level.maze_hedge_spawnpoints;
 	spot = undefined;
+	/*
 /#
 	assert( spots.size > 0, "No spawn locations found" );
 #/
+	*/
 	players_in_maze = maps/mp/zombies/_zm_zonemgr::get_players_in_zone( "zone_maze", 1 );
 	if ( isDefined( players_in_maze ) && players_in_maze.size != 0 )
 	{
@@ -384,12 +349,9 @@ maze_do_zombie_spawn( spot )
 		}
 		closest_spots = get_array_of_closest( player.origin, spots, undefined, undefined, maxdistance );
 		favoritespots = [];
-		_a469 = closest_spots;
-		_k469 = getFirstArrayKey( _a469 );
-		while ( isDefined( _k469 ) )
+		foreach ( close_spot in closest_spots )
 		{
-			close_spot = _a469[ _k469 ];
-			if ( within_fov( close_spot.origin, close_spot.angles, player.origin, -0,75 ) )
+			if ( within_fov( close_spot.origin, close_spot.angles, player.origin, -0.75 ) )
 			{
 				favoritespots[ favoritespots.size ] = close_spot;
 			}
@@ -400,18 +362,14 @@ maze_do_zombie_spawn( spot )
 					favoritespots[ favoritespots.size ] = close_spot;
 				}
 			}
-			_k469 = getNextArrayKey( _a469, _k469 );
 		}
 		if ( isDefined( favoritespots ) && favoritespots.size >= 2 )
 		{
 			spot = random( favoritespots );
 		}
-		else
+		else if ( isDefined( closest_spots ) && closest_spots.size > 0 )
 		{
-			if ( isDefined( closest_spots ) && closest_spots.size > 0 )
-			{
-				spot = random( closest_spots );
-			}
+			spot = random( closest_spots );
 		}
 	}
 	if ( !isDefined( spot ) )
@@ -434,7 +392,7 @@ maze_do_zombie_spawn( spot )
 	self thread maze_do_zombie_rise( spot );
 }
 
-maze_do_zombie_rise( spot )
+maze_do_zombie_rise( spot ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self.in_the_ground = 1;
@@ -453,13 +411,13 @@ maze_do_zombie_rise( spot )
 	anim_ang = spot.angles;
 	anim_org += ( 0, 0, 0 );
 	self ghost();
-	self.anchor moveto( anim_org, 0,05 );
+	self.anchor moveto( anim_org, 0.05 );
 	self.anchor waittill( "movedone" );
 	target_org = get_desired_origin();
 	if ( isDefined( target_org ) )
 	{
-		anim_ang = vectorToAngle( target_org - self.origin );
-		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0,05 );
+		anim_ang = vectorToAngles( target_org - self.origin );
+		self.anchor rotateto( ( 0, anim_ang[ 1 ], 0 ), 0.05 );
 		self.anchor waittill( "rotatedone" );
 	}
 	self unlink();
@@ -484,10 +442,10 @@ maze_do_zombie_rise( spot )
 	self notify( "rise_anim_finished" );
 	spot notify( "stop_zombie_rise_fx" );
 	self.in_the_ground = 0;
-	self notify( "risen" );
+	self notify( "risen", spot.script_string );
 }
 
-maze_achievement_watcher()
+maze_achievement_watcher() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -498,15 +456,12 @@ maze_achievement_watcher()
 	}
 }
 
-start_maze_achievement_threads()
+start_maze_achievement_threads() //checked partially changed to match cerberus output see info.md
 {
-	while ( level.round_number >= 20 )
+	if ( level.round_number >= 20 )
 	{
-		_a607 = get_players();
-		_k607 = getFirstArrayKey( _a607 );
-		while ( isDefined( _k607 ) )
+		foreach ( player in get_players() )
 		{
-			player = _a607[ _k607 ];
 			player.achievement_player_started_round_in_maze = player is_player_in_zone( "zone_maze" );
 			if ( player.achievement_player_started_round_in_maze )
 			{
@@ -516,12 +471,11 @@ start_maze_achievement_threads()
 			{
 				player notify( "_maze_achievement_think_done" );
 			}
-			_k607 = getNextArrayKey( _a607, _k607 );
 		}
 	}
 }
 
-watch_player_in_maze()
+watch_player_in_maze() //checked matches cerberus output
 {
 	self notify( "_maze_achievement_think_done" );
 	self endon( "_maze_achievement_think_done" );
@@ -530,33 +484,31 @@ watch_player_in_maze()
 	while ( self.achievement_player_stayed_in_maze_for_entire_round )
 	{
 		self.achievement_player_stayed_in_maze_for_entire_round = self is_player_in_zone( "zone_maze" );
-		wait randomfloatrange( 0,5, 1 );
+		wait randomfloatrange( 0.5, 1 );
 	}
 }
 
-check_maze_achievement_threads()
+check_maze_achievement_threads() //checked changed to match cerberus output
 {
-	while ( level.round_number >= 20 )
+	if ( level.round_number >= 20 )
 	{
-		_a643 = get_players();
-		_k643 = getFirstArrayKey( _a643 );
-		while ( isDefined( _k643 ) )
+		foreach ( player in get_players() )
 		{
-			player = _a643[ _k643 ];
 			if ( isDefined( player.achievement_player_started_round_in_maze ) && player.achievement_player_started_round_in_maze && isDefined( player.achievement_player_stayed_in_maze_for_entire_round ) && player.achievement_player_stayed_in_maze_for_entire_round && level._time_bomb.last_round_restored != ( level.round_number - 1 ) && !maps/mp/zombies/_zm_weap_time_bomb::is_time_bomb_round_change() )
 			{
+				/*
 /#
 				iprintlnbold( player.name + " got achievement MAZED AND CONFUSED" );
 #/
+				*/
 				player notify( "player_stayed_in_maze_for_entire_high_level_round" );
 				player notify( "_maze_achievement_think_done" );
 			}
-			_k643 = getNextArrayKey( _a643, _k643 );
 		}
 	}
 }
 
-vo_in_maze()
+vo_in_maze() //checked did not change to match cerberus output
 {
 	flag_wait( "mansion_door1" );
 	nwaittime = 300;
@@ -567,7 +519,7 @@ vo_in_maze()
 		aplayersinzone = maps/mp/zombies/_zm_zonemgr::get_players_in_zone( "zone_maze", 1 );
 		while ( !isDefined( aplayersinzone ) || aplayersinzone.size == 0 )
 		{
-			wait randomint( nminwait, nmaxwait );
+			wait randomintrange( nminwait, nmaxwait );
 			aplayersinzone = maps/mp/zombies/_zm_zonemgr::get_players_in_zone( "zone_maze", 1 );
 		}
 		random( aplayersinzone ) maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "in_maze" );
@@ -576,3 +528,4 @@ vo_in_maze()
 		wait nwaittime;
 	}
 }
+
