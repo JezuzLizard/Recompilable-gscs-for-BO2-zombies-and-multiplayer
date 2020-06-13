@@ -1,4 +1,4 @@
 
-init()
+init() //checked matches cerberus output
 {
 }

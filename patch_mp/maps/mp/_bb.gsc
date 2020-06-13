@@ -1,12 +1,13 @@
+//includes match cerberus output
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -16,7 +17,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self._bbdata = [];
@@ -31,17 +32,17 @@ onplayerspawned()
 	}
 }
 
-onplayerdisconnect()
+onplayerdisconnect() //checked changed to match beta dump
 {
 	for ( ;; )
 	{
 		self waittill( "disconnect" );
 		self commitspawndata();
-		return;
+		break;
 	}
 }
 
-onplayerdeath()
+onplayerdeath() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -51,11 +52,13 @@ onplayerdeath()
 	}
 }
 
-commitspawndata()
+commitspawndata() //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( self._bbdata ) );
 #/
+	*/
 	if ( !isDefined( self._bbdata ) )
 	{
 		return;
@@ -63,11 +66,13 @@ commitspawndata()
 	bbprint( "mpplayerlives", "gametime %d spawnid %d lifescore %d lifemomentum %d lifetime %d name %s", getTime(), getplayerspawnid( self ), self._bbdata[ "score" ], self._bbdata[ "momentum" ], getTime() - self._bbdata[ "spawntime" ], self.name );
 }
 
-commitweapondata( spawnid, currentweapon, time0 )
+commitweapondata( spawnid, currentweapon, time0 ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( self._bbdata ) );
 #/
+	*/
 	if ( !isDefined( self._bbdata ) )
 	{
 		return;
@@ -78,7 +83,7 @@ commitweapondata( spawnid, currentweapon, time0 )
 	self._bbdata[ "hits" ] = 0;
 }
 
-bbaddtostat( statname, delta )
+bbaddtostat( statname, delta ) //checked matches cerberus output
 {
 	if ( isDefined( self._bbdata ) && isDefined( self._bbdata[ statname ] ) )
 	{

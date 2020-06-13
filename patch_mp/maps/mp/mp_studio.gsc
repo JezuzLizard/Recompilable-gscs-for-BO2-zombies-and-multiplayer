@@ -1,9 +1,13 @@
+//checked includes changed to match cerberus output
 #include maps/mp/_tacticalinsertion;
 #include maps/mp/gametypes/_weaponobjects;
+#include maps/mp/mp_studio_amb;
 #include maps/mp/_compass;
+#include maps/mp/_load;
+#include maps/mp/mp_studio_fx;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	level.levelspawndvars = ::levelspawndvars;
 	maps/mp/mp_studio_fx::main();
@@ -48,20 +52,20 @@ main()
 	windowtrigger thread triggercheck( target7 );
 }
 
-levelspawndvars( reset_dvars )
+levelspawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "1900", reset_dvars );
 }
 
-triggercheck( target )
+triggercheck( target ) //checked changed to match cerberus output
 {
 	self endon( "game_ended" );
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
 		distance = distance( target.origin, self.origin );
-		while ( distance <= 90 )
+		if ( distance <= 90 )
 		{
 			target notify( "targetStopMoving" );
 			while ( isDefined( player ) && player istouching( self ) && distance <= 90 )
@@ -74,13 +78,13 @@ triggercheck( target )
 				{
 					target.preferrednextpos = 1;
 				}
-				wait 0,25;
+				wait 0.25;
 			}
 		}
 	}
 }
 
-damagetarget( dir )
+damagetarget( dir ) //checked changed to match cerberus output
 {
 	self endon( "game_ended" );
 	while ( 1 )
@@ -90,12 +94,11 @@ damagetarget( dir )
 		{
 			case 1:
 				self rotateroll( self.angles[ 1 ] + 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self rotateroll( self.angles[ 1 ] - 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self playsound( "amb_target_flip" );
 				break;
-			continue;
 			case 2:
 				rotation = 1;
 				if ( isDefined( attacker ) && isplayer( attacker ) )
@@ -110,36 +113,32 @@ damagetarget( dir )
 				self playsound( "amb_target_twirl" );
 				self waittill( "rotatedone" );
 				break;
-			continue;
 			case 3:
 				self rotatepitch( self.angles[ 1 ] + 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self rotatepitch( self.angles[ 1 ] - 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self playsound( "amb_target_flip" );
 				break;
-			continue;
 			case 4:
 				self rotateroll( self.angles[ 1 ] - 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self rotateroll( self.angles[ 1 ] + 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self playsound( "amb_target_flip" );
 				break;
-			continue;
 			case 5:
 				self rotatepitch( self.angles[ 1 ] - 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self rotatepitch( self.angles[ 1 ] + 90, 0,1 );
-				wait 0,2;
+				wait 0.2;
 				self playsound( "amb_target_flip" );
 				break;
-			continue;
 		}
 	}
 }
 
-damagetargetlights( light_on, light_off, speaker, alias, exploderhandle )
+damagetargetlights( light_on, light_off, speaker, alias, exploderhandle ) //checked matches cerberus output
 {
 	self endon( "game_ended" );
 	while ( 1 )
@@ -149,14 +148,14 @@ damagetargetlights( light_on, light_off, speaker, alias, exploderhandle )
 		exploder( exploderhandle );
 		light_off hide();
 		light_on show();
-		wait 0,5;
+		wait 0.5;
 		exploder_stop( exploderhandle );
 		light_off show();
 		light_on hide();
 	}
 }
 
-movetarget( dir, dis, speed )
+movetarget( dir, dis, speed ) //checked matches cerberus output
 {
 	self endon( "game_ended" );
 	keepmoving = 1;
@@ -212,7 +211,7 @@ movetarget( dir, dis, speed )
 	}
 }
 
-rotatetarget( dir, deg, speed, pausetime )
+rotatetarget( dir, deg, speed, pausetime ) //checked changed to match cerberus output
 {
 	self endon( "game_ended" );
 	while ( 1 )
@@ -227,7 +226,6 @@ rotatetarget( dir, deg, speed, pausetime )
 				self playsound( "amb_target_rotate" );
 				wait pausetime;
 				break;
-			continue;
 			case 2:
 				self rotateyaw( self.angles[ 2 ] - deg, speed );
 				self playsound( "amb_target_rotate" );
@@ -236,7 +234,6 @@ rotatetarget( dir, deg, speed, pausetime )
 				self playsound( "amb_target_rotate" );
 				wait pausetime;
 				break;
-			continue;
 			case 3:
 				self rotateroll( self.angles[ 0 ] + deg, speed );
 				self playsound( "amb_target_rotate" );
@@ -245,7 +242,6 @@ rotatetarget( dir, deg, speed, pausetime )
 				self playsound( "amb_target_rotate" );
 				wait pausetime;
 				break;
-			continue;
 			case 4:
 				self rotateroll( self.angles[ 0 ] - deg, speed );
 				self playsound( "amb_target_rotate" );
@@ -254,7 +250,6 @@ rotatetarget( dir, deg, speed, pausetime )
 				self playsound( "amb_target_rotate" );
 				wait pausetime;
 				break;
-			continue;
 			case 5:
 				self rotateroll( self.angles[ 1 ] + deg, speed );
 				self playsound( "amb_target_rotate" );
@@ -263,14 +258,12 @@ rotatetarget( dir, deg, speed, pausetime )
 				self playsound( "amb_target_rotate" );
 				wait pausetime;
 				break;
-			continue;
 			case 6:
 				self rotatepitch( self.angles[ 1 ] - deg, speed );
 				wait pausetime;
 				self rotatepitch( self.angles[ 1 ] + deg, speed );
 				wait pausetime;
 				break;
-			continue;
 			case 7:
 				self rotateto( ( self.angles[ 0 ] + 90, self.angles[ 1 ] - 90, self.angles[ 2 ] + 45 ), speed );
 				wait pausetime;
@@ -280,76 +273,77 @@ rotatetarget( dir, deg, speed, pausetime )
 	}
 }
 
-movement_process()
+movement_process() //checked partially changed to match cerberus output see info.md
 {
 	for ( ;; )
 	{
 		entities = getdamageableentarray( self.origin, 50 );
-		_a352 = entities;
-		_k352 = getFirstArrayKey( _a352 );
-		while ( isDefined( _k352 ) )
+		i = 0;
+		while ( i < entities.size )
 		{
-			entity = _a352[ _k352 ];
 			if ( isDefined( entity.targetname ) || entity.targetname == "alleyTarget_Cover" && entity.targetname == "alleyTarget_Path" )
 			{
+				i++;
+				continue;
 			}
-			else
+			if ( isplayer( entity ) )
 			{
-				if ( isplayer( entity ) )
+				i++;
+				continue;
+			}
+			if ( !entity istouching( self ) )
+			{
+				i++;
+				continue;
+			}
+			if ( isDefined( entity.classname ) && entity.classname == "grenade" )
+			{
+				if ( !isDefined( entity.name ) )
 				{
-					break;
+					i++;
+					continue;
 				}
-				else if ( !entity istouching( self ) )
+				if ( !isDefined( entity.owner ) )
 				{
-					break;
+					i++;
+					continue;
 				}
-				else if ( isDefined( entity.classname ) && entity.classname == "grenade" )
+				if ( entity.name == "satchel_charge_mp" )
 				{
-					if ( !isDefined( entity.name ) )
+					if ( entity.origin[ 2 ] > ( self.origin[ 2 ] + 5 ) )
 					{
-						break;
-					}
-					else if ( !isDefined( entity.owner ) )
-					{
-						break;
-					}
-					else if ( entity.name == "satchel_charge_mp" )
-					{
-						if ( entity.origin[ 2 ] > ( self.origin[ 2 ] + 5 ) )
-						{
-							break;
-						}
-					}
-					else watcher = entity.owner getwatcherforweapon( entity.name );
-					if ( !isDefined( watcher ) )
-					{
-						break;
-					}
-					else watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entity, 0, undefined );
-				}
-				if ( isDefined( entity.targetname ) )
-				{
-					if ( entity.targetname == "riotshield_mp" )
-					{
-						entity dodamage( 1, self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
-						break;
+						i++;
+						continue;
 					}
 				}
-				else
+				watcher = entity.owner getwatcherforweapon( entity.name );
+				if ( !isDefined( watcher ) )
 				{
-					if ( isDefined( entity.model ) && entity.model == "t6_wpn_tac_insert_world" )
-					{
-						entity thread maps/mp/_tacticalinsertion::fizzle();
-					}
+					i++;
+					continue;
+				}
+				watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entity, 0, undefined );
+			}
+			if ( isDefined( entity.targetname ) )
+			{
+				if ( entity.targetname == "riotshield_mp" )
+				{
+					entity dodamage( 1, self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
+					i++;
+					continue;
 				}
 			}
-			_k352 = getNextArrayKey( _a352, _k352 );
+			if ( isDefined( entity.model ) && entity.model == "t6_wpn_tac_insert_world" )
+			{
+				entity thread maps/mp/_tacticalinsertion::fizzle();
+			}
+			i++;
 		}
-		wait 0,25;
+		wait 0.25;
 	}
 }
 
-getwatcherforweapon( weapname )
+getwatcherforweapon( weapname ) //checked partially changed to match cerberus output see info.md
 {
 	if ( !isDefined( self ) )
 	{
@@ -367,26 +361,22 @@ getwatcherforweapon( weapname )
 			i++;
 			continue;
 		}
-		else
-		{
-			return self.weaponobjectwatcherarray[ i ];
-		}
+		return self.weaponobjectwatcherarray[ i ];
 		i++;
 	}
 	return undefined;
 }
 
-death_streamer_think( notifytype, attacker )
+death_streamer_think( notifytype, attacker ) //checked changed to match cerberus output
 {
 	streamers = getentarray( "airconditioner_streamer", "targetname" );
-	i = 0;
-	while ( i < streamers.size )
+	for ( i = 0; i < streamers.size; i++ )
 	{
 		streamer = streamers[ i ];
 		if ( distancesquared( streamer.origin, self.origin ) < 2500 )
 		{
 			streamer delete();
 		}
-		i++;
 	}
 }
+

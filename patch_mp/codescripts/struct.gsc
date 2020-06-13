@@ -1,41 +1,29 @@
 
-initstructs()
+initstructs() //checked matches cerberus output
 {
 	level.struct = [];
 }
 
-createstruct()
+createstruct() //checked matches cerberus output
 {
 	struct = spawnstruct();
 	level.struct[ level.struct.size ] = struct;
 	return struct;
 }
 
-findstruct( position )
+findstruct( position ) //checked changed to match cerberus output see info.md
 {
-	_a20 = level.struct_class_names;
-	key = getFirstArrayKey( _a20 );
-	while ( isDefined( key ) )
+	foreach ( _ in level.struct_class_names )
 	{
-		_ = _a20[ key ];
-		_a22 = level.struct_class_names[ key ];
-		val = getFirstArrayKey( _a22 );
-		while ( isDefined( val ) )
+		foreach ( s_array in level.struct_class_names[ key ] )
 		{
-			s_array = _a22[ val ];
-			_a24 = s_array;
-			_k24 = getFirstArrayKey( _a24 );
-			while ( isDefined( _k24 ) )
+			foreach ( struct in s_array )
 			{
-				struct = _a24[ _k24 ];
-				if ( distancesquared( struct.origin, position ) < 1 )
+				if(distancesquared( struct.origin, position ) < 1 )
 				{
 					return struct;
 				}
-				_k24 = getNextArrayKey( _a24, _k24 );
 			}
-			val = getNextArrayKey( _a22, val );
 		}
-		key = getNextArrayKey( _a20, key );
 	}
 }

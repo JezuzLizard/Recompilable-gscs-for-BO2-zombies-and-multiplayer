@@ -1,9 +1,13 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes/_deathicons;
 #include maps/mp/mp_vertigo_doors;
 #include maps/mp/_compass;
+#include maps/mp/mp_vertigo_amb;
+#include maps/mp/_load;
+#include maps/mp/mp_vertigo_fx;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	level.levelspawndvars = ::levelspawndvars;
 	level.ragdoll_override = ::ragdoll_override;
@@ -29,14 +33,14 @@ main()
 	}
 }
 
-levelspawndvars( reset_dvars )
+levelspawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "2400", reset_dvars );
 	ss.hq_objective_influencer_inner_radius = set_dvar_float_if_unset( "scr_spawn_hq_objective_influencer_inner_radius", "1400", reset_dvars );
 }
 
-waitforglassbreak()
+waitforglassbreak() //checked matches cerberus output
 {
 	if ( glassexploderssetupcorrectly( 1000, 3 ) == 0 )
 	{
@@ -59,7 +63,7 @@ waitforglassbreak()
 	}
 }
 
-playglassexploder( origin, exploderbase, explodercount )
+playglassexploder( origin, exploderbase, explodercount ) //checked changed to match cerberus output
 {
 	distancesq = distancesquared( origin, level.createfxexploders[ exploderbase ][ 0 ].v[ "origin" ] );
 	if ( distancesq > 21000 )
@@ -73,8 +77,7 @@ playglassexploder( origin, exploderbase, explodercount )
 		distancesq = 5000;
 	}
 	nearestpanedistsq = distancesq;
-	glassexploderindex = 1;
-	while ( glassexploderindex < explodercount )
+	for ( glassexploderindex = 1; glassexploderindex < explodercount; glassexploderindex++ )
 	{
 		glassexploder = glassexploderindex + exploderbase;
 		currentdistsq = distancesquared( origin, level.createfxexploders[ glassexploder ][ 0 ].v[ "origin" ] );
@@ -83,7 +86,6 @@ playglassexploder( origin, exploderbase, explodercount )
 			nearestpane = glassexploder;
 			nearestpanedistsq = currentdistsq;
 		}
-		glassexploderindex++;
 	}
 	if ( nearestpane != -1 )
 	{
@@ -92,41 +94,43 @@ playglassexploder( origin, exploderbase, explodercount )
 	}
 }
 
-window_smash_wind_sound( origin )
+window_smash_wind_sound( origin ) //checked matches cerberus output
 {
 	wind_ent = spawn( "script_origin", origin );
 	wind_ent playloopsound( "evt_window_wind", 1 );
 	level waittill( "game_ended" );
-	wind_ent stoploopsound( 0,5 );
+	wind_ent stoploopsound( 0.5 );
 	wind_ent delete();
 }
 
-glassexploderssetupcorrectly( exploderbase, explodercount )
+glassexploderssetupcorrectly( exploderbase, explodercount ) //checked changed to match cerberus output
 {
-	glassexploderindex = 0;
-	while ( glassexploderindex < explodercount )
+	for ( glassexploderindex = 0; glassexploderindex < explodercount; glassexploderindex++ )
 	{
 		glassexploder = glassexploderindex + exploderbase;
 		if ( !isDefined( level.createfxexploders[ glassexploder ] ) )
 		{
+			/*
 /#
 			assertmsg( "Glass exploder " + glassexploder + " is undefined" );
 #/
+			*/
 			return 0;
 		}
-		if ( isDefined( level.createfxexploders[ glassexploder ][ 0 ] ) || !isDefined( level.createfxexploders[ glassexploder ][ 0 ].v ) && !isDefined( level.createfxexploders[ glassexploder ][ 0 ].v[ "origin" ] ) )
+		if ( isDefined( level.createfxexploders[ glassexploder ][ 0 ] ) || !isDefined( level.createfxexploders[ glassexploder ][ 0 ].v ) || !isDefined( level.createfxexploders[ glassexploder ][ 0 ].v[ "origin" ] ) )
 		{
+			/*
 /#
 			assertmsg( "Glass exploder " + glassexploder + " is undefined" );
 #/
+			*/
 			return 0;
 		}
-		glassexploderindex++;
 	}
 	return 1;
 }
 
-ragdoll_override( idamage, smeansofdeath, sweapon, shitloc, vdir, vattackerorigin, deathanimduration, einflictor, ragdoll_jib, body )
+ragdoll_override( idamage, smeansofdeath, sweapon, shitloc, vdir, vattackerorigin, deathanimduration, einflictor, ragdoll_jib, body ) //checked matches cerberus output
 {
 	if ( smeansofdeath == "MOD_FALLING" )
 	{
@@ -151,7 +155,7 @@ ragdoll_override( idamage, smeansofdeath, sweapon, shitloc, vdir, vattackerorigi
 	return 0;
 }
 
-startragdollonground( deathanimduration )
+startragdollonground( deathanimduration ) //checked does not match cerberus output did not change
 {
 	timer = 0;
 	while ( timer < deathanimduration )
@@ -166,8 +170,8 @@ startragdollonground( deathanimduration )
 		}
 		else
 		{
-			wait 0,05;
-			timer += 0,05;
+			wait 0.05;
+			timer += 0.05;
 		}
 	}
 	if ( !isDefined( self ) || !isDefined( self.body ) )
@@ -176,3 +180,4 @@ startragdollonground( deathanimduration )
 	}
 	self.body startragdoll();
 }
+

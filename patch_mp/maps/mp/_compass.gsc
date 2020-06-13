@@ -1,13 +1,15 @@
 
-setupminimap( material )
+setupminimap( material ) //checked matches cerberus output
 {
 	requiredmapaspectratio = getDvarFloat( "scr_RequiredMapAspectratio" );
 	corners = getentarray( "minimap_corner", "targetname" );
 	if ( corners.size != 2 )
 	{
+		/*
 /#
 		println( "^1Error: There are not exactly two "minimap_corner" entities in the map. Could not set up minimap." );
 #/
+		*/
 		return;
 	}
 	corner0 = ( corners[ 0 ].origin[ 0 ], corners[ 0 ].origin[ 1 ], 0 );
@@ -48,12 +50,12 @@ setupminimap( material )
 		if ( mapaspectratio < requiredmapaspectratio )
 		{
 			incr = requiredmapaspectratio / mapaspectratio;
-			addvec = vecscale( west, westportion * ( incr - 1 ) * 0,5 );
+			addvec = vecscale( west, westportion * ( incr - 1 ) * 0.5 );
 		}
 		else
 		{
 			incr = mapaspectratio / requiredmapaspectratio;
-			addvec = vecscale( north, northportion * ( incr - 1 ) * 0,5 );
+			addvec = vecscale( north, northportion * ( incr - 1 ) * 0.5 );
 		}
 		northwest += addvec;
 		southeast -= addvec;
@@ -61,7 +63,7 @@ setupminimap( material )
 	setminimap( material, northwest[ 0 ], northwest[ 1 ], southeast[ 0 ], southeast[ 1 ] );
 }
 
-vecscale( vec, scalar )
+vecscale( vec, scalar ) //checked matches cerberus output
 {
 	return ( vec[ 0 ] * scalar, vec[ 1 ] * scalar, vec[ 2 ] * scalar );
 }

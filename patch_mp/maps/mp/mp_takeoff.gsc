@@ -1,10 +1,13 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes/_spawning;
 #include maps/mp/_compass;
+#include maps/mp/_load;
+#include maps/mp/mp_takeoff_fx;
 #include common_scripts/utility;
 #include maps/mp/_events;
 #include maps/mp/_utility;
 
-main()
+main() //checked changed to match cerberus output
 {
 	level.levelspawndvars = ::levelspawndvars;
 	level.overrideplayerdeathwatchtimer = ::leveloverridetime;
@@ -26,34 +29,38 @@ main()
 	game[ "strings_menu" ][ "war_callsign_c" ] = "@MPUI_CALLSIGN_MAPNAME_C";
 	game[ "strings_menu" ][ "war_callsign_d" ] = "@MPUI_CALLSIGN_MAPNAME_D";
 	game[ "strings_menu" ][ "war_callsign_e" ] = "@MPUI_CALLSIGN_MAPNAME_E";
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -915, 790, 212 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -979, 790, 212 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1043, 790, 212 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1083, 790, 212 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -915, 790, 148 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -979, 790, 148 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1043, 790, 148 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1083, 790, 148 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_clip_wall_128x128x10", "collider", ( 136, 2511, 245,5 ), vectorScale( ( 0, 0, 1 ), 90 ) );
-	spawncollision( "collision_mp_takeoff_solar_weap", "collider", ( 580, 3239,5, 32,5 ), ( 0, 0, 1 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -915, 790, 212 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -979, 790, 212 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1043, 790, 212 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1083, 790, 212 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -915, 790, 148 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -979, 790, 148 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1043, 790, 148 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_nosight_wall_64x64x10", "collider", ( -1083, 790, 148 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_clip_wall_128x128x10", "collider", ( 136, 2511, 245.5 ), vectorScale( ( 0, 1, 0 ), 90 ) );
+	spawncollision( "collision_mp_takeoff_solar_weap", "collider", ( 580, 3239.5, 32.5 ), ( 0, 1, 0 ) );
 	maps/mp/gametypes/_spawning::level_use_unified_spawning( 1 );
 	level thread dog_jump_think();
 	level.disableoutrovisionset = 1;
 	level.mptakeoffrocket = getent( "takeoff_rocket", "targetname" );
+	/*
 /#
 	assert( isDefined( level.mptakeoffrocket ), "Unable to find entity with targetname: 'takeoff_rocket'" );
 #/
+	*/
 	level.endgamefunction = ::takeoff_end_game;
 	level.preendgamefunction = ::takeoff_pre_end_game;
 	level thread setuprocketcamera();
+	/*
 /#
 	execdevgui( "devgui_mp_takeoff" );
 	level thread watchdevnotify();
 	level thread devgui_endgame();
 #/
+	*/
 }
 
-dog_jump_think()
+dog_jump_think() //checked matches cerberus output
 {
 	origin = ( 209, 3819, 91 );
 	trigger = spawn( "trigger_box", origin, getaitriggerflags(), 64, 32, 64 );
@@ -70,18 +77,20 @@ dog_jump_think()
 	}
 }
 
-setuprocketcamera()
+setuprocketcamera() //checked matches cerberus output
 {
-	wait 0,1;
+	wait 0.1;
 	getrocketcamera();
 }
 
-getrocketcamera()
+getrocketcamera() //checked matches cerberus output
 {
 	camerastruct = getstruct( "endgame_first_camera", "targetname" );
+	/*
 /#
 	assert( isDefined( camerastruct ), "Unable to find entity with targetname: 'endgame_first_camera'" );
 #/
+	*/
 	if ( !isDefined( level.rocketcamera ) )
 	{
 		level.rocketcamera = spawn( "script_model", camerastruct.origin );
@@ -95,14 +104,15 @@ getrocketcamera()
 	return level.rocketcamera;
 }
 
-levelspawndvars( reset_dvars )
+levelspawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "2300", reset_dvars );
 }
 
-watchdevnotify()
+watchdevnotify() //checked matches cerberus output dvar not found
 {
+	/*
 /#
 	startvalue = 0;
 	setdvarint( "scr_takeoff_rocket", startvalue );
@@ -114,13 +124,15 @@ watchdevnotify()
 			level notify( "dev_takeoff_rocket" );
 			startvalue = takeoff_rocket;
 		}
-		wait 0,2;
+		wait 0.2;
 #/
 	}
+	*/
 }
 
-devgui_endgame()
+devgui_endgame() //checked changed to match cerberus output
 {
+	/*
 /#
 	rocket = level.mptakeoffrocket;
 	assert( isDefined( rocket ), "Unable to find entity with targetname: 'takeoff_rocket'" );
@@ -130,21 +142,19 @@ devgui_endgame()
 	for ( ;; )
 	{
 		level waittill( "dev_takeoff_rocket" );
-		visionsetnaked( "blackout", 0,1 );
+		visionsetnaked( "blackout", 0.1 );
 		thread takeoff_pre_end_game();
 		wait 1;
-		visionsetnaked( "mp_takeoff", 0,1 );
+		visionsetnaked( "mp_takeoff", 0.1 );
 		thread takeoff_end_game();
-		wait 4,5;
+		wait 4.5;
 		level notify( "debug_end_takeoff" );
 		wait 1;
-		visionsetnaked( "mp_takeoff", 0,1 );
-		i = 0;
-		while ( i < level.players.size )
+		visionsetnaked( "mp_takeoff", 0.1 );
+		for(i = 0; i < level.players.size; i++)
 		{
 			player = level.players[ i ];
 			player cameraactivate( 0 );
-			i++;
 		}
 		stop_exploder( 1001 );
 		rocket delete();
@@ -154,17 +164,15 @@ devgui_endgame()
 		level.mptakeoffrocket = rocket;
 #/
 	}
+	*/
 }
 
-water_trigger_init()
+water_trigger_init() //checked partially changed to match cerberus output see info.md
 {
 	wait 3;
 	triggers = getentarray( "trigger_hurt", "classname" );
-	_a206 = triggers;
-	_k206 = getFirstArrayKey( _a206 );
-	while ( isDefined( _k206 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a206[ _k206 ];
 		if ( trigger.origin[ 2 ] > level.mapcenter[ 2 ] )
 		{
 		}
@@ -172,20 +180,15 @@ water_trigger_init()
 		{
 			trigger thread water_trigger_think();
 		}
-		_k206 = getNextArrayKey( _a206, _k206 );
 	}
 	triggers = getentarray( "water_killbrush", "targetname" );
-	_a218 = triggers;
-	_k218 = getFirstArrayKey( _a218 );
-	while ( isDefined( _k218 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a218[ _k218 ];
 		trigger thread player_splash_think();
-		_k218 = getNextArrayKey( _a218, _k218 );
 	}
 }
 
-player_splash_think()
+player_splash_think() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -197,7 +200,7 @@ player_splash_think()
 	}
 }
 
-player_water_fx( player, endon_condition )
+player_water_fx( player, endon_condition ) //checked matches cerberus output
 {
 	maxs = self.origin + self getmaxs();
 	if ( maxs[ 2 ] > 60 )
@@ -208,7 +211,7 @@ player_water_fx( player, endon_condition )
 	playfx( level._effect[ "water_splash_sm" ], origin );
 }
 
-water_trigger_think()
+water_trigger_think() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -221,28 +224,25 @@ water_trigger_think()
 	}
 }
 
-leveloverridetime( defaulttime )
+leveloverridetime( defaulttime ) //checked matches cerberus output
 {
 	if ( self isinwater() )
 	{
-		return 0,4;
+		return 0.4;
 	}
 	return defaulttime;
 }
 
-useintermissionpointsonwavespawn()
+useintermissionpointsonwavespawn() //checked matches cerberus output
 {
 	return self isinwater();
 }
 
-isinwater()
+isinwater() //checked partially changed to match cerberus output see info.md
 {
 	triggers = getentarray( "trigger_hurt", "classname" );
-	_a283 = triggers;
-	_k283 = getFirstArrayKey( _a283 );
-	while ( isDefined( _k283 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a283[ _k283 ];
 		if ( trigger.origin[ 2 ] > level.mapcenter[ 2 ] )
 		{
 		}
@@ -253,12 +253,11 @@ isinwater()
 				return 1;
 			}
 		}
-		_k283 = getNextArrayKey( _a283, _k283 );
 	}
 	return 0;
 }
 
-takeoff_pre_end_game( timetillendgame, debug )
+takeoff_pre_end_game( timetillendgame, debug ) //checked matches cerberus output
 {
 	if ( !isDefined( debug ) )
 	{
@@ -266,43 +265,47 @@ takeoff_pre_end_game( timetillendgame, debug )
 		wait 10;
 	}
 	rocket = level.mptakeoffrocket;
+	/*
 /#
 	assert( isDefined( rocket ), "Unable to find entity with targetname: 'takeoff_rocket'" );
 #/
+	*/
 	rocket rocket_thrusters_initialize();
 }
 
-takeoff_end_game()
+takeoff_end_game() //checked changed to match cerberus output
 {
+	/*
 /#
 	level endon( "debug_end_takeoff" );
 #/
+	*/
 	level.rocket_camera = 0;
 	rocket = level.mptakeoffrocket;
 	rocket playsound( "evt_shuttle_launch" );
+	/*
 /#
 	assert( isDefined( rocket ), "Unable to find entity with targetname: 'takeoff_rocket'" );
 #/
+	*/
 	rocket rocket_thrusters_initialize();
 	cameraone = getrocketcamera();
-	cameraone thread vibrateaftertime( getdvarfloatdefault( "mp_takeoff_shakewait", 0,5 ) );
-	i = 0;
-	while ( i < level.players.size )
+	cameraone thread vibrateaftertime( getdvarfloatdefault( "mp_takeoff_shakewait", 0.5 ) );
+	for ( i = 0; i < level.players.size; i++ )
 	{
 		player = level.players[ i ];
 		player camerasetposition( cameraone );
 		player camerasetlookat();
 		player cameraactivate( 1 );
 		player setdepthoffield( 0, 0, 512, 512, 4, 0 );
-		i++;
 	}
 	level.rocket_camera = 1;
 	rocket thread rocket_move();
 	wait 4;
-	visionsetnaked( "blackout", getdvarfloatdefault( "mp_takeoff_fade_black", 0,5 ) );
+	visionsetnaked( "blackout", getdvarfloatdefault( "mp_takeoff_fade_black", 0.5 ) );
 }
 
-rocket_thrusters_initialize()
+rocket_thrusters_initialize() //checked matches cerberus output
 {
 	if ( !isDefined( self.thrustersinited ) )
 	{
@@ -315,7 +318,7 @@ rocket_thrusters_initialize()
 	}
 }
 
-rocket_move()
+rocket_move() //checked matches cerberus output
 {
 	origin = self.origin;
 	heightincrease = getdvarintdefault( "mp_takeoff_rocket_start_height", 0 );
@@ -327,16 +330,18 @@ rocket_move()
 	origin = self.origin;
 }
 
-vibrateaftertime( waittime )
+vibrateaftertime( waittime ) //checked matches cerberus output
 {
 	self endon( "death" );
+	/*
 /#
 	level endon( "debug_end_takeoff" );
 #/
+	*/
 	wait waittime;
-	pitchvibrateamplitude = getdvarfloatdefault( "mp_takeoff_start", 0,1 );
-	vibrateamplitude = getdvarfloatdefault( "mp_takeoff_a_start", 0,1 );
-	vibratetime = 0,05;
+	pitchvibrateamplitude = getdvarfloatdefault( "mp_takeoff_start", 0.1 );
+	vibrateamplitude = getdvarfloatdefault( "mp_takeoff_a_start", 0.1 );
+	vibratetime = 0.05;
 	originalangles = self.angles;
 	for ( ;; )
 	{
@@ -346,8 +351,9 @@ vibrateaftertime( waittime )
 		self waittill( "rotatedone" );
 		self rotateto( angles1, vibratetime );
 		self waittill( "rotatedone" );
-		vibrateamplitude *= getdvarfloatdefault( "mp_takeoff_amp_vredux", 1,12 );
+		vibrateamplitude *= getdvarfloatdefault( "mp_takeoff_amp_vredux", 1.12 );
 		pitchvibrateamplitude = 0 - pitchvibrateamplitude;
-		pitchvibrateamplitude *= getdvarfloatdefault( "mp_takeoff_amp_predux", 1,11 );
+		pitchvibrateamplitude *= getdvarfloatdefault( "mp_takeoff_amp_predux", 1.11 );
 	}
 }
+

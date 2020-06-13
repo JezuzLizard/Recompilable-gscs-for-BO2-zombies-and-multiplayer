@@ -1,5 +1,5 @@
 
-init()
+init() //checked matches cerberus output
 {
 	level.bookmark[ "kill" ] = 0;
 	level.bookmark[ "event" ] = 1;
@@ -28,11 +28,13 @@ init()
 	level.bookmark[ "zm_player_grenade_special_long" ] = 24;
 }
 
-bookmark( type, time, clientent1, clientent2, eventpriority, inflictorent, overrideentitycamera, actorent )
+bookmark( type, time, clientent1, clientent2, eventpriority, inflictorent, overrideentitycamera, actorent ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.bookmark[ type ] ), "Unable to find a bookmark type for type - " + type );
 #/
+	*/
 	client1 = 255;
 	client2 = 255;
 	inflictorentnum = -1;
@@ -72,11 +74,13 @@ bookmark( type, time, clientent1, clientent2, eventpriority, inflictorent, overr
 	adddemobookmark( level.bookmark[ type ], time, client1, client2, scoreeventpriority, inflictorentnum, inflictorenttype, inflictorbirthtime, overrideentitycamera, actorentnum );
 }
 
-gameresultbookmark( type, winningteamindex, losingteamindex )
+gameresultbookmark( type, winningteamindex, losingteamindex ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.bookmark[ type ] ), "Unable to find a bookmark type for type - " + type );
 #/
+	*/
 	client1 = 255;
 	client2 = 255;
 	scoreeventpriority = 0;
@@ -95,3 +99,4 @@ gameresultbookmark( type, winningteamindex, losingteamindex )
 	}
 	adddemobookmark( level.bookmark[ type ], getTime(), client1, client2, scoreeventpriority, inflictorentnum, inflictorenttype, inflictorbirthtime, overrideentitycamera, actorentnum );
 }
+

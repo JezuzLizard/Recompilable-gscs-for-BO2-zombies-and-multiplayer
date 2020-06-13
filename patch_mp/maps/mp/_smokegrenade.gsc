@@ -1,9 +1,10 @@
+//includes match cerberus output
 #include maps/mp/killstreaks/_dogs;
 #include maps/mp/killstreaks/_airsupport;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.willypetedamageradius = 300;
 	level.willypetedamageheight = 128;
@@ -15,7 +16,7 @@ init()
 	precacheitem( level.fx_smokegrenade_single );
 }
 
-watchsmokegrenadedetonation( owner )
+watchsmokegrenadedetonation( owner ) //checked matches cerberus output
 {
 	owner addweaponstat( "willy_pete_mp", "used", 1 );
 	self waittill( "explode", position, surface );
@@ -39,22 +40,22 @@ watchsmokegrenadedetonation( owner )
 	damageeffectarea( owner, startpos, level.willypetedamageradius, level.willypetedamageheight, undefined );
 }
 
-damageeffectarea( owner, position, radius, height, killcament )
+damageeffectarea( owner, position, radius, height, killcament ) //checked matches cerberus output
 {
 	effectarea = spawn( "trigger_radius", position, 0, radius, height );
 	owner thread maps/mp/killstreaks/_dogs::flash_dogs( effectarea );
 	effectarea delete();
 }
 
-blocksight()
+blocksight() //checked matches cerberus output
 {
 	self endon( "death" );
 	radius = 64;
 	fxblocksight( self, radius );
 	for ( ;; )
 	{
-		wait 0,75;
-		radius = clamp( radius * 1,5, 10, 150 );
+		wait 0.75;
+		radius = clamp( radius * 1.5, 10, 150 );
 		fxblocksight( self, radius );
 	}
 }

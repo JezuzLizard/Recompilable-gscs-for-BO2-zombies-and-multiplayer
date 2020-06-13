@@ -1,6 +1,12 @@
+#include mpbody/class_assault_cd;
+#include mpbody/class_assault_isa;
+#include mpbody/class_assault_chn_pla;
+#include mpbody/class_assault_rus_pmc;
+#include mpbody/class_assault_usa_fbi;
+#include mpbody/class_assault_usa_seals;
 #include maps/mp/teams/_teamset;
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/teams/_teamset::init();
 	init_seals( "allies" );
@@ -14,7 +20,7 @@ main()
 	precache();
 }
 
-precache()
+precache() //checked matches cerberus output
 {
 	mpbody/class_assault_usa_seals::precache();
 	mpbody/class_assault_usa_fbi::precache();
@@ -24,7 +30,7 @@ precache()
 	mpbody/class_assault_cd::precache();
 }
 
-init_seals( team )
+init_seals( team ) //checked matches cerberus output
 {
 	game[ team ] = "seals";
 	game[ "attackers" ] = team;
@@ -55,7 +61,7 @@ init_seals( team )
 	game[ "carry_icon" ][ team ] = "hudicon_marines_ctf_flag_carry";
 }
 
-init_pmc( team )
+init_pmc( team ) //checked matches cerberus output
 {
 	game[ team ] = "pmc";
 	game[ "defenders" ] = team;
@@ -86,7 +92,7 @@ init_pmc( team )
 	game[ "carry_icon" ][ team ] = "hudicon_spetsnaz_ctf_flag_carry";
 }
 
-init_pla( team )
+init_pla( team ) //checked matches cerberus output
 {
 	game[ team ] = "pla";
 	game[ "defenders" ] = team;
@@ -117,7 +123,7 @@ init_pla( team )
 	game[ "carry_icon" ][ team ] = "hudicon_spetsnaz_ctf_flag_carry";
 }
 
-init_fbi( team )
+init_fbi( team ) //checked matches cerberus output
 {
 	game[ team ] = "fbi";
 	game[ "attackers" ] = team;
@@ -148,7 +154,7 @@ init_fbi( team )
 	game[ "carry_icon" ][ team ] = "hudicon_marines_ctf_flag_carry";
 }
 
-init_isa( team )
+init_isa( team ) //checked matches cerberus output
 {
 	game[ team ] = "isa";
 	game[ "attackers" ] = team;
@@ -179,7 +185,7 @@ init_isa( team )
 	game[ "carry_icon" ][ team ] = "hudicon_marines_ctf_flag_carry";
 }
 
-init_cd( team )
+init_cd( team ) //checked matches cerberus output
 {
 	game[ team ] = "cd";
 	game[ "attackers" ] = team;
@@ -209,3 +215,4 @@ init_cd( team )
 	game[ "carry_flagmodels" ][ team ] = "mp_flag_axis_1_carry";
 	game[ "carry_icon" ][ team ] = "hudicon_spetsnaz_ctf_flag_carry";
 }
+

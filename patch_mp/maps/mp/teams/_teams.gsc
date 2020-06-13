@@ -1,9 +1,10 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_spectating;
 #include maps/mp/gametypes/_globallogic_ui;
 #include maps/mp/gametypes/_persistence;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precacheshader( "mpflag_spectator" );
 	game[ "strings" ][ "autobalance" ] = &"MP_AUTOBALANCE_NOW";
@@ -26,7 +27,7 @@ init()
 		level.axisplayers = [];
 		level thread onplayerconnect();
 		level thread updateteambalancedvar();
-		wait 0,15;
+		wait 0.15;
 		if ( level.rankedmatch || level.leaguematch )
 		{
 			level thread updateplayertimes();
@@ -35,7 +36,7 @@ init()
 	else
 	{
 		level thread onfreeplayerconnect();
-		wait 0,15;
+		wait 0.15;
 		if ( level.rankedmatch || level.leaguematch )
 		{
 			level thread updateplayertimes();
@@ -43,7 +44,7 @@ init()
 	}
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -54,7 +55,7 @@ onplayerconnect()
 	}
 }
 
-onfreeplayerconnect()
+onfreeplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -63,7 +64,7 @@ onfreeplayerconnect()
 	}
 }
 
-onjoinedteam()
+onjoinedteam() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -74,36 +75,37 @@ onjoinedteam()
 	}
 }
 
-onjoinedspectators()
+onjoinedspectators() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
 	{
 		self waittill( "joined_spectators" );
+		self.pers["teamTime"] = undefined;
 	}
 }
 
-trackplayedtime()
+trackplayedtime() //checked partially changed to match beta dump see info.md
 {
 	self endon( "disconnect" );
-	_a100 = level.teams;
-	_k100 = getFirstArrayKey( _a100 );
-	while ( isDefined( _k100 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a100[ _k100 ];
 		self.timeplayed[ team ] = 0;
-		_k100 = getNextArrayKey( _a100, _k100 );
 	}
 	self.timeplayed[ "free" ] = 0;
 	self.timeplayed[ "other" ] = 0;
 	self.timeplayed[ "alive" ] = 0;
-	if ( !isDefined( self.timeplayed[ "total" ] ) || level.gametype == "twar" && game[ "roundsplayed" ] >= 0 && self.timeplayed[ "total" ] >= 0 )
+	if ( level.gametype == "twar" && game[ "roundsplayed" ] >= 0 && self.timeplayed[ "total" ] >= 0 )
+	{
+		self.timeplayed[ "total" ] = 0;
+	}
+	if ( !isDefined( self.timeplayed[ "total" ] ) )
 	{
 		self.timeplayed[ "total" ] = 0;
 	}
 	while ( level.inprematchperiod )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	for ( ;; )
 	{
@@ -117,21 +119,17 @@ trackplayedtime()
 				{
 					self.timeplayed[ "alive" ]++;
 				}
-				break;
 			}
-			else
+			else if ( self.sessionteam == "spectator" )
 			{
-				if ( self.sessionteam == "spectator" )
-				{
-					self.timeplayed[ "other" ]++;
-				}
+				self.timeplayed[ "other" ]++;
 			}
 		}
 		wait 1;
 	}
 }
 
-updateplayertimes()
+updateplayertimes() //checked changed to match cerberus output
 {
 	nexttoupdate = 0;
 	for ( ;; )
@@ -147,25 +145,19 @@ updateplayertimes()
 			level.players[ nexttoupdate ] maps/mp/gametypes/_persistence::checkcontractexpirations();
 		}
 		wait 1;
-		nexttoupdate++;
-		continue;
 	}
 }
 
-updateplayedtime()
+updateplayedtime() //checked changed to match cerberus output
 {
 	pixbeginevent( "updatePlayedTime" );
-	_a160 = level.teams;
-	_k160 = getFirstArrayKey( _a160 );
-	while ( isDefined( _k160 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a160[ _k160 ];
 		if ( self.timeplayed[ team ] )
 		{
 			self addplayerstat( "time_played_" + team, int( min( self.timeplayed[ team ], level.timeplayedcap ) ) );
 			self addplayerstatwithgametype( "time_played_total", int( min( self.timeplayed[ team ], level.timeplayedcap ) ) );
 		}
-		_k160 = getNextArrayKey( _a160, _k160 );
 	}
 	if ( self.timeplayed[ "other" ] )
 	{
@@ -183,19 +175,15 @@ updateplayedtime()
 	{
 		return;
 	}
-	_a187 = level.teams;
-	_k187 = getFirstArrayKey( _a187 );
-	while ( isDefined( _k187 ) )
-	{
-		team = _a187[ _k187 ];
+	foreach ( team in level.teams )
+	{ 
 		self.timeplayed[ team ] = 0;
-		_k187 = getNextArrayKey( _a187, _k187 );
 	}
 	self.timeplayed[ "other" ] = 0;
 	self.timeplayed[ "alive" ] = 0;
 }
 
-updateteamtime()
+updateteamtime() //checked matches cerberus output
 {
 	if ( game[ "state" ] != "playing" )
 	{
@@ -204,7 +192,7 @@ updateteamtime()
 	self.pers[ "teamTime" ] = getTime();
 }
 
-updateteambalancedvar()
+updateteambalancedvar() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -222,7 +210,7 @@ updateteambalancedvar()
 	}
 }
 
-changeteam( team )
+changeteam( team ) //checked changed to match cerberus output
 {
 	if ( self.sessionstate != "dead" )
 	{
@@ -233,6 +221,10 @@ changeteam( team )
 	}
 	self.pers[ "team" ] = team;
 	self.team = team;
+	self.pers["weapon"] = undefined;
+	self.pers["spawnweapon"] = undefined;
+	self.pers["savedmodel"] = undefined;
+	self.pers["teamTime"] = undefined;
 	self.sessionteam = self.pers[ "team" ];
 	if ( !level.teambased )
 	{
@@ -245,23 +237,16 @@ changeteam( team )
 	self notify( "end_respawn" );
 }
 
-countplayers()
+countplayers() //checked partially changed to match cerberus output see info.md
 {
 	players = level.players;
 	playercounts = [];
-	_a259 = level.teams;
-	_k259 = getFirstArrayKey( _a259 );
-	while ( isDefined( _k259 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a259[ _k259 ];
 		playercounts[ team ] = 0;
-		_k259 = getNextArrayKey( _a259, _k259 );
 	}
-	_a264 = level.players;
-	_k264 = getFirstArrayKey( _a264 );
-	while ( isDefined( _k264 ) )
+	foreach ( player in level.players )
 	{
-		player = _a264[ _k264 ];
 		if ( player == self )
 		{
 		}
@@ -273,21 +258,16 @@ countplayers()
 				playercounts[ team ]++;
 			}
 		}
-		_k264 = getNextArrayKey( _a264, _k264 );
 	}
 	return playercounts;
 }
 
-trackfreeplayedtime()
+trackfreeplayedtime() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
-	_a281 = level.teams;
-	_k281 = getFirstArrayKey( _a281 );
-	while ( isDefined( _k281 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a281[ _k281 ];
 		self.timeplayed[ team ] = 0;
-		_k281 = getNextArrayKey( _a281, _k281 );
 	}
 	self.timeplayed[ "other" ] = 0;
 	self.timeplayed[ "total" ] = 0;
@@ -305,7 +285,6 @@ trackfreeplayedtime()
 				{
 					self.timeplayed[ "alive" ]++;
 				}
-				break;
 			}
 			else
 			{
@@ -316,7 +295,7 @@ trackfreeplayedtime()
 	}
 }
 
-set_player_model( team, weapon )
+set_player_model( team, weapon ) //checked matches cerberus output
 {
 	weaponclass = getweaponclass( weapon );
 	bodytype = "default";
@@ -353,35 +332,42 @@ set_player_model( team, weapon )
 	self [[ game[ "set_player_model" ][ team ][ bodytype ] ]]();
 }
 
-getteamflagmodel( teamref )
+getteamflagmodel( teamref ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( game[ "flagmodels" ] ) );
 #/
 /#
 	assert( isDefined( game[ "flagmodels" ][ teamref ] ) );
 #/
+	*/
 	return game[ "flagmodels" ][ teamref ];
 }
 
-getteamflagcarrymodel( teamref )
+getteamflagcarrymodel( teamref ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( game[ "carry_flagmodels" ] ) );
 #/
 /#
 	assert( isDefined( game[ "carry_flagmodels" ][ teamref ] ) );
 #/
+	*/
 	return game[ "carry_flagmodels" ][ teamref ];
 }
 
-getteamflagicon( teamref )
+getteamflagicon( teamref ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( game[ "carry_icon" ] ) );
 #/
 /#
 	assert( isDefined( game[ "carry_icon" ][ teamref ] ) );
 #/
+	*/
 	return game[ "carry_icon" ][ teamref ];
 }
+

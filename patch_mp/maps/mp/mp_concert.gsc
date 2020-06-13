@@ -1,8 +1,12 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes/_spawning;
 #include maps/mp/_compass;
+#include maps/mp/mp_concert_amb;
+#include maps/mp/_load;
+#include maps/mp/mp_concert_fx;
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	level.levelspawndvars = ::levelspawndvars;
 	level.overrideplayerdeathwatchtimer = ::leveloverridetime;
@@ -27,21 +31,18 @@ main()
 	level thread water_trigger_init();
 }
 
-levelspawndvars( reset_dvars )
+levelspawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "2300", reset_dvars );
 }
 
-water_trigger_init()
+water_trigger_init() //checked partially changed to match cerberus output see info.md
 {
 	wait 3;
 	triggers = getentarray( "trigger_hurt", "classname" );
-	_a61 = triggers;
-	_k61 = getFirstArrayKey( _a61 );
-	while ( isDefined( _k61 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a61[ _k61 ];
 		if ( trigger.origin[ 2 ] > level.mapcenter[ 2 ] )
 		{
 		}
@@ -49,20 +50,15 @@ water_trigger_init()
 		{
 			trigger thread water_trigger_think();
 		}
-		_k61 = getNextArrayKey( _a61, _k61 );
 	}
 	triggers = getentarray( "water_killbrush", "targetname" );
-	_a73 = triggers;
-	_k73 = getFirstArrayKey( _a73 );
-	while ( isDefined( _k73 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a73[ _k73 ];
 		trigger thread player_splash_think();
-		_k73 = getNextArrayKey( _a73, _k73 );
 	}
 }
 
-player_splash_think()
+player_splash_think() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -74,7 +70,7 @@ player_splash_think()
 	}
 }
 
-player_water_fx( player, endon_condition )
+player_water_fx( player, endon_condition ) //checked matches cerberus output
 {
 	maxs = self.origin + self getmaxs();
 	if ( maxs[ 2 ] > 60 )
@@ -85,7 +81,7 @@ player_water_fx( player, endon_condition )
 	playfx( level._effect[ "water_splash_sm" ], origin );
 }
 
-water_trigger_think()
+water_trigger_think() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -98,28 +94,25 @@ water_trigger_think()
 	}
 }
 
-leveloverridetime( defaulttime )
+leveloverridetime( defaulttime ) //checked matches cerberus output
 {
 	if ( self isinwater() )
 	{
-		return 0,4;
+		return 0.4;
 	}
 	return defaulttime;
 }
 
-useintermissionpointsonwavespawn()
+useintermissionpointsonwavespawn() //checked matches cerberus output
 {
 	return self isinwater();
 }
 
-isinwater()
+isinwater() //checked partially changed to match cerberus output see info.md
 {
 	triggers = getentarray( "trigger_hurt", "classname" );
-	_a138 = triggers;
-	_k138 = getFirstArrayKey( _a138 );
-	while ( isDefined( _k138 ) )
+	foreach ( trigger in triggers )
 	{
-		trigger = _a138[ _k138 ];
 		if ( trigger.origin[ 2 ] > level.mapcenter[ 2 ] )
 		{
 		}
@@ -130,7 +123,7 @@ isinwater()
 				return 1;
 			}
 		}
-		_k138 = getNextArrayKey( _a138, _k138 );
 	}
 	return 0;
 }
+

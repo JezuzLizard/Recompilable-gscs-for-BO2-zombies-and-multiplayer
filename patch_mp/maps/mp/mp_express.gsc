@@ -1,9 +1,13 @@
+//checked includes match cerberus output
 #include maps/mp/mp_express_train;
+#include maps/mp/mp_express_amb;
 #include maps/mp/_compass;
+#include maps/mp/_load;
+#include maps/mp/mp_express_fx;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-main()
+main() //checked does not match cerberus output or beta dump did not change
 {
 	level.levelspawndvars = ::levelspawndvars;
 	maps/mp/mp_express_fx::main();
@@ -21,35 +25,38 @@ main()
 	game[ "strings_menu" ][ "war_callsign_c" ] = "@MPUI_CALLSIGN_MAPNAME_C";
 	game[ "strings_menu" ][ "war_callsign_d" ] = "@MPUI_CALLSIGN_MAPNAME_D";
 	game[ "strings_menu" ][ "war_callsign_e" ] = "@MPUI_CALLSIGN_MAPNAME_E";
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 200,735, 759,059, 136 ), ( 0, 248,6, 90 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 229,73, 748,06, 151 ), ( 0, 248,6, 90 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 379,816, 1141,39, 136 ), ( 0, 244,8, 90 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 408,023, 1128,5, 151 ), ( 0, 244,8, 90 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 200.735, 759.059, 136 ), ( 0, 248.6, 90 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 229.73, 748.06, 151 ), ( 0, 248.6, 90 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 379.816, 1141.39, 136 ), ( 0, 244.8, 90 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 408.023, 1128.5, 151 ), ( 0, 244.8, 90 ) );
 	registerclientfield( "vehicle", "train_moving", 1, 1, "int" );
 	registerclientfield( "scriptmover", "train_moving", 1, 1, "int" );
 	if ( getgametypesetting( "allowMapScripting" ) )
 	{
 		level thread maps/mp/mp_express_train::init();
 	}
+	/*
 /#
 	level thread devgui_express();
 	execdevgui( "devgui_mp_express" );
 #/
+	*/
 }
 
-levelspawndvars( reset_dvars )
+levelspawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "1900", reset_dvars );
 }
 
-devgui_express()
+devgui_express() //checked changed to match cerberus output
 {
+	/*
 /#
 	setdvar( "devgui_notify", "" );
 	for ( ;; )
 	{
-		wait 0,5;
+		wait 0.5;
 		devgui_string = getDvar( "devgui_notify" );
 		switch( devgui_string )
 		{
@@ -59,12 +66,15 @@ devgui_express()
 				level notify( "train_start" );
 				break;
 			default:
-			}
-			if ( getDvar( "devgui_notify" ) != "" )
-			{
-				setdvar( "devgui_notify", "" );
-			}
+				break;
+		}
+		if ( getDvar( "devgui_notify" ) != "" )
+		{
+			setdvar( "devgui_notify", "" );
+		}
 #/
 		}
 	}
+	*/
 }
+

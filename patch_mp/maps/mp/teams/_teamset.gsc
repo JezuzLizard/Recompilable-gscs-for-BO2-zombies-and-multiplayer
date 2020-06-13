@@ -1,5 +1,5 @@
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !isDefined( game[ "flagmodels" ] ) )
 	{
@@ -16,7 +16,7 @@ init()
 	game[ "flagmodels" ][ "neutral" ] = "mp_flag_neutral";
 }
 
-customteam_init()
+customteam_init() //checked matches cerberus output
 {
 	if ( getDvar( "g_customTeamName_Allies" ) != "" )
 	{
@@ -27,3 +27,4 @@ customteam_init()
 		setdvar( "g_TeamName_Axis", getDvar( "g_customTeamName_Axis" ) );
 	}
 }
+

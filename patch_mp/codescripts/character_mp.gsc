@@ -1,21 +1,20 @@
+//checked includes matches cerberus output
 #include codescripts/character;
 
-setmodelfromarray( a )
+setmodelfromarray( a ) //checked matches cerberus output
 {
 	self setmodel( a[ randomint( a.size ) ] );
 }
 
-precachemodelarray( a )
+precachemodelarray( a ) //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < a.size )
+	for ( i = 0; i < a.size; i++ ) 
 	{
 		precachemodel( a[ i ] );
-		i++;
 	}
 }
 
-attachfromarray( a )
+attachfromarray( a ) //checked matches cerberus output
 {
 	self attach( codescripts/character::randomelement( a ), "", 1 );
 }

@@ -1,15 +1,18 @@
+//checked includes match cerberus output
 #include maps/mp/_utility;
 
-businit()
+businit() //checked matches cerberus output
 {
+	/*
 /#
 	assert( level.clientscripts );
 #/
+	*/
 	level.busstate = "";
 	registerclientsys( "busCmd" );
 }
 
-setbusstate( state )
+setbusstate( state ) //checked matches cerberus output
 {
 	if ( level.busstate != state )
 	{

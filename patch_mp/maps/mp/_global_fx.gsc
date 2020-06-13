@@ -1,7 +1,8 @@
+//checked includes match cerberus output
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+main() //checked matches cerberus output
 {
 	randomstartdelay = randomfloatrange( -20, -15 );
 	global_fx( "barrel_fireFX_origin", "global_barrel_fire", "fire/firelp_barrel_pm", randomstartdelay, "fire_barrel_small" );
@@ -15,7 +16,7 @@ main()
 	global_fx( "icbm_powerlinetower_FX_origin", "icbm_powerlinetower_FX", "misc/power_tower_light_red_blink", randomstartdelay );
 }
 
-global_fx( targetname, fxname, fxfile, delay, soundalias )
+global_fx( targetname, fxname, fxfile, delay, soundalias ) //checked changed to match cerberus output
 {
 	ents = getstructarray( targetname, "targetname" );
 	if ( !isDefined( ents ) )
@@ -26,15 +27,13 @@ global_fx( targetname, fxname, fxfile, delay, soundalias )
 	{
 		return;
 	}
-	i = 0;
-	while ( i < ents.size )
+	for ( i = 0; i < ents.size; i++ )
 	{
 		ents[ i ] global_fx_create( fxname, fxfile, delay, soundalias );
-		i++;
 	}
 }
 
-global_fx_create( fxname, fxfile, delay, soundalias )
+global_fx_create( fxname, fxfile, delay, soundalias ) //checked matches cerberus output
 {
 	if ( !isDefined( level._effect ) )
 	{

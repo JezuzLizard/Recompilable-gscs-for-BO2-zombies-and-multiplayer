@@ -1,11 +1,12 @@
+//checked includes match cerberus output
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 }
 
-wait_until_first_player()
+wait_until_first_player() //checked changed to match cerberus output
 {
 	players = get_players();
 	if ( !isDefined( players[ 0 ] ) )
@@ -13,15 +14,13 @@ wait_until_first_player()
 		level waittill( "first_player_ready" );
 	}
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ] thread monitor_player_sprint();
-		i++;
 	}
 }
 
-stand_think( trig )
+stand_think( trig ) //checked matches cerberus output
 {
 	killtext = "kill_stand_think" + trig getentitynumber();
 	self endon( "disconnect" );
@@ -37,7 +36,7 @@ stand_think( trig )
 	}
 }
 
-monitor_player_sprint()
+monitor_player_sprint() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self thread monitor_player_movement();
@@ -51,7 +50,7 @@ monitor_player_sprint()
 	}
 }
 
-monitor_player_movement()
+monitor_player_movement() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -72,7 +71,7 @@ monitor_player_movement()
 	}
 }
 
-thread_enter_exit_sound( trig )
+thread_enter_exit_sound( trig ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -84,27 +83,25 @@ thread_enter_exit_sound( trig )
 	self thread stand_think( trig );
 	while ( self istouching( trig ) )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	self notify( "kill_stand_think" + trig getentitynumber() );
 	self playsound( trig.script_noteworthy );
 	trig.touchingplayers[ self getentitynumber() ] = 0;
 }
 
-thread_step_trigger()
+thread_step_trigger() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.script_activated ) )
 	{
 		self.script_activated = 1;
 	}
-	while ( !isDefined( self.touchingplayers ) )
+	if ( !isDefined( self.touchingplayers ) )
 	{
 		self.touchingplayers = [];
-		i = 0;
-		while ( i < 4 )
+		for ( i = 0; i < 4; i++ )
 		{
 			self.touchingplayers[ i ] = 0;
-			i++;
 		}
 	}
 	while ( 1 )
@@ -117,34 +114,30 @@ thread_step_trigger()
 	}
 }
 
-disable_bump_trigger( triggername )
+disable_bump_trigger( triggername ) //checked changed to match cerberus output
 {
 	triggers = getentarray( "audio_bump_trigger", "targetname" );
-	while ( isDefined( triggers ) )
+	if ( isDefined( triggers ) )
 	{
-		i = 0;
-		while ( i < triggers.size )
+		for ( i = 0; i < triggers.size; i++ )
 		{
 			if ( isDefined( triggers[ i ].script_label ) && triggers[ i ].script_label == triggername )
 			{
 				triggers[ i ].script_activated = 0;
 			}
-			i++;
 		}
 	}
 }
 
-get_player_index_number( player )
+get_player_index_number( player ) //checked changed to match cerberus output
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( players[ i ] == player )
 		{
 			return i;
 		}
-		i++;
 	}
 	return 1;
 }

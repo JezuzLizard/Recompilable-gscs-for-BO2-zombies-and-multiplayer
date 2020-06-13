@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/killstreaks/_supplydrop;
 #include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/ctf;
@@ -7,7 +8,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked partially changed to match cerberus output see info.md
 {
 	precachemodel( "p6_dockside_container_lrg_white" );
 	crane_dvar_init();
@@ -22,37 +23,27 @@ init()
 	arms_y = getentarray( "claw_arm_y", "targetname" );
 	arms_z = getentarray( "claw_arm_z", "targetname" );
 	claw.arms = arraycombine( arms_y, arms_z, 1, 0 );
-	_a32 = arms_z;
-	_k32 = getFirstArrayKey( _a32 );
-	while ( isDefined( _k32 ) )
+	foreach ( arm_z in arms_z )
 	{
-		arm_z = _a32[ _k32 ];
 		arm_y = getclosest( arm_z.origin, arms_y );
 		arm_z.parent = arm_y;
-		_k32 = getNextArrayKey( _a32, _k32 );
 	}
-	_a39 = arms_y;
-	_k39 = getFirstArrayKey( _a39 );
-	while ( isDefined( _k39 ) )
+	foreach ( arm_y in arms_y )
 	{
-		arm_y = _a39[ _k39 ];
 		arm_y.parent = claw;
-		_k39 = getNextArrayKey( _a39, _k39 );
 	}
 	claw claw_link_arms( "claw_arm_y" );
 	claw claw_link_arms( "claw_arm_z" );
 	crates = getentarray( "crate", "targetname" );
 	array_thread( crates, ::sound_pit_move );
 	crate_data = [];
-	i = 0;
-	while ( i < crates.size )
+	for ( i = 0; i < crates.size; i++ )
 	{
 		crates[ i ] disconnectpaths();
 		data = spawnstruct();
 		data.origin = crates[ i ].origin;
 		data.angles = crates[ i ].angles;
 		crate_data[ i ] = data;
-		i++;
 	}
 	rail = getent( "crane_rail", "targetname" );
 	rail thread sound_ring_move();
@@ -60,34 +51,23 @@ init()
 	rail.roller.wheel = getent( "crane_wheel", "targetname" );
 	claw.wires = getentarray( "crane_wire", "targetname" );
 	claw.z_wire_max = rail.roller.wheel.origin[ 2 ] - 50;
-	_a73 = claw.wires;
-	_k73 = getFirstArrayKey( _a73 );
-	while ( isDefined( _k73 ) )
+	foreach ( wire in claw.wires )
 	{
-		wire = _a73[ _k73 ];
 		wire linkto( claw );
 		if ( wire.origin[ 2 ] > claw.z_wire_max )
 		{
 			wire ghost();
 		}
-		_k73 = getNextArrayKey( _a73, _k73 );
 	}
 	placements = getentarray( "crate_placement", "targetname" );
-	_a85 = placements;
-	_k85 = getFirstArrayKey( _a85 );
-	while ( isDefined( _k85 ) )
+	foreach ( placement in placements )
 	{
-		placement = _a85[ _k85 ];
-		placement.angles += vectorScale( ( 0, 0, 1 ), 90 );
+		placement.angles += vectorScale( ( 0, 1, 0 ), 90 );
 		crates[ crates.size ] = spawn( "script_model", placement.origin );
-		_k85 = getNextArrayKey( _a85, _k85 );
 	}
 	triggers = getentarray( "crate_kill_trigger", "targetname" );
-	_a93 = crates;
-	_k93 = getFirstArrayKey( _a93 );
-	while ( isDefined( _k93 ) )
+	foreach ( crate in crates )
 	{
-		crate = _a93[ _k93 ];
 		crate.kill_trigger = getclosest( crate.origin, triggers );
 		crate.kill_trigger.origin = crate.origin - vectorScale( ( 0, 0, 1 ), 5 );
 		crate.kill_trigger enablelinkto();
@@ -100,7 +80,6 @@ init()
 		{
 			crate.kill_trigger.active = 0;
 		}
-		_k93 = getNextArrayKey( _a93, _k93 );
 	}
 	trigger = getclosest( claw.origin, triggers );
 	trigger enablelinkto();
@@ -110,7 +89,7 @@ init()
 	level thread crane_think( claw, rail, crates, crate_data, placements );
 }
 
-crane_dvar_init()
+crane_dvar_init() //checked matches cerberus output
 {
 	set_dvar_float_if_unset( "scr_crane_claw_move_time", "5" );
 	set_dvar_float_if_unset( "scr_crane_crate_lower_time", "5" );
@@ -121,17 +100,14 @@ crane_dvar_init()
 	set_dvar_float_if_unset( "scr_crane_claw_drop_time_min", "5" );
 }
 
-wire_render()
+wire_render() //checked partially changed to match cerberus output see info.md
 {
 	self endon( "movedone" );
 	for ( ;; )
 	{
-		wait 0,05;
-		_a139 = self.wires;
-		_k139 = getFirstArrayKey( _a139 );
-		while ( isDefined( _k139 ) )
+		wait 0.05;
+		foreach ( wire in self.wires )
 		{
-			wire = _a139[ _k139 ];
 			if ( wire.origin[ 2 ] > self.z_wire_max )
 			{
 				wire ghost();
@@ -140,19 +116,17 @@ wire_render()
 			{
 				wire show();
 			}
-			_k139 = getNextArrayKey( _a139, _k139 );
 		}
 	}
 }
 
-crane_think( claw, rail, crates, crate_data, placements )
+crane_think( claw, rail, crates, crate_data, placements ) //checked changed to match beta dump
 {
 	wait 1;
 	claw arms_open();
 	for ( ;; )
 	{
-		i = 0;
-		while ( i < ( crates.size - placements.size ) )
+		for ( i = 0; i < crates.size - placements.size; i++ )
 		{
 			crate = getclosest( crate_data[ i ].origin, crates );
 			rail crane_move( claw, crate_data[ i ], -318 );
@@ -161,20 +135,15 @@ crane_think( claw, rail, crates, crate_data, placements )
 			lower = 1;
 			target = ( i + 1 ) % ( crates.size - placements.size );
 			target_crate = getclosest( crate_data[ target ].origin, crates );
-			while ( cointoss() )
+			if ( cointoss() )
 			{
-				placement_index = 0;
-				while ( placement_index < placements.size )
+				for ( placement_index = 0; placement_index < placements.size; placement_index++ )
 				{
 					placement = placements[ placement_index ];
 					if ( !isDefined( placement.crate ) )
 					{
 						lower = 0;
 						break;
-					}
-					else
-					{
-						placement_index++;
 					}
 				}
 			}
@@ -203,7 +172,7 @@ crane_think( claw, rail, crates, crate_data, placements )
 				crate = crates[ 3 + placement_index ];
 				crate.origin = target_crate.origin - vectorScale( ( 0, 0, 1 ), 137 );
 				crate.angles = target_crate.angles;
-				wait 0,25;
+				wait 0.25;
 				claw waittill( "movedone" );
 			}
 			crate crate_raise( target_crate, crate_data[ target ] );
@@ -215,12 +184,11 @@ crane_think( claw, rail, crates, crate_data, placements )
 			rail crane_move( claw, crate_data[ target ], -318 );
 			level notify( "wires_move" );
 			claw claw_crate_drop( crate, crate_data[ target ] );
-			i++;
 		}
 	}
 }
 
-crane_move( claw, desired, z_dist )
+crane_move( claw, desired, z_dist ) //checked changed to match cerberus output dvars taken from beta dump
 {
 	self.roller linkto( self );
 	self.roller.wheel linkto( self.roller );
@@ -231,7 +199,7 @@ crane_move( claw, desired, z_dist )
 	angles = ( self.angles[ 0 ], angles[ 1 ] + 90, self.angles[ 2 ] );
 	yawdiff = absangleclamp360( self.angles[ 1 ] - angles[ 1 ] );
 	time = yawdiff / 25;
-	self rotateto( angles, time, time * 0,35, time * 0,45 );
+	self rotateto( angles, time, time * 0.35, time * 0.45 );
 	self thread physics_move();
 	level notify( "wires_stop" );
 	level notify( "ring_move" );
@@ -239,50 +207,46 @@ crane_move( claw, desired, z_dist )
 	self.roller unlink();
 	goal = ( desired.origin[ 0 ], desired.origin[ 1 ], self.roller.origin[ 2 ] );
 	diff = distance2d( goal, self.roller.origin );
-	speed = getDvarFloat( #"C39D2ABF" );
+	speed = getDvarFloat( "scr_crane_claw_drop_speed" );
 	time = diff / speed;
-	if ( time < getDvarFloat( #"F60036C0" ) )
+	if ( time < getDvarFloat( "scr_crane_claw_drop_time_min" ) )
 	{
-		time = getDvarFloat( #"F60036C0" );
+		time = getDvarFloat( "scr_crane_claw_drop_time_min" );
 	}
-	self.roller moveto( goal, time, time * 0,25, time * 0,25 );
+	self.roller moveto( goal, time, time * 0.25, time * 0.25 );
 	self.roller thread physics_move();
 	goal = ( desired.origin[ 0 ], desired.origin[ 1 ], self.roller.wheel.origin[ 2 ] );
 	self.roller.wheel unlink();
-	self.roller.wheel moveto( goal, time, time * 0,25, time * 0,25 );
-	self.roller.wheel rotateto( desired.angles + vectorScale( ( 0, 0, 1 ), 90 ), time, time * 0,25, time * 0,25 );
+	self.roller.wheel moveto( goal, time, time * 0.25, time * 0.25 );
+	self.roller.wheel rotateto( desired.angles + vectorScale( ( 0, 1, 0 ), 90 ), time, time * 0.25, time * 0.25 );
 	claw.z_initial = claw.origin[ 2 ];
 	claw unlink();
-	claw rotateto( desired.angles, time, time * 0,25, time * 0,25 );
+	claw rotateto( desired.angles, time, time * 0.25, time * 0.25 );
 	claw.goal = ( goal[ 0 ], goal[ 1 ], claw.origin[ 2 ] + z_dist );
 	claw.time = time;
-	claw moveto( claw.goal, time, time * 0,25, time * 0,25 );
+	claw moveto( claw.goal, time, time * 0.25, time * 0.25 );
 	level notify( "ring_stop" );
 }
 
-physics_move()
+physics_move() //checked changed to match cerberus output
 {
 	self endon( "rotatedone" );
 	self endon( "movedone" );
 	for ( ;; )
 	{
-		wait 0,05;
+		wait 0.05;
 		crates = getentarray( "care_package", "script_noteworthy" );
-		_a318 = crates;
-		_k318 = getFirstArrayKey( _a318 );
-		while ( isDefined( _k318 ) )
+		foreach ( crate in crates )
 		{
-			crate = _a318[ _k318 ];
 			if ( crate istouching( self ) )
 			{
-				crate physicslaunch( crate.origin, ( 0, 0, 1 ) );
+				crate physicslaunch( crate.origin, ( 0, 0, 0 ) );
 			}
-			_k318 = getNextArrayKey( _a318, _k318 );
 		}
 	}
 }
 
-claw_crate_grab( crate, z_dist )
+claw_crate_grab( crate, z_dist ) //checked matches cerberus output dvars taken from beta dump
 {
 	self thread wire_render();
 	self waittill( "movedone" );
@@ -291,17 +255,17 @@ claw_crate_grab( crate, z_dist )
 	self claw_z_arms( -33 );
 	self playsound( "amb_crane_arms" );
 	self arms_close( crate );
-	crate movez( 33, getDvarFloat( #"92CC26F1" ) );
+	crate movez( 33, getDvarFloat( "scr_crane_arm_z_move_time" ) );
 	self claw_z_arms( 33 );
 	crate linkto( self );
-	self movez( z_dist, getDvarFloat( #"33ED9F5F" ) );
+	self movez( z_dist, getDvarFloat( "scr_crane_claw_move_time" ) );
 	self thread wire_render();
 	level notify( "wires_move" );
 	self waittill( "movedone" );
 	self playsound( "amb_crane_arms" );
 }
 
-sound_wires_move()
+sound_wires_move() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -310,12 +274,12 @@ sound_wires_move()
 		self playloopsound( "amb_crane_wire_lp" );
 		level waittill( "wires_stop" );
 		self playsound( "amb_crane_wire_end" );
-		wait 0,1;
-		self stoploopsound( 0,2 );
+		wait 0.1;
+		self stoploopsound( 0.2 );
 	}
 }
 
-sound_ring_move()
+sound_ring_move() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -324,12 +288,12 @@ sound_ring_move()
 		self playloopsound( "amb_crane_ring_lp" );
 		level waittill( "ring_stop" );
 		self playsound( "amb_crane_ring_end" );
-		wait 0,1;
-		self stoploopsound( 0,2 );
+		wait 0.1;
+		self stoploopsound( 0.2 );
 	}
 }
 
-sound_pit_move()
+sound_pit_move() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -338,19 +302,19 @@ sound_pit_move()
 		self playloopsound( "amb_crane_pit_lp" );
 		level waittill( "pit_stop" );
 		self playsound( "amb_crane_pit_end" );
-		self stoploopsound( 0,2 );
-		wait 0,2;
+		self stoploopsound( 0.2 );
+		wait 0.2;
 	}
 }
 
-claw_crate_move( crate, claw )
+claw_crate_move( crate, claw ) //checked matches cerberus output dvars taken from beta dump
 {
 	self thread wire_render();
 	self waittill( "movedone" );
 	crate unlink();
 	self playsound( "amb_crane_arms_b" );
 	level notify( "wires_stop" );
-	crate movez( -33, getDvarFloat( #"92CC26F1" ) );
+	crate movez( -33, getDvarFloat( "scr_crane_arm_z_move_time" ) );
 	self claw_z_arms( -33 );
 	self playsound( "amb_crane_arms_b" );
 	playfxontag( level._effect[ "crane_dust" ], crate, "tag_origin" );
@@ -359,11 +323,11 @@ claw_crate_move( crate, claw )
 	level notify( "wires_move" );
 	self claw_z_arms( 33 );
 	z_dist = self.z_initial - self.origin[ 2 ];
-	self movez( z_dist, getDvarFloat( #"33ED9F5F" ) );
+	self movez( z_dist, getDvarFloat( "scr_crane_claw_move_time" ) );
 	self thread wire_render();
 }
 
-claw_crate_drop( target, data )
+claw_crate_drop( target, data ) //checked matches cerberus output dvars taken from beta dump
 {
 	target thread crate_drop_think( self );
 	self thread wire_render();
@@ -371,7 +335,7 @@ claw_crate_drop( target, data )
 	target unlink();
 	level notify( "wires_stop" );
 	self playsound( "amb_crane_arms_b" );
-	target movez( -33, getDvarFloat( #"92CC26F1" ) );
+	target movez( -33, getDvarFloat( "scr_crane_arm_z_move_time" ) );
 	self claw_z_arms( -33 );
 	playfxontag( level._effect[ "crane_dust" ], target, "tag_origin" );
 	self playsound( "amb_crate_drop" );
@@ -382,54 +346,51 @@ claw_crate_drop( target, data )
 	target.origin = data.origin;
 	self claw_z_arms( 33 );
 	self playsound( "amb_crane_arms" );
-	self movez( 318, getDvarFloat( #"33ED9F5F" ) );
+	self movez( 318, getDvarFloat( "scr_crane_claw_move_time" ) );
 	self thread wire_render();
 	self waittill( "movedone" );
 }
 
-crate_lower( lower, data )
+crate_lower( lower, data ) //checked matches cerberus output
 {
 	z_dist = abs( self.origin[ 2 ] - lower.origin[ 2 ] );
-	self movez( z_dist * -1, getDvarFloat( #"CFA0F999" ) );
-	lower movez( z_dist * -1, getDvarFloat( #"CFA0F999" ) );
+	self movez( z_dist * -1, getDvarFloat( "scr_crane_crate_lower_time" ) );
+	lower movez( z_dist * -1, getDvarFloat( "scr_crane_crate_lower_time" ) );
 	level notify( "pit_move" );
 	lower waittill( "movedone" );
 	level notify( "pit_stop" );
 	lower ghost();
 	self.origin = data.origin;
-	wait 0,25;
+	wait 0.25;
 }
 
-crate_raise( upper, data )
+crate_raise( upper, data ) //checked matches cerberus output dvars taken from beta dump
 {
 	self crate_set_random_model( upper );
 	self.kill_trigger.active = 1;
 	self.origin = ( data.origin[ 0 ], data.origin[ 1 ], self.origin[ 2 ] );
 	self.angles = data.angles;
-	wait 0,2;
+	wait 0.2;
 	self show();
 	z_dist = abs( upper.origin[ 2 ] - self.origin[ 2 ] );
-	self movez( z_dist, getDvarFloat( #"B4D4D064" ) );
-	upper movez( z_dist, getDvarFloat( #"B4D4D064" ) );
+	self movez( z_dist, getDvarFloat( "scr_crane_crate_raise_time" ) );
+	upper movez( z_dist, getDvarFloat( "scr_crane_crate_raise_time" ) );
 	level notify( "wires_stop" );
 	level notify( "pit_move" );
 	upper thread raise_think();
 }
 
-raise_think()
+raise_think() //checked matches cerberus output
 {
 	self waittill( "movedone" );
 	level notify( "pit_stop" );
 }
 
-crate_set_random_model( other )
+crate_set_random_model( other ) //checked partially changed to match cerberus output see info.md
 {
 	models = array_randomize( level.crate_models );
-	_a513 = models;
-	_k513 = getFirstArrayKey( _a513 );
-	while ( isDefined( _k513 ) )
+	foreach ( model in models )
 	{
-		model = _a513[ _k513 ];
 		if ( model == other.model )
 		{
 		}
@@ -438,128 +399,107 @@ crate_set_random_model( other )
 			self setmodel( model );
 			return;
 		}
-		_k513 = getNextArrayKey( _a513, _k513 );
 	}
 }
 
-arms_open()
+arms_open() //checked matches cerberus output
 {
 	self claw_move_arms( -15 );
 	self playsound( "amb_crane_arms" );
 }
 
-arms_close( crate )
+arms_close( crate ) //checked matches cerberus output
 {
 	self claw_move_arms( 15, crate );
 	self playsound( "amb_crane_arms" );
 }
 
-claw_link_arms( name )
+claw_link_arms( name ) //checked changed to match cerberus output
 {
-	_a541 = self.arms;
-	_k541 = getFirstArrayKey( _a541 );
-	while ( isDefined( _k541 ) )
+	foreach ( arm in self.arms )
 	{
-		arm = _a541[ _k541 ];
 		if ( arm.targetname == name )
 		{
 			arm linkto( arm.parent );
 		}
-		_k541 = getNextArrayKey( _a541, _k541 );
 	}
 }
 
-claw_unlink_arms( name )
+claw_unlink_arms( name ) //checked changed to match cerberus output
 {
-	_a552 = self.arms;
-	_k552 = getFirstArrayKey( _a552 );
-	while ( isDefined( _k552 ) )
+	foreach ( arm in self.arms )
 	{
-		arm = _a552[ _k552 ];
 		if ( arm.targetname == name )
 		{
 			arm unlink();
 		}
-		_k552 = getNextArrayKey( _a552, _k552 );
 	}
 }
 
-claw_move_arms( dist, crate )
+claw_move_arms( dist, crate ) //checked changed to match cerberus output dvars taken from beta dump
 {
 	claw_unlink_arms( "claw_arm_y" );
 	arms = [];
-	_a566 = self.arms;
-	_k566 = getFirstArrayKey( _a566 );
-	while ( isDefined( _k566 ) )
+	foreach ( arm in self.arms )
 	{
-		arm = _a566[ _k566 ];
 		forward = anglesToForward( arm.angles );
 		arm.goal = arm.origin + vectorScale( forward, dist );
 		if ( arm.targetname == "claw_arm_y" )
 		{
 			arms[ arms.size ] = arm;
-			arm moveto( arm.goal, getDvarFloat( #"0D6F71B0" ) );
+			arm moveto( arm.goal, getDvarFloat( "scr_crane_arm_y_move_time" ) );
 		}
-		_k566 = getNextArrayKey( _a566, _k566 );
 	}
 	if ( dist > 0 )
 	{
-		wait ( getDvarFloat( #"0D6F71B0" ) / 2 );
-		_a582 = self.arms;
-		_k582 = getFirstArrayKey( _a582 );
-		while ( isDefined( _k582 ) )
+		wait( getDvarFloat( "scr_crane_arm_y_move_time" ) / 2 );
+		foreach ( arm in self.arms )
 		{
-			arm = _a582[ _k582 ];
 			if ( arm.targetname == "claw_arm_y" )
 			{
-				arm moveto( arm.goal, 0,1 );
+				arm moveto( arm.goal, 0.1 );
 				self playsound( "amb_crane_arms_b" );
 			}
-			_k582 = getNextArrayKey( _a582, _k582 );
 		}
-		wait 0,05;
+		wait 0.05;
 		playfxontag( level._effect[ "crane_spark" ], crate, "tag_origin" );
 		self playsound( "amb_arms_latch" );
 	}
+	/*
 /#
 	assert( arms.size == 4 );
 #/
+	*/
 	waittill_multiple_ents( arms[ 0 ], "movedone", arms[ 1 ], "movedone", arms[ 2 ], "movedone", arms[ 3 ], "movedone" );
-	_a600 = self.arms;
-	_k600 = getFirstArrayKey( _a600 );
-	while ( isDefined( _k600 ) )
+	foreach ( arm in self.arms )
 	{
-		arm = _a600[ _k600 ];
 		arm.origin = arm.goal;
-		_k600 = getNextArrayKey( _a600, _k600 );
 	}
 	self claw_link_arms( "claw_arm_y" );
 }
 
-claw_z_arms( z )
+claw_z_arms( z ) //checked changed to match cerberus output dvars taken from beta dump
 {
 	claw_unlink_arms( "claw_arm_z" );
 	arms = [];
-	_a613 = self.arms;
-	_k613 = getFirstArrayKey( _a613 );
-	while ( isDefined( _k613 ) )
+	foreach ( arm in self.arms )
 	{
-		arm = _a613[ _k613 ];
 		if ( arm.targetname == "claw_arm_z" )
 		{
 			arms[ arms.size ] = arm;
-			arm movez( z, getDvarFloat( #"92CC26F1" ) );
+			arm movez( z, getDvarFloat( "scr_crane_arm_z_move_time" ) );
 		}
-		_k613 = getNextArrayKey( _a613, _k613 );
 	}
+	/*
 /#
 	assert( arms.size == 4 );
 #/
+	*/
 	waittill_multiple_ents( arms[ 0 ], "movedone", arms[ 1 ], "movedone", arms[ 2 ], "movedone", arms[ 3 ], "movedone" );
 	self claw_link_arms( "claw_arm_z" );
 }
 
-crate_drop_think( claw )
+crate_drop_think( claw ) //checked changed at own discretion see info.md
 {
 	self endon( "claw_done" );
 	self.disablefinalkillcam = 1;
@@ -567,100 +507,105 @@ crate_drop_think( claw )
 	corpse_delay = 0;
 	for ( ;; )
 	{
-		wait 0,2;
+		wait 0.2;
 		entities = getdamageableentarray( self.origin, 200 );
-		_a642 = entities;
-		_k642 = getFirstArrayKey( _a642 );
-		while ( isDefined( _k642 ) )
+		i = 0;
+		while ( i < entities.size )
 		{
-			entity = _a642[ _k642 ];
-			if ( !entity istouching( self.kill_trigger ) )
+			if ( !entities[ i ] istouching( self.kill_trigger ) )
 			{
+				i++;
+				continue;
 			}
-			else if ( isDefined( entity.model ) && entity.model == "t6_wpn_tac_insert_world" )
+			if ( isDefined( entities[ i ].model ) && entities[ i ].model == "t6_wpn_tac_insert_world" )
 			{
-				entity maps/mp/_tacticalinsertion::destroy_tactical_insertion();
+				entities[ i ] maps/mp/_tacticalinsertion::destroy_tactical_insertion();
+				i++;
+				continue;
 			}
-			else
+			if ( !isalive( entities[ i ] ) )
 			{
-				if ( !isalive( entity ) )
+				i++;
+				continue;
+			}
+			if ( isDefined( entities[ i ].targetname ) )
+			{
+				if ( entities[ i ].targetname == "talon" )
 				{
-					break;
+					entities[ i ] notify( "death" );
+					i++;
+					continue;
 				}
-				else if ( isDefined( entity.targetname ) )
+				if ( entities[ i ].targetname == "rcbomb" )
 				{
-					if ( entity.targetname == "talon" )
-					{
-						entity notify( "death" );
-						break;
-					}
-					else if ( entity.targetname == "rcbomb" )
-					{
-						entity maps/mp/killstreaks/_rcbomb::rcbomb_force_explode();
-						break;
-					}
-					else if ( entity.targetname == "riotshield_mp" )
-					{
-						entity dodamage( 1, self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
-						break;
-					}
+					entities[ i ] maps/mp/killstreaks/_rcbomb::rcbomb_force_explode();
+					i++;
+					continue;
 				}
-				else if ( isDefined( entity.helitype ) && entity.helitype == "qrdrone" )
+				if ( entities[ i ].targetname == "riotshield_mp" )
 				{
-					watcher = entity.owner maps/mp/gametypes/_weaponobjects::getweaponobjectwatcher( "qrdrone" );
-					watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entity, 0, undefined );
-					break;
-				}
-				else
-				{
-					if ( entity.classname == "grenade" )
-					{
-						if ( !isDefined( entity.name ) )
-						{
-							break;
-						}
-						else if ( !isDefined( entity.owner ) )
-						{
-							break;
-						}
-						else if ( entity.name == "proximity_grenade_mp" )
-						{
-							watcher = entity.owner getwatcherforweapon( entity.name );
-							watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entity, 0, undefined, "script_mover_mp" );
-							break;
-						}
-						else if ( !isweaponequipment( entity.name ) )
-						{
-							break;
-						}
-						else watcher = entity.owner getwatcherforweapon( entity.name );
-						if ( !isDefined( watcher ) )
-						{
-							break;
-						}
-						else watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entity, 0, undefined, "script_mover_mp" );
-						break;
-					}
-					else if ( entity.classname == "auto_turret" )
-					{
-						if ( !isDefined( entity.damagedtodeath ) || !entity.damagedtodeath )
-						{
-							entity domaxdamage( self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
-						}
-						break;
-					}
-					else
-					{
-						entity dodamage( entity.health * 2, self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
-						if ( isplayer( entity ) )
-						{
-							claw thread claw_drop_pause();
-							corpse_delay = getTime() + 3000;
-						}
-					}
+					entities[ i ] dodamage( 1, self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
+					i++;
+					continue;
 				}
 			}
-			_k642 = getNextArrayKey( _a642, _k642 );
+			if ( isDefined( entities[ i ].helitype ) && entities[ i ].helitype == "qrdrone" )
+			{
+				watcher = entities[ i ].owner maps/mp/gametypes/_weaponobjects::getweaponobjectwatcher( "qrdrone" );
+				watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entities[ i ], 0, undefined );
+				i++;
+				continue;
+			}
+			if ( entities[ i ].classname == "grenade" )
+			{
+				if ( !isDefined( entities[ i ].name ) )
+				{
+					i++;
+					continue;
+				}
+				if ( !isDefined( entities[ i ].owner ) )
+				{
+					i++;
+					continue;
+				}
+				if ( entities[ i ].name == "proximity_grenade_mp" )
+				{
+					watcher = entities[ i ].owner getwatcherforweapon( entities[ i ].name );
+					watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entities[ i ], 0, undefined, "script_mover_mp" );
+					i++;
+					continue;
+				}
+				if ( !isweaponequipment( entities[ i ].name ) )
+				{
+					i++;
+					continue;
+				}
+				watcher = entities[ i ].owner getwatcherforweapon( entities[ i ].name );
+				if ( !isDefined( watcher ) )
+				{
+					i++;
+					continue;
+				}
+				watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( entities[ i ], 0, undefined, "script_mover_mp" );
+				i++;
+				continue;
+			}
+			if ( entities[ i ].classname == "auto_turret" )
+			{
+				if ( !isDefined( entities[ i ].damagedtodeath ) || !entities[ i ].damagedtodeath )
+				{
+					entities[ i ] domaxdamage( self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
+				}
+				i++;
+				continue;
+			}
+			entities[ i ] dodamage( entities[ i ].health * 2, self.origin + ( 0, 0, 1 ), self, self, 0, "MOD_CRUSH" );
+			if ( isplayer( entities[ i ] ) )
+			{
+				claw thread claw_drop_pause();
+				corpse_delay = getTime() + 3000;
+			}
+			i++;
 		}
 		self destroy_supply_crates();
 		if ( getTime() > corpse_delay )
@@ -669,16 +614,12 @@ crate_drop_think( claw )
 		}
 		if ( level.gametype == "ctf" )
 		{
-			_a748 = level.flags;
-			_k748 = getFirstArrayKey( _a748 );
-			while ( isDefined( _k748 ) )
+			foreach ( flag in level.flags )
 			{
-				flag = _a748[ _k748 ];
 				if ( flag.visuals[ 0 ] istouching( self.kill_trigger ) )
 				{
 					flag maps/mp/gametypes/ctf::returnflag();
 				}
-				_k748 = getNextArrayKey( _a748, _k748 );
 			}
 		}
 		else if ( level.gametype == "sd" && !level.multibomb )
@@ -691,14 +632,14 @@ crate_drop_think( claw )
 	}
 }
 
-claw_drop_think()
+claw_drop_think() //checked matches cerberus output
 {
 	self endon( "claw_pause" );
 	self waittill( "movedone" );
 	self notify( "claw_movedone" );
 }
 
-claw_drop_pause()
+claw_drop_pause() //checked matches cerberus output
 {
 	self notify( "claw_pause" );
 	self endon( "claw_pause" );
@@ -709,49 +650,43 @@ claw_drop_pause()
 	{
 		return;
 	}
-	self moveto( self.origin, 0,01 );
+	self moveto( self.origin, 0.01 );
 	wait 3;
 	self thread claw_drop_think();
 	self moveto( self.goal, time );
 }
 
-destroy_supply_crates()
+destroy_supply_crates() //checked changed to match cerberus output
 {
 	crates = getentarray( "care_package", "script_noteworthy" );
-	_a802 = crates;
-	_k802 = getFirstArrayKey( _a802 );
-	while ( isDefined( _k802 ) )
+	foreach ( crate in crates )
 	{
-		crate = _a802[ _k802 ];
 		if ( distancesquared( crate.origin, self.origin ) < 40000 )
 		{
 			if ( crate istouching( self ) )
 			{
 				playfx( level._supply_drop_explosion_fx, crate.origin );
 				playsoundatposition( "wpn_grenade_explode", crate.origin );
-				wait 0,1;
+				wait 0.1;
 				crate maps/mp/killstreaks/_supplydrop::cratedelete();
 			}
 		}
-		_k802 = getNextArrayKey( _a802, _k802 );
 	}
 }
 
-destroy_corpses()
+destroy_corpses() //checked changed to match cerberus output
 {
 	corpses = getcorpsearray();
-	i = 0;
-	while ( i < corpses.size )
+	for ( i = 0; i < corpses.size; i++ )
 	{
 		if ( distancesquared( corpses[ i ].origin, self.origin ) < 40000 )
 		{
 			corpses[ i ] delete();
 		}
-		i++;
 	}
 }
 
-getwatcherforweapon( weapname )
+getwatcherforweapon( weapname ) //checked partially changed to match cerberus output see info.md
 {
 	if ( !isDefined( self ) )
 	{
@@ -769,11 +704,9 @@ getwatcherforweapon( weapname )
 			i++;
 			continue;
 		}
-		else
-		{
-			return self.weaponobjectwatcherarray[ i ];
-		}
+		return self.weaponobjectwatcherarray[ i ];
 		i++;
 	}
 	return undefined;
 }
+

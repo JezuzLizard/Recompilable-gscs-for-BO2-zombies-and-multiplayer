@@ -1,9 +1,13 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes/_spawning;
 #include maps/mp/_compass;
+#include maps/mp/mp_paintball_amb;
+#include maps/mp/_load;
+#include maps/mp/mp_paintball_fx;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-main()
+main() //checked changed to match cerberus output
 {
 	level.levelspawndvars = ::levelspawndvars;
 	maps/mp/mp_paintball_fx::main();
@@ -26,30 +30,30 @@ main()
 	game[ "strings_menu" ][ "war_callsign_c" ] = "@MPUI_CALLSIGN_MAPNAME_C";
 	game[ "strings_menu" ][ "war_callsign_d" ] = "@MPUI_CALLSIGN_MAPNAME_D";
 	game[ "strings_menu" ][ "war_callsign_e" ] = "@MPUI_CALLSIGN_MAPNAME_E";
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071,5, -1998,5, 373,5 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071,5, -1998,5, 262 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071,5, -1998,5, 150 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071,5, -1998,5, 37,5 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446,5, 524,5, 401,5 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446,5, 524,5, 290 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446,5, 524,5, 178 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446,5, 524,5, 65,5 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303,5, 1611,5, 394,5 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303,5, 1611,5, 283 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303,5, 1611,5, 171 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303,5, 1611,5, 58,5 ), ( 0, 0, 1 ) );
-	spawncollision( "collision_physics_64x64x10", "collider", ( -104,5, -1176,5, 9 ), ( 9,93, 310, 79,786 ) );
-	spawncollision( "collision_physics_32x32x10", "collider", ( -105, -1166,5, 38 ), ( 317,842, 319,39, 76,1599 ) );
-	spawncollision( "collision_physics_32x32x10", "collider", ( -96,5, -1173, 38,5 ), ( 310,109, 322,353, 74,0248 ) );
-	spawncollision( "collision_physics_32x32x10", "collider", ( -93, -1180,5, 38,5 ), ( 310,109, 322,353, 74,0248 ) );
-	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -596,198, -1402, -8,43064 ), ( 359,555, 85,8235, -6,08371 ) );
-	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -596,198, -1370,5, -8,43064 ), ( 359,555, 85,8235, -6,08371 ) );
-	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -597,845, -1391, 6,9816 ), ( 359,555, 85,8235, -6,08371 ) );
-	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -597,845, -1370,5, 6,9816 ), ( 359,555, 85,8235, -6,08371 ) );
-	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -598,802, -1383, 15,9306 ), ( 359,555, 85,8235, -6,08371 ) );
-	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -598,8, -1383,04, 13,911 ), ( 310,532, 83,5658, -1,21727 ) );
-	pole1 = spawn( "script_model", ( 385, 572,5, -39 ) );
-	pole1.angles = vectorScale( ( 0, 0, 1 ), 282,6 );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071.5, -1998.5, 373.5 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071.5, -1998.5, 262 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071.5, -1998.5, 150 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( 1071.5, -1998.5, 37.5 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446.5, 524.5, 401.5 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446.5, 524.5, 290 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446.5, 524.5, 178 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1446.5, 524.5, 65.5 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303.5, 1611.5, 394.5 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303.5, 1611.5, 283 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303.5, 1611.5, 171 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_cylinder_32x128", "collider", ( -1303.5, 1611.5, 58.5 ), ( 0, 0, 0 ) );
+	spawncollision( "collision_physics_64x64x10", "collider", ( -104.5, -1176.5, 9 ), ( 9.93, 310, 79.786 ) );
+	spawncollision( "collision_physics_32x32x10", "collider", ( -105, -1166.5, 38 ), ( 317.842, 319.39, 76.1599 ) );
+	spawncollision( "collision_physics_32x32x10", "collider", ( -96.5, -1173, 38.5 ), ( 310.109, 322.353, 74.0248 ) );
+	spawncollision( "collision_physics_32x32x10", "collider", ( -93, -1180.5, 38.5 ), ( 310.109, 322.353, 74.0248 ) );
+	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -596.198, -1402, -8.43064 ), ( 359.555, 85.8235, -6.08371 ) );
+	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -596.198, -1370.5, -8.43064 ), ( 359.555, 85.8235, -6.08371 ) );
+	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -597.845, -1391, 6.9816 ), ( 359.555, 85.8235, -6.08371 ) );
+	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -597.845, -1370.5, 6.9816 ), ( 359.555, 85.8235, -6.08371 ) );
+	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -598.802, -1383, 15.9306 ), ( 359.555, 85.8235, -6.08371 ) );
+	spawncollision( "collision_physics_wall_64x64x10", "collider", ( -598.8, -1383.04, 13.911 ), ( 310.532, 83.5658, -1.21727 ) );
+	pole1 = spawn( "script_model", ( 385, 572.5, -39 ) );
+	pole1.angles = vectorScale( ( 0, 0, 1 ), 282.6 );
 	pole1 setmodel( "p6_pai_fence_pole" );
 	maps/mp/gametypes/_spawning::level_use_unified_spawning( 1 );
 	registerclientfield( "scriptmover", "police_car_lights", 1, 1, "int" );
@@ -60,44 +64,40 @@ main()
 	level thread glass_node_think();
 }
 
-levelspawndvars( reset_dvars )
+levelspawndvars( reset_dvars ) //checked matches cerberus output
 {
 	ss = level.spawnsystem;
 	ss.enemy_influencer_radius = set_dvar_float_if_unset( "scr_spawn_enemy_influencer_radius", "2200", reset_dvars );
 	ss.hq_objective_influencer_inner_radius = set_dvar_float_if_unset( "scr_spawn_hq_objective_influencer_inner_radius", "1200", reset_dvars );
 }
 
-destructible_lights()
+destructible_lights() //checked changed to match cerberus output
 {
-	wait 0,05;
+	wait 0.05;
 	destructibles = getentarray( "destructible", "targetname" );
-	_a107 = destructibles;
-	_k107 = getFirstArrayKey( _a107 );
-	while ( isDefined( _k107 ) )
+	foreach ( destructible in destructibles )
 	{
-		destructible = _a107[ _k107 ];
 		if ( destructible.destructibledef == "veh_t6_police_car_destructible_mp" )
 		{
 			destructible thread destructible_think( "police_car_lights" );
 			destructible setclientfield( "police_car_lights", 1 );
 		}
-		_k107 = getNextArrayKey( _a107, _k107 );
 	}
 }
 
-destructible_think( clientfield )
+destructible_think( clientfield ) //checked matches cerberus output
 {
 	self waittill_any( "death", "destructible_base_piece_death" );
 	self setclientfield( clientfield, 0 );
 }
 
-glass_node_think()
+glass_node_think() //checked changed to match cerberus output
 {
 	wait 1;
-	glass_origin = ( -980,028, -959,375, 60,1195 );
-	node_origin = ( -981,75, -934,5, 16 );
+	glass_origin = ( -980.028, -959.375, 60.1195 );
+	node_origin = ( -981.75, -934.5, 16 );
 	node = getnearestnode( node_origin );
-	while ( isDefined( node ) && node.type == "Begin" )
+	if ( isDefined( node ) && node.type == "Begin" )
 	{
 		ent = spawn( "script_model", node.origin, 1 );
 		ent setmodel( level.deployedshieldmodel );
@@ -116,3 +116,4 @@ glass_node_think()
 		}
 	}
 }
+
