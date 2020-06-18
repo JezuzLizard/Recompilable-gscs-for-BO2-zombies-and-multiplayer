@@ -49,3 +49,7 @@ EXAMPLE:
 ```a = b && c;```
 WILL NOT COMPILE
 ```
+
+**Scripts that contain #using_animtree( "animtree" ); will compile but crash upon loading**
+Unfortunately, for certain scripts #using_animtree( "animtree" ); is required for the script to function so scripts containing it will crash on start/while running
+
