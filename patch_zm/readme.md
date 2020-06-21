@@ -31,6 +31,7 @@ patch_zm/maps/mp/zombies/_zm_zonemgr.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 ```
+patch_zm/maps/mp/zombies/_zm.gsc
 patch_zm/maps/mp/zombies/_zm_timer.gsc
 ```
 ### The following scripts compile and run successfully with major errors:
@@ -40,7 +41,6 @@ patch_zm/maps/mp/zombies/_zm_utility.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
 ```
-patch_zm/maps/mp/zombies/_zm.gsc
 ```
 ### The following scripts compile but cause a minidump or other severe error:
 ```

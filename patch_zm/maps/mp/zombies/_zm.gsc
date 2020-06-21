@@ -83,23 +83,11 @@ init() //checked matches cerberus output
 	}
 	if ( !isDefined( level.disable_deadshot_clientfield ) )
 	{
-		level.disable_deadshot_clientfield = 0; //needs to be 0 for buried and origins to fix exe_client_field_mismatch
-		if ( level.script == "zm_transit" )
-		{
-			level.disable_deadshot_clientfield = 1;
-		}
-		if ( level.script == "zm_nuked" )
-		{
-			level.disable_deadshot_clientfield = 1;
-		}
-		if ( level.script == "zm_highrise" )
-		{
-			level.disable_deadshot_clientfield = 1;
-		}
+		level.disable_deadshot_clientfield = 0; //needs to be 0 even if the map doesn't have the perk
 	}
 	if ( !isDefined( level.use_clientside_rock_tearin_fx ) )
 	{
-		level.use_clientside_rock_tearin_fx = 1;
+		level.use_clientside_rock_tearin_fx = 0;
 	}
 	if ( !isDefined( level.no_end_game_check ) )
 	{
@@ -122,7 +110,7 @@ init() //checked matches cerberus output
 	level.player_out_of_playable_area_monitor = 1;
 	level.player_too_many_weapons_monitor = 1;
 	level.player_too_many_weapons_monitor_func = ::player_too_many_weapons_monitor;
-	level.player_too_many_players_check = 0;
+	level.player_too_many_players_check = 0; //doesn't do anything on a plutonium server but probably best to keep it off anyway
 	level.player_too_many_players_check_func = ::player_too_many_players_check;
 	level._use_choke_weapon_hints = 1;
 	level._use_choke_blockers = 1;
@@ -281,36 +269,6 @@ init() //checked matches cerberus output
 	level thread onallplayersready();
 	level thread startunitriggers();
 	level thread maps/mp/gametypes_zm/_zm_gametype::post_init_gametype();
-	if ( level.debugLogging_zm )
-	{
-		logline1 = "INFO: _zm.gsc init() The value of level.createfx_enabled is: " + level.createfx_enabled + "\n";
-		logprint( logline1 );
-		logline2 = "INFO: _zm.gsc init() The value of level.disable_blackscreen_clientfield is: " + level.disable_blackscreen_clientfield + "\n";
-		logprint( logline2 );
-		logline3 = "INFO: _zm.gsc init() The value of level._no_equipment_activated_clientfield is: " + level._no_equipment_activated_clientfield + "\n";
-		logprint( logline3 );
-		logline4 = "INFO: _zm.gsc init() The value of level.zombie_vars[ zombie_spawn_delay ] is: " + level.zombie_vars[ "zombie_spawn_delay" ] + "\n";
-		logprint( logline4 );
-		logline5 = "INFO: _zm.gsc init() The value of level.scr_zm_ui_gametype is: " + level.scr_zm_ui_gametype + "\n";
-		logprint( logline5 );
-		logline6 = "INFO: _zm.gsc init() The value of level.scr_zm_ui_gametype_group is: " + level.scr_zm_ui_gametype_group + "\n";
-		logprint( logline6 );
-		logline7 = "INFO: _zm.gsc init() The value of level.scr_zm_map_start_location is: " + level.scr_zm_map_start_location + "\n";
-		logprint( logline7 );
-		mapname = getDvar( "mapname" );
-		logline8 = "INFO: _zm.gsc init() The value of mapname is: " + mapname + "\n";
-		logprint( logline8 );
-		ui_mapname = getDvar( "ui_mapname" );
-		logline9 = "INFO: _zm.gsc init() The value of ui_mapname is: " + ui_mapname + "\n";
-		logprint( logline9 );
-		g_gametype = getDvar( "g_gametype" );
-		logline10 = "INFO: _zm.gsc init() The value of g_gametype is: " + g_gametype + "\n";
-		logprint( logline10 );
-		map = getDvar( "map" );
-		logline11 = "INFO: _zm.gsc init() The value of map is: " + map + "\n";
-		logprint( logline11 );
-		
-	}
 }
 
 post_main() //checked matches cerberus output
@@ -399,6 +357,7 @@ onallplayersready() //checked changed to match cerberus output
 		wait 0.1;
 	}
 	player_count_actual = 0;
+	//fixed fast restart
 	while ( player_count_actual < players.size )
 	{
 		players = get_players();
@@ -431,7 +390,6 @@ onallplayersready() //checked changed to match cerberus output
 			{
 				player.lives = 0;
 			}
-			//this was commented out
 			level set_default_laststand_pistol( 1 );
 		}
 		flag_set( "initial_players_connected" );
@@ -439,7 +397,7 @@ onallplayersready() //checked changed to match cerberus output
 		{
 			wait 0.05;
 		}
-		thread start_zombie_logic_in_x_sec( 3 ); //default input 3
+		thread start_zombie_logic_in_x_sec( 3 );
 	}
 	fade_out_intro_screen_zm( 5, 1.5, 1 );
 }
@@ -946,7 +904,7 @@ init_levelvars() //checked changed to match cerberus output
 	level.round_number = level.start_round;
 	level.enable_magic = getgametypesetting( "magic" );
 	level.headshots_only = getgametypesetting( "headshotsonly" );
-	level.player_starting_points = level.round_number * 500000;
+	level.player_starting_points = level.round_number * 500;
 	level.round_start_time = 0;
 	level.pro_tips_start_time = 0;
 	level.intermission = 0;
@@ -954,10 +912,6 @@ init_levelvars() //checked changed to match cerberus output
 	level.zombie_total = 0;
 	level.total_zombies_killed = 0;
 	level.hudelem_count = 0;
-	//added these since they are undefined
-	level.no_end_game_check = 0;
-	level.zm_disable_recording_stats = 0;
-	
 	level.zombie_spawn_locations = [];
 	level.zombie_rise_spawners = [];
 	level.current_zombie_array = [];
@@ -1098,6 +1052,7 @@ init_function_overrides() //checked does not match cerberus output did not chang
 	//these don't work and it works fine without so why?
 	level.callbackactorkilled = ::actor_killed_override;
 	level.callbackactordamage = ::actor_damage_override_wrapper;
+	
 	level.custom_introscreen = ::zombie_intro_screen;
 	level.custom_intermission = ::player_intermission;
 	level.global_damage_func = maps/mp/zombies/_zm_spawner::zombie_damage; 
@@ -1287,6 +1242,7 @@ init_client_flags() //checked matches cerberus output
 
 init_fx() //checked partially changed to match cerberus output //csc partially matches cerberus output
 {
+	//this function does not cause exe_client_field_mismatch if the effects aren't loaded
 	if ( !isDefined( level._uses_default_wallbuy_fx ) )
 	{
 		level._uses_default_wallbuy_fx = 1;
@@ -1420,7 +1376,7 @@ players_playing() //checked matches cerberus output
 
 onplayerconnect_clientdvars() //checked matches cerberus output
 {
-	self setclientcompass( 0 );
+	self setclientcompass( 0 ); //was 0
 	self setclientthirdperson( 0 );
 	self resetfov();
 	self setclientthirdpersonangle( 0 );
@@ -2462,7 +2418,7 @@ last_stand_compare_pistols( struct_array ) //checked changed to match cerberus o
 		{
 			self.hadpistol = 0;
 			self._special_solo_pistol_swap = 1;
-			if ( isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && !self hasperk( "specialty_quickrevive" ) && !self hasperk( "specialty_quickrevive" ) )
+			if ( isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive || !self hasperk( "specialty_quickrevive" ) )
 			{
 				return highest_score_pistol.gun;
 			}
@@ -2596,12 +2552,10 @@ last_stand_take_thrown_grenade() //checked matches cerberus output
 
 last_stand_grenade_save_and_return() //checked changed to match cerberus output
 {
-	//broken for now
 	if ( isDefined( level.isresetting_grief ) && level.isresetting_grief )
 	{
 		return;
 	}
-	//return; //added for debug purposes
 	self endon( "disconnect" );
 	self endon( "bled_out" );
 	level endon( "between_round_over" );
@@ -3099,7 +3053,8 @@ round_spawning() //checked changed to match cerberus output
 	{
 		level thread zombie_speed_up();
 	}
-	level.zombie_total = 100; //added for debugging purposes
+	level.zombie_total = [[ level.max_zombie_func ]]( max );
+	level notify( "zombie_total_set" );
 	mixed_spawns = 0;
 	old_spawn = undefined;
 	while ( 1 )
@@ -3113,7 +3068,7 @@ round_spawning() //checked changed to match cerberus output
 			clear_all_corpses();
 			wait 0.1;
 		}
-		//flag_wait( "spawn_zombies" );
+		flag_wait( "spawn_zombies" );
 		while ( level.zombie_spawn_locations.size <= 0 )
 		{
 			wait 0.1;
@@ -3367,7 +3322,6 @@ round_pause( delay ) //checked changed to match cerberus output
 	{
 		wait 1;
 		delay--;
-
 		level.countdown_hud setvalue( delay );
 	}
 	players = get_players();
@@ -4401,7 +4355,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	//checked against bo3 _zm.gsc changed to match 
 	if ( count < players.size || isDefined( level._game_module_game_end_check ) && ![[ level._game_module_game_end_check ]]() )
 	{
-		if ( isDefined( self.lives ) && self.lives > 0 && isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && self hasperk( "specialty_quickrevive" ) )
+		if ( isDefined( self.lives ) && self.lives > 0 || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive || self hasperk( "specialty_quickrevive" ) )
 		{
 			self thread wait_and_revive();
 		}
@@ -4645,11 +4599,6 @@ actor_damage_override_wrapper( inflictor, attacker, damage, flags, meansofdeath,
 	damage_override = self actor_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 	if ( ( self.health - damage_override ) > 0 || isDefined( self.dont_die_on_me ) && !self.dont_die_on_me )
 	{
-		if ( level.debugLogging_zm )
-		{
-			logline10 = "_zm.gsc actor_killed_override_wrapper() actor survives taking: " + damage_override + " damage " + "\n";
-			logprint( logline10 );
-		}
 		self finishactordamage( inflictor, attacker, damage_override, flags, meansofdeath, weapon, vpoint, vdir, shitloc, psoffsettime, boneindex );
 	}
 	else 
@@ -4711,10 +4660,12 @@ actor_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vd
 	{
 		self [[ self.actor_killed_override ]]( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime );
 	}
+	/*
 	if ( isDefined( self.deathfunction ) ) //added from bo3 _zm.gsc
 	{
 		self [[ self.deathfunction ]]( eInflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime );
 	}
+	*/
 }
 
 round_end_monitor() //checked matches cerberus output //checked against bo3 _zm.gsc matches within reason
@@ -4731,7 +4682,6 @@ round_end_monitor() //checked matches cerberus output //checked against bo3 _zm.
 end_game() //checked changed to match cerberus output
 {
 	level waittill( "end_game" );
-	//return; //added for debugging purposes
 	check_end_game_intermission_delay();
 	clientnotify( "zesn" );
 	if ( isDefined( level.sndgameovermusicoverride ) )
@@ -5637,6 +5587,8 @@ player_too_many_players_check() //checked matches cerberus output
 		level notify( "end_game" );
 	}
 }
+
+
 
 
 
