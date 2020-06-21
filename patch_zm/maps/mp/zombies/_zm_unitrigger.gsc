@@ -258,14 +258,13 @@ reregister_unitrigger_as_dynamic( unitrigger_stub ) //checked matches cerberus o
 	register_unitrigger( unitrigger_stub, unitrigger_stub.trigger_func );
 }
 
-debug_unitriggers() //checked changed to match cerberus output
+debug_unitriggers() //checked changed to match cerberus output dvar taken from beta dump
 {
 	/*
 /#
 	while ( 1 )
 	{
-		//dvar name is unknown in both dumps
-		while ( getDvarInt( #"D256F24B" ) > 0 )
+		if ( getDvarInt( "debug_unitrigger" ) > 0 )
 		{
 			for ( i = 0; i < level._unitriggers.trigger_stubs.size; i++ )
 			{
