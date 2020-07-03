@@ -1,3 +1,4 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zm_tomb_amb;
 #include maps/mp/zm_tomb_challenges;
@@ -9,6 +10,12 @@
 #include maps/mp/zombies/_zm_blockers;
 #include maps/mp/zm_tomb_teleporter;
 #include maps/mp/zm_tomb_vo;
+#include maps/mp/zm_tomb_chamber;
+#include maps/mp/zm_tomb_quest_crypt;
+#include maps/mp/zm_tomb_quest_elec;
+#include maps/mp/zm_tomb_quest_ice;
+#include maps/mp/zm_tomb_quest_fire;
+#include maps/mp/zm_tomb_quest_air;
 #include maps/mp/zombies/_zm_net;
 #include maps/mp/zm_tomb_utility;
 #include maps/mp/zombies/_zm_sidequests;
@@ -17,9 +24,9 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props_dlc4" );
+//#using_animtree( "fxanim_props_dlc4" );
 
-main_quest_init()
+main_quest_init() //checked changed to match cerberus output
 {
 	flag_init( "dug" );
 	flag_init( "air_open" );
@@ -67,17 +74,13 @@ main_quest_init()
 	level.a_elemental_staffs[ level.a_elemental_staffs.size ] = staff_fire;
 	level.a_elemental_staffs[ level.a_elemental_staffs.size ] = staff_lightning;
 	level.a_elemental_staffs[ level.a_elemental_staffs.size ] = staff_water;
-	_a90 = level.a_elemental_staffs;
-	_k90 = getFirstArrayKey( _a90 );
-	while ( isDefined( _k90 ) )
+	foreach ( staff in level.a_elemental_staffs )
 	{
-		staff = _a90[ _k90 ];
 		staff.charger.charges_received = 0;
 		staff.charger.is_inserted = 0;
 		staff thread place_staffs_encasement();
 		staff thread staff_charger_check();
 		staff ghost();
-		_k90 = getNextArrayKey( _a90, _k90 );
 	}
 	staff_air_upgraded = getent( "prop_staff_air_upgraded", "targetname" );
 	staff_fire_upgraded = getent( "prop_staff_fire_upgraded", "targetname" );
@@ -116,11 +119,8 @@ main_quest_init()
 	level.a_elemental_staffs_upgraded[ level.a_elemental_staffs_upgraded.size ] = staff_fire_upgraded;
 	level.a_elemental_staffs_upgraded[ level.a_elemental_staffs_upgraded.size ] = staff_lightning_upgraded;
 	level.a_elemental_staffs_upgraded[ level.a_elemental_staffs_upgraded.size ] = staff_water_upgraded;
-	_a147 = level.a_elemental_staffs_upgraded;
-	_k147 = getFirstArrayKey( _a147 );
-	while ( isDefined( _k147 ) )
+	foreach ( staff_upgraded in level.a_elemental_staffs_upgraded )
 	{
-		staff_upgraded = _a147[ _k147 ];
 		staff_upgraded.charger.charges_received = 0;
 		staff_upgraded.charger.is_inserted = 0;
 		staff_upgraded.charger.is_charged = 0;
@@ -128,19 +128,14 @@ main_quest_init()
 		staff_upgraded.prev_ammo_stock = weaponmaxammo( staff_upgraded.weapname );
 		staff_upgraded thread place_staffs_encasement();
 		staff_upgraded ghost();
-		_k147 = getNextArrayKey( _a147, _k147 );
 	}
-	_a159 = level.a_elemental_staffs;
-	_k159 = getFirstArrayKey( _a159 );
-	while ( isDefined( _k159 ) )
+	foreach ( staff in level.a_elemental_staffs )
 	{
-		staff = _a159[ _k159 ];
 		staff.prev_ammo_clip = weaponclipsize( staff_upgraded.weapname );
 		staff.prev_ammo_stock = weaponmaxammo( staff_upgraded.weapname );
 		staff.upgrade.downgrade = staff;
 		staff.upgrade useweaponmodel( staff.weapname );
 		staff.upgrade showallparts();
-		_k159 = getNextArrayKey( _a159, _k159 );
 	}
 	level.staffs_charged = 0;
 	array_thread( level.zombie_spawners, ::add_spawn_function, ::zombie_spawn_func );
@@ -165,24 +160,29 @@ main_quest_init()
 	array_thread( level.dig_spawners, ::add_spawn_function, ::dug_zombie_spawn_init );
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 }
 
-player_disconnect_callback( player )
+player_disconnect_callback( player ) //checked matches cerberus output //looks suspicious
 {
 	n_player = player getentitynumber() + 1;
-	level delay_thread( 0,5, ::clear_player_staff_by_player_number, n_player );
+	level delay_thread( 0.5, ::clear_player_staff_by_player_number, n_player );
 }
 
-place_staffs_encasement()
+clear_player_staff_by_player_number( n_player )
+{
+	level setclientfield( "staff_player" + n_player, 0 );
+}
+
+place_staffs_encasement() //checked matches cerberus output
 {
 	s_pos = getstruct( "staff_pos_" + self.element, "targetname" );
 	self.origin = s_pos.origin;
 	self.angles = s_pos.angles;
 }
 
-chambers_init()
+chambers_init() //checked matches cerberus output
 {
 	flag_init( "gramophone_placed" );
 	array_thread( getentarray( "trigger_death_floor", "targetname" ), ::monitor_chamber_death_trigs );
@@ -192,7 +192,7 @@ chambers_init()
 	array_thread( a_door_main, ::run_gramophone_door, "vinyl_master" );
 }
 
-monitor_chamber_death_trigs()
+monitor_chamber_death_trigs() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -202,11 +202,11 @@ monitor_chamber_death_trigs()
 			ent.bleedout_time = 0;
 		}
 		ent dodamage( ent.health + 666, ent.origin );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-watch_gramophone_vinyl_pickup()
+watch_gramophone_vinyl_pickup() //checked matches cerberus output
 {
 	str_vinyl_record = "vinyl_main";
 	switch( self.script_int )
@@ -231,29 +231,24 @@ watch_gramophone_vinyl_pickup()
 	self.has_vinyl = 1;
 }
 
-get_gramophone_song()
+get_gramophone_song() //checked changed to match cerberus output
 {
 	switch( self.script_int )
 	{
 		case 1:
 			return "mus_gramophone_fire";
-			case 2:
-				return "mus_gramophone_air";
-				case 3:
-					return "mus_gramophone_electric";
-					case 4:
-						return "mus_gramophone_ice";
-						default:
-							return "mus_gramophone_electric";
-						}
-					}
-				}
-			}
-		}
+		case 2:
+			return "mus_gramophone_air";
+		case 3:
+			return "mus_gramophone_electric";
+		case 4:
+			return "mus_gramophone_ice";
+		default:
+			return "mus_gramophone_electric";
 	}
 }
 
-run_gramophone_teleporter( str_vinyl_record )
+run_gramophone_teleporter( str_vinyl_record ) //checked changed to match cerberus output
 {
 	self.has_vinyl = 0;
 	self.gramophone_model = undefined;
@@ -265,7 +260,7 @@ run_gramophone_teleporter( str_vinyl_record )
 	t_gramophone set_unitrigger_hint_string( &"ZM_TOMB_RU" );
 	while ( !self.has_vinyl )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	t_gramophone set_unitrigger_hint_string( &"ZM_TOMB_PLGR" );
 	while ( 1 )
@@ -299,7 +294,6 @@ run_gramophone_teleporter( str_vinyl_record )
 			{
 				player door_gramophone_elsewhere_hint();
 			}
-			continue;
 		}
 		else
 		{
@@ -314,21 +308,23 @@ run_gramophone_teleporter( str_vinyl_record )
 	}
 }
 
-door_watch_open_sesame()
+door_watch_open_sesame() //checked changed to match cerberus output
 {
+	/*
 /#
 	level waittill_any( "open_sesame", "open_all_gramophone_doors" );
 	self.has_vinyl = 1;
 	level.b_open_all_gramophone_doors = 1;
-	wait 0,5;
+	wait 0.5;
 	if ( isDefined( self.trigger ) )
 	{
-		self.trigger notify( "trigger" );
+		self.trigger notify( "trigger", getplayers()[0] );
 #/
 	}
+	*/
 }
 
-run_gramophone_door( str_vinyl_record )
+run_gramophone_door( str_vinyl_record ) //checked changed to match cerberus output
 {
 	flag_init( self.targetname + "_opened" );
 	trig_position = getstruct( self.targetname + "_position", "targetname" );
@@ -344,7 +340,7 @@ run_gramophone_door( str_vinyl_record )
 	trig_position.trigger = t_door;
 	while ( !trig_position.has_vinyl )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	t_door set_unitrigger_hint_string( &"ZM_TOMB_PLGR" );
 	while ( 1 )
@@ -384,28 +380,27 @@ run_gramophone_door( str_vinyl_record )
 				{
 					break;
 				}
-				else
-				{
-				}
-				else player door_gramophone_elsewhere_hint();
-				continue;
 			}
 			else
 			{
-				trig_position.gramophone_model delete();
-				trig_position.gramophone_model = undefined;
-				flag_clear( "gramophone_placed" );
-				player playsound( "zmb_craftable_pickup" );
-				level setclientfield( "piece_record_zm_player", 1 );
-				break;
+				player door_gramophone_elsewhere_hint();
 			}
+		}
+		else
+		{
+			trig_position.gramophone_model delete();
+			trig_position.gramophone_model = undefined;
+			flag_clear( "gramophone_placed" );
+			player playsound( "zmb_craftable_pickup" );
+			level setclientfield( "piece_record_zm_player", 1 );
+			break;
 		}
 	}
 	t_door tomb_unitrigger_delete();
 	trig_position.trigger = undefined;
 }
 
-chamber_blocker()
+chamber_blocker() //checked matches cerberus output
 {
 	a_blockers = getentarray( "junk_nml_chamber", "targetname" );
 	m_blocker = getent( "junk_nml_chamber", "targetname" );
@@ -417,94 +412,74 @@ chamber_blocker()
 	m_blocker_clip delete();
 }
 
-watch_for_staff_upgrades()
+watch_for_staff_upgrades() //checked changed to match cerberus output
 {
-	_a561 = level.a_elemental_staffs;
-	_k561 = getFirstArrayKey( _a561 );
-	while ( isDefined( _k561 ) )
+	foreach ( staff in level.a_elemental_staffs )
 	{
-		staff = _a561[ _k561 ];
 		staff thread staff_upgrade_watch();
-		_k561 = getNextArrayKey( _a561, _k561 );
 	}
 }
 
-staff_upgrade_watch()
+staff_upgrade_watch() //checked matches cerberus output
 {
 	flag_wait( self.weapname + "_upgrade_unlocked" );
 	self thread place_staff_in_charger();
 }
 
-staff_get_pickup_message()
+staff_get_pickup_message() //checked changed to match cerberus output
 {
 	if ( self.element == "air" )
 	{
 		return &"ZM_TOMB_PUAS";
 	}
+	else if ( self.element == "fire" )
+	{
+		return &"ZM_TOMB_PUFS";
+	}
+	else if ( self.element == "lightning" )
+	{
+		return &"ZM_TOMB_PULS";
+	}
 	else
 	{
-		if ( self.element == "fire" )
-		{
-			return &"ZM_TOMB_PUFS";
-		}
-		else
-		{
-			if ( self.element == "lightning" )
-			{
-				return &"ZM_TOMB_PULS";
-			}
-			else
-			{
-				return &"ZM_TOMB_PUIS";
-			}
-		}
+		return &"ZM_TOMB_PUIS";
 	}
 }
 
-staff_get_insert_message()
+staff_get_insert_message() //checked changed to match cerberus output
 {
 	if ( self.element == "air" )
 	{
 		return &"ZM_TOMB_INAS";
 	}
+	else if ( self.element == "fire" )
+	{
+		return &"ZM_TOMB_INFS";
+	}
+	else if ( self.element == "lightning" )
+	{
+		return &"ZM_TOMB_INLS";
+	}
 	else
 	{
-		if ( self.element == "fire" )
-		{
-			return &"ZM_TOMB_INFS";
-		}
-		else
-		{
-			if ( self.element == "lightning" )
-			{
-				return &"ZM_TOMB_INLS";
-			}
-			else
-			{
-				return &"ZM_TOMB_INWS";
-			}
-		}
+		return &"ZM_TOMB_INWS";
 	}
 }
 
-player_has_staff()
+player_has_staff() //checked changed to match cerberus output
 {
 	a_weapons = self getweaponslistprimaries();
-	_a617 = a_weapons;
-	_k617 = getFirstArrayKey( _a617 );
-	while ( isDefined( _k617 ) )
+	foreach ( weapon in a_weapons )
 	{
-		weapon = _a617[ _k617 ];
 		if ( issubstr( weapon, "staff" ) )
 		{
 			return 1;
 		}
-		_k617 = getNextArrayKey( _a617, _k617 );
 	}
 	return 0;
 }
 
-can_pickup_staff()
+can_pickup_staff() //checked changed at own discretion
 {
 	b_has_staff = self player_has_staff();
 	b_staff_equipped = issubstr( self getcurrentweapon(), "staff" );
@@ -512,13 +487,17 @@ can_pickup_staff()
 	{
 		self thread swap_staff_hint();
 	}
-	if ( b_has_staff )
+	if ( !b_has_staff )
+	{
+		return b_has_staff;
+	}
+	else
 	{
 		return b_staff_equipped;
 	}
 }
 
-watch_for_player_pickup_staff()
+watch_for_player_pickup_staff() //checked changed to match cerberus output
 {
 	staff_picked_up = 0;
 	pickup_message = self staff_get_pickup_message();
@@ -528,7 +507,7 @@ watch_for_player_pickup_staff()
 	while ( !staff_picked_up )
 	{
 		self.trigger waittill( "trigger", player );
-		self notify( "retrieved" );
+		self notify( "retrieved", player );
 		if ( player can_pickup_staff() )
 		{
 			weapon_drop = player getcurrentweapon();
@@ -557,28 +536,24 @@ watch_for_player_pickup_staff()
 	}
 }
 
-watch_staff_ammo_reload()
+watch_staff_ammo_reload() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
 	{
 		self waittill( "zmb_max_ammo" );
 		a_weapons = self getweaponslistprimaries();
-		_a715 = a_weapons;
-		_k715 = getFirstArrayKey( _a715 );
-		while ( isDefined( _k715 ) )
+		foreach ( weapon in a_weapons )
 		{
-			weapon = _a715[ _k715 ];
 			if ( issubstr( weapon, "staff" ) )
 			{
 				self setweaponammoclip( weapon, weaponmaxammo( weapon ) );
 			}
-			_k715 = getNextArrayKey( _a715, _k715 );
 		}
 	}
 }
 
-rotate_forever( rotate_time )
+rotate_forever( rotate_time ) //checked matches cerberus output
 {
 	if ( !isDefined( rotate_time ) )
 	{
@@ -592,13 +567,13 @@ rotate_forever( rotate_time )
 	}
 }
 
-staff_crystal_wait_for_teleport( n_element_enum )
+staff_crystal_wait_for_teleport( n_element_enum ) //checked partially changed to match cerberus output changed at own discretion
 {
 	flag_init( "charger_ready_" + n_element_enum );
 	self craftable_waittill_spawned();
 	self.origin = self.piecespawn.model.origin;
 	self.piecespawn.model ghost();
-	self.piecespawn.model movez( -1000, 0,05 );
+	self.piecespawn.model movez( -1000, 0.05 );
 	e_plinth = getent( "crystal_plinth" + n_element_enum, "targetname" );
 	e_plinth.v_start = e_plinth.origin;
 	e_plinth.v_start = ( e_plinth.v_start[ 0 ], e_plinth.v_start[ 1 ], e_plinth.origin[ 2 ] - 78 );
@@ -614,9 +589,6 @@ staff_crystal_wait_for_teleport( n_element_enum )
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	e_plinth moveto( e_plinth.v_crystal, 6 );
 	e_plinth thread sndmoveplinth( 6 );
@@ -625,14 +597,14 @@ staff_crystal_wait_for_teleport( n_element_enum )
 	lookat_time = 0;
 	while ( lookat_time < 1 && isDefined( self.piecespawn.model ) )
 	{
-		wait 0,1;
+		wait 0.1;
 		if ( !isDefined( self.piecespawn.model ) )
 		{
-		}
-		else if ( self.piecespawn.model any_player_looking_at_plinth( lookat_dot, dist_sq ) )
-		{
-			lookat_time += 0,1;
 			continue;
+		}
+		if ( self.piecespawn.model any_player_looking_at_plinth( lookat_dot, dist_sq ) )
+		{
+			lookat_time += 0.1;
 		}
 		else
 		{
@@ -641,12 +613,12 @@ staff_crystal_wait_for_teleport( n_element_enum )
 	}
 	if ( isDefined( self.piecespawn.model ) )
 	{
-		self.piecespawn.model movez( 985, 0,05 );
+		self.piecespawn.model movez( 985, 0.05 );
 		self.piecespawn.model waittill( "movedone" );
 		self.piecespawn.model show();
 		self.piecespawn.model thread rotate_forever();
 		self.piecespawn.model movez( 15, 2 );
-		self.piecespawn.model playloopsound( "zmb_squest_crystal_loop", 4,25 );
+		self.piecespawn.model playloopsound( "zmb_squest_crystal_loop", 4.25 );
 	}
 	flag_wait( "charger_ready_" + n_element_enum );
 	while ( !maps/mp/zm_tomb_chamber::is_chamber_occupied() )
@@ -658,30 +630,28 @@ staff_crystal_wait_for_teleport( n_element_enum )
 	e_plinth waittill( "movedone" );
 }
 
-sndmoveplinth( time )
+sndmoveplinth( time ) //checked matches cerberus output
 {
 	self notify( "sndMovePlinth" );
 	self endon( "sndMovePlinth" );
-	self playloopsound( "zmb_chamber_plinth_move", 0,25 );
+	self playloopsound( "zmb_chamber_plinth_move", 0.25 );
 	wait time;
-	self stoploopsound( 0,1 );
+	self stoploopsound( 0.1 );
 	self playsound( "zmb_chamber_plinth_stop" );
 }
 
-staff_mechz_drop_pieces( s_piece )
+staff_mechz_drop_pieces( s_piece ) //checked changed to match cerberus output
 {
 	s_piece craftable_waittill_spawned();
 	s_piece.piecespawn.model ghost();
-	i = 0;
-	while ( i < 1 )
+	for ( i = 0; i < 1; i++ )
 	{
-		level waittill( "mechz_killed", origin );
-		i++;
+		level waittill("mechz_killed", origin);
 	}
 	s_piece.piecespawn.canmove = 1;
 	maps/mp/zombies/_zm_unitrigger::reregister_unitrigger_as_dynamic( s_piece.piecespawn.unitrigger );
 	origin = groundpos_ignore_water_new( origin + vectorScale( ( 0, 0, 1 ), 40 ) );
-	s_piece.piecespawn.model moveto( origin + vectorScale( ( 0, 0, 1 ), 32 ), 0,05 );
+	s_piece.piecespawn.model moveto( origin + vectorScale( ( 0, 0, 1 ), 32 ), 0.05 );
 	s_piece.piecespawn.model waittill( "movedone" );
 	if ( isDefined( s_piece.piecespawn.model ) )
 	{
@@ -691,7 +661,7 @@ staff_mechz_drop_pieces( s_piece )
 	}
 }
 
-mechz_staff_piece_failsafe()
+mechz_staff_piece_failsafe() //checked changed to match cerberus output
 {
 	min_dist_sq = 1000000;
 	self endon( "death" );
@@ -700,33 +670,26 @@ mechz_staff_piece_failsafe()
 	{
 		a_players = getplayers();
 		b_anyone_near = 0;
-		_a891 = a_players;
-		_k891 = getFirstArrayKey( _a891 );
-		while ( isDefined( _k891 ) )
+		foreach ( e_player in a_players )
 		{
-			e_player = _a891[ _k891 ];
 			dist_sq = distance2dsquared( e_player.origin, self.origin );
 			if ( dist_sq < min_dist_sq )
 			{
 				b_anyone_near = 1;
 			}
-			_k891 = getNextArrayKey( _a891, _k891 );
 		}
 		if ( !b_anyone_near )
 		{
 			break;
 		}
-		else
-		{
-			wait 1;
-		}
+		wait 1;
 	}
 	a_locations = getstructarray( "mechz_location", "script_noteworthy" );
 	s_location = get_closest_2d( self.origin, a_locations );
 	self moveto( s_location.origin + vectorScale( ( 0, 0, 1 ), 32 ), 3 );
 }
 
-biplane_clue()
+biplane_clue() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	level endon( "biplane_down" );
@@ -739,30 +702,22 @@ biplane_clue()
 		}
 		wait randomfloatrange( 5, 15 );
 		a_players = getplayers();
-		_a933 = a_players;
-		_k933 = getFirstArrayKey( _a933 );
-		while ( isDefined( _k933 ) )
+		foreach ( e_player in a_players )
 		{
-			e_player = _a933[ _k933 ];
 			level notify( "sam_clue_biplane" );
-			_k933 = getNextArrayKey( _a933, _k933 );
 		}
 	}
 }
 
-staff_biplane_drop_pieces( a_staff_pieces )
+staff_biplane_drop_pieces( a_staff_pieces ) //checked changed to match cerberus output
 {
-	_a942 = a_staff_pieces;
-	_k942 = getFirstArrayKey( _a942 );
-	while ( isDefined( _k942 ) )
+	foreach ( staff_piece in a_staff_pieces )
 	{
-		staff_piece = _a942[ _k942 ];
 		staff_piece craftable_waittill_spawned();
 		staff_piece.origin = staff_piece.piecespawn.model.origin;
 		staff_piece.piecespawn.model notify( "staff_piece_glow" );
 		staff_piece.piecespawn.model ghost();
-		staff_piece.piecespawn.model movez( -500, 0,05 );
-		_k942 = getNextArrayKey( _a942, _k942 );
+		staff_piece.piecespawn.model movez( -500, 0.05 );
 	}
 	flag_wait( "activate_zone_village_0" );
 	cur_round = level.round_number;
@@ -775,7 +730,7 @@ staff_biplane_drop_pieces( a_staff_pieces )
 	vh_biplane ent_flag_init( "biplane_down", 0 );
 	vh_biplane thread biplane_clue();
 	e_fx_tag = getent( "air_crystal_biplane_tag", "targetname" );
-	e_fx_tag moveto( vh_biplane.origin, 0,05 );
+	e_fx_tag moveto( vh_biplane.origin, 0.05 );
 	e_fx_tag waittill( "movedone" );
 	e_fx_tag linkto( vh_biplane, "tag_origin" );
 	vh_biplane.health = 10000;
@@ -787,35 +742,27 @@ staff_biplane_drop_pieces( a_staff_pieces )
 	e_fx_tag setclientfield( "element_glow_fx", 1 );
 	vh_biplane ent_flag_wait( "biplane_down" );
 	vh_biplane playsound( "zmb_zombieblood_3rd_plane_explode" );
-	_a992 = a_staff_pieces;
-	_k992 = getFirstArrayKey( _a992 );
-	while ( isDefined( _k992 ) )
+	foreach ( staff_piece in a_staff_pieces )
 	{
-		staff_piece = _a992[ _k992 ];
 		staff_piece.e_fx = spawn( "script_model", e_fx_tag.origin );
 		staff_piece.e_fx setmodel( "tag_origin" );
 		staff_piece.e_fx setclientfield( "element_glow_fx", 1 );
 		staff_piece.e_fx moveto( staff_piece.origin, 5 );
-		_k992 = getNextArrayKey( _a992, _k992 );
 	}
 	playfx( level._effect[ "biplane_explode" ], vh_biplane.origin );
 	vh_biplane delete();
 	e_fx_tag delete();
 	a_staff_pieces[ 0 ].e_fx waittill( "movedone" );
-	_a1009 = a_staff_pieces;
-	_k1009 = getFirstArrayKey( _a1009 );
-	while ( isDefined( _k1009 ) )
+	foreach ( staff_piece in a_staff_pieces )
 	{
-		staff_piece = _a1009[ _k1009 ];
 		staff_piece.e_fx delete();
 		staff_piece.piecespawn.model show();
-		staff_piece.piecespawn.model movez( 500, 0,05 );
+		staff_piece.piecespawn.model movez( 500, 0.05 );
 		staff_piece.piecespawn.model waittill( "movedone" );
-		_k1009 = getNextArrayKey( _a1009, _k1009 );
 	}
 }
 
-aircrystalbiplanecallback_vehicledamage( e_inflictor, e_attacker, n_damage, n_dflags, str_means_of_death, str_weapon, v_point, v_dir, str_hit_loc, psoffsettime, b_damage_from_underneath, n_model_index, str_part_name )
+aircrystalbiplanecallback_vehicledamage( e_inflictor, e_attacker, n_damage, n_dflags, str_means_of_death, str_weapon, v_point, v_dir, str_hit_loc, psoffsettime, b_damage_from_underneath, n_model_index, str_part_name ) //checked matches cerberus output
 {
 	if ( isplayer( e_attacker ) && self.vehicletype == "biplane_zm" && !self ent_flag( "biplane_down" ) )
 	{
@@ -825,7 +772,7 @@ aircrystalbiplanecallback_vehicledamage( e_inflictor, e_attacker, n_damage, n_df
 	return n_damage;
 }
 
-zone_capture_clue( str_zone )
+zone_capture_clue( str_zone ) //checked changed to match cerberus output
 {
 	level endon( "staff_piece_capture_complete" );
 	while ( 1 )
@@ -836,27 +783,25 @@ zone_capture_clue( str_zone )
 			wait 1;
 		}
 		a_players = getplayers();
-		_a1044 = a_players;
-		_k1044 = getFirstArrayKey( _a1044 );
-		while ( isDefined( _k1044 ) )
+		foreach ( e_player in a_players )
 		{
-			e_player = _a1044[ _k1044 ];
 			level notify( "sam_clue_zonecap" );
-			_k1044 = getNextArrayKey( _a1044, _k1044 );
 		}
 	}
 }
 
-staff_unlock_with_zone_capture( s_staff_piece )
+staff_unlock_with_zone_capture( s_staff_piece ) //checked changed to match cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	s_staff_piece craftable_waittill_spawned();
 	str_zone = maps/mp/zombies/_zm_zonemgr::get_zone_from_position( s_staff_piece.piecespawn.model.origin, 1 );
 	if ( !isDefined( str_zone ) )
 	{
+		/*
 /#
 		assertmsg( "Zone capture staff piece is not in a zone." );
 #/
+		*/
 		return;
 	}
 	level thread zone_capture_clue( str_zone );
@@ -868,33 +813,26 @@ staff_unlock_with_zone_capture( s_staff_piece )
 		{
 			break;
 		}
-		else
-		{
-		}
 	}
 	level notify( "staff_piece_capture_complete" );
-	_a1082 = level.a_uts_challenge_boxes;
-	_k1082 = getFirstArrayKey( _a1082 );
-	while ( isDefined( _k1082 ) )
+	foreach ( uts_box in level.a_uts_challenge_boxes )
 	{
-		uts_box = _a1082[ _k1082 ];
 		if ( uts_box.str_location == "church_capture" )
 		{
 			uts_box.s_staff_piece = s_staff_piece;
 			level thread maps/mp/zombies/_zm_challenges::open_box( undefined, uts_box, ::reward_staff_piece );
 			return;
 		}
-		_k1082 = getNextArrayKey( _a1082, _k1082 );
 	}
 }
 
-reward_staff_piece( player, s_stat )
+reward_staff_piece( player, s_stat ) //checked changed to match cerberus output
 {
 	m_piece = spawn( "script_model", self.origin );
-	m_piece.angles = self.angles + vectorScale( ( 0, 0, 1 ), 180 );
+	m_piece.angles = self.angles + vectorScale( ( 0, 1, 0 ), 180 );
 	m_piece setmodel( "t6_wpn_zmb_staff_tip_fire_world" );
 	m_piece.origin = self.origin;
-	m_piece.angles = self.angles + vectorScale( ( 0, 0, 1 ), 90 );
+	m_piece.angles = self.angles + vectorScale( ( 0, 1, 0 ), 90 );
 	m_piece setclientfield( "element_glow_fx", 1 );
 	wait_network_frame();
 	if ( !reward_rise_and_grab( m_piece, 50, 2, 2, -1 ) )
@@ -912,15 +850,12 @@ reward_staff_piece( player, s_stat )
 	return 1;
 }
 
-dig_spot_get_staff_piece( e_player )
+dig_spot_get_staff_piece( e_player ) //checked changed to match cerberus output
 {
 	level notify( "sam_clue_dig" );
 	str_zone = self.str_zone;
-	_a1142 = level.ice_staff_pieces;
-	_k1142 = getFirstArrayKey( _a1142 );
-	while ( isDefined( _k1142 ) )
+	foreach ( s_staff in level.ice_staff_pieces )
 	{
-		s_staff = _a1142[ _k1142 ];
 		if ( !isDefined( s_staff.num_misses ) )
 		{
 			s_staff.num_misses = 0;
@@ -942,22 +877,18 @@ dig_spot_get_staff_piece( e_player )
 				break;
 			}
 		}
-		else
-		{
-			_k1142 = getNextArrayKey( _a1142, _k1142 );
-		}
 	}
 	return undefined;
 }
 
-show_ice_staff_piece( origin )
+show_ice_staff_piece( origin ) //checked matches cerberus output
 {
 	arrayremovevalue( level.ice_staff_pieces, self );
-	wait 0,5;
+	wait 0.5;
 	self.piecespawn.canmove = 1;
 	maps/mp/zombies/_zm_unitrigger::reregister_unitrigger_as_dynamic( self.piecespawn.unitrigger );
 	vert_offset = 32;
-	self.piecespawn.model moveto( origin + ( 0, 0, vert_offset ), 0,05 );
+	self.piecespawn.model moveto( origin + ( 0, 0, vert_offset ), 0.05 );
 	self.piecespawn.model waittill( "movedone" );
 	self.piecespawn.model showindemo();
 	self.piecespawn.model show();
@@ -966,18 +897,14 @@ show_ice_staff_piece( origin )
 	self.piecespawn.model playloopsound( "evt_staff_digup_lp" );
 }
 
-staff_ice_dig_pieces( a_staff_pieces )
+staff_ice_dig_pieces( a_staff_pieces ) //checked changed to match cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	level.ice_staff_pieces = arraycopy( a_staff_pieces );
-	_a1199 = level.ice_staff_pieces;
-	_k1199 = getFirstArrayKey( _a1199 );
-	while ( isDefined( _k1199 ) )
+	foreach ( s_piece in level.ice_staff_pieces )
 	{
-		s_piece = _a1199[ _k1199 ];
 		s_piece craftable_waittill_spawned();
 		s_piece.piecespawn.model ghost();
-		_k1199 = getNextArrayKey( _a1199, _k1199 );
 	}
 	level.ice_staff_pieces[ 0 ].zone_substr = "bunker";
 	level.ice_staff_pieces[ 1 ].zone_substr = "nml";
@@ -985,7 +912,7 @@ staff_ice_dig_pieces( a_staff_pieces )
 	level.ice_staff_pieces[ 2 ].num_misses = 2;
 }
 
-crystal_play_glow_fx( s_crystal )
+crystal_play_glow_fx( s_crystal ) //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	switch( s_crystal.modelname )
@@ -1005,7 +932,7 @@ crystal_play_glow_fx( s_crystal )
 	}
 }
 
-watch_for_crystal_pickup( s_crystal, n_enum )
+watch_for_crystal_pickup( s_crystal, n_enum ) //checked matches cerberus output
 {
 	s_crystal.piecespawn.model setclientfield( "element_glow_fx", n_enum );
 	s_crystal.piecespawn waittill( "pickup" );
@@ -1013,7 +940,7 @@ watch_for_crystal_pickup( s_crystal, n_enum )
 	level.n_crystals_pickedup++;
 }
 
-crystal_dropped( s_crystal )
+crystal_dropped( s_crystal ) //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	s_crystal.piecespawn waittill( "piece_released" );
@@ -1022,7 +949,7 @@ crystal_dropped( s_crystal )
 	level thread crystal_play_glow_fx( s_crystal );
 }
 
-staff_charger_get_player_msg( e_player )
+staff_charger_get_player_msg( e_player ) //checked changed to match cerberus output
 {
 	weapon_available = 1;
 	charge_ready = 0;
@@ -1038,21 +965,18 @@ staff_charger_get_player_msg( e_player )
 		msg = self.stub.staff_data staff_get_insert_message();
 		return msg;
 	}
+	else if ( charge_ready )
+	{
+		msg = self.stub.staff_data staff_get_pickup_message();
+		return msg;
+	}
 	else
 	{
-		if ( charge_ready )
-		{
-			msg = self.stub.staff_data staff_get_pickup_message();
-			return msg;
-		}
-		else
-		{
-			return "";
-		}
+		return "";
 	}
 }
 
-place_staff_in_charger()
+place_staff_in_charger() //checked matches cerberus output
 {
 	flag_set( "charger_ready_" + self.enum );
 	v_trigger_pos = self.charger.origin;
@@ -1067,8 +991,9 @@ place_staff_in_charger()
 	waittill_staff_inserted();
 }
 
-debug_staff_charge()
+debug_staff_charge() //checked changed to match cerberus output
 {
+	/*
 /#
 	if ( !isDefined( self.charger.charges_received ) )
 	{
@@ -1083,18 +1008,19 @@ debug_staff_charge()
 			{
 				self.prev_ammo_stock = maxammo;
 			}
-			print3d( self.origin, ( self.prev_ammo_stock + "/" ) + maxammo, vectorScale( ( 0, 0, 1 ), 255 ), 1 );
+			print3d( self.origin, ( self.prev_ammo_stock + "/" ) + maxammo, vectorScale( ( 1, 1, 1 ), 255 ), 1 );
 		}
 		else
 		{
-			print3d( self.origin, ( self.charger.charges_received + "/" ) + 20, vectorScale( ( 0, 0, 1 ), 255 ), 1 );
+			print3d( self.origin, ( self.charger.charges_received + "/" ) + 20, vectorScale( ( 1, 1, 1 ), 255 ), 1 );
 		}
-		wait 0,05;
+		wait 0.05;
 #/
 	}
+	*/
 }
 
-waittill_staff_inserted()
+waittill_staff_inserted() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -1118,7 +1044,7 @@ waittill_staff_inserted()
 			{
 				self.angles = self.charger.angles;
 			}
-			self moveto( self.charger.origin, 0,05 );
+			self moveto( self.charger.origin, 0.05 );
 			self waittill( "movedone" );
 			self setclientfield( "staff_charger", self.enum );
 			self.charger.full = 0;
@@ -1129,12 +1055,12 @@ waittill_staff_inserted()
 	}
 }
 
-zombie_spawn_func()
+zombie_spawn_func() //checked matches cerberus output
 {
 	self.actor_killed_override = ::zombie_killed_override;
 }
 
-zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime )
+zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime ) //checked partially changed to match cerberus output see info.md
 {
 	if ( flag( "ee_sam_portal_active" ) && !flag( "ee_souls_absorbed" ) )
 	{
@@ -1154,11 +1080,8 @@ zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, v
 		}
 		s_nearest_staff = undefined;
 		n_nearest_dist_sq = n_max_dist_sq;
-		_a1434 = level.a_elemental_staffs;
-		_k1434 = getFirstArrayKey( _a1434 );
-		while ( isDefined( _k1434 ) )
+		foreach ( staff in level.a_elemental_staffs )
 		{
-			staff = _a1434[ _k1434 ];
 			if ( isDefined( staff.charger.full ) && staff.charger.full )
 			{
 			}
@@ -1177,7 +1100,6 @@ zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, v
 					}
 				}
 			}
-			_k1434 = getNextArrayKey( _a1434, _k1434 );
 		}
 		if ( isDefined( s_nearest_staff ) )
 		{
@@ -1194,14 +1116,14 @@ zombie_killed_override( einflictor, attacker, idamage, smeansofdeath, sweapon, v
 	}
 }
 
-zombie_soul_to_charger( ai_zombie, n_element )
+zombie_soul_to_charger( ai_zombie, n_element ) //checked matches cerberus output
 {
 	ai_zombie setclientfield( "zombie_soul", 1 );
-	wait 1,5;
+	wait 1.5;
 	self notify( "soul_received" );
 }
 
-staff_charger_check()
+staff_charger_check() //checked changed to match cerberus output
 {
 	self.charger.is_charged = 0;
 	flag_wait( self.weapname + "_upgrade_unlocked" );
@@ -1211,7 +1133,7 @@ staff_charger_check()
 	{
 		if ( self.charger.charges_received >= 20 || getDvarInt( "zombie_cheat" ) >= 2 && self.charger.is_inserted )
 		{
-			wait 0,5;
+			wait 0.5;
 			self.charger.is_charged = 1;
 			e_player = get_closest_player( self.charger.origin );
 			e_player thread maps/mp/zm_tomb_vo::say_puzzle_completion_line( self.enum );
@@ -1227,23 +1149,20 @@ staff_charger_check()
 			self thread staff_sound();
 			return;
 		}
-		else
-		{
-			wait 1;
-		}
+		wait 1;
 	}
 }
 
-staff_sound()
+staff_sound() //checked matches cerberus output
 {
 	self thread sndstaffupgradedstinger();
 	self playsound( "zmb_squest_charge_soul_full" );
-	self playloopsound( "zmb_squest_charge_soul_full_loop", 0,1 );
+	self playloopsound( "zmb_squest_charge_soul_full_loop", 0.1 );
 	level waittill( "stop_staff_sound" );
-	self stoploopsound( 0,1 );
+	self stoploopsound( 0.1 );
 }
 
-sndstaffupgradedstinger()
+sndstaffupgradedstinger() //checked matches cerberus output
 {
 	if ( level.staffs_charged == 4 )
 	{
@@ -1268,7 +1187,7 @@ sndstaffupgradedstinger()
 	}
 }
 
-spawn_upgraded_staff_triggers( n_index )
+spawn_upgraded_staff_triggers( n_index ) //checked changed to match cerberus output
 {
 	e_staff_standard = get_staff_info_from_element_index( n_index );
 	e_staff_standard_upgraded = e_staff_standard.upgrade;
@@ -1279,12 +1198,12 @@ spawn_upgraded_staff_triggers( n_index )
 	e_staff_standard ghost();
 	e_staff_standard_upgraded.trigger = e_staff_standard.charge_trigger;
 	e_staff_standard_upgraded.angles = e_staff_standard.angles;
-	e_staff_standard_upgraded moveto( e_staff_standard.origin, 0,05 );
+	e_staff_standard_upgraded moveto( e_staff_standard.origin, 0.05 );
 	e_staff_standard_upgraded waittill( "movedone" );
 	e_staff_standard_upgraded show();
 	e_fx = spawn( "script_model", e_staff_standard_upgraded.origin + vectorScale( ( 0, 0, 1 ), 8 ) );
 	e_fx setmodel( "tag_origin" );
-	wait 0,6;
+	wait 0.6;
 	e_fx setclientfield( "element_glow_fx", e_staff_standard.enum );
 	e_staff_standard_upgraded watch_for_player_pickup_staff();
 	e_staff_standard_upgraded.trigger trigger_off();
@@ -1295,16 +1214,13 @@ spawn_upgraded_staff_triggers( n_index )
 		if ( e_staff_standard.charger.is_charged )
 		{
 			e_staff_standard_upgraded thread staff_upgraded_reload_monitor();
-			return;
+			break;
 		}
-		else
-		{
-			wait_network_frame();
-		}
+		wait_network_frame();
 	}
 }
 
-staff_upgraded_reload_monitor()
+staff_upgraded_reload_monitor() //checked matches cerberus output
 {
 	self.weaponname = self.weapname;
 	self thread track_staff_weapon_respawn( self.owner );
@@ -1326,7 +1242,7 @@ staff_upgraded_reload_monitor()
 	}
 }
 
-staff_upgraded_reload()
+staff_upgraded_reload() //checked matches cerberus output
 {
 	self endon( "staff_equip" );
 	max_ammo = weaponmaxammo( self.weapname );
@@ -1349,3 +1265,4 @@ staff_upgraded_reload()
 		}
 	}
 }
+

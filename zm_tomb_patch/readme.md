@@ -13,9 +13,9 @@ zm_tomb_patch/maps/mp/zombies/_zm_perk_random.gsc
 
 ### The following scripts have been checked, but they have not been tested yet
 ```
-
+zm_tomb_patch/maps/mp/zm_tomb_craftables.gsc
+zm_tomb_patch/maps/mp/zm_tomb_main_quest.gsc
 ```
-
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
 zm_tomb_patch/maps/mp/zm_tomb_achivement.gsc
@@ -26,7 +26,6 @@ zm_tomb_patch/maps/mp/zm_tomb_capture_zones_ffotd.gsc
 zm_tomb_patch/maps/mp/zm_tomb_challenges.gsc
 zm_tomb_patch/maps/mp/zm_tomb_chamber.gsc
 zm_tomb_patch/maps/mp/zm_tomb_classic.gsc
-zm_tomb_patch/maps/mp/zm_tomb_craftables.gsc
 zm_tomb_patch/maps/mp/zm_tomb_dig.gsc
 zm_tomb_patch/maps/mp/zm_tomb_distance_tracking.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_lights.gsc
@@ -45,7 +44,6 @@ zm_tomb_patch/maps/mp/zm_tomb_fx.gsc
 zm_tomb_patch/maps/mp/zm_tomb_gamemodes.gsc
 zm_tomb_patch/maps/mp/zm_tomb_giant_robot.gsc
 zm_tomb_patch/maps/mp/zm_tomb_giant_robot_ffotd.gsc
-zm_tomb_patch/maps/mp/zm_tomb_main_quest.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_air.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_crypt.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_elec.gsc
