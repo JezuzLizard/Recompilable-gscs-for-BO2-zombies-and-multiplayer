@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zombies/_zm_sidequests;
@@ -6,7 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+main() //checked matches cerberus output
 {
 	level thread sndsetupendgamemusicstates();
 	if ( is_classic() )
@@ -19,17 +20,17 @@ main()
 	}
 }
 
-sndsetupendgamemusicstates()
+sndsetupendgamemusicstates() //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	level thread maps/mp/zombies/_zm_audio::setupmusicstate( "game_over_ee", "mus_zombie_game_over_ee", 1, 0, undefined, "SILENCE" );
 }
 
-sndtrackers()
+sndtrackers() //checked matches cerberus output
 {
 }
 
-sndstingersetup()
+sndstingersetup() //checked matches cerberus output
 {
 	level.sndmusicstingerevent = ::sndplaystinger;
 	level.sndstinger = spawnstruct();
@@ -46,18 +47,18 @@ sndstingersetup()
 	level thread snddoormusictrigs();
 }
 
-sndstingersetupstates()
+sndstingersetupstates() //checked matches cerberus output
 {
-	createstingerstate( "door_open", "mus_event_group_03", 2,5, "ignore" );
-	createstingerstate( "boards_gone", "mus_event_group_02", 0,5, "ignore" );
-	createstingerstate( "zone_nml_18", "mus_event_location_hilltop", 0,75, "queue" );
-	createstingerstate( "zone_village_2", "mus_event_location_church", 0,75, "queue" );
-	createstingerstate( "ug_bottom_zone", "mus_event_location_crypt", 0,75, "queue" );
-	createstingerstate( "zone_robot_head", "mus_event_location_robot", 0,75, "queue" );
-	createstingerstate( "zone_air_stairs", "mus_event_cave_air", 0,75, "queue" );
-	createstingerstate( "zone_fire_stairs", "mus_event_cave_fire", 0,75, "queue" );
-	createstingerstate( "zone_bolt_stairs", "mus_event_cave_bolt", 0,75, "queue" );
-	createstingerstate( "zone_ice_stairs", "mus_event_cave_ice", 0,75, "queue" );
+	createstingerstate( "door_open", "mus_event_group_03", 2.5, "ignore" );
+	createstingerstate( "boards_gone", "mus_event_group_02", 0.5, "ignore" );
+	createstingerstate( "zone_nml_18", "mus_event_location_hilltop", 0.75, "queue" );
+	createstingerstate( "zone_village_2", "mus_event_location_church", 0.75, "queue" );
+	createstingerstate( "ug_bottom_zone", "mus_event_location_crypt", 0.75, "queue" );
+	createstingerstate( "zone_robot_head", "mus_event_location_robot", 0.75, "queue" );
+	createstingerstate( "zone_air_stairs", "mus_event_cave_air", 0.75, "queue" );
+	createstingerstate( "zone_fire_stairs", "mus_event_cave_fire", 0.75, "queue" );
+	createstingerstate( "zone_bolt_stairs", "mus_event_cave_bolt", 0.75, "queue" );
+	createstingerstate( "zone_ice_stairs", "mus_event_cave_ice", 0.75, "queue" );
 	createstingerstate( "poweron", "mus_event_poweron", 0, "reject" );
 	createstingerstate( "tank_ride", "mus_event_tank_ride", 0, "queue" );
 	createstingerstate( "generator_1", "mus_event_generator_1", 1, "reject" );
@@ -66,24 +67,24 @@ sndstingersetupstates()
 	createstingerstate( "generator_4", "mus_event_generator_4", 1, "reject" );
 	createstingerstate( "generator_5", "mus_event_generator_5", 1, "reject" );
 	createstingerstate( "generator_6", "mus_event_generator_6", 1, "reject" );
-	createstingerstate( "staff_fire", "mus_event_staff_fire", 0,1, "reject" );
-	createstingerstate( "staff_ice", "mus_event_staff_ice", 0,1, "reject" );
-	createstingerstate( "staff_lightning", "mus_event_staff_lightning", 0,1, "reject" );
-	createstingerstate( "staff_wind", "mus_event_staff_wind", 0,1, "reject" );
-	createstingerstate( "staff_fire_upgraded", "mus_event_staff_fire_upgraded", 0,1, "reject" );
-	createstingerstate( "staff_ice_upgraded", "mus_event_staff_ice_upgraded", 0,1, "reject" );
-	createstingerstate( "staff_lightning_upgraded", "mus_event_staff_lightning_upgraded", 0,1, "reject" );
-	createstingerstate( "staff_wind_upgraded", "mus_event_staff_wind_upgraded", 0,1, "reject" );
-	createstingerstate( "staff_all_upgraded", "mus_event_staff_all_upgraded", 0,1, "reject" );
-	createstingerstate( "side_sting_1", "mus_side_stinger_1", 0,1, "reject" );
-	createstingerstate( "side_sting_2", "mus_side_stinger_2", 0,1, "reject" );
-	createstingerstate( "side_sting_3", "mus_side_stinger_3", 0,1, "reject" );
-	createstingerstate( "side_sting_4", "mus_side_stinger_4", 0,1, "reject" );
-	createstingerstate( "side_sting_5", "mus_side_stinger_5", 0,1, "reject" );
-	createstingerstate( "side_sting_6", "mus_side_stinger_6", 0,1, "reject" );
+	createstingerstate( "staff_fire", "mus_event_staff_fire", 0.1, "reject" );
+	createstingerstate( "staff_ice", "mus_event_staff_ice", 0.1, "reject" );
+	createstingerstate( "staff_lightning", "mus_event_staff_lightning", 0.1, "reject" );
+	createstingerstate( "staff_wind", "mus_event_staff_wind", 0.1, "reject" );
+	createstingerstate( "staff_fire_upgraded", "mus_event_staff_fire_upgraded", 0.1, "reject" );
+	createstingerstate( "staff_ice_upgraded", "mus_event_staff_ice_upgraded", 0.1, "reject" );
+	createstingerstate( "staff_lightning_upgraded", "mus_event_staff_lightning_upgraded", 0.1, "reject" );
+	createstingerstate( "staff_wind_upgraded", "mus_event_staff_wind_upgraded", 0.1, "reject" );
+	createstingerstate( "staff_all_upgraded", "mus_event_staff_all_upgraded", 0.1, "reject" );
+	createstingerstate( "side_sting_1", "mus_side_stinger_1", 0.1, "reject" );
+	createstingerstate( "side_sting_2", "mus_side_stinger_2", 0.1, "reject" );
+	createstingerstate( "side_sting_3", "mus_side_stinger_3", 0.1, "reject" );
+	createstingerstate( "side_sting_4", "mus_side_stinger_4", 0.1, "reject" );
+	createstingerstate( "side_sting_5", "mus_side_stinger_5", 0.1, "reject" );
+	createstingerstate( "side_sting_6", "mus_side_stinger_6", 0.1, "reject" );
 }
 
-createstingerstate( state, alias, prewait, interrupt )
+createstingerstate( state, alias, prewait, interrupt ) //checked matches cerberus output
 {
 	s = level.sndstinger;
 	if ( !isDefined( s.states[ state ] ) )
@@ -95,31 +96,24 @@ createstingerstate( state, alias, prewait, interrupt )
 	}
 }
 
-sndboardmonitor()
+sndboardmonitor() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		level waittill( "last_board_torn", barrier_origin );
 		players = getplayers();
-		_a122 = players;
-		_k122 = getFirstArrayKey( _a122 );
-		while ( isDefined( _k122 ) )
+		foreach ( player in players )
 		{
-			player = _a122[ _k122 ];
 			if ( distancesquared( player.origin, barrier_origin ) <= 22500 )
 			{
 				level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "boards_gone" );
 				break;
 			}
-			else
-			{
-				_k122 = getNextArrayKey( _a122, _k122 );
-			}
 		}
 	}
 }
 
-locationstingerwait( zone_name, type )
+locationstingerwait( zone_name, type ) //checked changed to match cerberus output
 {
 	array = sndlocationsarray();
 	sndnorepeats = 3;
@@ -127,23 +121,22 @@ locationstingerwait( zone_name, type )
 	level.sndlastzone = undefined;
 	level.sndlocationplayed = 0;
 	level thread sndlocationbetweenroundswait();
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		level waittill( "newzoneActive", activezone );
+		wait 0.1;
+		if ( !sndlocationshouldplay( array, activezone ) )
 		{
-			level waittill( "newzoneActive", activezone );
-			wait 0,1;
-			while ( !sndlocationshouldplay( array, activezone ) )
-			{
-				continue;
-			}
-			if ( is_true( level.sndroundwait ) )
-			{
-			}
+			continue;
 		}
-		else while ( is_true( level.sndstinger.isplaying ) )
+		if ( is_true( level.sndroundwait ) )
+		{
+			continue;
+		}
+		else if ( is_true( level.sndstinger.isplaying ) )
 		{
 			level thread sndlocationqueue( activezone );
+			continue;
 		}
 		level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( activezone );
 		level.sndlocationplayed = 1;
@@ -160,13 +153,13 @@ locationstingerwait( zone_name, type )
 		level waittill( "between_round_over" );
 		while ( is_true( level.sndroundwait ) )
 		{
-			wait 0,1;
+			wait 0.1;
 		}
 		level.sndlocationplayed = 0;
 	}
 }
 
-sndlocationsarray()
+sndlocationsarray() //checked matches cerberus output
 {
 	array = [];
 	array[ 0 ] = "zone_nml_18";
@@ -179,7 +172,7 @@ sndlocationsarray()
 	return array;
 }
 
-sndlocationshouldplay( array, activezone )
+sndlocationshouldplay( array, activezone ) //checked changed to match cerberus output
 {
 	shouldplay = 0;
 	if ( activezone == "zone_start_lower" && !flag( "fountain_transport_active" ) )
@@ -190,16 +183,12 @@ sndlocationshouldplay( array, activezone )
 	{
 		return shouldplay;
 	}
-	_a206 = array;
-	_k206 = getFirstArrayKey( _a206 );
-	while ( isDefined( _k206 ) )
+	foreach ( place in array )
 	{
-		place = _a206[ _k206 ];
 		if ( place == activezone )
 		{
 			shouldplay = 1;
 		}
-		_k206 = getNextArrayKey( _a206, _k206 );
 	}
 	if ( shouldplay == 0 )
 	{
@@ -207,11 +196,8 @@ sndlocationshouldplay( array, activezone )
 	}
 	playersinlocal = 0;
 	players = getplayers();
-	_a217 = players;
-	_k217 = getFirstArrayKey( _a217 );
-	while ( isDefined( _k217 ) )
+	foreach ( player in players )
 	{
-		player = _a217[ _k217 ];
 		if ( player maps/mp/zombies/_zm_zonemgr::is_player_in_zone( activezone ) )
 		{
 			if ( !is_true( player.afterlife ) )
@@ -219,7 +205,6 @@ sndlocationshouldplay( array, activezone )
 				playersinlocal++;
 			}
 		}
-		_k217 = getNextArrayKey( _a217, _k217 );
 	}
 	if ( playersinlocal >= 1 )
 	{
@@ -232,74 +217,59 @@ sndlocationshouldplay( array, activezone )
 	return shouldplay;
 }
 
-sndcurrentlocationarray( current_array, activezone, numcut, max_num_removed )
+sndcurrentlocationarray( current_array, activezone, numcut, max_num_removed ) //checked changed to match cerberus output
 {
 	if ( numcut >= max_num_removed )
 	{
 		current_array = sndlocationsarray();
 	}
-	_a240 = current_array;
-	_k240 = getFirstArrayKey( _a240 );
-	while ( isDefined( _k240 ) )
+	foreach ( place in current_array )
 	{
-		place = _a240[ _k240 ];
 		if ( place == activezone )
 		{
 			arrayremovevalue( current_array, place );
 			break;
 		}
-		else
-		{
-			_k240 = getNextArrayKey( _a240, _k240 );
-		}
 	}
 	return current_array;
 }
 
-sndlocationbetweenrounds()
+sndlocationbetweenrounds() //checked partially changed to match cerberus output see info.md
 {
 	level endon( "newzoneActive" );
 	activezones = maps/mp/zombies/_zm_zonemgr::get_active_zone_names();
-	_a257 = activezones;
-	_k257 = getFirstArrayKey( _a257 );
-	while ( isDefined( _k257 ) )
+	foreach ( zone in activezones )
 	{
-		zone = _a257[ _k257 ];
 		if ( isDefined( level.sndlastzone ) && zone == level.sndlastzone )
 		{
 		}
 		else
 		{
 			players = getplayers();
-			_a263 = players;
-			_k263 = getFirstArrayKey( _a263 );
-			while ( isDefined( _k263 ) )
+			for ( i = 0; i < players.size; i++ )
 			{
-				player = _a263[ _k263 ];
-				if ( is_true( player.afterlife ) )
+				if ( is_true( players[ i ].afterlife ) )
 				{
 				}
 				else
 				{
-					if ( player maps/mp/zombies/_zm_zonemgr::is_player_in_zone( zone ) )
+					if ( players[ i ] maps/mp/zombies/_zm_zonemgr::is_player_in_zone( zone ) )
 					{
-						wait 0,1;
+						wait 0.1;
 						level notify( "newzoneActive" );
 						return;
 					}
 				}
-				_k263 = getNextArrayKey( _a263, _k263 );
 			}
 		}
-		_k257 = getNextArrayKey( _a257, _k257 );
 	}
 }
 
-sndlocationbetweenroundswait()
+sndlocationbetweenroundswait() //checked matches cerberus output
 {
 	while ( is_true( level.sndroundwait ) )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	while ( 1 )
 	{
@@ -307,22 +277,22 @@ sndlocationbetweenroundswait()
 		level waittill( "between_round_over" );
 		while ( is_true( level.sndroundwait ) )
 		{
-			wait 0,1;
+			wait 0.1;
 		}
 	}
 }
 
-sndlocationqueue( zone )
+sndlocationqueue( zone ) //checked matches cerberus output
 {
 	level endon( "newzoneActive" );
 	while ( is_true( level.sndstinger.isplaying ) )
 	{
-		wait 0,5;
+		wait 0.5;
 	}
 	level notify( "newzoneActive" );
 }
 
-sndplaystinger( state, player )
+sndplaystinger( state, player ) //checked changed to match cerberus output
 {
 	s = level.sndstinger;
 	if ( !isDefined( s.states[ state ] ) )
@@ -345,12 +315,9 @@ sndplaystinger( state, player )
 			level notify( "sndStingerDone" );
 			s.isplaying = 0;
 		}
-		else
+		else if ( s.states[ state ].interrupt == "queue" )
 		{
-			if ( s.states[ state ].interrupt == "queue" )
-			{
-				level thread sndqueuestinger( state, player );
-			}
+			level thread sndqueuestinger( state, player );
 		}
 		return;
 	}
@@ -360,7 +327,7 @@ sndplaystinger( state, player )
 	}
 }
 
-playstinger( state, player, ignore )
+playstinger( state, player, ignore ) //checked matches cerberus output
 {
 	s = level.sndstinger;
 	if ( !isDefined( s.states[ state ] ) )
@@ -396,7 +363,7 @@ playstinger( state, player, ignore )
 	}
 }
 
-sndqueuestinger( state, player )
+sndqueuestinger( state, player ) //checked changed to match cerberus output
 {
 	s = level.sndstinger;
 	count = 0;
@@ -411,16 +378,16 @@ sndqueuestinger( state, player )
 		{
 			if ( is_true( level.sndroundwait ) || is_true( s.isplaying ) )
 			{
-				wait 0,5;
+				wait 0.5;
 				count++;
 				if ( count >= 120 )
 				{
 					return;
 				}
-				continue;
 			}
 			else
 			{
+				break;
 			}
 		}
 		level thread sndplaystinger( state, player );
@@ -428,7 +395,7 @@ sndqueuestinger( state, player )
 	}
 }
 
-sndstingerroundwait()
+sndstingerroundwait() //checked matches cerberus output
 {
 	wait 25;
 	level.sndroundwait = 0;
@@ -439,14 +406,14 @@ sndstingerroundwait()
 	}
 }
 
-sndstingerroundwait_start()
+sndstingerroundwait_start() //checked matches cerberus output
 {
 	level.sndroundwait = 1;
-	wait 0,05;
+	wait 0.05;
 	level thread sndstingerroundwait_end();
 }
 
-sndstingerroundwait_end()
+sndstingerroundwait_end() //checked matches cerberus output
 {
 	level endon( "end_of_round" );
 	level waittill( "between_round_over" );
@@ -454,7 +421,7 @@ sndstingerroundwait_end()
 	level.sndroundwait = 0;
 }
 
-playstingerstop()
+playstingerstop() //checked matches cerberus output
 {
 	self endon( "sndStingerDone" );
 	level endon( "sndStingerDone" );
@@ -463,23 +430,21 @@ playstingerstop()
 	self stopsounds();
 }
 
-sndmusicegg()
+sndmusicegg() //checked changed to match cerberus output
 {
 	origins = [];
-	origins[ 0 ] = ( 2682,23, 4456,15, -302,352 );
-	origins[ 1 ] = ( 721,043, -87,7068, 285,986 );
-	origins[ 2 ] = ( -674,048, 2536,67, -112,483 );
+	origins[ 0 ] = ( 2682.23, 4456.15, -302.352 );
+	origins[ 1 ] = ( 721.043, -87.7068, 285.986 );
+	origins[ 2 ] = ( -674.048, 2536.67, -112.483 );
 	level.meteor_counter = 0;
 	level.music_override = 0;
-	i = 0;
-	while ( i < origins.size )
+	for ( i = 0; i < origins.size; i++ )
 	{
 		level thread sndmusicegg_wait( origins[ i ] );
-		i++;
 	}
 }
 
-sndmusicegg_wait( bottle_origin )
+sndmusicegg_wait( bottle_origin ) //checked matches cerberus output
 {
 	temp_ent = spawn( "script_origin", bottle_origin );
 	temp_ent playloopsound( "zmb_meteor_loop" );
@@ -494,12 +459,12 @@ sndmusicegg_wait( bottle_origin )
 	}
 	else
 	{
-		wait 1,5;
+		wait 1.5;
 		temp_ent delete();
 	}
 }
 
-sndmusicegg_override()
+sndmusicegg_override() //checked matches cerberus output
 {
 	if ( is_true( level.music_override ) )
 	{
@@ -508,7 +473,7 @@ sndmusicegg_override()
 	return 1;
 }
 
-sndmuseggplay( ent, alias, time )
+sndmuseggplay( ent, alias, time ) //checked matches cerberus output
 {
 	level.music_override = 1;
 	wait 1;
@@ -519,19 +484,19 @@ sndmuseggplay( ent, alias, time )
 	level waittill_either( "end_game", "sndSongDone" );
 	ent stopsounds();
 	level setclientfield( "mus_zmb_egg_snapshot_loop", 0 );
-	wait 0,05;
+	wait 0.05;
 	ent delete();
 	level.music_override = 0;
 }
 
-sndeggmusicwait( time )
+sndeggmusicwait( time ) //checked matches cerberus output
 {
 	level endon( "end_game" );
 	wait time;
 	level notify( "sndSongDone" );
 }
 
-sndplaystingerwithoverride( alias, length )
+sndplaystingerwithoverride( alias, length ) //checked matches cerberus output
 {
 	shouldplay = sndwait();
 	if ( !shouldplay )
@@ -546,11 +511,11 @@ sndplaystingerwithoverride( alias, length )
 	wait length;
 	level setclientfield( "mus_zmb_egg_snapshot_loop", 0 );
 	level.music_override = 0;
-	wait 0,05;
+	wait 0.05;
 	ent delete();
 }
 
-sndwait()
+sndwait() //checked matches cerberus output
 {
 	counter = 0;
 	while ( is_true( level.music_override ) )
@@ -565,33 +530,30 @@ sndwait()
 	return 1;
 }
 
-snddoormusictrigs()
+snddoormusictrigs() //checked changed to match cerberus output
 {
 	trigs = getentarray( "sndMusicDoor", "script_noteworthy" );
-	_a557 = trigs;
-	_k557 = getFirstArrayKey( _a557 );
-	while ( isDefined( _k557 ) )
+	foreach ( trig in trigs )
 	{
-		trig = _a557[ _k557 ];
 		trig thread snddoormusic();
-		_k557 = getNextArrayKey( _a557, _k557 );
 	}
 }
 
-snddoormusic()
+snddoormusic() //checked changed to match cerberus output
 {
 	self endon( "sndDoorMusic_Triggered" );
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		self waittill( "trigger" );
+		if ( is_true( level.music_override ) )
 		{
-			self waittill( "trigger" );
-			if ( is_true( level.music_override ) )
-			{
-				wait 0,1;
-			}
+			wait 0.1;
 		}
-		else }
+		else 
+		{
+			break;
+		}
+	}
 	if ( isDefined( self.target ) )
 	{
 		ent = getent( self.target, "targetname" );
@@ -600,7 +562,7 @@ snddoormusic()
 	level thread sndplaystingerwithoverride( self.script_sound, self.script_int );
 }
 
-sndmaelstrom()
+sndmaelstrom() //checked matches cerberus output
 {
 	trig = getent( "sndMaelstrom", "targetname" );
 	if ( !isDefined( trig ) )
@@ -616,11 +578,11 @@ sndmaelstrom()
 			level setclientfield( "sndMaelstromPlr" + who getentitynumber(), 1 );
 		}
 		who thread sndmaelstrom_timeout();
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-sndmaelstrom_timeout()
+sndmaelstrom_timeout() //checked matches cerberus output
 {
 	self notify( "sndMaelstrom_Timeout" );
 	self endon( "sndMaelstrom_Timeout" );
@@ -629,7 +591,7 @@ sndmaelstrom_timeout()
 	level setclientfield( "sndMaelstromPlr" + self getentitynumber(), 0 );
 }
 
-snd115egg()
+snd115egg() //checked changed to match cerberus output
 {
 	level.snd115count = 0;
 	oneorigin = [];
@@ -638,25 +600,17 @@ snd115egg()
 	fiveorigin = [];
 	fiveorigin[ 0 ] = ( -2459, 176, 243 );
 	fiveorigin[ 1 ] = ( -2792, 175, 243 );
-	_a625 = oneorigin;
-	_k625 = getFirstArrayKey( _a625 );
-	while ( isDefined( _k625 ) )
+	foreach ( origin in oneorigin )
 	{
-		origin = _a625[ _k625 ];
 		level thread snd115egg_wait( origin, 0 );
-		_k625 = getNextArrayKey( _a625, _k625 );
 	}
-	_a628 = fiveorigin;
-	_k628 = getFirstArrayKey( _a628 );
-	while ( isDefined( _k628 ) )
+	foreach ( origin in fiveorigin )
 	{
-		origin = _a628[ _k628 ];
 		level thread snd115egg_wait( origin, 1 );
-		_k628 = getNextArrayKey( _a628, _k628 );
 	}
 }
 
-snd115egg_wait( origin, shouldwait )
+snd115egg_wait( origin, shouldwait ) //checked matches cerberus output
 {
 	level endon( "sndEnd115" );
 	temp_ent = spawn( "script_origin", origin );
@@ -685,7 +639,7 @@ snd115egg_wait( origin, shouldwait )
 	}
 }
 
-snd115egg_1_override()
+snd115egg_1_override() //checked matches cerberus output
 {
 	stance = self getstance();
 	if ( is_true( level.music_override ) || stance != "prone" )
@@ -695,19 +649,21 @@ snd115egg_1_override()
 	return 1;
 }
 
-snd115egg_5_override()
+snd115egg_5_override() //checked matches cerberus output
 {
 	stance = self getstance();
-	if ( !is_true( level.music_override ) || stance != "prone" && level.snd115count < 2 )
+	if ( !is_true( level.music_override ) || stance != "prone" || level.snd115count < 2 )
 	{
 		return 0;
 	}
 	return 1;
 }
 
-snddelete115ent()
+snddelete115ent() //checked matches cerberus output
 {
 	self endon( "sndDeleting" );
 	level waittill( "sndEnd115" );
 	self delete();
 }
+
+
