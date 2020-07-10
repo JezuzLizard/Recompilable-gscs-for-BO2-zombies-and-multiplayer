@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_damagefeedback;
 #include maps/mp/gametypes/_globallogic_player;
 #include maps/mp/_challenges;
@@ -6,7 +7,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level._effect[ "scrambler_enemy_light" ] = loadfx( "misc/fx_equip_light_red" );
 	level._effect[ "scrambler_friendly_light" ] = loadfx( "misc/fx_equip_light_green" );
@@ -16,7 +17,7 @@ init()
 	level.scramblerinnerradiussq = 360000;
 }
 
-createscramblerwatcher()
+createscramblerwatcher() //checked matches cerberus output
 {
 	watcher = self maps/mp/gametypes/_weaponobjects::createuseweaponobjectwatcher( "scrambler", "scrambler_mp", self.team );
 	watcher.onspawn = ::onspawnscrambler;
@@ -28,7 +29,7 @@ createscramblerwatcher()
 	watcher.ondamage = ::watchscramblerdamage;
 }
 
-onspawnscrambler( watcher, player )
+onspawnscrambler( watcher, player ) //checked matches cerberus output
 {
 	player endon( "disconnect" );
 	self endon( "death" );
@@ -46,7 +47,7 @@ onspawnscrambler( watcher, player )
 	level notify( "scrambler_spawn" );
 }
 
-scramblerdetonate( attacker, weaponname )
+scramblerdetonate( attacker, weaponname ) //checked matches cerberus output
 {
 	from_emp = maps/mp/killstreaks/_emp::isempweapon( weaponname );
 	if ( !from_emp )
@@ -61,7 +62,7 @@ scramblerdetonate( attacker, weaponname )
 	self delete();
 }
 
-watchshutdown( player )
+watchshutdown( player ) //checked matches cerberus output
 {
 	self waittill_any( "death", "hacked" );
 	level notify( "scrambler_death" );
@@ -71,12 +72,12 @@ watchshutdown( player )
 	}
 }
 
-destroyent()
+destroyent() //checked matches cerberus output
 {
 	self delete();
 }
 
-watchscramblerdamage( watcher )
+watchscramblerdamage( watcher ) //checked changed to match beta dump
 {
 	self endon( "death" );
 	self endon( "hacked" );
@@ -86,86 +87,78 @@ watchscramblerdamage( watcher )
 	{
 		self.damagetaken = 0;
 	}
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		self.maxhealth = 100000;
+		self.health = self.maxhealth;
+		self waittill( "damage", damage, attacker, direction, point, type, tagname, modelname, partname, weaponname, idflags );
+		if ( !isDefined( attacker ) || !isplayer( attacker ) )
 		{
-			self.maxhealth = 100000;
-			self.health = self.maxhealth;
-			self waittill( "damage", damage, attacker, direction, point, type, tagname, modelname, partname, weaponname, idflags );
-			if ( !isDefined( attacker ) || !isplayer( attacker ) )
+			continue;
+		}
+		if ( level.teambased && attacker.team == self.owner.team && attacker != self.owner )
+		{
+			continue;
+		}
+		if ( isDefined( weaponname ) )
+		{
+			switch( weaponname )
 			{
-				continue;
-			}
-			while ( level.teambased && attacker.team == self.owner.team && attacker != self.owner )
-			{
-				continue;
-			}
-			if ( isDefined( weaponname ) )
-			{
-				switch( weaponname )
-				{
-					case "concussion_grenade_mp":
-					case "flash_grenade_mp":
-						if ( watcher.stuntime > 0 )
+				case "concussion_grenade_mp":
+				case "flash_grenade_mp":
+					if ( watcher.stuntime > 0 )
+					{
+						self thread maps/mp/gametypes/_weaponobjects::stunstart( watcher, watcher.stuntime );
+					}
+					if ( level.teambased && self.owner.team != attacker.team )
+					{
+						if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
 						{
-							self thread maps/mp/gametypes/_weaponobjects::stunstart( watcher, watcher.stuntime );
-						}
-						if ( level.teambased && self.owner.team != attacker.team )
-						{
-							if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
-							{
-								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
-							}
-							continue;
-						}
-						else
-						{
-							if ( !level.teambased && self.owner != attacker )
-							{
-								if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
-								{
-									attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
-								}
-							}
+							attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
 						}
 					}
-					case "emp_grenade_mp":
-						damage = damagemax;
-						default:
-							if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
-							{
-								attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
-							}
-							break;
+					else if ( !level.teambased && self.owner != attacker )
+					{
+						if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+						{
+							attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
+						}
 					}
-				}
-				else
-				{
-					weaponname = "";
-				}
-				while ( isplayer( attacker ) && level.teambased && isDefined( attacker.team ) && self.owner.team == attacker.team && attacker != self.owner )
-				{
 					continue;
-				}
-				if ( type == "MOD_MELEE" )
-				{
-					self.damagetaken = damagemax;
-				}
-				else
-				{
-					self.damagetaken += damage;
-				}
-				if ( self.damagetaken >= damagemax )
-				{
-					watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( self, 0, attacker, weaponname );
-				}
+				case "emp_grenade_mp":
+					damage = damagemax;
+				default:
+					if ( maps/mp/gametypes/_globallogic_player::dodamagefeedback( weaponname, attacker ) )
+					{
+						attacker maps/mp/gametypes/_damagefeedback::updatedamagefeedback();
+					}
+					break;
 			}
+		}
+		else
+		{
+			weaponname = "";
+		}
+		if ( isplayer( attacker ) && level.teambased && isDefined( attacker.team ) && self.owner.team == attacker.team && attacker != self.owner )
+		{
+			continue;
+		}
+		if ( type == "MOD_MELEE" )
+		{
+			self.damagetaken = damagemax;
+		}
+		else
+		{
+			self.damagetaken += damage;
+		}
+		if ( self.damagetaken >= damagemax )
+		{
+			watcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( self, 0, attacker, weaponname );
 		}
 	}
 }
 
-ownersameteam( owner1, owner2 )
+ownersameteam( owner1, owner2 ) //checked matches cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -182,7 +175,7 @@ ownersameteam( owner1, owner2 )
 	return owner1.team == owner2.team;
 }
 
-checkscramblerstun()
+checkscramblerstun() //checked partially changed to match cerberus output see info.md
 {
 	scramblers = getentarray( "grenade", "classname" );
 	if ( isDefined( self.name ) && self.name == "scrambler_mp" )
@@ -198,31 +191,29 @@ checkscramblerstun()
 			i++;
 			continue;
 		}
-		else if ( !isDefined( scrambler.name ) )
+		if ( !isDefined( scrambler.name ) )
 		{
 			i++;
 			continue;
 		}
-		else if ( scrambler.name != "scrambler_mp" )
+		if ( scrambler.name != "scrambler_mp" )
 		{
 			i++;
 			continue;
 		}
-		else if ( ownersameteam( self.owner, scrambler.owner ) )
+		if ( ownersameteam( self.owner, scrambler.owner ) )
 		{
 			i++;
 			continue;
 		}
-		else
+		flattenedselforigin = ( self.origin[ 0 ], self.origin[ 1 ], 0 );
+		flattenedscramblerorigin = ( scrambler.origin[ 0 ], scrambler.origin[ 1 ], 0 );
+		if ( distancesquared( flattenedselforigin, flattenedscramblerorigin ) < level.scramblerouterradiussq )
 		{
-			flattenedselforigin = ( self.origin[ 0 ], self.origin[ 1 ], 0 );
-			flattenedscramblerorigin = ( scrambler.origin[ 0 ], scrambler.origin[ 1 ], 0 );
-			if ( distancesquared( flattenedselforigin, flattenedscramblerorigin ) < level.scramblerouterradiussq )
-			{
-				return 1;
-			}
+			return 1;
 		}
 		i++;
 	}
 	return 0;
 }
+

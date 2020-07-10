@@ -1,10 +1,11 @@
+//checked includes match cerberus output
 #include maps/mp/_scoreevents;
 #include maps/mp/_challenges;
 #include maps/mp/gametypes/_weaponobjects;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachemodel( "t6_wpn_bouncing_betty_world" );
 	level.bettyexplosionfx = loadfx( "weapon/bouncing_betty/fx_betty_explosion" );
@@ -13,19 +14,19 @@ init()
 	level._effect[ "fx_betty_friendly_light" ] = loadfx( "weapon/bouncing_betty/fx_betty_light_green" );
 	level._effect[ "fx_betty_enemy_light" ] = loadfx( "weapon/bouncing_betty/fx_betty_light_red" );
 	level.bettymindist = 20;
-	level.bettygraceperiod = 0,6;
+	level.bettygraceperiod = 0.6;
 	level.bettyradius = 192;
 	level.bettystuntime = 1;
 	level.bettydamageradius = 256;
 	level.bettydamagemax = 210;
 	level.bettydamagemin = 70;
 	level.bettyjumpheight = 65;
-	level.bettyjumptime = 0,65;
+	level.bettyjumptime = 0.65;
 	level.bettyrotatevelocity = ( 0, 750, 32 );
-	level.bettyactivationdelay = 0,1;
+	level.bettyactivationdelay = 0.1;
 }
 
-createbouncingbettywatcher()
+createbouncingbettywatcher() //checked matches cerberus output
 {
 	watcher = self createproximityweaponobjectwatcher( "bouncingbetty", "bouncingbetty_mp", self.team );
 	watcher.onspawn = ::onspawnbouncingbetty;
@@ -46,7 +47,7 @@ createbouncingbettywatcher()
 	watcher.activationdelay = level.bettyactivationdelay;
 }
 
-onspawnbouncingbetty( watcher, owner )
+onspawnbouncingbetty( watcher, owner ) //checked matches cerberus output
 {
 	onspawnproximityweaponobject( watcher, owner );
 	self thread spawnminemover();
@@ -69,14 +70,14 @@ spawnminemover()
 	self thread killminemoveronpickup();
 }
 
-killminemoveronpickup()
+killminemoveronpickup() //checked matches cerberus output
 {
 	self.minemover endon( "death" );
 	self waittill_any( "picked_up", "hacked" );
 	self killminemover();
 }
 
-killminemover()
+killminemover() //checked matches cerberus output
 {
 	if ( isDefined( self.minemover ) )
 	{
@@ -88,7 +89,7 @@ killminemover()
 	}
 }
 
-bouncingbettydetonate( attacker, weaponname )
+bouncingbettydetonate( attacker, weaponname ) //checked matches cerberus output
 {
 	if ( isDefined( weaponname ) )
 	{
@@ -114,7 +115,7 @@ bouncingbettydetonate( attacker, weaponname )
 	}
 }
 
-bouncingbettydestroyed()
+bouncingbettydestroyed() //checked matches cerberus output
 {
 	playfx( level.bettydestroyedfx, self.origin );
 	playsoundatposition( "dst_equipment_destroy", self.origin );
@@ -134,7 +135,7 @@ bouncingbettydestroyed()
 	self delete();
 }
 
-bouncingbettyjumpandexplode()
+bouncingbettyjumpandexplode() //checked matches cerberus output
 {
 	explodepos = self.origin + ( 0, 0, level.bettyjumpheight );
 	self moveto( explodepos, level.bettyjumptime, level.bettyjumptime, 0 );
@@ -146,14 +147,14 @@ bouncingbettyjumpandexplode()
 	self thread mineexplode();
 }
 
-mineexplode()
+mineexplode() //checked matches cerberus output
 {
 	if ( !isDefined( self ) || !isDefined( self.owner ) )
 	{
 		return;
 	}
 	self playsound( "fly_betty_explo" );
-	wait 0,05;
+	wait 0.05;
 	if ( !isDefined( self ) || !isDefined( self.owner ) )
 	{
 		return;
@@ -161,7 +162,7 @@ mineexplode()
 	self hide();
 	self radiusdamage( self.origin, level.bettydamageradius, level.bettydamagemax, level.bettydamagemin, self.owner, "MOD_EXPLOSIVE", "bouncingbetty_mp" );
 	playfx( level.bettyexplosionfx, self.origin );
-	wait 0,2;
+	wait 0.2;
 	if ( !isDefined( self ) || !isDefined( self.owner ) )
 	{
 		return;
@@ -173,3 +174,4 @@ mineexplode()
 	self.killcament delete();
 	self delete();
 }
+

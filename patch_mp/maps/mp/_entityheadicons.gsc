@@ -1,6 +1,7 @@
+//checked includes match cerberus output
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	if ( isDefined( level.initedentityheadicons ) )
 	{
@@ -11,12 +12,14 @@ init()
 		return;
 	}
 	level.initedentityheadicons = 1;
+	/*
 /#
 	assert( isDefined( game[ "entity_headicon_allies" ] ), "Allied head icons are not defined.  Check the team set for the level." );
 #/
 /#
 	assert( isDefined( game[ "entity_headicon_axis" ] ), "Axis head icons are not defined.  Check the team set for the level." );
 #/
+	*/
 	precacheshader( game[ "entity_headicon_allies" ] );
 	precacheshader( game[ "entity_headicon_axis" ] );
 	if ( !level.teambased )
@@ -26,7 +29,7 @@ init()
 	level.entitieswithheadicons = [];
 }
 
-setentityheadicon( team, owner, offset, icon, constant_size )
+setentityheadicon( team, owner, offset, icon, constant_size ) //checked changed to match cerberus output
 {
 	if ( !level.teambased && !isDefined( owner ) )
 	{
@@ -57,16 +60,14 @@ setentityheadicon( team, owner, offset, icon, constant_size )
 	{
 		self.entityheadiconoffset = ( 0, 0, 0 );
 	}
-	while ( isDefined( self.entityheadicons ) )
+	if ( isDefined( self.entityheadicons ) )
 	{
-		i = 0;
-		while ( i < self.entityheadicons.size )
+		for ( i = 0; i < self.entityheadicons.size; i++ )
 		{
 			if ( isDefined( self.entityheadicons[ i ] ) )
 			{
 				self.entityheadicons[ i ] destroy();
 			}
-			i++;
 		}
 	}
 	self.entityheadicons = [];
@@ -79,84 +80,80 @@ setentityheadicon( team, owner, offset, icon, constant_size )
 	{
 		if ( !isplayer( owner ) )
 		{
+			/*
 /#
 			assert( isDefined( owner.owner ), "entity has to have an owner if it's not a player" );
 #/
+			*/
 			owner = owner.owner;
 		}
 		owner updateentityheadclienticon( self, icon, constant_size );
 	}
-	else
+	else if ( isDefined( owner ) && team != "none" )
 	{
-		if ( isDefined( owner ) && team != "none" )
-		{
-			owner updateentityheadteamicon( self, team, icon, constant_size );
-		}
+		owner updateentityheadteamicon( self, team, icon, constant_size );
 	}
 	self thread destroyheadiconsondeath();
 }
 
-updateentityheadteamicon( entity, team, icon, constant_size )
+updateentityheadteamicon( entity, team, icon, constant_size ) //checked matches cerberus output
 {
 	headicon = newteamhudelem( team );
 	headicon.archived = 1;
 	headicon.x = entity.entityheadiconoffset[ 0 ];
 	headicon.y = entity.entityheadiconoffset[ 1 ];
 	headicon.z = entity.entityheadiconoffset[ 2 ];
-	headicon.alpha = 0,8;
+	headicon.alpha = 0.8;
 	headicon setshader( icon, 6, 6 );
 	headicon setwaypoint( constant_size );
 	headicon settargetent( entity );
 	entity.entityheadicons[ entity.entityheadicons.size ] = headicon;
 }
 
-updateentityheadclienticon( entity, icon, constant_size )
+updateentityheadclienticon( entity, icon, constant_size ) //checked matches cerberus output
 {
 	headicon = newclienthudelem( self );
 	headicon.archived = 1;
 	headicon.x = entity.entityheadiconoffset[ 0 ];
 	headicon.y = entity.entityheadiconoffset[ 1 ];
 	headicon.z = entity.entityheadiconoffset[ 2 ];
-	headicon.alpha = 0,8;
+	headicon.alpha = 0.8;
 	headicon setshader( icon, 6, 6 );
 	headicon setwaypoint( constant_size );
 	headicon settargetent( entity );
 	entity.entityheadicons[ entity.entityheadicons.size ] = headicon;
 }
 
-destroyheadiconsondeath()
+destroyheadiconsondeath() //checked changed to match cerberus output
 {
 	self waittill_any( "death", "hacked" );
-	i = 0;
-	while ( i < self.entityheadicons.size )
+	for ( i = 0; i < self.entityheadicons.size; i++ )
 	{
 		if ( isDefined( self.entityheadicons[ i ] ) )
 		{
 			self.entityheadicons[ i ] destroy();
 		}
-		i++;
 	}
 }
 
-destroyentityheadicons()
+destroyentityheadicons() //checked changed to match cerberus output
 {
-	while ( isDefined( self.entityheadicons ) )
+	if ( isDefined( self.entityheadicons ) )
 	{
-		i = 0;
-		while ( i < self.entityheadicons.size )
+		for ( i = 0; i < self.entityheadicons.size; i++ )
 		{
 			if ( isDefined( self.entityheadicons[ i ] ) )
 			{
 				self.entityheadicons[ i ] destroy();
 			}
-			i++;
 		}
 	}
 }
 
-updateentityheadiconpos( headicon )
+updateentityheadiconpos( headicon ) //checked matches cerberus output
 {
 	headicon.x = self.origin[ 0 ] + self.entityheadiconoffset[ 0 ];
 	headicon.y = self.origin[ 1 ] + self.entityheadiconoffset[ 1 ];
 	headicon.z = self.origin[ 2 ] + self.entityheadiconoffset[ 2 ];
 }
+

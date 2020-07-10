@@ -1,6 +1,7 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_perplayer;
 
-main()
+main() //checked matches cerberus output
 {
 	level.tearradius = 170;
 	level.tearheight = 128;
@@ -13,20 +14,20 @@ main()
 	maps/mp/gametypes/_perplayer::enable( fgmonitor );
 }
 
-startmonitoringtearusage()
+startmonitoringtearusage() //checked matches cerberus output
 {
 	self thread monitortearusage();
 }
 
-stopmonitoringtearusage( disconnected )
+stopmonitoringtearusage( disconnected ) //checked matches cerberus output
 {
 	self notify( "stop_monitoring_tear_usage" );
 }
 
-monitortearusage()
+monitortearusage() //checked changed to match cerberus output
 {
 	self endon( "stop_monitoring_tear_usage" );
-	wait 0,05;
+	wait 0.05;
 	if ( !self hasweapon( "tear_grenade_mp" ) )
 	{
 		return;
@@ -35,19 +36,15 @@ monitortearusage()
 	while ( 1 )
 	{
 		ammo = self getammocount( "tear_grenade_mp" );
-		while ( ammo < prevammo )
+		if ( ammo < prevammo )
 		{
 			num = prevammo - ammo;
-/#
-#/
-			i = 0;
-			while ( i < num )
+			for ( i = 0; i < num; i++ )
 			{
 				grenades = getentarray( "grenade", "classname" );
 				bestdist = undefined;
 				bestg = undefined;
-				g = 0;
-				while ( g < grenades.size )
+				for ( g = 0; g < grenades.size; g++ )
 				{
 					if ( !isDefined( grenades[ g ].teargrenade ) )
 					{
@@ -58,29 +55,27 @@ monitortearusage()
 							bestg = g;
 						}
 					}
-					g++;
 				}
 				if ( isDefined( bestdist ) )
 				{
 					grenades[ bestg ].teargrenade = 1;
 					grenades[ bestg ] thread teargrenade_think( self.team );
 				}
-				i++;
 			}
 		}
 		prevammo = ammo;
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-teargrenade_think( team )
+teargrenade_think( team ) //checked matches cerberus output
 {
 	wait level.teargrenadetimer;
 	ent = spawnstruct();
 	ent thread tear( self.origin );
 }
 
-tear( pos )
+tear( pos ) //checked changed to match beta dump
 {
 	trig = spawn( "trigger_radius", pos, 0, level.tearradius, level.tearheight );
 	starttime = getTime();
@@ -89,7 +84,7 @@ tear( pos )
 	while ( 1 )
 	{
 		trig waittill( "trigger", player );
-		while ( player.sessionstate != "playing" )
+		if ( player.sessionstate != "playing" )
 		{
 			continue;
 		}
@@ -98,16 +93,16 @@ tear( pos )
 		curheight = level.tearheight;
 		if ( time < level.teargasfillduration )
 		{
-			currad *= time / level.teargasfillduration;
-			curheight *= time / level.teargasfillduration;
+			currad = currad * ( time / level.teargasfillduration );
+			curheight = curheight * ( time / level.teargasfillduration );
 		}
 		offset = ( player.origin + vectorScale( ( 0, 0, 1 ), 32 ) ) - pos;
 		offset2d = ( offset[ 0 ], offset[ 1 ], 0 );
-		while ( lengthsquared( offset2d ) > ( currad * currad ) )
+		if ( lengthsquared( offset2d ) > ( currad * currad ) )
 		{
 			continue;
 		}
-		while ( ( player.origin[ 2 ] - pos[ 2 ] ) > curheight )
+		if ( ( player.origin[ 2 ] - pos[ 2 ] ) > curheight )
 		{
 			continue;
 		}
@@ -119,13 +114,13 @@ tear( pos )
 	}
 }
 
-teartimer()
+teartimer() //checked matches cerberus output
 {
 	wait level.teargasduration;
 	self notify( "tear_timeout" );
 }
 
-teargassuffering()
+teargassuffering() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -140,10 +135,7 @@ teargassuffering()
 		{
 			break;
 		}
-		else
-		{
-			wait 1;
-		}
+		wait 1;
 	}
 	self shellshock( "teargas", 1 );
 	if ( self mayapplyscreeneffect() )
@@ -152,7 +144,7 @@ teargassuffering()
 	}
 }
 
-drawcylinder( pos, rad, height )
+drawcylinder( pos, rad, height ) //checked changed to match beta dump
 {
 	time = 0;
 	while ( 1 )
@@ -161,27 +153,23 @@ drawcylinder( pos, rad, height )
 		curheight = height;
 		if ( time < level.teargasfillduration )
 		{
-			currad *= time / level.teargasfillduration;
-			curheight *= time / level.teargasfillduration;
+			currad = currad * ( time / level.teargasfillduration );
+			curheight = curheight * ( time / level.teargasfillduration );
 		}
-		r = 0;
-		while ( r < 20 )
+		for ( r = 0; r < 20; r++ )
 		{
 			theta = ( r / 20 ) * 360;
 			theta2 = ( ( r + 1 ) / 20 ) * 360;
 			line( pos + ( cos( theta ) * currad, sin( theta ) * currad, 0 ), pos + ( cos( theta2 ) * currad, sin( theta2 ) * currad, 0 ) );
 			line( pos + ( cos( theta ) * currad, sin( theta ) * currad, curheight ), pos + ( cos( theta2 ) * currad, sin( theta2 ) * currad, curheight ) );
 			line( pos + ( cos( theta ) * currad, sin( theta ) * currad, 0 ), pos + ( cos( theta ) * currad, sin( theta ) * currad, curheight ) );
-			r++;
 		}
-		time += 0,05;
+		time += 0.05;
 		if ( time > level.teargasduration )
 		{
 			return;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 }
+

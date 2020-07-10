@@ -1,14 +1,15 @@
+//checked includes match cerberus output
 #include maps/mp/killstreaks/_emp;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precacheshellshock( "flashbang" );
 	thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	for ( ;; )
 	{
@@ -17,7 +18,7 @@ onplayerconnect()
 	}
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	for ( ;; )
@@ -27,7 +28,7 @@ onplayerspawned()
 	}
 }
 
-monitorempgrenade()
+monitorempgrenade() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "death" );
@@ -43,30 +44,28 @@ monitorempgrenade()
 			}
 			hurtvictim = 1;
 			hurtattacker = 0;
+			/*
 /#
 			assert( isDefined( self.team ) );
 #/
+			*/
 			if ( level.teambased && isDefined( attacker ) && isDefined( attacker.team ) && attacker.team == self.team && attacker != self )
 			{
 				if ( level.friendlyfire == 0 )
 				{
+					continue;
 				}
-			}
-			else if ( level.friendlyfire == 1 )
-			{
-				hurtattacker = 0;
-				hurtvictim = 1;
-				break;
-			}
-			else if ( level.friendlyfire == 2 )
-			{
-				hurtvictim = 0;
-				hurtattacker = 1;
-				break;
-			}
-			else
-			{
-				if ( level.friendlyfire == 3 )
+				else if ( level.friendlyfire == 1 )
+				{
+					hurtattacker = 0;
+					hurtvictim = 1;
+				}
+				else if ( level.friendlyfire == 2 )
+				{
+					hurtvictim = 0;
+					hurtattacker = 1;
+				}
+				else if ( level.friendlyfire == 3 )
 				{
 					hurtattacker = 1;
 					hurtvictim = 1;
@@ -84,13 +83,13 @@ monitorempgrenade()
 	}
 }
 
-applyemp( attacker )
+applyemp( attacker ) //checked matches cerberus output
 {
 	self notify( "applyEmp" );
 	self endon( "applyEmp" );
 	self endon( "disconnect" );
 	self endon( "death" );
-	wait 0,05;
+	wait 0.05;
 	if ( self == attacker )
 	{
 		if ( isDefined( self.empendtime ) )
@@ -117,7 +116,7 @@ applyemp( attacker )
 	self.empgrenaded = 1;
 	self shellshock( "flashbang", 1 );
 	self.empendtime = getTime() + ( self.empduration * 1000 );
-	self thread emprumbleloop( 0,75 );
+	self thread emprumbleloop( 0.75 );
 	self setempjammed( 1 );
 	self thread empgrenadedeathwaiter();
 	wait self.empduration;
@@ -125,7 +124,7 @@ applyemp( attacker )
 	self checktoturnoffemp();
 }
 
-empgrenadedeathwaiter()
+empgrenadedeathwaiter() //checked matches cerberus output
 {
 	self notify( "empGrenadeDeathWaiter" );
 	self endon( "empGrenadeDeathWaiter" );
@@ -134,17 +133,17 @@ empgrenadedeathwaiter()
 	self checktoturnoffemp();
 }
 
-checktoturnoffemp()
+checktoturnoffemp() //checked changed to match cerberus output
 {
 	self.empgrenaded = 0;
-	if ( level.teambased || maps/mp/killstreaks/_emp::emp_isteamemped( self.team ) && !level.teambased && isDefined( level.empplayer ) && level.empplayer != self )
+	if ( level.teambased && maps/mp/killstreaks/_emp::emp_isteamemped( self.team ) || !level.teambased && isDefined( level.empplayer ) && level.empplayer != self )
 	{
 		return;
 	}
 	self setempjammed( 0 );
 }
 
-emprumbleloop( duration )
+emprumbleloop( duration ) //checked matches cerberus output
 {
 	self endon( "emp_rumble_loop" );
 	self notify( "emp_rumble_loop" );
@@ -152,11 +151,11 @@ emprumbleloop( duration )
 	while ( getTime() < goaltime )
 	{
 		self playrumbleonentity( "damage_heavy" );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-watchempexplosion( owner, weaponname )
+watchempexplosion( owner, weaponname ) //checked changed to match cerberus output
 {
 	owner endon( "disconnect" );
 	owner endon( "team_changed" );
@@ -165,20 +164,17 @@ watchempexplosion( owner, weaponname )
 	owner addweaponstat( weaponname, "used", 1 );
 	self waittill( "explode", origin, surface );
 	ents = getdamageableentarray( origin, 512 );
-	_a223 = ents;
-	_k223 = getFirstArrayKey( _a223 );
-	while ( isDefined( _k223 ) )
+	foreach ( ent in ents )
 	{
-		ent = _a223[ _k223 ];
 		ent dodamage( 1, origin, owner, owner, "none", "MOD_GRENADE_SPLASH", 0, weaponname );
-		_k223 = getNextArrayKey( _a223, _k223 );
 	}
 }
 
-watchempgrenadeshutdown()
+watchempgrenadeshutdown() //checked matches cerberus output
 {
 	self endon( "explode" );
 	self waittill( "death" );
-	wait 0,05;
+	wait 0.05;
 	self notify( "shutdown_empgrenade" );
 }
+

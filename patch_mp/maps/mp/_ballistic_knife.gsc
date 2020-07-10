@@ -1,14 +1,15 @@
+//checked includes match cerberus output
 #include maps/mp/_challenges;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	precachemodel( "t6_wpn_ballistic_knife_projectile" );
 	precachemodel( "t6_wpn_ballistic_knife_blade_retrieve" );
 }
 
-onspawn( watcher, player )
+onspawn( watcher, player ) //checked changed to match cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -31,12 +32,9 @@ onspawn( watcher, player )
 			{
 				isfriendly = 1;
 			}
-			else
+			else if ( level.teambased && isai( prey ) && player.team == prey.aiteam )
 			{
-				if ( level.teambased && isai( prey ) && player.team == prey.aiteam )
-				{
-					isfriendly = 1;
-				}
+				isfriendly = 1;
 			}
 			if ( !isfriendly )
 			{
@@ -49,13 +47,10 @@ onspawn( watcher, player )
 					retrievable_model linkto( prey, bone );
 				}
 			}
-			else
+			else if ( isfriendly )
 			{
-				if ( isfriendly )
-				{
-					retrievable_model physicslaunch( normal, ( randomint( 10 ), randomint( 10 ), randomint( 10 ) ) );
-					normal = ( 0, 0, 1 );
-				}
+				retrievable_model physicslaunch( normal, ( randomint( 10 ), randomint( 10 ), randomint( 10 ) ) );
+				normal = ( 0, 0, 1 );
 			}
 		}
 		watcher.objectarray[ watcher.objectarray.size ] = retrievable_model;
@@ -76,7 +71,7 @@ onspawn( watcher, player )
 	}
 }
 
-wait_to_show_glowing_model( prey )
+wait_to_show_glowing_model( prey ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "death" );
@@ -91,7 +86,7 @@ wait_to_show_glowing_model( prey )
 	glowing_retrievable_model setmodel( "t6_wpn_ballistic_knife_blade_retrieve" );
 }
 
-watch_shutdown()
+watch_shutdown() //checked matches cerberus output
 {
 	pickuptrigger = self.pickuptrigger;
 	glowing_model = self.glowing_model;
@@ -106,7 +101,7 @@ watch_shutdown()
 	}
 }
 
-onspawnretrievetrigger( watcher, player )
+onspawnretrievetrigger( watcher, player ) //checked matches cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -147,7 +142,7 @@ onspawnretrievetrigger( watcher, player )
 	retrievable_model thread watch_shutdown();
 }
 
-watch_use_trigger( trigger, model, callback, playersoundonuse, npcsoundonuse )
+watch_use_trigger( trigger, model, callback, playersoundonuse, npcsoundonuse ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "delete" );
@@ -156,11 +151,11 @@ watch_use_trigger( trigger, model, callback, playersoundonuse, npcsoundonuse )
 	while ( 1 )
 	{
 		trigger waittill( "trigger", player );
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
-		while ( !player isonground() )
+		if ( !player isonground() )
 		{
 			continue;
 		}
@@ -172,7 +167,7 @@ watch_use_trigger( trigger, model, callback, playersoundonuse, npcsoundonuse )
 		{
 			continue;
 		}
-		while ( !player hasweapon( "knife_ballistic_mp" ) )
+		if ( !player hasweapon( "knife_ballistic_mp" ) )
 		{
 			continue;
 		}
@@ -198,11 +193,11 @@ watch_use_trigger( trigger, model, callback, playersoundonuse, npcsoundonuse )
 			player playsound( npcsoundonuse );
 		}
 		self thread [[ callback ]]( player );
-		return;
+		break;
 	}
 }
 
-pick_up( player )
+pick_up( player ) //checked matches cerberus output
 {
 	self destroy_ent();
 	current_weapon = player getcurrentweapon();
@@ -227,7 +222,7 @@ pick_up( player )
 	}
 }
 
-destroy_ent()
+destroy_ent() //checked matches cerberus output
 {
 	if ( isDefined( self ) )
 	{
@@ -244,7 +239,7 @@ destroy_ent()
 	}
 }
 
-dropknivestoground()
+dropknivestoground() //checked matches cerberus output
 {
 	self endon( "death" );
 	for ( ;; )
@@ -254,16 +249,16 @@ dropknivestoground()
 	}
 }
 
-droptoground( origin, radius )
+droptoground( origin, radius ) //checked changed to match cerberus output
 {
 	if ( distancesquared( origin, self.origin ) < ( radius * radius ) )
 	{
-		self physicslaunch( ( 0, 0, 1 ), vectorScale( ( 0, 0, 1 ), 5 ) );
+		self physicslaunch( ( 0, 0, 1 ), vectorScale( ( 1, 1, 1 ), 5 ) );
 		self thread updateretrievetrigger();
 	}
 }
 
-updateretrievetrigger()
+updateretrievetrigger() //checked matches cerberus output
 {
 	self endon( "death" );
 	self waittill( "stationary" );
@@ -271,3 +266,4 @@ updateretrievetrigger()
 	trigger.origin = ( self.origin[ 0 ], self.origin[ 1 ], self.origin[ 2 ] + 10 );
 	trigger linkto( self );
 }
+

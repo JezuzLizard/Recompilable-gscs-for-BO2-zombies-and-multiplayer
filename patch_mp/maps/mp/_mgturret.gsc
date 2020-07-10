@@ -1,28 +1,26 @@
+//checked includes match cerberus output
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-main()
+main() //checked changed to match cerberus output dvar taken from beta dump
 {
-	if ( getDvar( #"7C9A91DF" ) == "" )
+	if ( getDvar( "mg42" ) == "" )
 	{
 		setdvar( "mgTurret", "off" );
 	}
 	level.magic_distance = 24;
 	turretinfos = getentarray( "turretInfo", "targetname" );
-	index = 0;
-	while ( index < turretinfos.size )
+	for ( index = 0; index < turretinfos.size; index++ )
 	{
 		turretinfos[ index ] delete();
-		index++;
 	}
 }
 
-set_difficulty( difficulty )
+set_difficulty( difficulty ) //checked changed to match cerberus output
 {
 	init_turret_difficulty_settings();
 	turrets = getentarray( "misc_turret", "classname" );
-	index = 0;
-	while ( index < turrets.size )
+	for ( index = 0; index < turrets.size; index++ )
 	{
 		if ( isDefined( turrets[ index ].script_skilloverride ) )
 		{
@@ -45,39 +43,37 @@ set_difficulty( difficulty )
 					break;
 				break;
 				default:
-				}
 			}
 			turret_set_difficulty( turrets[ index ], difficulty );
-			index++;
 		}
 	}
 }
 
-init_turret_difficulty_settings()
+init_turret_difficulty_settings() //checked matches cerberus output
 {
-	level.mgturretsettings[ "easy" ][ "convergenceTime" ] = 2,5;
+	level.mgturretsettings[ "easy" ][ "convergenceTime" ] = 2.5;
 	level.mgturretsettings[ "easy" ][ "suppressionTime" ] = 3;
-	level.mgturretsettings[ "easy" ][ "accuracy" ] = 0,38;
+	level.mgturretsettings[ "easy" ][ "accuracy" ] = 0.38;
 	level.mgturretsettings[ "easy" ][ "aiSpread" ] = 2;
-	level.mgturretsettings[ "easy" ][ "playerSpread" ] = 0,5;
-	level.mgturretsettings[ "medium" ][ "convergenceTime" ] = 1,5;
+	level.mgturretsettings[ "easy" ][ "playerSpread" ] = 0.5;
+	level.mgturretsettings[ "medium" ][ "convergenceTime" ] = 1.5;
 	level.mgturretsettings[ "medium" ][ "suppressionTime" ] = 3;
-	level.mgturretsettings[ "medium" ][ "accuracy" ] = 0,38;
+	level.mgturretsettings[ "medium" ][ "accuracy" ] = 0.38;
 	level.mgturretsettings[ "medium" ][ "aiSpread" ] = 2;
-	level.mgturretsettings[ "medium" ][ "playerSpread" ] = 0,5;
-	level.mgturretsettings[ "hard" ][ "convergenceTime" ] = 0,8;
+	level.mgturretsettings[ "medium" ][ "playerSpread" ] = 0.5;
+	level.mgturretsettings[ "hard" ][ "convergenceTime" ] = 0.8;
 	level.mgturretsettings[ "hard" ][ "suppressionTime" ] = 3;
-	level.mgturretsettings[ "hard" ][ "accuracy" ] = 0,38;
+	level.mgturretsettings[ "hard" ][ "accuracy" ] = 0.38;
 	level.mgturretsettings[ "hard" ][ "aiSpread" ] = 2;
-	level.mgturretsettings[ "hard" ][ "playerSpread" ] = 0,5;
-	level.mgturretsettings[ "fu" ][ "convergenceTime" ] = 0,4;
+	level.mgturretsettings[ "hard" ][ "playerSpread" ] = 0.5;
+	level.mgturretsettings[ "fu" ][ "convergenceTime" ] = 0.4;
 	level.mgturretsettings[ "fu" ][ "suppressionTime" ] = 3;
-	level.mgturretsettings[ "fu" ][ "accuracy" ] = 0,38;
+	level.mgturretsettings[ "fu" ][ "accuracy" ] = 0.38;
 	level.mgturretsettings[ "fu" ][ "aiSpread" ] = 2;
-	level.mgturretsettings[ "fu" ][ "playerSpread" ] = 0,5;
+	level.mgturretsettings[ "fu" ][ "playerSpread" ] = 0.5;
 }
 
-turret_set_difficulty( turret, difficulty )
+turret_set_difficulty( turret, difficulty ) //checked matches cerberus output
 {
 	turret.convergencetime = level.mgturretsettings[ difficulty ][ "convergenceTime" ];
 	turret.suppressiontime = level.mgturretsettings[ difficulty ][ "suppressionTime" ];
@@ -86,7 +82,7 @@ turret_set_difficulty( turret, difficulty )
 	turret.playerspread = level.mgturretsettings[ difficulty ][ "playerSpread" ];
 }
 
-turret_suppression_fire( targets )
+turret_suppression_fire( targets ) //checked matches beta dump
 {
 	self endon( "death" );
 	self endon( "stop_suppression_fire" );
@@ -109,36 +105,27 @@ turret_suppression_fire( targets )
 	}
 }
 
-burst_fire_settings( setting )
+burst_fire_settings( setting ) //checked changed to match cerberus output
 {
 	if ( setting == "delay" )
 	{
-		return 0,2;
+		return 0.2;
 	}
-	else
+	else if ( setting == "delay_range" )
 	{
-		if ( setting == "delay_range" )
-		{
-			return 0,5;
-		}
-		else
-		{
-			if ( setting == "burst" )
-			{
-				return 0,5;
-			}
-			else
-			{
-				if ( setting == "burst_range" )
-				{
-					return 4;
-				}
-			}
-		}
+		return 0.5;
+	}
+	else if ( setting == "burst" )
+	{
+		return 0.5;
+	}
+	else if ( setting == "burst_range" )
+	{
+		return 4;
 	}
 }
 
-burst_fire( turret, manual_target )
+burst_fire( turret, manual_target ) //checked matches cerberus output
 {
 	turret endon( "death" );
 	turret endon( "stopfiring" );
@@ -190,7 +177,7 @@ burst_fire( turret, manual_target )
 	}
 }
 
-burst_fire_unmanned()
+burst_fire_unmanned() //checked changed at own discretion
 {
 	self notify( "stop_burst_fire_unmanned" );
 	self endon( "stop_burst_fire_unmanned" );
@@ -243,7 +230,7 @@ burst_fire_unmanned()
 			self cleartargetentity();
 			self settargetentity( self.manual_targets[ randomint( self.manual_targets.size ) ] );
 		}
-		duration = ( pauseuntiltime - getTime() ) * 0,001;
+		duration = ( pauseuntiltime - getTime() ) * 0.001;
 		if ( self isfiringturret() && duration <= 0 )
 		{
 			if ( turretstate != "fire" )
@@ -259,32 +246,28 @@ burst_fire_unmanned()
 			self.script_shooting = 0;
 			duration = turret_delay + randomfloat( turret_delay_range );
 			pauseuntiltime = getTime() + int( duration * 1000 );
-			continue;
 		}
-		else
+		else if ( turretstate != "aim" )
 		{
-			if ( turretstate != "aim" )
-			{
-				turretstate = "aim";
-			}
-			self thread turret_timer( duration );
-			self waittill( "turretstatechange" );
+			turretstate = "aim";
 		}
+		self thread turret_timer( duration );
+		self waittill( "turretstatechange" );
 	}
 }
 
-do_shoot()
+do_shoot() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "turretstatechange" );
 	for ( ;; )
 	{
 		self shootturret();
-		wait 0,112;
+		wait 0.112;
 	}
 }
 
-turret_timer( duration )
+turret_timer( duration ) //checked matches cerberus output
 {
 	if ( duration <= 0 )
 	{
@@ -298,7 +281,7 @@ turret_timer( duration )
 	}
 }
 
-random_spread( ent )
+random_spread( ent ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self notify( "stop random_spread" );
@@ -317,6 +300,7 @@ random_spread( ent )
 			ent.origin = self.manual_target.origin;
 		}
 		ent.origin += ( 20 - randomfloat( 40 ), 20 - randomfloat( 40 ), 20 - randomfloat( 60 ) );
-		wait 0,2;
+		wait 0.2;
 	}
 }
+

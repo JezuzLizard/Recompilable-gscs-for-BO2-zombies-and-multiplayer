@@ -27,14 +27,20 @@ patch_mp/maps/codescripts/character_mp.gsc
 patch_mp/maps/codescripts/delete.gsc
 patch_mp/maps/codescripts/struct.gsc
 
+patch_mp/maps/mp/_acousticsensor.gsc
 patch_mp/maps/mp/_ambientpackage.gsc
 patch_mp/maps/mp/_audio.gsc
+patch_mp/maps/mp/_ballistic_knife.gsc
 patch_mp/maps/mp/_bb.gsc
+patch_mp/maps/mp/_bouncingbetty.gsc
 patch_mp/maps/mp/_busing.gsc
 patch_mp/maps/mp/_compass.gsc
 patch_mp/maps/mp/_demo.gsc
 patch_mp/maps/mp/_development_dvars.gsc
+patch_mp/maps/mp/_empgrenade.gsc
+patch_mp/maps/mp/_entityheadicons.gsc
 patch_mp/maps/mp/_explosive_bolt.gsc
+patch_mp/maps/mp/_flashgrenades.gsc
 patch_mp/maps/mp/_fxanim.gsc
 patch_mp/maps/mp/_medals.gsc
 patch_mp/maps/mp/_menus.gsc
@@ -42,8 +48,12 @@ patch_mp/maps/mp/_multi_extracam.gsc
 patch_mp/maps/mp/_music.gsc
 patch_mp/maps/mp/_pc.gsc
 patch_mp/maps/mp/_satchel_charge.gsc
+patch_mp/maps/mp/_scrambler.gsc
+patch_mp/maps/mp/_sensor_grenade.gsc
 patch_mp/maps/mp/_smokegrenade.gsc
 patch_mp/maps/mp/_sticky_grenade.gsc
+patch_mp/maps/mp/_teargrenades.gsc
+patch_mp/maps/mp/_treadfx.gsc
 patch_mp/maps/mp/mp_bridge.gsc
 patch_mp/maps/mp/mp_carrier.gsc
 patch_mp/maps/mp/mp_castaway.sc
@@ -149,19 +159,9 @@ patch_mp/maps/mp/teams/_teamset_multiteam.gsc
 ```
 patch_mp/maps/common_scripts/utility.gsc
 
-patch_mp/maps/mp/_acousticsensor.gsc
-patch_mp/maps/mp/_art.gsc
-patch_mp/maps/mp/_ballistic_knife.gsc
-patch_mp/maps/mp/_bouncingbetty.gsc
 patch_mp/maps/mp/_challenges.gsc
-patch_mp/maps/mp/_createfx.gsc
-patch_mp/maps/mp/_createfxmenu.gsc
-patch_mp/maps/mp/_createfxundo.gsc
 patch_mp/maps/mp/_decoy.gsc
 patch_mp/maps/mp/_destructible.gsc
-patch_mp/maps/mp/_empgrenade.gsc
-patch_mp/maps/mp/_entityheadicons.gsc
-patch_mp/maps/mp/_flashgrenades.gsc
 patch_mp/maps/mp/_fx.gsc
 patch_mp/maps/mp/_gameadvertisement.gsc
 patch_mp/maps/mp/_gamerep.gsc
@@ -175,13 +175,8 @@ patch_mp/maps/mp/_popups.gsc
 patch_mp/maps/mp/_proximity_grenade.gsc
 patch_mp/maps/mp/_riotshield.gsc
 patch_mp/maps/mp/_scoreevents.gsc
-patch_mp/maps/mp/_scrambler.gsc
-patch_mp/maps/mp/_script_gen.gsc
-patch_mp/maps/mp/_sensor_grenade.gsc
 patch_mp/maps/mp/_tabun.gsc
 patch_mp/maps/mp/_tacticalinsertion.gsc
-patch_mp/maps/mp/_teargrenades.gsc
-patch_mp/maps/mp/_treadfx.gsc
 patch_mp/maps/mp/_trophy_system.gsc
 patch_mp/maps/mp/_utility.gsc
 patch_mp/maps/mp/_vehicles.gsc
@@ -216,6 +211,11 @@ patch_mp/maps/mp/killstreaks/_turret_killstreak.gsc
 ```
 ### The following scipts are dev scripts filled with dev calls making them useless to modify for now
 ```
+patch_mp/maps/mp/_art.gsc
+patch_mp/maps/mp/_createfx.gsc
+patch_mp/maps/mp/_createfxmenu.gsc
+patch_mp/maps/mp/_createfxundo.gsc
+patch_mp/maps/mp/_script_gen.gsc
 patch_mp/maps/mp/gametypes/_dev.gsc
 patch_mp/maps/mp/gametypes/_dev_class.gsc
 ```

@@ -1,6 +1,7 @@
+//checked includes match cerberus output
 #include maps/mp/_utility;
 
-main()
+main() //checked matches cerberus output
 {
 	precacheshellshock( "flashbang" );
 	level.sound_flash_start = "";
@@ -8,17 +9,17 @@ main()
 	level.sound_flash_stop = "";
 }
 
-startmonitoringflash()
+startmonitoringflash() //checked matches cerberus output
 {
 	self thread monitorflash();
 }
 
-stopmonitoringflash( disconnected )
+stopmonitoringflash( disconnected ) //checked matches cerberus output
 {
 	self notify( "stop_monitoring_flash" );
 }
 
-flashrumbleloop( duration )
+flashrumbleloop( duration ) //checked matches cerberus output
 {
 	self endon( "stop_monitoring_flash" );
 	self endon( "flash_rumble_loop" );
@@ -27,46 +28,45 @@ flashrumbleloop( duration )
 	while ( getTime() < goaltime )
 	{
 		self playrumbleonentity( "damage_heavy" );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-monitorflash_internal( amount_distance, amount_angle, attacker, direct_on_player )
+monitorflash_internal( amount_distance, amount_angle, attacker, direct_on_player ) //checked changed to match cerberus output
 {
 	hurtattacker = 0;
 	hurtvictim = 1;
-	if ( amount_angle < 0,5 )
+	if ( amount_angle < 0.5 )
 	{
-		amount_angle = 0,5;
+		amount_angle = 0.5;
 	}
-	else
+	else if ( amount_angle > 0.8 )
 	{
-		if ( amount_angle > 0,8 )
-		{
-			amount_angle = 1;
-		}
+		amount_angle = 1;
 	}
 	if ( isDefined( attacker ) && attacker == self )
 	{
-		amount_distance *= 0,5;
+		amount_distance *= 0.5;
 	}
 	duration = amount_distance * amount_angle * 6;
-	if ( duration < 0,25 )
+	if ( duration < 0.25 )
 	{
 		return;
 	}
 	rumbleduration = undefined;
 	if ( duration > 2 )
 	{
-		rumbleduration = 0,75;
+		rumbleduration = 0.75;
 	}
 	else
 	{
-		rumbleduration = 0,25;
+		rumbleduration = 0.25;
 	}
+	/*
 /#
 	assert( isDefined( self.team ) );
 #/
+	*/
 	if ( level.teambased && isDefined( attacker ) && isDefined( attacker.team ) && attacker.team == self.team && attacker != self )
 	{
 		if ( level.friendlyfire == 0 )
@@ -78,25 +78,22 @@ monitorflash_internal( amount_distance, amount_angle, attacker, direct_on_player
 		}
 		else if ( level.friendlyfire == 2 )
 		{
-			duration *= 0,5;
-			rumbleduration *= 0,5;
+			duration *= 0.5;
+			rumbleduration *= 0.5;
 			hurtvictim = 0;
 			hurtattacker = 1;
 		}
-		else
+		else if ( level.friendlyfire == 3 )
 		{
-			if ( level.friendlyfire == 3 )
-			{
-				duration *= 0,5;
-				rumbleduration *= 0,5;
-				hurtattacker = 1;
-			}
+			duration *= 0.5;
+			rumbleduration *= 0.5;
+			hurtattacker = 1;
 		}
 	}
 	if ( self hasperk( "specialty_flashprotection" ) )
 	{
-		duration *= 0,1;
-		rumbleduration *= 0,1;
+		duration *= 0.1;
+		rumbleduration *= 0.1;
 	}
 	if ( hurtvictim )
 	{
@@ -119,14 +116,14 @@ monitorflash_internal( amount_distance, amount_angle, attacker, direct_on_player
 	}
 }
 
-monitorflash()
+monitorflash() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self.flashendtime = 0;
 	while ( 1 )
 	{
 		self waittill( "flashbang", amount_distance, amount_angle, attacker );
-		while ( !isalive( self ) )
+		if ( !isalive( self ) )
 		{
 			continue;
 		}
@@ -134,7 +131,7 @@ monitorflash()
 	}
 }
 
-monitorrcbombflash()
+monitorrcbombflash() //checked matches cerberus output
 {
 	self endon( "death" );
 	self.flashendtime = 0;
@@ -150,7 +147,7 @@ monitorrcbombflash()
 	}
 }
 
-applyflash( duration, rumbleduration, attacker )
+applyflash( duration, rumbleduration, attacker ) //checked matches cerberus output
 {
 	if ( !isDefined( self.flashduration ) || duration > self.flashduration )
 	{
@@ -161,7 +158,7 @@ applyflash( duration, rumbleduration, attacker )
 		self.flashrumbleduration = rumbleduration;
 	}
 	self thread playflashsound( duration );
-	wait 0,05;
+	wait 0.05;
 	if ( isDefined( self.flashduration ) )
 	{
 		self shellshock( "flashbang", self.flashduration, 0 );
@@ -176,7 +173,7 @@ applyflash( duration, rumbleduration, attacker )
 	self.flashrumbleduration = undefined;
 }
 
-playflashsound( duration )
+playflashsound( duration ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -186,20 +183,21 @@ playflashsound( duration )
 	flashsound thread deleteentonownerdeath( self );
 	flashsound playsound( level.sound_flash_start );
 	flashsound playloopsound( level.sound_flash_loop );
-	if ( duration > 0,5 )
+	if ( duration > 0.5 )
 	{
-		wait ( duration - 0,5 );
+		wait ( duration - 0.5 );
 	}
 	flashsound playsound( level.sound_flash_start );
-	flashsound stoploopsound( 0,5 );
-	wait 0,5;
+	flashsound stoploopsound( 0.5 );
+	wait 0.5;
 	flashsound notify( "delete" );
 	flashsound delete();
 }
 
-deleteentonownerdeath( owner )
+deleteentonownerdeath( owner ) //checked matches cerberus output
 {
 	self endon( "delete" );
 	owner waittill( "death" );
 	self delete();
 }
+

@@ -1,5 +1,5 @@
 
-loadtreadfx( vehicle )
+loadtreadfx( vehicle ) //checked matches cerberus output
 {
 	treadfx = vehicle.treadfxnamearray;
 	if ( isDefined( treadfx ) )
@@ -116,13 +116,12 @@ loadtreadfx( vehicle )
 	}
 }
 
-preloadtreadfx( vehicle )
+preloadtreadfx( vehicle ) //checked changed to match cerberus output
 {
 	treadfx = getvehicletreadfxarray( vehicle );
-	i = 0;
-	while ( i < treadfx.size )
+	for ( i = 0; i < treadfx.size; i++ )
 	{
 		loadfx( treadfx[ i ] );
-		i++;
 	}
 }
+
