@@ -15,7 +15,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-timeuntilspawn( includeteamkilldelay )
+timeuntilspawn( includeteamkilldelay ) //checked matches cerberus output
 {
 	if ( level.ingraceperiod && !self.hasspawned )
 	{
@@ -46,23 +46,19 @@ timeuntilspawn( includeteamkilldelay )
 	return respawndelay;
 }
 
-allteamshaveexisted()
+allteamshaveexisted() //checked changed to match cerberus output
 {
-	_a34 = level.teams;
-	_k34 = getFirstArrayKey( _a34 );
-	while ( isDefined( _k34 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a34[ _k34 ];
 		if ( !level.everexisted[ team ] )
 		{
 			return 0;
 		}
-		_k34 = getNextArrayKey( _a34, _k34 );
 	}
 	return 1;
 }
 
-mayspawn()
+mayspawn() //checked partially changed to match cerberus output changed at own discretion
 {
 	if ( isDefined( level.mayspawn ) && !( self [[ level.mayspawn ]]() ) )
 	{
@@ -84,11 +80,16 @@ mayspawn()
 		}
 		else
 		{
-			if ( level.maxplayercount > 1 )
+			gamehasstarted = level.maxplayercount > 1;
+			if ( gamehasstarted == 0 )
 			{
-				if ( !isoneround() )
+				if ( !isoneround() && !isfirstround() )
 				{
-					gamehasstarted = !isfirstround();
+					gamehasstarted = 1;
+				}
+				else
+				{
+					gamehasstarted = 0;
 				}
 			}
 		}
@@ -96,21 +97,18 @@ mayspawn()
 		{
 			return 0;
 		}
-		else
+		else if ( gamehasstarted )
 		{
-			if ( gamehasstarted )
+			if ( !level.ingraceperiod && !self.hasspawned && !level.wagermatch )
 			{
-				if ( !level.ingraceperiod && !self.hasspawned && !level.wagermatch )
-				{
-					return 0;
-				}
+				return 0;
 			}
 		}
 	}
 	return 1;
 }
 
-timeuntilwavespawn( minimumwait )
+timeuntilwavespawn( minimumwait ) //checked matches cerberus output
 {
 	earliestspawntime = getTime() + ( minimumwait * 1000 );
 	lastwavetime = level.lastwave[ self.pers[ "team" ] ];
@@ -129,7 +127,7 @@ timeuntilwavespawn( minimumwait )
 	return ( timeofspawn - getTime() ) / 1000;
 }
 
-stoppoisoningandflareonspawn()
+stoppoisoningandflareonspawn() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.inpoisonarea = 0;
@@ -138,7 +136,7 @@ stoppoisoningandflareonspawn()
 	self.ingroundnapalm = 0;
 }
 
-spawnplayerprediction()
+spawnplayerprediction() //checked changed to match cerberus output dvar taken from beta dump
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -147,11 +145,10 @@ spawnplayerprediction()
 	self endon( "spawned" );
 	while ( 1 )
 	{
-		wait 0,5;
-		if ( isDefined( level.onspawnplayerunified ) && getDvarInt( #"CF6EEB8B" ) == 0 )
+		wait 0.5;
+		if ( isDefined( level.onspawnplayerunified ) && getDvarInt( "scr_disableunifiedspawning" ) == 0 )
 		{
 			maps/mp/gametypes_zm/_spawning::onspawnplayer_unified( 1 );
-			continue;
 		}
 		else
 		{
@@ -160,7 +157,7 @@ spawnplayerprediction()
 	}
 }
 
-giveloadoutlevelspecific( team, class )
+giveloadoutlevelspecific( team, class ) //checked matches cerberus output
 {
 	pixbeginevent( "giveLoadoutLevelSpecific" );
 	if ( isDefined( level.givecustomcharacters ) )
@@ -174,7 +171,7 @@ giveloadoutlevelspecific( team, class )
 	pixendevent();
 }
 
-spawnplayer()
+spawnplayer() //checked matches cerberus output dvars taken from beta dump
 {
 	pixbeginevent( "spawnPlayer_preUTS" );
 	self endon( "disconnect" );
@@ -205,9 +202,9 @@ spawnplayer()
 	self.psoffsettime = 0;
 	self.statusicon = "";
 	self.damagedplayers = [];
-	if ( getDvarInt( #"C8077F47" ) > 0 )
+	if ( getDvarInt( "scr_csmode" ) > 0 )
 	{
-		self.maxhealth = getDvarInt( #"C8077F47" );
+		self.maxhealth = getDvarInt( "scr_csmode" );
 	}
 	else
 	{
@@ -218,10 +215,9 @@ spawnplayer()
 	self.hasspawned = 1;
 	self.spawntime = getTime();
 	self.afk = 0;
-	if ( self.pers[ "lives" ] || !isDefined( level.takelivesondeath ) && level.takelivesondeath == 0 )
+	if ( self.pers[ "lives" ] && !isDefined( level.takelivesondeath ) || level.takelivesondeath == 0 )
 	{
 		self.pers[ "lives" ]--;
-
 		if ( self.pers[ "lives" ] == 0 )
 		{
 			level notify( "player_eliminated" );
@@ -250,7 +246,7 @@ spawnplayer()
 	self setdepthoffield( 0, 0, 512, 512, 4, 0 );
 	self resetfov();
 	pixbeginevent( "onSpawnPlayer" );
-	if ( isDefined( level.onspawnplayerunified ) && getDvarInt( #"CF6EEB8B" ) == 0 )
+	if ( isDefined( level.onspawnplayerunified ) && getDvarInt( "scr_disableunifiedspawning" ) == 0 )
 	{
 		self [[ level.onspawnplayerunified ]]();
 	}
@@ -268,9 +264,11 @@ spawnplayer()
 	pixbeginevent( "spawnPlayer_postUTS" );
 	self thread stoppoisoningandflareonspawn();
 	self stopburning();
+	/*
 /#
 	assert( maps/mp/gametypes_zm/_globallogic_utils::isvalidclass( self.class ) );
 #/
+	*/
 	self giveloadoutlevelspecific( self.team, self.class );
 	if ( level.inprematchperiod )
 	{
@@ -308,7 +306,7 @@ spawnplayer()
 			{
 				self thread maps/mp/gametypes_zm/_hud_message::hintmessage( hintmessage );
 			}
-			if ( isDefined( game[ "dialog" ][ "gametype" ] ) || !level.splitscreen && self == level.players[ 0 ] )
+			if ( isDefined( game[ "dialog" ][ "gametype" ] ) && !level.splitscreen || self == level.players[ 0 ] )
 			{
 				if ( !isDefined( level.infinalfight ) || !level.infinalfight )
 				{
@@ -418,35 +416,39 @@ spawnplayer()
 	self notify( "spawned_player" );
 	self logstring( "S " + self.origin[ 0 ] + " " + self.origin[ 1 ] + " " + self.origin[ 2 ] );
 	setdvar( "scr_selecting_location", "" );
+	/*
 /#
-	if ( getDvarInt( #"F8D00F60" ) > 0 )
+	if ( getDvarInt( "scr_xprate" ) > 0 )
 	{
 		self thread maps/mp/gametypes_zm/_globallogic_score::xpratethread();
 #/
 	}
+	*/
 	self maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg( "health_reboot", 1, 0 );
 	if ( game[ "state" ] == "postgame" )
 	{
+		/*
 /#
 		assert( !level.intermission );
 #/
+		*/
 		self maps/mp/gametypes_zm/_globallogic_player::freezeplayerforroundend();
 	}
 }
 
-spawnspectator( origin, angles )
+spawnspectator( origin, angles ) //checked matches cerberus output
 {
 	self notify( "spawned" );
 	self notify( "end_respawn" );
 	in_spawnspectator( origin, angles );
 }
 
-respawn_asspectator( origin, angles )
+respawn_asspectator( origin, angles ) //checked matches cerberus output
 {
 	in_spawnspectator( origin, angles );
 }
 
-in_spawnspectator( origin, angles )
+in_spawnspectator( origin, angles ) //checked matches cerberus output
 {
 	pixmarker( "BEGIN: in_spawnSpectator" );
 	self setspawnvariables();
@@ -478,7 +480,7 @@ in_spawnspectator( origin, angles )
 	pixmarker( "END: in_spawnSpectator" );
 }
 
-spectatorthirdpersonness()
+spectatorthirdpersonness() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned" );
@@ -487,7 +489,7 @@ spectatorthirdpersonness()
 	self.spectatingthirdperson = 0;
 }
 
-forcespawn( time )
+forcespawn( time ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -514,14 +516,16 @@ forcespawn( time )
 	self thread [[ level.spawnclient ]]();
 }
 
-kickifdontspawn()
+kickifdontspawn() //checked matches cerberus output
 {
+	/*
 /#
 	if ( getDvarInt( "scr_hostmigrationtest" ) == 1 )
 	{
 		return;
 #/
 	}
+	*/
 	if ( self ishost() )
 	{
 		return;
@@ -529,25 +533,25 @@ kickifdontspawn()
 	self kickifidontspawninternal();
 }
 
-kickifidontspawninternal()
+kickifidontspawninternal() //checked matches cerberus output dvars taken from beta dump
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	self endon( "spawned" );
 	waittime = 90;
-	if ( getDvar( #"4257CF5C" ) != "" )
+	if ( getDvar( "scr_kick_time" ) != "" )
 	{
-		waittime = getDvarFloat( #"4257CF5C" );
+		waittime = getDvarFloat( "scr_kick_time" );
 	}
 	mintime = 45;
-	if ( getDvar( #"0DF057E0" ) != "" )
+	if ( getDvar( scr_kick_mintime) != "" )
 	{
-		mintime = getDvarFloat( #"0DF057E0" );
+		mintime = getDvarFloat( scr_kick_mintime);
 	}
 	starttime = getTime();
 	kickwait( waittime );
 	timepassed = ( getTime() - starttime ) / 1000;
-	if ( timepassed < ( waittime - 0,1 ) && timepassed < mintime )
+	if ( timepassed < ( waittime - 0.1 ) && timepassed < mintime )
 	{
 		return;
 	}
@@ -566,13 +570,13 @@ kickifidontspawninternal()
 	kick( self getentitynumber() );
 }
 
-kickwait( waittime )
+kickwait( waittime ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	maps/mp/gametypes_zm/_hostmigration::waitlongdurationwithhostmigrationpause( waittime );
 }
 
-spawninterroundintermission()
+spawninterroundintermission() //checked matches cerberus output
 {
 	self notify( "spawned" );
 	self notify( "end_respawn" );
@@ -588,10 +592,10 @@ spawninterroundintermission()
 	self maps/mp/gametypes_zm/_globallogic_defaults::default_onspawnintermission();
 	self setorigin( self.origin );
 	self setplayerangles( self.angles );
-	self setdepthoffield( 0, 128, 512, 4000, 6, 1,8 );
+	self setdepthoffield( 0, 128, 512, 4000, 6, 1.8 );
 }
 
-spawnintermission( usedefaultcallback )
+spawnintermission( usedefaultcallback ) //checked changed to match cerberus output
 {
 	self notify( "spawned" );
 	self notify( "end_respawn" );
@@ -601,7 +605,7 @@ spawnintermission( usedefaultcallback )
 	self freeze_player_controls( 0 );
 	if ( level.rankedmatch && waslastround() )
 	{
-		if ( !self.postgamemilestones || self.postgamecontracts && self.postgamepromotion )
+		if ( self.postgamemilestones || self.postgamecontracts || self.postgamepromotion )
 		{
 			if ( self.postgamepromotion )
 			{
@@ -623,8 +627,8 @@ spawnintermission( usedefaultcallback )
 			waittime = 4;
 			while ( waittime )
 			{
-				wait 0,25;
-				waittime -= 0,25;
+				wait 0.25;
+				waittime -= 0.25;
 				self openmenu( game[ "menu_endgameupdate" ] );
 			}
 			self closemenu();
@@ -644,27 +648,23 @@ spawnintermission( usedefaultcallback )
 	{
 		[[ level.onspawnintermission ]]();
 	}
-	self setdepthoffield( 0, 128, 512, 4000, 6, 1,8 );
+	self setdepthoffield( 0, 128, 512, 4000, 6, 1.8 );
 }
 
-spawnqueuedclientonteam( team )
+spawnqueuedclientonteam( team ) //checked partially changed to match cerberus output see info.md
 {
 	player_to_spawn = undefined;
-	i = 0;
-	while ( i < level.deadplayers[ team ].size )
+	for ( i = 0; i < level.deadplayers[team].size; i++ )
 	{
 		player = level.deadplayers[ team ][ i ];
 		if ( player.waitingtospawn )
 		{
-			i++;
-			continue;
 		}
 		else
 		{
 			player_to_spawn = player;
 			break;
 		}
-		i++;
 	}
 	if ( isDefined( player_to_spawn ) )
 	{
@@ -674,7 +674,7 @@ spawnqueuedclientonteam( team )
 	}
 }
 
-spawnqueuedclient( dead_player_team, killer )
+spawnqueuedclient( dead_player_team, killer ) //checked partially changed to match cerberus output see info.md
 {
 	if ( !level.playerqueuedrespawn )
 	{
@@ -691,11 +691,8 @@ spawnqueuedclient( dead_player_team, killer )
 		spawnqueuedclientonteam( spawn_team );
 		return;
 	}
-	_a746 = level.teams;
-	_k746 = getFirstArrayKey( _a746 );
-	while ( isDefined( _k746 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a746[ _k746 ];
 		if ( team == dead_player_team )
 		{
 		}
@@ -703,11 +700,10 @@ spawnqueuedclient( dead_player_team, killer )
 		{
 			spawnqueuedclientonteam( team );
 		}
-		_k746 = getNextArrayKey( _a746, _k746 );
 	}
 }
 
-allteamsnearscorelimit()
+allteamsnearscorelimit() //checked changed to match cerberus output
 {
 	if ( !level.teambased )
 	{
@@ -717,21 +713,17 @@ allteamsnearscorelimit()
 	{
 		return 0;
 	}
-	_a763 = level.teams;
-	_k763 = getFirstArrayKey( _a763 );
-	while ( isDefined( _k763 ) )
+	foreach ( team in level.teams )
 	{
-		team = _a763[ _k763 ];
-		if ( ( level.scorelimit - 1 ) < game[ "teamScores" ][ team ] )
+		if ( !( game[ "teamScores" ][ team ] >= ( level.scoreLimit - 1 ) ) )
 		{
 			return 0;
 		}
-		_k763 = getNextArrayKey( _a763, _k763 );
 	}
 	return 1;
 }
 
-shouldshowrespawnmessage()
+shouldshowrespawnmessage() //checked matches cerberus output
 {
 	if ( waslastround() )
 	{
@@ -752,13 +744,13 @@ shouldshowrespawnmessage()
 	return 1;
 }
 
-default_spawnmessage()
+default_spawnmessage() //checked matches cerberus output
 {
 	setlowermessage( game[ "strings" ][ "spawn_next_round" ] );
 	self thread maps/mp/gametypes_zm/_globallogic_ui::removespawnmessageshortly( 3 );
 }
 
-showspawnmessage()
+showspawnmessage() //checked matches cerberus output
 {
 	if ( shouldshowrespawnmessage() )
 	{
@@ -766,15 +758,17 @@ showspawnmessage()
 	}
 }
 
-spawnclient( timealreadypassed )
+spawnclient( timealreadypassed ) //checked matches cerberus output
 {
 	pixbeginevent( "spawnClient" );
+	/*
 /#
 	assert( isDefined( self.team ) );
 #/
 /#
 	assert( maps/mp/gametypes_zm/_globallogic_utils::isvalidclass( self.class ) );
 #/
+	*/
 	if ( !self mayspawn() )
 	{
 		currentorigin = self.origin;
@@ -799,7 +793,7 @@ spawnclient( timealreadypassed )
 	pixendevent();
 }
 
-waitandspawnclient( timealreadypassed )
+waitandspawnclient( timealreadypassed ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -898,7 +892,7 @@ waitandspawnclient( timealreadypassed )
 	self thread [[ level.spawnplayer ]]();
 }
 
-waitrespawnorsafespawnbutton()
+waitrespawnorsafespawnbutton() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -908,14 +902,11 @@ waitrespawnorsafespawnbutton()
 		{
 			return;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 }
 
-waitinspawnqueue()
+waitinspawnqueue() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "end_respawn" );
@@ -928,7 +919,7 @@ waitinspawnqueue()
 	}
 }
 
-setthirdperson( value )
+setthirdperson( value ) //checked matches cerberus output
 {
 	if ( !level.console )
 	{
@@ -940,7 +931,7 @@ setthirdperson( value )
 		if ( value )
 		{
 			self setclientthirdperson( 1 );
-			self setdepthoffield( 0, 128, 512, 4000, 6, 1,8 );
+			self setdepthoffield( 0, 128, 512, 4000, 6, 1.8 );
 		}
 		else
 		{
@@ -951,9 +942,10 @@ setthirdperson( value )
 	}
 }
 
-setspawnvariables()
+setspawnvariables() //checked matches cerberus output
 {
 	resettimeout();
 	self stopshellshock();
 	self stoprumble( "damage_heavy" );
 }
+

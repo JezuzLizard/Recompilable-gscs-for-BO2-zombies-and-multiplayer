@@ -1,10 +1,18 @@
+//checked includes changed to match cerberus output
 #include maps/mp/gametypes_zm/_spawnlogic;
 #include maps/mp/animscripts/traverse/shared;
 #include maps/mp/animscripts/utility;
 #include maps/mp/zombies/_load;
+#include maps/mp/_demo;
+#include maps/mp/_global_fx;
 #include maps/mp/_createfx;
+#include maps/mp/_art;
+#include maps/mp/_serverfaceanim_mp;
+#include maps/mp/_fxanim;
 #include maps/mp/_music;
 #include maps/mp/_busing;
+#include maps/mp/_audio;
+#include maps/mp/_interactive_objects;
 #include maps/mp/_script_gen;
 #include maps/mp/_utility;
 #include common_scripts/utility;
@@ -39,6 +47,7 @@ main( bscriptgened, bcsvgened, bsgenabled ) //checked partially changed to match
 	{
 		level.clientscripts = getDvar( "cg_usingClientScripts" );
 	}
+	
 	level._client_exploders = [];
 	level._client_exploder_ids = [];
 	if ( !isDefined( level.flag ) )
@@ -94,7 +103,7 @@ main( bscriptgened, bcsvgened, bsgenabled ) //checked partially changed to match
 	level.physicstracemaskwater = 4;
 	level.physicstracemaskclip = 8;
 	level.physicstracecontentsvehicleclip = 16;
-	if ( getDvar( "createfx" ) != "" ) //changed at own discretion
+	if ( getDvar( "createfx" ) != "" )
 	{
 		level.createfx_enabled = getDvar( "createfx" );
 	}
@@ -495,5 +504,7 @@ start_intro_screen_zm() //checked changed to match cerberus output
 	}
 	wait 1;
 }
+
+
 
 

@@ -117,7 +117,6 @@ custom_end_screen() //checked changed to match cerberus output
 			if ( isDefined( level.gamemodulewinningteam ) && players[ i ]._encounters_team == level.gamemodulewinningteam )
 			{
 				players[ i ].survived_hud settext( winner_text, level.round_number );
-				break;
 			}
 			else
 			{
@@ -328,15 +327,18 @@ meat_bounce_override(pos, normal, ent) //checked matches cerberus output
 		players = getplayers();
 		closest_player = undefined;
 		closest_player_dist = 10000;
-		for(player_index = 0; player_index < players.size; player_index++)
+		player_index = 0;
+		while ( player_index < players.size )
 		{
 			player_to_check = players[player_index];
 			if(self.owner == player_to_check)
 			{
+				player_index++;
 				continue;
 			}
 			if(player_to_check maps/mp/zombies/_zm_laststand::player_is_in_laststand())
 			{
+				player_index++;
 				continue;
 			}
 			distsq = distancesquared(pos, player_to_check.origin);
@@ -345,6 +347,7 @@ meat_bounce_override(pos, normal, ent) //checked matches cerberus output
 				closest_player = player_to_check;
 				closest_player_dist = distsq;
 			}
+			player_index++;
 		}
 		if(isdefined(closest_player))
 		{
@@ -605,22 +608,26 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 		return 0;
 	}
 	primary_weapons_returned = 0;
-	foreach ( weapon in self.grief_savedweapon_weapons )
+	i = 0;
+	while ( i < self.grief_savedweapon_weapons.size )
 	{
 		if ( isdefined( self.grief_savedweapon_grenades ) && weapon == self.grief_savedweapon_grenades || ( isdefined( self.grief_savedweapon_tactical ) && weapon == self.grief_savedweapon_tactical ) )
 		{
+			i++;
 			continue;
 		}
 		if ( isweaponprimary( weapon ) )
 		{
 			if ( primary_weapons_returned >= 2 )
 			{
+				i++;
 				continue;
 			}
 			primary_weapons_returned++;
 		}
 		if ( "item_meat_zm" == weapon )
 		{
+			i++;
 			continue;
 		}
 		self giveweapon( weapon, 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( weapon ) );
@@ -632,6 +639,7 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 		{
 			self setweaponammostock( weapon, self.grief_savedweapon_weaponsammo_stock[ index ] );
 		}
+		i++;
 	}
 	if ( isDefined( self.grief_savedweapon_grenades ) )
 	{
@@ -727,10 +735,11 @@ update_players_on_bleedout_or_disconnect( excluded_player ) //checked changed to
 	other_team = undefined;
 	players = get_players();
 	players_remaining = 0;
-	foreach ( player in players )
+	while ( i < players.size )
 	{
 		if ( player == excluded_player )
 		{
+			i++;
 			continue;
 		}
 		if ( player.team == excluded_player.team )
@@ -739,13 +748,16 @@ update_players_on_bleedout_or_disconnect( excluded_player ) //checked changed to
 			{
 				players_remaining++;
 			}
+			i++;
 			continue;
 		}
+		i++;
 	}
-	foreach ( player in players )
+	while ( i < players.size )
 	{
 		if ( player == excluded_player )
 		{
+			i++;
 			continue;
 		}
 		if ( player.team != excluded_player.team )
@@ -755,10 +767,12 @@ update_players_on_bleedout_or_disconnect( excluded_player ) //checked changed to
 			{
 				player thread show_grief_hud_msg( &"ZOMBIE_ZGRIEF_ALL_PLAYERS_DOWN", undefined, undefined, 1 );
 				player delay_thread_watch_host_migrate( 2, ::show_grief_hud_msg, &"ZOMBIE_ZGRIEF_SURVIVE", undefined, 30, 1 );
+				i++;
 				continue;
 			}
 			player thread show_grief_hud_msg( &"ZOMBIE_ZGRIEF_PLAYER_BLED_OUT", players_remaining );
 		}
+		i++;
 	}
 	if ( players_remaining == 1 )
 	{
@@ -807,4 +821,6 @@ grief_round_end_custom_logic() //checked matches cerberus output
 		level notify( "end_round_think" );
 	}
 }
+
+
 

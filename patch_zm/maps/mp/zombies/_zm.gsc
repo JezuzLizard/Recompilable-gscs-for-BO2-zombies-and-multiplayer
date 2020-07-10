@@ -85,10 +85,6 @@ init() //checked matches cerberus output
 	{
 		level.disable_deadshot_clientfield = 0; //needs to be 0 even if the map doesn't have the perk
 	}
-	if ( !isDefined( level.use_clientside_rock_tearin_fx ) )
-	{
-		level.use_clientside_rock_tearin_fx = 0;
-	}
 	if ( !isDefined( level.no_end_game_check ) )
 	{
 		level.no_end_game_check = 0;
@@ -269,6 +265,7 @@ init() //checked matches cerberus output
 	level thread onallplayersready();
 	level thread startunitriggers();
 	level thread maps/mp/gametypes_zm/_zm_gametype::post_init_gametype();
+	level notify( "_zmFullyParsed" );
 }
 
 post_main() //checked matches cerberus output
@@ -2711,7 +2708,7 @@ spectator_respawn() //checked changed to match cerberus output
 	return 1;
 }
 
-check_for_valid_spawn_near_team( revivee, return_struct ) //checked changed to match cerberus output
+check_for_valid_spawn_near_team( revivee, return_struct ) //checked partially changed to match beta dump
 {
 	if ( isDefined( level.check_for_valid_spawn_near_team_callback ) )
 	{
@@ -2730,10 +2727,9 @@ check_for_valid_spawn_near_team( revivee, return_struct ) //checked changed to m
 		{
 			return undefined;
 		}
-		i = 0;
-		while ( i < players.size )
+		for ( i = 0; i < players.size; i++ )
 		{
-			if ( is_player_valid( players[ i ], undefined, 1 ) && players[ i ] != self )
+			if ( maps/mp/zombies/_zm_utility::is_player_valid( players[ i ], undefined, 1 ) && players[ i ] != self )
 			{
 				for ( j = 0; j < spawn_points.size; j++ )
 				{
@@ -2755,13 +2751,14 @@ check_for_valid_spawn_near_team( revivee, return_struct ) //checked changed to m
 								closest_distance = plyr_dist;
 								closest_group = j;
 							}
-							i++;
-							continue;
 						}
-						if ( plyr_dist < backup_distance )
+						else
 						{
-							backup_group = j;
-							backup_distance = plyr_dist;
+							if ( plyr_dist < backup_distance )
+							{
+								backup_group = j;
+								backup_distance = plyr_dist;
+							}
 						}
 					}
 				}
@@ -2778,31 +2775,33 @@ check_for_valid_spawn_near_team( revivee, return_struct ) //checked changed to m
 					return spawn_location;
 				}
 			}
-			i++;
 		}
 		return undefined;
 	}
 }
 
-get_valid_spawn_location( revivee, spawn_points, closest_group, return_struct ) //checked changed to match cerberus output
+get_valid_spawn_location( revivee, spawn_points, closest_group, return_struct ) //checked partially changed to match cerberus output see info.md
 {
 	spawn_array = getstructarray( spawn_points[ closest_group ].target, "targetname" );
 	spawn_array = array_randomize( spawn_array );
-	for ( k = 0; k < spawn_array.size; k++ )
+	k = 0;
+	while ( k < spawn_array.size )
 	{
 		if ( isdefined( spawn_array[ k ].plyr ) && spawn_array[ k ].plyr == revivee getentitynumber() )
 		{
 			if ( positionwouldtelefrag( spawn_array[ k ].origin ) )
 			{
-				spawn_array[k].plyr = undefined;
-				break;
+				spawn_array[ k ].plyr = undefined;
+				k++;
+				continue;
 			}
 			if ( isdefined( return_struct ) && return_struct )
 			{
-				return spawn_array[k];
+				return spawn_array[ k ];
 			}
-			return spawn_array[k].origin;
+			return spawn_array[ k ].origin;
 		}
+		k++;
 	}
 	k = 0;
 	while ( k < spawn_array.size )
@@ -2851,7 +2850,7 @@ check_for_valid_spawn_near_position( revivee, v_position, return_struct ) //chec
 		{
 			ideal_distance = 1000;
 		}
-		if(spawn_points[ i ].locked == 0)
+		if ( spawn_points[ i ].locked == 0 )
 		{
 			dist = distancesquared( v_position, spawn_points[ i ].origin );
 			if ( dist < ideal_distance * ideal_distance )
@@ -3054,6 +3053,7 @@ round_spawning() //checked changed to match cerberus output
 		level thread zombie_speed_up();
 	}
 	level.zombie_total = [[ level.max_zombie_func ]]( max );
+
 	level notify( "zombie_total_set" );
 	mixed_spawns = 0;
 	old_spawn = undefined;
@@ -3518,7 +3518,7 @@ round_think( restart ) //checked changed to match cerberus output
 		{
 			if ( isdefined( player.hostmigrationcontrolsfrozen ) && player.hostmigrationcontrolsfrozen ) 
 			{
-				player freezecontrols(0);
+				player freezecontrols( 0 );
 			}
 			player maps/mp/zombies/_zm_stats::set_global_stat( "rounds", level.round_number );
 		}
@@ -3559,15 +3559,13 @@ round_think( restart ) //checked changed to match cerberus output
 		level notify( "start_of_round" );
 		recordzombieroundstart();
 		players = getplayers();
-		index = 0;
-		while ( index < players.size )
+		for ( index = 0; index < players.size; index++  )
 		{
 			zonename = players[ index ] get_current_zone();
 			if ( isDefined( zonename ) )
 			{
 				players[ index ] recordzombiezone( "startingZone", zonename );
 			}
-			index++;
 		}
 		if ( isDefined( level.round_start_custom_func ) )
 		{
@@ -3590,6 +3588,7 @@ round_think( restart ) //checked changed to match cerberus output
 		}
 		else if ( players.size != 1 )
 		{
+			//testing definitely broken
 			level thread spectators_respawn();
 		}
 		players = get_players();
@@ -3687,11 +3686,6 @@ ai_calculate_health( round_number ) //checked changed to match cerberus output
 		}
 		level.zombie_health = int( level.zombie_health + level.zombie_vars[ "zombie_health_increase" ] );
 		i++;
-	}
-	if ( level.debugLogging_zm )
-	{
-		logline8 = "_zm.gsc ai_calculate_health() The value of level.zombie_health is: " + level.zombie_health + "\n";
-		logprint( logline8 );
 	}
 }
 
@@ -4355,7 +4349,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	//checked against bo3 _zm.gsc changed to match 
 	if ( count < players.size || isDefined( level._game_module_game_end_check ) && ![[ level._game_module_game_end_check ]]() )
 	{
-		if ( isDefined( self.lives ) && self.lives > 0 || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive || self hasperk( "specialty_quickrevive" ) )
+		if ( isDefined( self.lives ) && self.lives > 0 || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && self hasperk( "specialty_quickrevive" ) )
 		{
 			self thread wait_and_revive();
 		}
@@ -4367,7 +4361,6 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 		{
 			self.intermission = 1;
 			solo_death = 1;
-			
 		}
 	}
 	//checked against bo3 _zm.gsc changed to match

@@ -7,6 +7,7 @@ patch_zm/maps/mp/gametypes_zm/_scoreboard.gsc
 patch_zm/maps/mp/gametypes_zm/_shellshock.gsc
 patch_zm/maps/mp/gametypes_zm/_zm_gametype.gsc
 patch_zm/maps/mp/gametypes_zm/zclassic.gsc
+patch_zm/maps/mp/zombies/_load.gsc
 patch_zm/maps/mp/zombies/_zm_ai_basic.gsc
 patch_zm/maps/mp/zombies/_zm_ai_dogs.gsc
 patch_zm/maps/mp/zombies/_zm_ai_faller.gsc
@@ -44,7 +45,6 @@ patch_zm/maps/mp/zombies/_zm_utility.gsc
 ```
 ### The following scripts compile but cause a minidump or other severe error:
 ```
-patch_zm/maps/mp/zombies/_load.gsc
 patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
@@ -52,6 +52,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 patch_zm/maps/mp/gametypes_zm/_callbacksetup.gsc
 patch_zm/maps/mp/gametypes_zm/_damagefeedback.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_actor.gsc
+patch_zm/maps/mp/gametypes_zm/_globallogic_spawn.gsc
 patch_zm/maps/mp/gametypes_zm/_healthoverlay.gsc
 patch_zm/maps/mp/gametypes_zm/_hostmigration.gsc
 patch_zm/maps/mp/gametypes_zm/_hud.gsc
@@ -111,7 +112,6 @@ patch_zm/maps/mp/gametypes_zm/_globallogic_audio.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_defaults.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_player.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_score.gsc
-patch_zm/maps/mp/gametypes_zm/_globallogic_spawn.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_ui.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_utils.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_vehicle.gsc
