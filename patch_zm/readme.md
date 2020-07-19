@@ -14,9 +14,11 @@ patch_zm/maps/mp/zombies/_zm_ai_faller.gsc
 patch_zm/maps/mp/zombies/_zm_audio.gsc
 patch_zm/maps/mp/zombies/_zm_audio_announcer.gsc
 patch_zm/maps/mp/zombies/_zm_bot.gsc
+patch_zm/maps/mp/zombies/_zm_chugabud.gsc
 patch_zm/maps/mp/zombies/_zm_clone.gsc
 patch_zm/maps/mp/zombies/_zm_ffotd.gsc
 patch_zm/maps/mp/zombies/_zm_gump.gsc
+patch_zm/maps/mp/zombies/_zm_laststand.gsc
 patch_zm/maps/mp/zombies/_zm_magicbox.gsc
 patch_zm/maps/mp/zombies/_zm_net.gsc
 patch_zm/maps/mp/zombies/_zm_perk_electric_cherry.gsc
@@ -26,6 +28,7 @@ patch_zm/maps/mp/zombies/_zm_pers_upgrades_system.gsc
 patch_zm/maps/mp/zombies/_zm_powerups.gsc
 patch_zm/maps/mp/zombies/_zm_server_throttle.gsc
 patch_zm/maps/mp/zombies/_zm_score.gsc
+patch_zm/maps/mp/zombies/_zm_spawner.gsc
 patch_zm/maps/mp/zombies/_zm_tombstone.gsc
 patch_zm/maps/mp/zombies/_zm_weapons.gsc
 patch_zm/maps/mp/zombies/_zm_zonemgr.gsc
@@ -37,7 +40,6 @@ patch_zm/maps/mp/zombies/_zm_timer.gsc
 ```
 ### The following scripts compile and run successfully with major errors:
 ```
-patch_zm/maps/mp/zombies/_zm_spawner.gsc
 patch_zm/maps/mp/zombies/_zm_utility.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
@@ -65,11 +67,9 @@ patch_zm/maps/mp/gametypes_zm/_weapons.gsc
 patch_zm/maps/mp/gametypes_zm/_weapon_utils.gsc
 patch_zm/maps/mp/zombies/_zm_blockers.gsc
 patch_zm/maps/mp/zombies/_zm_buildables.gsc
-patch_zm/maps/mp/zombies/_zm_chugabud.gsc
 patch_zm/maps/mp/zombies/_zm_equipment.gsc
 patch_zm/maps/mp/zombies/_zm_equip_turbine.gsc
 patch_zm/maps/mp/zombies/_zm_game_module.gsc
-patch_zm/maps/mp/zombies/_zm_laststand.gsc
 patch_zm/maps/mp/zombies/_zm_magicbox_lock.gsc
 patch_zm/maps/mp/zombies/_zm_playerhealth.gsc
 patch_zm/maps/mp/zombies/_zm_power.gsc

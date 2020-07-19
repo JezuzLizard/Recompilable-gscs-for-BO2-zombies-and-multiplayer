@@ -58,6 +58,8 @@ chugabud_laststand() //checked changed to match cerberus output
 			}
 		}
 	}
+	logline1 = "INFO: _zm_chugabud.gsc chugabud_laststand() create_corpse: " + create_corpse + "\n";
+	logprint( logline1 );
 	if ( create_corpse == 1 )
 	{
 		self thread activate_chugabud_effects_and_audio();
@@ -216,13 +218,17 @@ chugabud_save_loadout() //checked changed to match cerberus output
 	self.loadout.weapons = [];
 	self.loadout.score = self.score;
 	self.loadout.current_weapon = -1;
+	index = 0;
 	foreach ( weapon in primaries )
 	{
+		logline1 = "weapon: " + weapon + "\n";
+		logprint( logline1 );
 		self.loadout.weapons[ index ] = maps/mp/zombies/_zm_weapons::get_player_weapondata( self, weapon );
 		if ( weapon == currentweapon || self.loadout.weapons[ index ][ "alt_name" ] == currentweapon )
 		{
 			self.loadout.current_weapon = index;
 		}
+		index++;
 	}
 	self.loadout.equipment = self get_player_equipment();
 	if ( isDefined( self.loadout.equipment ) )
@@ -277,6 +283,8 @@ chugabud_give_loadout() //checked partially changed to match cerberus output con
 	i = 0;
 	while ( i < loadout.weapons.size )
 	{
+		logline1 = "loadout.weapons[ " + i + " ][ name ] " + loadout.weapons[ i ][ "name" ] + "\n";
+		logprint( logline1 );
 		if ( !isDefined( loadout.weapons[ i ] ) )
 		{
 			i++;
@@ -593,7 +601,7 @@ restore_weapons_for_chugabud( player ) //checked changed to match cerberus outpu
 
 restore_weapon_for_chugabud( player, weapon_name ) //checked changed to match cerberus output
 {
-	if ( isDefined( weapon_name ) || !isDefined( self.chugabud_melee_weapons ) || !isDefined( self.chugabud_melee_weapons[ weapon_name ] ) )
+	if ( !isDefined( weapon_name ) || !isDefined( self.chugabud_melee_weapons ) || !isDefined( self.chugabud_melee_weapons[ weapon_name ] ) )
 	{
 		return;
 	}
@@ -791,6 +799,9 @@ deactivate_chugabud_effects_and_audio() //checked matches cerberus output
 		self.whos_who_effects_active = undefined;
 	}
 }
+
+
+
 
 
 

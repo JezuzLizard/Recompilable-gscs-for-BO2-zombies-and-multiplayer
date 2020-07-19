@@ -215,11 +215,6 @@ zombie_spawn_init( animname_set ) //checked partially changed to match cerberus 
 	self.chatinitialized = 0;
 	self.a.disablepain = 1;
 	
-	self.no_damage_points = 0; //wasn't defined anywhere defining here
-	self.no_eye_glow = 0; //wasn't defined anywhere defining here
-	self.create_eyes = 1; //wasn't defined anywhere defining here
-	self.is_inert = 0; //wasn't defined anywhere defining here
-	
 	self disable_react();
 	if ( isDefined( level.zombie_health ) )
 	{
@@ -263,7 +258,7 @@ zombie_spawn_init( animname_set ) //checked partially changed to match cerberus 
 	}
 	if ( !isDefined( self.no_eye_glow ) || !self.no_eye_glow )
 	{
-		if ( isDefined( self.is_inert ) && !self.is_inert )
+		if ( !is_true( self.is_inert ) ) //imported from beta dump
 		{
 			self thread delayed_zombie_eye_glow();
 		}
@@ -295,7 +290,7 @@ zombie_spawn_init( animname_set ) //checked partially changed to match cerberus 
 delayed_zombie_eye_glow() //checked changed to match cerberus output
 {
 	self endon( "zombie_delete" );
-	if ( isDefined( self.in_the_ground ) && self.in_the_ground || isDefined( self.in_the_ceiling ) && self.in_the_ceiling )
+	if ( is_true( self.in_the_ground ) || is_true( self.in_the_ceiling ) )
 	{
 		while ( !isDefined( self.create_eyes ) )
 		{
@@ -378,7 +373,7 @@ zombie_think() //checked changed to match cerberus output
 			self waittill( "zombie_custom_think_done", find_flesh_struct_string );
 		}
 	}
-	else if ( isDefined( self.start_inert ) && self.start_inert )
+	else if ( is_true( self.start_inert ) )
 	{
 		find_flesh_struct_string = "find_flesh";
 	}
@@ -432,7 +427,7 @@ zombie_think() //checked changed to match cerberus output
 				self waittill( "goal" );
 			}
 		}
-		if ( isDefined( self.start_inert ) && self.start_inert )
+		if ( is_true( self.start_inert ) )
 		{
 			self thread maps/mp/zombies/_zm_ai_basic::start_inert( 1 );
 			self zombie_complete_emerging_into_playable_area();
@@ -1048,7 +1043,7 @@ zombie_boardtear_offset_fx_horizontle( chunk, node ) //checked changed to match 
 			}
 			else if ( isDefined( chunk.material ) && chunk.material == "rock" )
 			{
-				if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+				if ( is_true( level.use_clientside_rock_tearin_fx ) )
 				{
 					chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
 				}
@@ -1062,7 +1057,7 @@ zombie_boardtear_offset_fx_horizontle( chunk, node ) //checked changed to match 
 	}
 	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters == "barricade_vents" )
 	{
-		if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
+		if ( is_true( level.use_clientside_board_fx ) )
 		{
 			chunk setclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
 		}
@@ -1073,16 +1068,14 @@ zombie_boardtear_offset_fx_horizontle( chunk, node ) //checked changed to match 
 	}
 	else if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
-		if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+		if ( is_true( level.use_clientside_rock_tearin_fx ) )
 		{
 			chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
 		}
-		//return;
 	}
 	else if ( isDefined( level.use_clientside_board_fx ) )
 	{
 		chunk setclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
-		//return;
 	}
 	else
 	{
@@ -1094,7 +1087,7 @@ zombie_boardtear_offset_fx_horizontle( chunk, node ) //checked changed to match 
 
 zombie_boardtear_offset_fx_verticle( chunk, node ) //checked changed to match cerberus output
 {
-	if ( isDefined( chunk.script_parameters ) || chunk.script_parameters == "repair_board" && chunk.script_parameters == "board" )
+	if ( ( chunk.script_parameters == "repair_board" || chunk.script_parameters == "board" ) && isDefined( chunk.script_parameters ) )
 	{
 		if ( isDefined( chunk.unbroken ) && chunk.unbroken == 1 )
 		{
@@ -1110,7 +1103,7 @@ zombie_boardtear_offset_fx_verticle( chunk, node ) //checked changed to match ce
 			}
 			else if ( isDefined( chunk.material ) && chunk.material == "rock" )
 			{
-				if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+				if ( is_true( level.use_clientside_rock_tearin_fx ) )
 				{
 					chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
 				}
@@ -1135,7 +1128,7 @@ zombie_boardtear_offset_fx_verticle( chunk, node ) //checked changed to match ce
 	}
 	if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
-		if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+		if ( is_true( level.use_clientside_rock_tearin_fx ) )
 		{
 			chunk setclientflag( level._zombie_scriptmover_flag_rock_fx );
 		}
@@ -1617,7 +1610,7 @@ zombie_should_gib( amount, attacker, type ) //checked changed to match cerberus 
 	{
 		return 0;
 	}
-	if ( isDefined( self.is_on_fire ) && self.is_on_fire )
+	if ( is_true( self.is_on_fire ) )
 	{
 		return 0;
 	}
@@ -1799,7 +1792,7 @@ zombie_death_points( origin, mod, hit_location, attacker, zombie, team ) //check
 	{
 		event = "ballistic_knife_death";
 	}
-	if ( isDefined( zombie.deathpoints_already_given ) && zombie.deathpoints_already_given )
+	if ( is_true( zombie.deathpoints_already_given ) )
 	{
 		return;
 	}
@@ -2073,7 +2066,7 @@ zombie_damage( mod, hit_location, hit_origin, player, amount, team ) //checked c
 	{
 		damage_type = "damage_light";
 	}
-	if ( isDefined( self.no_damage_points ) && !self.no_damage_points )
+	if ( !is_true self.no_damage_points ) )
 	{
 		player maps/mp/zombies/_zm_score::player_add_points( damage_type, mod, hit_location, self.isdog, team, self.damageweapon );
 	}
@@ -2187,7 +2180,7 @@ zombie_damage_ads( mod, hit_location, hit_origin, player, amount, team ) //check
 	{
 		damage_type = "damage_light";
 	}
-	if ( isDefined( self.no_damage_points ) && !self.no_damage_points )
+	if ( !is_true( self.no_damage_points ) )
 	{
 		player maps/mp/zombies/_zm_score::player_add_points( damage_type, mod, hit_location, undefined, team, self.damageweapon );
 	}
@@ -2374,11 +2367,11 @@ zombie_death_event( zombie ) //checked changed to match cerberus output
 		if ( isDefined( zombie.damagehit_origin ) && distancesquared( zombie.origin, zombie.damagehit_origin ) < ( splode_dist * splode_dist ) )
 		{
 			tag = "J_SpineLower";
-			if ( isDefined( zombie.isdog ) && zombie.isdog )
+			if ( is_true( zombie.isdog ) )
 			{
 				tag = "tag_origin";
 			}
-			if ( isDefined( zombie.is_on_fire ) && !zombie.is_on_fire && isDefined( zombie.guts_explosion ) && !zombie.guts_explosion )
+			if ( !is_true( zombie.is_on_fire ) && !is_true( zombie.guts_explosion ) )
 			{
 				zombie thread zombie_gut_explosion();
 			}
@@ -2392,7 +2385,7 @@ zombie_death_event( zombie ) //checked changed to match cerberus output
 			attacker.grenade_multiattack_ent = zombie;
 		}
 	}
-	if ( isDefined( zombie.has_been_damaged_by_player ) && !zombie.has_been_damaged_by_player && isDefined( zombie.marked_for_recycle ) && zombie.marked_for_recycle )
+	if ( !is_true( zombie.has_been_damaged_by_player ) && is_true( zombie.marked_for_recycle ) )
 	{
 		level.zombie_total++;
 		level.zombie_total_subtract++;
@@ -2422,7 +2415,7 @@ zombie_death_event( zombie ) //checked changed to match cerberus output
 		weapon = zombie.damageweapon;
 		bbprint( "zombie_kills", "round %d zombietype %s damagetype %s damagelocation %s playername %s playerweapon %s playerx %f playery %f playerz %f zombiex %f zombiey %f zombiez %f", level.round_number, zombie.animname, damagemod, damageloc, attacker.name, weapon, attacker.origin, zombie.origin );
 	}
-	else if ( zombie.ignoreall && isDefined( zombie.marked_for_death ) && !zombie.marked_for_death )
+	else if ( zombie.ignoreall && !is_true( zombie.marked_for_death ) )
 	{
 		level.zombies_timeout_spawn++;
 	}
@@ -2437,7 +2430,7 @@ zombie_gut_explosion() //checked matches cerberus output
 	{
 		self setclientfield( "zombie_gut_explosion", 1 );
 	}
-	if ( isDefined( self.isdog ) && !self.isdog )
+	if ( !is_true( self.isdog ) )
 	{
 		wait 0.1;
 	}
@@ -2745,7 +2738,7 @@ zombie_follow_enemy() //checked changed to match cerberus output
 		{
 			self._skip_pathing_first_delay = undefined;
 		}
-		if ( isDefined( self.ignore_enemyoverride ) && !self.ignore_enemyoverride && isDefined( self.enemyoverride ) && isDefined( self.enemyoverride[ 1 ] ) )
+		if ( !is_true( self.ignore_enemyoverride ) && isDefined( self.enemyoverride ) && isDefined( self.enemyoverride[ 1 ] ) )
 		{
 			if ( distancesquared( self.origin, self.enemyoverride[ 0 ] ) > 1 )
 			{
@@ -3167,7 +3160,7 @@ zombie_rise_death( zombie, spot ) //checked matches cerberus output
 
 zombie_rise_fx( zombie ) //checked matches cerberus output
 {
-	if ( isDefined( level.riser_fx_on_client ) && !level.riser_fx_on_client )
+	if ( !is_true( level.riser_fx_on_client ) )
 	{
 		self thread zombie_rise_dust_fx( zombie );
 		self thread zombie_rise_burst_fx( zombie );
@@ -3189,11 +3182,11 @@ zombie_rise_burst_fx( zombie ) //checked changed to match cerberus output
 {
 	self endon( "stop_zombie_rise_fx" );
 	self endon( "rise_anim_finished" );
-	if ( isDefined( self.script_parameters ) && self.script_parameters == "in_water" && isDefined( level._no_water_risers ) && !level._no_water_risers )
+	if ( isDefined( self.script_parameters ) && self.script_parameters == "in_water" && !is_true( level._no_water_risers ) )
 	{
 		zombie setclientfield( "zombie_riser_fx_water", 1 );
 	}
-	else if ( isDefined( self.script_parameters ) && self.script_parameters == "in_foliage" && isDefined( level._foliage_risers ) && level._foliage_risers )
+	else if ( isDefined( self.script_parameters ) && self.script_parameters == "in_foliage" && is_true( level._foliage_risers ) )
 	{
 		zombie setclientfield( "zombie_riser_fx_foliage", 1 );
 		return;
@@ -3364,5 +3357,6 @@ zombie_free_cam_allowed() //checked matches cerberus output
 	wait 1.5;
 	self setfreecameralockonallowed( 1 );
 }
+
 
 

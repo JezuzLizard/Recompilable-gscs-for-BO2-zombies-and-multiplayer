@@ -1,6 +1,9 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_perks;
 #include maps/mp/zombies/_zm_chugabud;
 #include maps/mp/zombies/_zm_equipment;
+#include maps/mp/zombies/_zm_buildables;
+#include maps/mp/gametypes_zm/_gameobjects;
 #include maps/mp/zombies/_zm_pers_upgrades_functions;
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/_demo;
@@ -17,7 +20,7 @@ laststand_global_init() //checked matches cerberus output
 	level.const_laststand_getup_bar_damage = 0.1;
 }
 
-init() //checked matches cerberus output
+init() //checked matches cerberus output //checked matches beta dump
 {
 	if ( level.script == "frontend" )
 	{
@@ -50,18 +53,18 @@ init() //checked matches cerberus output
 
 player_is_in_laststand() //checked changed to match cerberus output //changed at own discretion
 {
-	if ( isDefined( self.no_revive_trigger ) && !self.no_revive_trigger && isDefined( self.revivetrigger ) )
+	if ( !is_true( self.no_revive_trigger ) && isDefined( self.revivetrigger ) )
 	{
 		return 1;
 	}
-	if ( isDefined( self.laststand ) && self.laststand )
+	if ( is_true( self.laststand ) )
 	{
 		return 1;
 	}
 	return 0;
 }
 
-player_num_in_laststand() //checked changed to match cerberus output
+player_num_in_laststand() //checked changed to match cerberus output //checked matches beta dump
 {
 	num = 0;
 	players = get_players();
@@ -75,7 +78,7 @@ player_num_in_laststand() //checked changed to match cerberus output
 	return num;
 }
 
-player_all_players_in_laststand() //checked changed at own discretion
+player_all_players_in_laststand() //checked changed at own discretion //checked matches beta dump
 {
 	if ( player_num_in_laststand() == get_players().size )
 	{
@@ -84,7 +87,7 @@ player_all_players_in_laststand() //checked changed at own discretion
 	return 0;
 }
 
-player_any_player_in_laststand() //checked changed at own discretion
+player_any_player_in_laststand() //checked changed at own discretion //checked matches beta dump
 {
 	if ( player_num_in_laststand() > 0 )
 	{
@@ -161,7 +164,7 @@ increment_downed_stat() //checked matches cerberus output
 	self recordplayerdownzombies( zonename );
 }
 
-playerlaststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output
+playerlaststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked matches cerberus output //checked changed to match beta dump
 {
 	self notify( "entering_last_stand" );
 	if ( isDefined( level._game_module_player_laststand_callback ) )
@@ -186,7 +189,7 @@ playerlaststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, sh
 	self.ignoreme = 1;
 	self thread maps/mp/gametypes_zm/_gameobjects::onplayerlaststand();
 	self thread maps/mp/zombies/_zm_buildables::onplayerlaststand();
-	if ( isDefined( self.no_revive_trigger ) && !self.no_revive_trigger )
+	if ( !is_true( self.no_revive_trigger ) )
 	{
 		self revive_trigger_spawn();
 	}
@@ -194,12 +197,12 @@ playerlaststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, sh
 	{
 		self undolaststand();
 	}
-	if ( isDefined( self.is_zombie ) && self.is_zombie )
+	if ( is_true( self.is_zombie ) )
 	{
 		self takeallweapons();
 		if ( isDefined( attacker ) && isplayer( attacker ) && attacker != self )
 		{
-			attacker notify( "killed_a_zombie_player" );
+			attacker notify( "killed_a_zombie_player", eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration );
 		}
 	}
 	else
@@ -207,7 +210,7 @@ playerlaststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, sh
 		self laststand_disable_player_weapons();
 		self laststand_give_pistol();
 	}
-	if ( isDefined( level.playersuicideallowed ) && level.playersuicideallowed && get_players().size > 1 )
+	if ( is_true( level.playerSuicideAllowed ) && get_players().size > 1 )
 	{
 		if ( !isDefined( level.canplayersuicide ) || self [[ level.canplayersuicide ]]() )
 		{
@@ -415,7 +418,7 @@ laststand_bleedout( delay ) //checked changed to match cerberus output
 	self endon( "player_suicide" );
 	self endon( "zombified" );
 	self endon( "disconnect" );
-	if ( isDefined( self.is_zombie ) && self.is_zombie || isDefined( self.no_revive_trigger ) && self.no_revive_trigger )
+	if ( is_true( self.is_zombie ) || is_true( self.no_revive_trigger ) )
 	{
 		self notify( "bled_out" );
 		wait_network_frame();
@@ -639,9 +642,6 @@ suicide_do_suicide( duration ) //checked matches cerberus output
 			suicided = 1;
 			break;
 		}
-		else
-		{
-		}
 	}
 	if ( isDefined( self.suicideprogressbar ) )
 	{
@@ -676,7 +676,7 @@ can_suicide() //checked matches cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( level.intermission ) && level.intermission )
+	if ( is_true( level.intermission ) )
 	{
 		return 0;
 	}
@@ -886,7 +886,7 @@ is_reviving( revivee ) //checked changed at own discretion
 
 is_reviving_any() //checked changed at own discretion
 {
-	if ( isDefined( self.is_reviving_any ) && self.is_reviving_any )
+	if ( is_true( self.is_reviving_any ) )
 	{
 		return 1;
 	}
@@ -1107,7 +1107,7 @@ revive_success( reviver, b_track_stats ) //checked changed to match cerberus out
 	{
 		self thread maps/mp/zombies/_zm_pers_upgrades_functions::pers_upgrade_perk_lose_restore();
 	}
-	if ( isDefined( level.isresetting_grief ) && !level.isresetting_grief && isDefined( b_track_stats ) && b_track_stats )
+	if ( !is_true( level.isresetting_grief ) && isDefined( b_track_stats ) && b_track_stats )
 	{
 		reviver.revives++;
 		reviver maps/mp/zombies/_zm_stats::increment_client_stat( "revives" );
@@ -1215,7 +1215,7 @@ revive_hud_think() //checked partially changed to match cerberus output //did no
 						i++;
 						continue;
 					}
-					if ( isDefined( level.hide_revive_message ) && level.hide_revive_message )
+					if ( is_true( level.hide_revive_message ) )
 					{
 						i++;
 						continue;
@@ -1292,7 +1292,7 @@ get_lives_remaining() //checked matches cerberus output
 	return 0;
 }
 
-update_lives_remaining( increment ) //checked changed to match cerberus output
+update_lives_remaining( increment ) //checked changed to match cerberus output //probably causes a crash since ternary operators may not be supported by the current compiler
 {
 	/*
 /#
@@ -1302,20 +1302,8 @@ update_lives_remaining( increment ) //checked changed to match cerberus output
 	assert( isDefined( increment ), "Must specify increment true or false" );
 #/
 	*/
-	if ( isDefined( increment ) )
-	{
-	}
-	else
-	{
-	}
-	increment = 0;
-	if ( increment )
-	{
-	}
-	else
-	{
-	}
-	self.laststand_info.type_getup_lives = max( 0, self.laststand_info.type_getup_lives - 1, self.laststand_info.type_getup_lives + 1 );
+	increment = (isdefined( increment )?increment:false );
+	self.laststand_info.type_getup_lives = max( 0, ( increment?self.laststand_info.type_getup_lives + 1:self.laststand_info.type_getup_lives - 1 ) );
 	self notify( "laststand_lives_updated", self.laststand_info.type_getup_lives + 1, increment );
 }
 
@@ -1448,5 +1436,7 @@ cleanup_laststand_on_disconnect() //checked matches cerberus output
 		trig delete();
 	}
 }
+
+
 
 
