@@ -1,6 +1,7 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
 zm_transit_patch/maps/mp/gametypes_zm/zgrief.gsc
+zm_transit_patch/maps/mp/zm_transit_classic.gsc
 zm_transit_patch/maps/mp/zm_transit_utility.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:

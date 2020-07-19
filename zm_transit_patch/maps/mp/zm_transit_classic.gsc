@@ -1,13 +1,22 @@
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zombies/_zm_stats;
+#include maps/mp/zombies/_zm_weapon_locker;
 #include maps/mp/zombies/_zm_blockers;
 #include maps/mp/zombies/_zm;
 #include maps/mp/zm_transit_distance_tracking;
 #include maps/mp/zm_transit;
+#include maps/mp/zm_transit_ambush;
 #include maps/mp/zm_transit_power;
+#include maps/mp/zombies/_zm_banking;
 #include maps/mp/zm_transit_ai_screecher;
 #include maps/mp/zm_transit_bus;
+#include maps/mp/zombies/_zm_equip_electrictrap;
+#include maps/mp/zombies/_zm_equip_turret;
+#include maps/mp/zombies/_zm_equip_turbine;
+#include maps/mp/zm_transit_sq;
 #include maps/mp/zm_transit_buildables;
+#include maps/mp/zombies/_zm_ai_avogadro;
+#include maps/mp/zombies/_zm_ai_screecher;
 #include maps/mp/zm_transit_utility;
 #include maps/mp/zombies/_zm_buildables;
 #include maps/mp/zombies/_zm_weapons;
@@ -15,7 +24,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 	maps/mp/zombies/_zm_ai_screecher::precache();
 	maps/mp/zombies/_zm_ai_avogadro::precache();
@@ -44,7 +53,7 @@ precache()
 	level thread maps/mp/zombies/_zm_banking::init();
 }
 
-main()
+main() //checked partially changed to match cerberus output did not use continues in foreaches see github for more info
 {
 	level.ta_vaultfee = 100;
 	level.ta_tellerfee = 100;
@@ -58,11 +67,8 @@ main()
 	level.adjust_enemyoverride_func = ::maps/mp/zm_transit_bus::adjust_enemyoverride;
 	level.closest_player_override = ::closest_player_transit;
 	door_triggers = getentarray( "electric_door", "script_noteworthy" );
-	_a80 = door_triggers;
-	_k80 = getFirstArrayKey( _a80 );
-	while ( isDefined( _k80 ) )
+	foreach ( trigger in door_triggers )
 	{
-		trigger = _a80[ _k80 ];
 		if ( isDefined( trigger.script_flag ) && trigger.script_flag == "OnPowDoorWH" )
 		{
 		}
@@ -70,14 +76,10 @@ main()
 		{
 			trigger.power_door_ignore_flag_wait = 1;
 		}
-		_k80 = getNextArrayKey( _a80, _k80 );
 	}
 	door_triggers = getentarray( "local_electric_door", "script_noteworthy" );
-	_a91 = door_triggers;
-	_k91 = getFirstArrayKey( _a91 );
-	while ( isDefined( _k91 ) )
+	foreach ( trigger in door_triggers )
 	{
-		trigger = _a91[ _k91 ];
 		if ( isDefined( trigger.script_flag ) && trigger.script_flag == "OnPowDoorWH" )
 		{
 		}
@@ -85,7 +87,6 @@ main()
 		{
 			trigger.power_door_ignore_flag_wait = 1;
 		}
-		_k91 = getNextArrayKey( _a91, _k91 );
 	}
 	level.zm_traversal_override = ::zm_traversal_override;
 	level.the_bus = getent( "the_bus", "targetname" );
@@ -95,8 +96,8 @@ main()
 	level thread maps/mp/zm_transit_power::initializepower();
 	level thread maps/mp/zm_transit_ambush::main();
 	level thread maps/mp/zm_transit::falling_death_init();
-	level.check_valid_spawn_override = ::maps/mp/zm_transit::transit_respawn_override;
-	level.zombie_check_suppress_gibs = ::maps/mp/zm_transit_bus::shouldsuppressgibs;
+	level.check_valid_spawn_override = maps/mp/zm_transit::transit_respawn_override;
+	level.zombie_check_suppress_gibs = maps/mp/zm_transit_bus::shouldsuppressgibs;
 	level thread transit_vault_breach_init();
 	level thread maps/mp/zm_transit_distance_tracking::zombie_tracking_init();
 	level thread solo_tombstone_removal();
@@ -117,11 +118,11 @@ main()
 	level.zombie_vars[ "zombie_intermission_time" ] = 12;
 }
 
-zm_traversal_override_ignores()
+zm_traversal_override_ignores() //checked matches cerberus output
 {
 }
 
-zm_traversal_override( traversealias )
+zm_traversal_override( traversealias ) //checked matches cerberus output
 {
 	suffix = "";
 	sndalias = undefined;
@@ -174,15 +175,15 @@ zm_traversal_override( traversealias )
 	return traversealias;
 }
 
-init_bus()
+init_bus() //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	level.the_bus thread maps/mp/zm_transit_bus::bussetup();
 }
 
-closest_player_transit( origin, players )
+closest_player_transit( origin, players ) //checked changed to match cerberus output
 {
-	if ( isDefined( level.the_bus ) || level.the_bus.numaliveplayersridingbus > 0 && isDefined( level.calc_closest_player_using_paths ) && !level.calc_closest_player_using_paths )
+	if ( isDefined( level.the_bus ) && level.the_bus.numaliveplayersridingbus > 0 || isDefined( level.calc_closest_player_using_paths ) && !level.calc_closest_player_using_paths )
 	{
 		player = getclosest( origin, players );
 	}
@@ -193,13 +194,13 @@ closest_player_transit( origin, players )
 	return player;
 }
 
-transit_vault_breach_init()
+transit_vault_breach_init() //checked matches cerberus output
 {
 	vault_doors = getentarray( "town_bunker_door", "targetname" );
 	array_thread( vault_doors, ::transit_vault_breach );
 }
 
-transit_vault_breach()
+transit_vault_breach() //checked matches cerberus output
 {
 	if ( isDefined( self ) )
 	{
@@ -218,7 +219,7 @@ transit_vault_breach()
 	}
 }
 
-vault_breach_think()
+vault_breach_think() //checked partially changed to match cerberus output changed at own discretion
 {
 	level endon( "intermission" );
 	self.health = 99999;
@@ -230,7 +231,7 @@ vault_breach_think()
 	{
 		self thread track_clip_damage();
 		self waittill( "damage", amount, attacker, direction, point, dmg_type, modelname, tagname, partname, weaponname );
-		if ( isDefined( weaponname ) && weaponname != "emp_grenade_zm" || weaponname == "ray_gun_zm" && weaponname == "ray_gun_upgraded_zm" )
+		if ( isDefined( weaponname ) && weaponname == "emp_grenade_zm" || isDefined( weaponname ) && weaponname == "ray_gun_zm" || isDefined( weaponname ) && weaponname == "ray_gun_upgraded_zm" )
 		{
 			continue;
 		}
@@ -238,7 +239,7 @@ vault_breach_think()
 		{
 			continue;
 		}
-		if ( isplayer( attacker ) && dmg_type != "MOD_PROJECTILE" && dmg_type != "MOD_PROJECTILE_SPLASH" && dmg_type != "MOD_EXPLOSIVE" && dmg_type != "MOD_EXPLOSIVE_SPLASH" || dmg_type == "MOD_GRENADE" && dmg_type == "MOD_GRENADE_SPLASH" )
+		if ( isplayer( attacker ) && dmg_type == "MOD_PROJECTILE" || isplayer( attacker ) &&  dmg_type == "MOD_PROJECTILE_SPLASH" || isplayer( attacker ) && dmg_type == "MOD_EXPLOSIVE" || isplayer( attacker ) && dmg_type == "MOD_EXPLOSIVE_SPLASH" || isplayer( attacker ) && dmg_type == "MOD_GRENADE" || isplayer( attacker ) && dmg_type == "MOD_GRENADE_SPLASH" )
 		{
 			if ( self.damage_state == 0 )
 			{
@@ -262,18 +263,18 @@ vault_breach_think()
 	}
 }
 
-track_clip_damage()
+track_clip_damage() //checked changed to match cerberus output
 {
 	self endon( "damage" );
 	self.clip waittill( "damage", amount, attacker, direction, point, dmg_type );
-	self notify( "damage" );
+	self notify( "damage", amount, attacker, direction, point, dmg_type );
 }
 
-bunkerdoorrotate( open, time )
+bunkerdoorrotate( open, time ) //checked matches cerberus output
 {
 	if ( !isDefined( time ) )
 	{
-		time = 0,2;
+		time = 0.2;
 	}
 	rotate = self.script_float;
 	if ( !open )
@@ -288,9 +289,9 @@ bunkerdoorrotate( open, time )
 	}
 }
 
-collapsing_bridge_init()
+collapsing_bridge_init() //checked changed to match cerberus output
 {
-	time = 1,5;
+	time = 1.5;
 	trig = getent( "bridge_trig", "targetname" );
 	if ( !isDefined( trig ) )
 	{
@@ -304,8 +305,7 @@ collapsing_bridge_init()
 	trig waittill( "trigger", who );
 	trig playsound( "evt_bridge_collapse_start" );
 	trig thread play_delayed_sound( time );
-	i = 0;
-	while ( i < bridge.size )
+	for ( i = 0; i < bridge.size; i++ )
 	{
 		if ( isDefined( bridge[ i ].script_angles ) )
 		{
@@ -315,10 +315,9 @@ collapsing_bridge_init()
 		{
 			rot_angle = ( 0, 0, 0 );
 		}
-		earthquake( randomfloatrange( 0,5, 1 ), 1,5, bridge[ i ].origin, 1000 );
+		earthquake( randomfloatrange( 0.5, 1 ), 1.5, bridge[ i ].origin, 1000 );
 		exploder( 150 );
 		bridge[ i ] rotateto( rot_angle, time, 0, 0 );
-		i++;
 	}
 	wait 1;
 	if ( !isDefined( level.collapse_vox_said ) )
@@ -328,13 +327,13 @@ collapsing_bridge_init()
 	}
 }
 
-play_delayed_sound( time )
+play_delayed_sound( time ) //checked matches cerberus output
 {
 	wait time;
 	self playsound( "evt_bridge_collapse_end" );
 }
 
-banking_and_weapon_locker_main()
+banking_and_weapon_locker_main() //checked matches cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	weapon_locker = spawnstruct();
@@ -362,13 +361,13 @@ banking_and_weapon_locker_main()
 	withdraw_spot thread maps/mp/zombies/_zm_banking::bank_withdraw_unitrigger();
 }
 
-bus_roof_damage_init()
+bus_roof_damage_init() //checked matches cerberus output
 {
 	trigs = getentarray( "bus_knock_off", "targetname" );
 	array_thread( trigs, ::bus_roof_damage );
 }
 
-bus_roof_damage()
+bus_roof_damage() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -380,20 +379,17 @@ bus_roof_damage()
 				who dodamage( 1, who.origin );
 			}
 		}
-		else
+		else if ( isDefined( who.marked_for_death ) && !who.marked_for_death && isDefined( who.has_legs ) && who.has_legs )
 		{
-			if ( isDefined( who.marked_for_death ) && !who.marked_for_death && isDefined( who.has_legs ) && who.has_legs )
-			{
-				who dodamage( who.health + 100, who.origin );
-				who.marked_for_death = 1;
-				level.zombie_total++;
-			}
+			who dodamage( who.health + 100, who.origin );
+			who.marked_for_death = 1;
+			level.zombie_total++;
 		}
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-diner_hatch_access()
+diner_hatch_access() //checked matches cerberus output
 {
 	diner_hatch = getent( "diner_hatch", "targetname" );
 	diner_hatch_col = getent( "diner_hatch_collision", "targetname" );
@@ -412,7 +408,7 @@ diner_hatch_access()
 	player maps/mp/zombies/_zm_buildables::track_placed_buildables( "dinerhatch" );
 }
 
-inert_zombies_init()
+inert_zombies_init() //checked matches cerberus output
 {
 	inert_spawn_location = getstructarray( "inert_location", "script_noteworthy" );
 	if ( isDefined( inert_spawn_location ) )
@@ -421,13 +417,13 @@ inert_zombies_init()
 	}
 }
 
-spawn_inert_zombies()
+spawn_inert_zombies() //checked matches cerberus output
 {
 	if ( !isDefined( self.angles ) )
 	{
 		self.angles = ( 0, 0, 0 );
 	}
-	wait 0,1;
+	wait 0.1;
 	if ( isDefined( level.zombie_spawners ) )
 	{
 		spawner = random( level.zombie_spawners );
@@ -440,12 +436,12 @@ spawn_inert_zombies()
 	}
 }
 
-sparking_power_lines()
+sparking_power_lines() //checked matches cerberus output
 {
 	lines = getentarray( "power_line_sparking", "targetname" );
 }
 
-callback_spectator_respawn_custom_score()
+callback_spectator_respawn_custom_score() //checked changed to match cerberus output
 {
 	difference = 1500 - self.score;
 	money_required = 1;
@@ -468,18 +464,21 @@ callback_spectator_respawn_custom_score()
 			self.account_val = 0;
 		}
 	}
-	else account_val = self maps/mp/zombies/_zm_stats::get_map_stat( "depositBox" );
-	if ( account_val >= money_required )
+	else 
 	{
-		self set_map_stat( "depositBox", account_val - money_required );
-	}
-	else
-	{
-		self set_map_stat( "depositBox", 0 );
+		account_val = self maps/mp/zombies/_zm_stats::get_map_stat( "depositBox" );
+		if ( account_val >= money_required )
+		{
+			self set_map_stat( "depositBox", account_val - money_required );
+		}
+		else
+		{
+			self set_map_stat( "depositBox", 0 );
+		}
 	}
 }
 
-transit_custom_deny_vox( door_buy )
+transit_custom_deny_vox( door_buy ) //checked matches cerberus output
 {
 	switch( self.characterindex )
 	{
@@ -515,7 +514,7 @@ transit_custom_deny_vox( door_buy )
 	}
 }
 
-transit_custom_death_vox()
+transit_custom_death_vox() //checked matches cerberus output
 {
 	if ( self.characterindex != 2 )
 	{
@@ -525,15 +524,12 @@ transit_custom_death_vox()
 	return 1;
 }
 
-transit_custom_powerup_vo_response( powerup_player, powerup )
+transit_custom_powerup_vo_response( powerup_player, powerup ) //checked partially changed to match cerberus output did not use continue in foreach see github for more info
 {
 	dist = 250000;
 	players = get_players();
-	_a660 = players;
-	_k660 = getFirstArrayKey( _a660 );
-	while ( isDefined( _k660 ) )
+	foreach ( player in players )
 	{
-		player = _a660[ _k660 ];
 		if ( player == powerup_player )
 		{
 		}
@@ -541,6 +537,6 @@ transit_custom_powerup_vo_response( powerup_player, powerup )
 		{
 			player do_player_general_vox( "general", "exert_laugh", 10, 5 );
 		}
-		_k660 = getNextArrayKey( _a660, _k660 );
 	}
 }
+
