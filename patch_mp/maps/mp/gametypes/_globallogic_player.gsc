@@ -264,15 +264,15 @@ callback_playerconnect() //checked partially changed to match cerberus output pa
 	{
 		self.pers[ "killstreaksEarnedThisKillstreak" ] = 0;
 	}
-	if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks && !isDefined( self.pers[ "killstreak_quantity" ] ) )
+	if ( is_true( level.usingscorestreaks ) && !isDefined( self.pers[ "killstreak_quantity" ] ) )
 	{
 		self.pers[ "killstreak_quantity" ] = [];
 	}
-	if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks && !isDefined( self.pers[ "held_killstreak_ammo_count" ] ) )
+	if ( is_true( level.usingscorestreaks ) && !isDefined( self.pers[ "held_killstreak_ammo_count" ] ) )
 	{
 		self.pers[ "held_killstreak_ammo_count" ] = [];
 	}
-	if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks && !isDefined( self.pers[ "held_killstreak_clip_count" ] ) )
+	if ( is_true( level.usingscorestreaks ) && !isDefined( self.pers[ "held_killstreak_clip_count" ] ) )
 	{
 		self.pers[ "held_killstreak_clip_count" ] = [];
 	}
@@ -507,7 +507,7 @@ callback_playermigrated() //checked matches cerberus output
 	println( "Player " + self.name + " finished migrating at time " + getTime() );
 #/
 	*/
-	if ( isDefined( self.connected ) && self.connected )
+	if ( is_true( self.connected ) )
 	{
 		self maps/mp/gametypes/_globallogic_ui::updateobjectivetext();
 	}
@@ -758,11 +758,11 @@ callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 	{
 		return;
 	}
-	if ( isDefined( self.candocombat ) && !self.candocombat )
+	if ( !is_true( self.candocombat ) )
 	{
 		return;
 	}
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( eattacker.candocombat ) && !eattacker.candocombat )
+	if ( isDefined( eattacker ) && isplayer( eattacker ) && !is_true( eattacker.candocombat ) )
 	{
 		return;
 	}
@@ -2123,7 +2123,7 @@ callback_playerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vd
 			vattackerorigin = attacker.origin;
 		}
 		ragdoll_now = 0;
-		if ( isDefined( self.usingvehicle ) && self.usingvehicle && isDefined( self.vehicleposition ) && self.vehicleposition == 1 )
+		if ( is_true( self.usingvehicle ) && isDefined( self.vehicleposition ) && self.vehicleposition == 1 )
 		{
 			ragdoll_now = 1;
 		}
@@ -2766,7 +2766,7 @@ getkillcamentity( attacker, einflictor, sweapon ) //checked changed to match cer
 		{
 			return undefined;
 		}
-		if ( isDefined( einflictor.ismagicbullet ) && !einflictor.ismagicbullet )
+		if ( !is_true( einflictor.ismagicbullet ) )
 		{
 			return undefined;
 		}

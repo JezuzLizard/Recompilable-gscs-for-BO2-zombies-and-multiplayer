@@ -4,6 +4,7 @@
 #include maps/mp/_music;
 #include maps/mp/gametypes/_hud_message;
 #include maps/mp/gametypes/_hud_util;
+#include common_scripts/utility;
 
 init() //checked matches cerberus output
 {
@@ -913,7 +914,7 @@ wageroutcomenotify( winner, endreasontext ) //checked changed to match cerberus 
 		spacing = 20;
 	}
 	halftime = 0;
-	if ( isDefined( level.sidebet ) && level.sidebet )
+	if ( is_true( level.sidebet ) )
 	{
 		halftime = 1;
 	}
@@ -1082,7 +1083,7 @@ teamwageroutcomenotify( winner, isroundend, endreasontext ) //checked partially 
 		spacing = 15;
 	}
 	halftime = 0;
-	if ( isDefined( level.sidebet ) && level.sidebet )
+	if ( is_true( level.sidebet ) )
 	{
 		halftime = 1;
 	}
@@ -1224,7 +1225,7 @@ teamwageroutcomenotify( winner, isroundend, endreasontext ) //checked partially 
 		matchbonus.immunetodemofreecamera = 1;
 		matchbonus.label = game[ "strings" ][ "wager_winnings" ];
 		matchbonus setvalue( self.wagerwinnings );
-		if ( isDefined( game[ "side_bets" ] ) && game[ "side_bets" ] )
+		if ( is_true( game[ "side_bets" ] ) )
 		{
 			sidebetwinnings = createfontstring( font, 2 );
 			sidebetwinnings setparent( matchbonus );

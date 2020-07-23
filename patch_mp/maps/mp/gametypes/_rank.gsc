@@ -148,7 +148,7 @@ initscoreinfo() //checked changed to match cerberus output
 
 getrankxpcapped( inrankxp ) //checked matches cerberus output
 {
-	if ( isDefined( level.rankxpcap ) && level.rankxpcap && level.rankxpcap <= inrankxp )
+	if ( is_true( level.rankxpcap ) && level.rankxpcap <= inrankxp )
 	{
 		return level.rankxpcap;
 	}
@@ -157,7 +157,7 @@ getrankxpcapped( inrankxp ) //checked matches cerberus output
 
 getcodpointscapped( incodpoints ) //checked matches cerberus output
 {
-	if ( isDefined( level.codpointscap ) && level.codpointscap && level.codpointscap <= incodpoints )
+	if ( is_true( level.codpointscap ) && level.codpointscap <= incodpoints )
 	{
 		return level.codpointscap;
 	}
@@ -521,7 +521,7 @@ giverankxp( type, value, devadd ) //checked changed to match cerberus output
 	{
 		self syncxpstat();
 	}
-	if ( isDefined( self.enabletext ) && self.enabletext && !level.hardcoremode )
+	if ( is_true( self.enabletext ) && !level.hardcoremode )
 	{
 		if ( type == "teamkill" )
 		{
@@ -650,7 +650,7 @@ updaterankscorehud( amount ) //checked matches cerberus output
 	self endon( "disconnect" );
 	self endon( "joined_team" );
 	self endon( "joined_spectators" );
-	if ( isDefined( level.usingmomentum ) && level.usingmomentum )
+	if ( is_true( level.usingmomentum ) )
 	{
 		return;
 	}

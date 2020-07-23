@@ -10,6 +10,7 @@
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 main() //checked matches cerberus output
 {
@@ -154,7 +155,7 @@ givecustomloadout( takeallweapons, alreadyspawned ) //checked matches cerberus o
 	{
 		self setspawnweapon( currentweapon );
 	}
-	if ( isDefined( takeallweapons ) && !takeallweapons )
+	if ( !is_true( takeallweapons ) )
 	{
 		self thread takeoldweapons( currentweapon );
 	}

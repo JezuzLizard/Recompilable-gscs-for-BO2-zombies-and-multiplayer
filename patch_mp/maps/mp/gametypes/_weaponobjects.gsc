@@ -721,7 +721,7 @@ weaponobjectdamage( watcher ) //checked changed to match cerberus output
 			{
 				self.waschained = 1;
 			}
-			if ( isDefined( idflags ) && idflags & level.idflags_penetration )
+			if ( is_true( idflags ) & level.idflags_penetration )
 			{
 				self.wasdamagedfrombulletpenetration = 1;
 			}
@@ -737,7 +737,7 @@ playdialogondeath( owner ) //checked matches cerberus output
 	owner endon( "disconnect" );
 	self endon( "hacked" );
 	self waittill( "death" );
-	if ( isDefined( self.playdialog ) && self.playdialog )
+	if ( is_true( self.playdialog ) )
 	{
 		owner maps/mp/gametypes/_globallogic_audio::leaderdialogonplayer( "equipment_destroyed", "item_destroyed" );
 	}
@@ -964,7 +964,7 @@ commononspawnuseweaponobject( watcher, owner ) //checked matches cerberus output
 {
 	if ( watcher.detectable )
 	{
-		if ( isDefined( watcher.ismovable ) && watcher.ismovable )
+		if ( is_true( watcher.ismovable ) )
 		{
 			self thread weaponobjectdetectionmovable( owner.pers[ "team" ] );
 		}
@@ -1499,15 +1499,15 @@ canhack( player, owner, weapon_check ) //checked matches cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( player.isdefusing ) && player.isdefusing )
+	if ( is_true( player.isdefusing ) )
 	{
 		return 0;
 	}
-	if ( isDefined( player.isplanting ) && player.isplanting )
+	if ( is_true( player.isplanting ) )
 	{
 		return 0;
 	}
-	if ( isDefined( player.proxbar ) && !player.proxbar.hidden )
+	if ( !is_true( player.proxbar ) )
 	{
 		return 0;
 	}
@@ -1535,7 +1535,7 @@ canhack( player, owner, weapon_check ) //checked matches cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( player.laststand ) && player.laststand )
+	if ( is_true( player.laststand ) )
 	{
 		return 0;
 	}
@@ -2349,7 +2349,7 @@ watchusetrigger( trigger, callback, playersoundonuse, npcsoundonuse ) //checked 
 		}
 		grenade = player.throwinggrenade;
 		isequipment = isweaponequipment( player getcurrentweapon() );
-		if ( isDefined( isequipment ) && isequipment )
+		if ( is_true( isequipment ) )
 		{
 			grenade = 0;
 		}

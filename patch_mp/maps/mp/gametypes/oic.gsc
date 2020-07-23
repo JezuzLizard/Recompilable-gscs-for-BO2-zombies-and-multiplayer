@@ -192,7 +192,7 @@ saveoffallplayersammo() //checked partially changed to match cerberus output //d
 
 isplayereliminated( player ) //checked changed at own discretion
 {
-	if ( isDefined( player.pers[ "eliminated" ] ) && player.pers[ "eliminated" ] )
+	if ( is_true( player.pers[ "eliminated" ] ) )
 	{
 		return 1;
 	}

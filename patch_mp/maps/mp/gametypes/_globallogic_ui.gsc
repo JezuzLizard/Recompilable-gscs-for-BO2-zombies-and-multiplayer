@@ -178,7 +178,7 @@ menuautoassign( comingfrommenu ) //checked changed to match cerberus output
 	teamkeys = getarraykeys( level.teams );
 	assignment = teamkeys[ randomint( teamkeys.size ) ];
 	self closemenus();
-	if ( isDefined( level.forceallallies ) && level.forceallallies )
+	if ( is_true( level.forceallallies ) )
 	{
 		assignment = "allies";
 	}
@@ -512,13 +512,13 @@ showmainmenuforteam() //checked matches cerberus output
 menuteam( team ) //checked changed to match cerberus output
 {
 	self closemenus();
-	if ( !level.console && level.allow_teamchange == "0" && isDefined( self.hasdonecombat ) && self.hasdonecombat )
+	if ( !level.console && level.allow_teamchange == "0" && is_true( self.hasdonecombat ) )
 	{
 		return;
 	}
 	if ( self.pers[ "team" ] != team )
 	{
-		if ( level.ingraceperiod || !isDefined( self.hasdonecombat ) && !self.hasdonecombat )
+		if ( level.ingraceperiod && !isDefined( self.hasdonecombat ) || !self.hasdonecombat )
 		{
 			self.hasspawned = 0;
 		}

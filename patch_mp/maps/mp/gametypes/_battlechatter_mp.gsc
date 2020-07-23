@@ -801,7 +801,7 @@ saykillbattlechatter( attacker, sweapon, victim ) //checked changed to match cer
 	{
 		return;
 	}
-	if ( isDefined( victim.issniperspotted ) && victim.issniperspotted && randomintrange( 0, 100 ) >= level.bckillinformprobability )
+	if ( is_true( victim.issniperspotted ) && randomintrange( 0, 100 ) >= level.bckillinformprobability )
 	{
 		level thread saylocalsounddelayed( attacker, "kill", "sniper", 0.75 );
 		victim.issniperspotted = 0;

@@ -3,6 +3,7 @@
 #include maps/mp/gametypes/_globallogic_audio;
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 init() //checked matches cerberus output
 {
@@ -562,7 +563,7 @@ playnextleaderdialog() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "flush_dialog" );
-	if ( isDefined( level.allowannouncer ) && !level.allowannouncer )
+	if ( !is_true( level.allowannouncer ) )
 	{
 		return;
 	}

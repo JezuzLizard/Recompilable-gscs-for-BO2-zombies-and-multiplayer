@@ -79,7 +79,7 @@ wait_to_show_glowing_model( prey ) //checked matches cerberus output
 	self.glowing_model = glowing_retrievable_model;
 	glowing_retrievable_model.angles = self.angles;
 	glowing_retrievable_model linkto( self );
-	if ( isDefined( prey ) && !isalive( prey ) )
+	if ( !is_true( prey ) )
 	{
 		wait 2;
 	}

@@ -128,11 +128,11 @@ threat_dead() //checked changed at own discretion
 	if ( bot_has_enemy() )
 	{
 		ent = self.bot.threat.entity;
-		if ( threat_is_turret() && isDefined( ent.dead ) && ent.dead )
+		if ( threat_is_turret() && is_true( ent.dead ) )
 		{
 			return 1;
 		}
-		if ( threat_is_qrdrone() && isDefined( ent.crash_accel ) && ent.crash_accel )
+		if ( threat_is_qrdrone() && is_true( ent.crash_accel ) )
 		{
 			return 1;
 		}
@@ -319,7 +319,7 @@ bot_combat_main() //checked partially changed to match cerberus output changed a
 			self allowattack( 0 );
 		}
 	}
-	if ( isDefined( self.stingerlockstarted ) && self.stingerlockstarted )
+	if ( is_true( self.stingerlockstarted ) )
 	{
 		self allowattack( self.stingerlockfinalized );
 		return;
@@ -703,12 +703,12 @@ bot_best_enemy() //checked partially changed to match cerberus output did not ch
 			}
 			if ( enemies[ i ].classname == "auto_turret" )
 			{
-				if ( isDefined( enemies[ i ].dead ) && enemies[ i ].dead || isDefined( enemies[ i ].carried ) && enemies[ i ].carried )
+				if ( isDefined( enemies[ i ].dead ) && enemies[ i ].dead || is_true( enemies[ i ].carried ) )
 				{	
 					i++;
 					continue;
 				}
-				if ( isDefined( enemies[ i ].turret_active ) && !enemies[ i ].turret_active )
+				if ( !is_true( enemies[ i ].turret_active ) )
 				{
 					i++;
 					continue;
@@ -722,7 +722,7 @@ bot_best_enemy() //checked partially changed to match cerberus output did not ch
 					continue;
 				}
 				origin = self getplayercamerapos();
-				angles = vectorToAngle( enemies[ i ].origin - origin );
+				angles = vectorToAngles( enemies[ i ].origin - origin );
 				if ( angles[ 0 ] < 290 )
 				{
 					threat_ignore( enemies[ i ], 3.5 );
@@ -1650,11 +1650,11 @@ bot_turret_set_dangerous( turret ) //checked partially changed to match cerberus
 	{
 		return;
 	}
-	if ( isDefined( turret.dead ) && turret.dead || isDefined( turret.carried ) && turret.carried )
+	if ( is_true( turret.dead ) || is_true( turret.carried ) )
 	{
 		return;
 	}
-	if ( isDefined( turret.turret_active ) && !turret.turret_active )
+	if ( !is_true( turret.turret_active ) )
 	{
 		return;
 	}

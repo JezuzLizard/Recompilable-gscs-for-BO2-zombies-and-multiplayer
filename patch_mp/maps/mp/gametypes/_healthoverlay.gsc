@@ -1,4 +1,5 @@
 #include maps/mp/gametypes/_globallogic_player;
+#include common_scripts/utility;
 
 init() //checked matches cerberus output
 {
@@ -112,7 +113,7 @@ playerhealthregen() //checked changed to match cerberus output
 		{
 			return;
 		}
-		if ( isDefined( player.laststand ) && player.laststand )
+		if ( is_true( player.laststand ) )
 		{
 			continue;
 		}

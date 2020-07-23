@@ -17,6 +17,7 @@
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 main() //checked matches cerberus output
 {
@@ -1072,7 +1073,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				attacker.pers[ "defends" ]++;
 				attacker.defends = attacker.pers[ "defends" ];
 				attacker addplayerstatwithgametype( "DEFENDS", 1 );
-				if ( isDefined( self.isflagcarrier ) && self.isflagcarrier )
+				if ( is_true( self.isflagcarrier ) )
 				{
 					maps/mp/_scoreevents::processscoreevent( "kill_flag_carrier", attacker, undefined, sweapon );
 				}
@@ -1316,7 +1317,7 @@ ctf_gamemodespawndvars( reset_dvars ) //checked matches cerberus output
 ctf_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked matches cerberus output
 {
 	teamkill_penalty = maps/mp/gametypes/_globallogic_defaults::default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon );
-	if ( isDefined( self.isflagcarrier ) && self.isflagcarrier )
+	if ( is_true( self.isflagcarrier ) )
 	{
 		teamkill_penalty *= level.teamkillpenaltymultiplier;
 	}
@@ -1326,7 +1327,7 @@ ctf_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked
 ctf_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon ) //checked matches cerberus output
 {
 	teamkill_score = maps/mp/gametypes/_rank::getscoreinfovalue( "kill" );
-	if ( isDefined( self.isflagcarrier ) && self.isflagcarrier )
+	if ( is_true( self.isflagcarrier ) )
 	{
 		teamkill_score *= level.teamkillscoremultiplier;
 	}

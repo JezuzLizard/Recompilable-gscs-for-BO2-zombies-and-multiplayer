@@ -167,7 +167,7 @@ spawnplayerprediction() //checked matches cerberus output dvar taken from beta d
 doinitialspawnmessaging() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
-	if ( isDefined( level.disableprematchmessages ) && level.disableprematchmessages )
+	if ( is_true( level.disableprematchmessages ) )
 	{
 		return;
 	}
@@ -616,7 +616,7 @@ spawnintermission( usedefaultcallback ) //checked matches cerberus output
 	self.archivetime = 0;
 	self.psoffsettime = 0;
 	self.friendlydamage = undefined;
-	if ( isDefined( usedefaultcallback ) && usedefaultcallback )
+	if ( is_true( usedefaultcallback ) )
 	{
 		maps/mp/gametypes/_globallogic_defaults::default_onspawnintermission();
 	}
@@ -709,7 +709,7 @@ shouldshowrespawnmessage() //checked matches cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( level.livesdonotreset ) && level.livesdonotreset )
+	if ( is_true( level.livesdonotreset ) )
 	{
 		return 0;
 	}

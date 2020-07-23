@@ -1269,7 +1269,7 @@ startNextRound( winner,	endReasonText ) //checked matches bo3 _globallogic.gsc w
 				displayRoundSwitch( winner, endReasonText );
 			}
 			
-			if ( IsDefined( level.nextRoundIsOvertime ) && level.nextRoundIsOvertime )
+			if ( is_true( level.nextRoundIsOvertime ) )
 			{
 				if ( !IsDefined( game["overtime_round"] ) )
 				{
@@ -1675,7 +1675,7 @@ roundEndDOF( time ) //checked matches bo3 _globallogic.gsc within reason
 
 checkTimeLimit() //checked matches bo3 _globallogic.gsc within reason
 {
-	if ( isDefined( level.timeLimitOverride ) && level.timeLimitOverride )
+	if ( is_true( level.timeLimitOverride ) )
 		return;
 	
 	if ( game["state"] != "playing" )

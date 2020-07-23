@@ -9,6 +9,7 @@
 #include maps/mp/gametypes/_rank;
 #include maps/mp/gametypes/_class;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 init() //checked matches cerberus output
 {
@@ -221,7 +222,7 @@ uploadglobalstatcounters() //checked partially changed to match cerberus output 
 
 statgetwithgametype( dataname ) //checked matches cerberus output
 {
-	if ( isDefined( level.nopersistence ) && level.nopersistence )
+	if ( is_true( level.nopersistence ) )
 	{
 		return 0;
 	}
@@ -236,7 +237,7 @@ getgametypename() //checked matches cerberus output
 {
 	if ( !isDefined( level.fullgametypename ) )
 	{
-		if ( isDefined( level.hardcoremode ) && level.hardcoremode && ispartygamemode() == 0 )
+		if ( is_true( level.hardcoremode ) && ispartygamemode() == 0 )
 		{
 			prefix = "HC";
 		}
@@ -273,7 +274,7 @@ isstatmodifiable( dataname ) //checked changed at own discretion
 
 statsetwithgametype( dataname, value, incvalue ) //checked matches cerberus output
 {
-	if ( isDefined( level.nopersistence ) && level.nopersistence )
+	if ( is_true( level.nopersistence ) )
 	{
 		return 0;
 	}
@@ -320,7 +321,7 @@ getrecentstat( isglobal, index, statname ) //checked changed to match cerberus o
 
 setrecentstat( isglobal, index, statname, value ) //checked matches cerberus output
 {
-	if ( isDefined( level.nopersistence ) && level.nopersistence )
+	if ( is_true( level.nopersistence ) )
 	{
 		return;
 	}
@@ -355,7 +356,7 @@ setrecentstat( isglobal, index, statname, value ) //checked matches cerberus out
 
 addrecentstat( isglobal, index, statname, value ) //checked matches cerberus output
 {
-	if ( isDefined( level.nopersistence ) && level.nopersistence )
+	if ( is_true( level.nopersistence ) )
 	{
 		return;
 	}
@@ -387,7 +388,7 @@ addmatchhistorystat( statname, value ) //checked matches cerberus output
 
 initializematchstats() //checked matches cerberus output
 {
-	if ( isDefined( level.nopersistence ) && level.nopersistence )
+	if ( is_true( level.nopersistence ) )
 	{
 		return;
 	}

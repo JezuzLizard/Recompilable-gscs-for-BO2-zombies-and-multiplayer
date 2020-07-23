@@ -1,4 +1,6 @@
 //checked no includes
+//added for is_true check
+#include common_scripts/utility;
 
 init() //checked changed to match cerberus output
 {
@@ -549,7 +551,7 @@ mymagicbullet( pos, dir ) //checked matches cerberus output dvars found in beta 
 setcopterdest( newlocation, descend, dontascend ) //checked matches cerberus output
 {
 	self.finaldest = getabovebuildingslocation( newlocation );
-	if ( isDefined( descend ) && descend )
+	if ( is_true( descend ) )
 	{
 		self.finalzdest = newlocation[ 2 ];
 	}

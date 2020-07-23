@@ -13,7 +13,7 @@ createstruct() //checked matches cerberus output
 
 findstruct( position ) //checked changed to match cerberus output see info.md
 {
-	foreach ( _ in level.struct_class_names )
+	foreach ( key in level.struct_class_names )
 	{
 		foreach ( s_array in level.struct_class_names[ key ] )
 		{

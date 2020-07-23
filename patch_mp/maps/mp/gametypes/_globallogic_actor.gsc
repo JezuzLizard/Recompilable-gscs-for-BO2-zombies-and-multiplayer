@@ -7,6 +7,7 @@
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/gametypes/_globallogic_player;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, boneindex ) //checked changed to match cerberus output
 {
@@ -18,7 +19,7 @@ callback_actordamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sw
 	{
 		return;
 	}
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( eattacker.candocombat ) && !eattacker.candocombat )
+	if ( isDefined( eattacker ) && isplayer( eattacker ) && !is_true( eattacker.candocombat ) )
 	{
 		return;
 	}

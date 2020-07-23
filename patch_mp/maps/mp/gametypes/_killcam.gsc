@@ -5,6 +5,7 @@
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_hud_util;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 init() //checked matches cerberus output
 {
@@ -100,7 +101,7 @@ finalkillcamwaiter() //checked matches cerberus output
 
 postroundfinalkillcam() //checked matches cerberus output
 {
-	if ( isDefined( level.sidebet ) && level.sidebet )
+	if ( is_true( level.sidebet ) )
 	{
 		return;
 	}

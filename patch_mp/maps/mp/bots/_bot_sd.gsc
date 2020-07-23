@@ -208,7 +208,7 @@ bot_sd_defender( zone, isplanted ) //checked partially changed to match cerberus
 			continue;
 		}
 		height = node[ i ].origin[ 2 ] - zone.nearest_node.origin[ 2 ];
-		if ( isDefined( isplanted ) && isplanted )
+		if ( is_true( isplanted ) )
 		{
 			dist = distance2d( node[ i ].origin, zone.nearest_node.origin );
 			score = ( 10000 - dist ) + height;

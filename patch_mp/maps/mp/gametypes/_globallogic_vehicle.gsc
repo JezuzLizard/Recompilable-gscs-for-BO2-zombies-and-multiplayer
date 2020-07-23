@@ -5,6 +5,7 @@
 #include maps/mp/_vehicles;
 #include maps/mp/gametypes/_class;
 #include maps/mp/_utility;
+#include common_scripts/utility;
 
 callback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime, damagefromunderneath, modelindex, partname ) //checked partially changed to match cerberus output partially changed to match beta dump //changed at own discretion
 {
@@ -18,7 +19,7 @@ callback_vehicledamage( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	{
 		return;
 	}
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && isDefined( eattacker.candocombat ) && !eattacker.candocombat )
+	if ( isDefined( eattacker ) && isplayer( eattacker ) && !is_true( eattacker.candocombat ) )
 	{
 		return;
 	}

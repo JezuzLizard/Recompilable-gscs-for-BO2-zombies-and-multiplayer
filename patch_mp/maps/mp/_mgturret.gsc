@@ -184,7 +184,7 @@ burst_fire_unmanned() //checked changed at own discretion
 	self endon( "death" );
 	self endon( "remote_start" );
 	level endon( "game_ended" );
-	if ( isDefined( self.controlled ) && self.controlled )
+	if ( is_true( self.controlled ) )
 	{
 		return;
 	}

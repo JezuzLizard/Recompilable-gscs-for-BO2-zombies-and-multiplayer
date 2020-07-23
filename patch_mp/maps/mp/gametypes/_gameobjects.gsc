@@ -43,7 +43,7 @@ main( allowed ) //checked changed to match cerberus output
 
 entity_is_allowed( entity, allowed_game_modes ) //checked changed to match cerberus output
 {
-	if ( isDefined( level.createfx_enabled ) && level.createfx_enabled )
+	if ( is_true( level.createfx_enabled ) )
 	{
 		return 1;
 	}
@@ -293,7 +293,7 @@ carryobjectusethink() //checked changed to match cerberus output
 		{
 			continue;
 		}
-		if ( isDefined( player.laststand ) && player.laststand )
+		if ( is_true( player.laststand ) )
 		{
 			continue;
 		}
@@ -344,7 +344,7 @@ carryobjectproxthink() //checked changed to match cerberus output
 		{
 			continue;
 		}
-		if ( isDefined( player.laststand ) && player.laststand )
+		if ( is_true( player.laststand ) )
 		{
 			continue;
 		}
@@ -1713,7 +1713,7 @@ useholdthink( player ) //checked changed to match cerberus output
 	{
 		player thread takeuseweapon( useweapon );
 	}
-	if ( isDefined( result ) && result )
+	if ( is_true( result ) )
 	{
 		return 1;
 	}
@@ -1778,7 +1778,7 @@ continueholdthinkloop( player, waitforweapon, timedout, usetime ) //checked matc
 	{
 		return 0;
 	}
-	if ( isDefined( player.laststand ) && player.laststand )
+	if ( is_true( player.laststand ) )
 	{
 		return 0;
 	}
@@ -2475,7 +2475,7 @@ destroyobject( deletetrigger, forcehide ) //checked changed to match cerberus ou
 disableobject( forcehide ) //checked changed to match cerberus output
 {
 	self notify( "disabled" );
-	if ( self.type == "carryObject" || isDefined( forcehide ) && forcehide )
+	if ( self.type == "carryObject" || is_true( forcehide ) )
 	{
 		if ( isDefined( self.carrier ) )
 		{
@@ -2492,7 +2492,7 @@ disableobject( forcehide ) //checked changed to match cerberus output
 
 enableobject( forceshow ) //checked changed to match cerberus output
 {
-	if ( self.type == "carryObject" || isDefined( forceshow ) && forceshow )
+	if ( self.type == "carryObject" || is_true( forceshow ) )
 	{
 		for ( index = 0; index < self.visuals.size; index++ )
 		{
@@ -2579,7 +2579,7 @@ caninteractwith( player ) //checked changed to match beta dump
 				{
 					return 1;
 				}
-				else if ( isDefined( self.decayprogress ) && self.decayprogress && self.curprogress > 0 )
+				else if ( is_true( self.decayprogress ) && self.curprogress > 0 )
 				{
 					return 1;
 				}

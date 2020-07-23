@@ -404,14 +404,14 @@ givekillstreaks( classnum ) //checked changed to match cerberus output
 			if ( isDefined( level.tbl_killstreakdata[ killstreakindex ] ) )
 			{
 				self.killstreak[ currentkillstreak ] = level.tbl_killstreakdata[ killstreakindex ];
-				if ( isDefined( level.usingmomentum ) && level.usingmomentum )
+				if ( is_true( level.usingmomentum ) )
 				{
 					killstreaktype = maps/mp/killstreaks/_killstreaks::getkillstreakbymenuname( self.killstreak[ currentkillstreak ] );
 					if ( isDefined( killstreaktype ) )
 					{
 						weapon = maps/mp/killstreaks/_killstreaks::getkillstreakweapon( killstreaktype );
 						self giveweapon( weapon );
-						if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks )
+						if ( is_true( level.usingscorestreaks ) )
 						{
 							if ( maps/mp/killstreaks/_killstreak_weapons::isheldkillstreakweapon( weapon ) )
 							{
@@ -469,13 +469,11 @@ givekillstreaks( classnum ) //checked changed to match cerberus output
 	actionslotorder[ 0 ] = 4;
 	actionslotorder[ 1 ] = 2;
 	actionslotorder[ 2 ] = 1;
-	while ( isDefined( level.usingmomentum ) && level.usingmomentum )
+	if( is_true( level.usingmomentum ) )
 	{
-		sortindex = 0;
-		while ( sortindex < sortedkillstreaks.size && sortindex < actionslotorder.size )
+		for ( sortIndex = 0 ; (sortIndex < sortedKillstreaks.size && sortIndex < actionSlotOrder.size) ; sortIndex++ )
 		{
 			self setactionslot( actionslotorder[ sortindex ], "weapon", sortedkillstreaks[ sortindex ].weapon );
-			sortindex++;
 		}
 	}
 }

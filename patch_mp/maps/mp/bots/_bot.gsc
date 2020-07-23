@@ -1120,7 +1120,7 @@ bot_has_radar() //checked changed at own discretion
 	{
 		return 1;
 	}
-	if ( isDefined( self.hasspyplane ) && self.hasspyplane || isDefined( self.hassatellite ) && self.hassatellite)
+	if ( is_true( self.hasspyplane ) || is_true( self.hassatellite ) )
 	{
 		return 1;
 	}

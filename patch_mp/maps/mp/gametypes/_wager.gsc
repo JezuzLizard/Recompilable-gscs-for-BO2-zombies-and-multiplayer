@@ -58,7 +58,7 @@ initwagerplayer() //checked changed to match cerberus output
 		self.pers[ "wager_sideBetWinnings" ] = 0;
 		self.pers[ "wager_sideBetLosses" ] = 0;
 	}
-	if ( isDefined( level.inthemoneyonradar ) && level.inthemoneyonradar || isDefined( level.firstplaceonradar ) && level.firstplaceonradar )
+	if ( is_true( level.inthemoneyonradar ) || is_true( level.firstplaceonradar ) )
 	{
 		self.pers[ "hasRadar" ] = 1;
 		self.hasspyplane = 1;
@@ -210,7 +210,7 @@ calculatefreeforallpayouts() //checked changed to match cerberus output
 		payoutpercentages = array( 1 );
 	}
 	setwagerwinningsonplayers( level.players, 0 );
-	if ( isDefined( level.hostforcedend ) && level.hostforcedend )
+	if ( is_true( level.hostforcedend ) )
 	{
 		wagerbet = getDvarInt( "scr_wagerBet" );
 		for ( i = 0; i < playerrankings.size; i++ )
@@ -387,7 +387,7 @@ determinetopearners() //checked changed to match beta dump
 
 postroundsidebet() //checked matches cerberus output
 {
-	if ( isDefined( level.sidebet ) && level.sidebet )
+	if ( is_true( level.sidebet ) )
 	{
 		level notify( "side_bet_begin" );
 		level waittill( "side_bet_end" );
@@ -452,7 +452,7 @@ setupblankrandomplayer( takeweapons, chooserandombody, weapon ) //checked change
 	{
 		self takeallweapons();
 	}
-	if ( isDefined( self.pers[ "hasRadar" ] ) && self.pers[ "hasRadar" ] )
+	if ( is_true( self.pers[ "hasRadar" ] ) )
 	{
 		self.hasspyplane = 1;
 	}
@@ -522,7 +522,7 @@ setradarvisibility() //checked changed to match cerberus output
 	{
 		prevscoreplace = 1;
 	}
-	if ( isDefined( level.inthemoneyonradar ) && level.inthemoneyonradar )
+	if ( is_true( level.inthemoneyonradar ) )
 	{
 		if ( prevscoreplace <= 3 && isDefined( self.score ) && self.score > 0 )
 		{
@@ -533,7 +533,7 @@ setradarvisibility() //checked changed to match cerberus output
 			self setperk( "specialty_gpsjammer" );
 		}
 	}
-	else if ( isDefined( level.firstplaceonradar ) && level.firstplaceonradar )
+	else if ( is_true( level.firstplaceonradar ) )
 	{
 		if ( prevscoreplace == 1 && isDefined( self.score ) && self.score > 0 )
 		{
@@ -691,7 +691,7 @@ pulsepowerupicon( powerupindex ) //checked changed to match cerberus output
 	pulsepercent = 1.5;
 	pulsetime = 0.5;
 	hud_elem = self.powerups[ powerupindex ].hud_elem_icon;
-	if ( isDefined( hud_elem.animating ) && hud_elem.animating )
+	if ( is_true( hud_elem.animating ) )
 	{
 		return;
 	}

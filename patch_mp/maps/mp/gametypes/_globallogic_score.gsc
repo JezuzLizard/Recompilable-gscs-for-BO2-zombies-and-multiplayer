@@ -266,7 +266,7 @@ roundtonearestfive( score ) //checked matches cerberus output
 giveplayermomentumnotification( score, label, descvalue, countstowardrampage ) //checked matches cerberus output
 {
 	rampagebonus = 0;
-	if ( isDefined( level.usingrampage ) && level.usingrampage )
+	if ( is_true( level.usingrampage ) )
 	{
 		if ( countstowardrampage )
 		{
@@ -300,7 +300,7 @@ giveplayermomentumnotification( score, label, descvalue, countstowardrampage ) /
 
 resetplayermomentumonspawn() //checked matches cerberus output
 {
-	if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks )
+	if ( is_true( level.usingscorestreaks ) )
 	{
 		_setplayermomentum( self, 0 );
 		self thread resetscorechain();
@@ -531,7 +531,7 @@ _giveplayerkillstreakinternal( player, momentum, oldmomentum, killstreaktypearra
 		if ( momentumcost > oldmomentum && momentumcost <= momentum )
 		{
 			weapon = maps/mp/killstreaks/_killstreaks::getkillstreakweapon( killstreaktype );
-			if ( isDefined( level.usingscorestreaks ) && level.usingscorestreaks )
+			if ( is_true( level.usingscorestreaks ) )
 			{
 				if ( maps/mp/killstreaks/_killstreak_weapons::isheldkillstreakweapon( weapon ) )
 				{
@@ -893,7 +893,7 @@ incpersstat( dataname, increment, record_stats, includegametype ) //checked matc
 {
 	pixbeginevent( "incPersStat" );
 	self.pers[ dataname ] += increment;
-	if ( isDefined( includegametype ) && includegametype )
+	if ( is_true( includegametype ) )
 	{
 		self addplayerstatwithgametype( dataname, increment );
 	}

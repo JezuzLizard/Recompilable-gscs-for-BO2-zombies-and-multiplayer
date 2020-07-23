@@ -115,7 +115,7 @@ onprecachegametype() //checked matches cerberus output
 dem_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked changed to match cerberus output
 {
 	teamkill_penalty = maps/mp/gametypes/_globallogic_defaults::default_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon );
-	if ( isDefined( self.isdefusing ) && self.isdefusing || isDefined( self.isplanting ) && self.isplanting )
+	if ( is_true( self.isdefusing ) || is_true( self.isplanting ) )
 	{
 		teamkill_penalty *= level.teamkillpenaltymultiplier;
 	}
@@ -125,7 +125,7 @@ dem_getteamkillpenalty( einflictor, attacker, smeansofdeath, sweapon ) //checked
 dem_getteamkillscore( einflictor, attacker, smeansofdeath, sweapon ) //checked changed to match cerberus output
 {
 	teamkill_score = maps/mp/gametypes/_rank::getscoreinfovalue( "team_kill" );
-	if ( isDefined( self.isdefusing ) && self.isdefusing || isDefined( self.isplanting ) && self.isplanting )
+	if ( is_true( self.isdefusing ) || is_true( self.isplanting ) )
 	{
 		teamkill_score *= level.teamkillscoremultiplier;
 	}

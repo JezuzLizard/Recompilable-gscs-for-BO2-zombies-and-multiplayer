@@ -103,7 +103,7 @@ onplayerspawned() //checked matches cerberus output
 		self maps/mp/killstreaks/_airsupport::clearmonitoredspeed();
 		self thread initialspawnprotection();
 		self thread monitorgpsjammer();
-		if ( isDefined( self.pers[ "hasRadar" ] ) && self.pers[ "hasRadar" ] )
+		if ( is_true( self.pers[ "hasRadar" ] ) )
 		{
 			self.hasspyplane = 1;
 		}
@@ -1006,7 +1006,7 @@ getspawnpoint( player_entity, predictedspawn ) //checked matches cerberus output
 		point_team = "free";
 		influencer_team = "free";
 	}
-	if ( level.teambased && isDefined( game[ "switchedsides" ] ) && game[ "switchedsides" ] && level.spawnsystem.unifiedsideswitching )
+	if ( level.teambased && is_true( game[ "switchedsides" ] ) && level.spawnsystem.unifiedsideswitching )
 	{
 		point_team = getotherteam( point_team );
 	}
@@ -1118,7 +1118,7 @@ gatherspawnentities( player_team ) //checked changed to match cerberus output
 
 is_hardcore() //checked changed at own discretion
 {
-	if ( isDefined( level.hardcoremode ) && level.hardcoremode )
+	if ( is_true( level.hardcoremode ) )
 	{
 		return 1;
 	}
