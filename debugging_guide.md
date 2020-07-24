@@ -28,14 +28,63 @@ However, the Cerberus Decompiler should not be used as a base script since its o
 The Cerberus Decompiler is similar to the 2014 dump except it doesn't misplace devcalls, and commas.
 Just like the 2014 dump it may also misidentify if/else statement conditions.
 
-### Debugging Methodology 
+#### Beta Dump
 
-The current method used is to compare each function from a script from the 2014 dump to the Cerberus Decompiler's output,
-Copying code from the Cerberus Decompiled output if the code from the 2014 dump looks wrong is recommended.
-Each time you do this make sure to indicate that the code was checked in a comment next to the function so that way its easy to tell what functions have been checked and changed from their original outputs
-Once you have checked the code in a script try compiling it and test it to see what errors occur.
+In addition to the other dumps there is also the beta dump. The beta dump is literally a leak of scripts from the BO2 beta so it includes comments since it was never decompiled but is actual source. The beta dump is the most accurate dump but only includes the scripts that were used at the time. Therefore, only core scripts and maps that existed at that time appear in the beta dump.
 
-Always check if statements with many different conditions. Never use continues in foreach or for loops it will cause an infinite loop for an unknown reason. Always check the numbers values and order of operations between the scripts the cerberus decompiler is always correct about the values of numbers but does not account for order of operations. Make use of the debugging mod once your script is compileable and runs without crashing( zombies only for now ).
+### Script Fixing Methodology 
+
+What constitutes a fixed script that has parity with the original script depends on the original scripts complexity. 
+Treyarch has a tendancy to not go all out and use every feature that the GSC language permits. As a result cerberus usually gives accurate results since there aren't many unusual ways that Treyarch will write something. First I will go over common syntax errors that the 2014 dump will have and then the common syntax errors that cerberus creates.
+
+**The 2014 dump always has the following types of script errors:**
+```
+Floats will improperly use a , instead of a .
+```
+```
+Function variable references that reference a script outside of the current script will have an extra :: in front of them
+```
+**Example:**
+```
+function = ::maps/mp/zombies/_zombie_script::function;
+OR
+self thread onplayerconnect_callback( ::maps/mp/zombies/_zombie_script::function ); 
+will throw an error on map launch
+```
+**Correct Usage:**
+```
+function = maps/mp/zombies/_zombie_script::function;
+OR
+self thread onplayerconnect_callback( maps/mp/zombies/_zombie_script::function ); 
+```
+**The 2014 dump sometimes has these types of script errors:**
+```
+Missing includes
+Sometimes includes that need to be included in the script are not there
+The cerberus output always has the require includes so copy them over
+```
+
+**The 2014 dump always produces outputs which are not in parity of the original script:**
+```
+Foreaches do not appear in the 2014 dump instead they look like this:
+
+	_a427 = players;
+	_k427 = getFirstArrayKey( _a427 );
+	while ( isDefined( _k427 ) )
+	{
+		player = _a427[ _k427 ];
+		_k427 = getNextArrayKey( _a427, _k427 );
+	}
+  This is functional but not correct check cerberus output for what the foreach should look like in each context
+  The correct way to rewrite this is like this:
+  foreach ( player in players )
+  {
+  }
+```
+```
+For loops do not appear in the 2014 dump and while loops are used instead
+Replace them with for loops but always check the info.md for compiler limitations
+```
 
 If you need more help contact me on my Discord username JezuzLizard#7864.
 
