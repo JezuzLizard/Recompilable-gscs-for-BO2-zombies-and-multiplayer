@@ -1042,7 +1042,7 @@ pers_treasure_chest_choosespecialweapon( player ) //checked changed to match cer
 	{
 		player.pers_magic_box_weapon_count = 0;
 	}
-	if ( player.pers_magic_box_weapon_count < 2 && player.pers_magic_box_weapon_count == 0 || rval < 0.6 )
+	if ( ( player.pers_magic_box_weapon_count == 0 || rval < 0.6 ) && player.pers_magic_box_weapon_count < 2 )
 	{
 		player.pers_magic_box_weapon_count++;
 		if ( isDefined( level.pers_treasure_chest_get_weapons_array_func ) )
