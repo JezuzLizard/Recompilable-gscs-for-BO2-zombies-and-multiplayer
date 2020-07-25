@@ -81,23 +81,19 @@ Foreaches do not appear in the 2014 dump instead they look like this:
   {
   }
 ```
+**The 2014 dump never has complete data in the notify inputs:**
+```
+**Example**
+self notify( "damage" );
+However, the the waittill may look like this:
+self waittill( "damage", who );
+Always check against cerberus for missing inputs for notifies
+```
 ```
 For loops do not appear in the 2014 dump and while loops are used instead
 Replace them with for loops but always check the info.md for compiler limitations
 ```
 
 If you need more help contact me on my Discord username JezuzLizard#7864.
-
-**Common Errors**
-
-Infinite While Loop Without Wait:
-
-When its not possible to connect to the server but its running that means there is an infinite loop with no wait active.
-
-This can also happen ingame but the zombies freeze and the ammo counter freezes.
-
-This can also happen when a client connects so controls are frozen.
-
-This can also happen with a blackscreen that doesn't pass.
 
 
