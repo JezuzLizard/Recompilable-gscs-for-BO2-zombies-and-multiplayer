@@ -1,13 +1,5 @@
 # Black Ops 2 Functions Descriptions and Locations List
 
-### Built in Functions:
-
-isthrowinggrenade() - returns 1 if the player is currently throwing a grenade or 0 if they are not
-- must be called on a player
-
-loadfx( effect ) - loads an effect in
-usage - level._effect[ "building_dust" ] = loadfx( "maps/zombie/fx_zmb_buildable_assemble_dust" );
-
 ### Functions in _zm_utility.gsc:
 
 convertsecondstomilliseconds( seconds ) - returns seconds multiplied by 1000
