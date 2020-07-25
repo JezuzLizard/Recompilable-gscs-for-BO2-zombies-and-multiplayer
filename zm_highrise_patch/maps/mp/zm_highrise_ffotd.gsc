@@ -1,22 +1,23 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/zombies/_zm_utility;
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-main_start()
+main_start() //checked matches cerberus output
 {
 	level thread spawned_collision_ffotd();
 	level thread eject_player_trigger_init();
 	level thread change_bad_spawner();
 }
 
-main_end()
+main_end() //checked matches cerberus output
 {
 	level thread eject_player_trigger();
 }
 
-spawned_collision_ffotd()
+spawned_collision_ffotd() //checked changed to match cerberus output
 {
 	precachemodel( "collision_wall_32x32x10_standard" );
 	flag_wait( "start_zombie_round_logic" );
@@ -24,11 +25,11 @@ spawned_collision_ffotd()
 	{
 		collision1 = spawn( "script_model", ( 2044, 499, 2893 ) );
 		collision1 setmodel( "collision_wall_32x32x10_standard" );
-		collision1.angles = vectorScale( ( 0, 0, 0 ), 330 );
+		collision1.angles = vectorScale( ( 0, 1, 0 ), 330 );
 		collision1 ghost();
 		collision2 = spawn( "script_model", ( 2044, 499, 2925 ) );
 		collision2 setmodel( "collision_wall_32x32x10_standard" );
-		collision2.angles = vectorScale( ( 0, 0, 0 ), 330 );
+		collision2.angles = vectorScale( ( 0, 1, 0 ), 330 );
 		collision2 ghost();
 		collision3 = spawn( "script_model", ( 1768, 1507, 3075 ) );
 		collision3 setmodel( "collision_wall_256x256x10_standard" );
@@ -44,11 +45,11 @@ spawned_collision_ffotd()
 		collision3 ghost();
 		collision4 = spawn( "script_model", ( 2257, 2374, 3101 ) );
 		collision4 setmodel( "collision_wall_256x256x10_standard" );
-		collision4.angles = vectorScale( ( 0, 0, 0 ), 270 );
+		collision4.angles = vectorScale( ( 0, 1, 0 ), 270 );
 		collision4 ghost();
 		collision5 = spawn( "script_model", ( 3076, 1598, 2791 ) );
 		collision5 setmodel( "collision_wall_256x256x10_standard" );
-		collision5.angles = vectorScale( ( 0, 0, 0 ), 347,6 );
+		collision5.angles = vectorScale( ( 1, 0, 0 ), 347.6 );
 		collision5 ghost();
 		collision6b = spawn( "script_model", ( 3693, 1840, 1897 ) );
 		collision6b setmodel( "collision_wall_256x256x10_standard" );
@@ -60,7 +61,7 @@ spawned_collision_ffotd()
 		collision6c ghost();
 		collision7 = spawn( "script_model", ( 2157, 839, 3129 ) );
 		collision7 setmodel( "collision_wall_128x128x10_standard" );
-		collision7.angles = ( 0, 9,79996, -90 );
+		collision7.angles = ( 0, 9.79996, -90 );
 		collision7 ghost();
 		collision7 = spawn( "script_model", ( 3594, 1708, 2247 ) );
 		collision7 setmodel( "collision_wall_128x128x10_standard" );
@@ -69,29 +70,29 @@ spawned_collision_ffotd()
 	}
 }
 
-eject_player_trigger_init()
+eject_player_trigger_init() //checked matches cerberus output
 {
-	trig1 = spawn( "trigger_box", ( 3172, 1679, 1296,09 ), 0, 64, 10, 64 );
+	trig1 = spawn( "trigger_box", ( 3172, 1679, 1296.09 ), 0, 64, 10, 64 );
 	trig1.angles = ( 0, 0, 0 );
 	trig1.targetname = "eject_player_pos";
-	trig1.point = spawn( "script_origin", ( 3266, 1703,5, 1325 ) );
-	trig2 = spawn( "trigger_box", ( 3225,5, 1153, 1346,48 ), 0, 64, 10, 64 );
+	trig1.point = spawn( "script_origin", ( 3266, 1703.5, 1325 ) );
+	trig2 = spawn( "trigger_box", ( 3225.5, 1153, 1346.48 ), 0, 64, 10, 64 );
 	trig2.angles = ( 0, 0, 0 );
 	trig2.targetname = "eject_player_pos";
-	trig2.point = spawn( "script_origin", ( 3074, 1137,5, 1282,26 ) );
-	trig3 = spawn( "trigger_radius", ( 3583, 1964, 2751,95 ), 0, 30, 64 );
+	trig2.point = spawn( "script_origin", ( 3074, 1137.5, 1282.26 ) );
+	trig3 = spawn( "trigger_radius", ( 3583, 1964, 2751.95 ), 0, 30, 64 );
 	trig3.angles = ( 0, 0, 0 );
 	trig3.targetname = "eject_player_pos";
-	trig3.point = spawn( "script_origin", ( 3590,2, 2068, 2720,34 ) );
+	trig3.point = spawn( "script_origin", ( 3590.2, 2068, 2720.34 ) );
 }
 
-eject_player_trigger()
+eject_player_trigger() //checked matches cerberus output
 {
 	trigs = getentarray( "eject_player_pos", "targetname" );
 	array_thread( trigs, ::player_eject_watcher );
 }
 
-player_eject_watcher()
+player_eject_watcher() //checked matches cerberus output
 {
 	time = 0;
 	while ( 1 )
@@ -111,7 +112,7 @@ player_eject_watcher()
 							who setorigin( self.point.origin );
 							who playlocalsound( level.zmb_laugh_alias );
 							who playrumbleonentity( "damage_light" );
-							earthquake( 0,5, 0,5, who.origin, 100 );
+							earthquake( 0.5, 0.5, who.origin, 100 );
 							who thread ejected_overrun( self );
 						}
 					}
@@ -120,11 +121,11 @@ player_eject_watcher()
 			}
 			time = 0;
 		}
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-ejected_overrun( trig )
+ejected_overrun( trig ) //checked changed to match cerberus output
 {
 	if ( !isDefined( trig.ejected ) )
 	{
@@ -136,13 +137,9 @@ ejected_overrun( trig )
 		if ( trig.ejected >= 3 )
 		{
 			primaries = self getweaponslistprimaries();
-			_a169 = primaries;
-			_k169 = getFirstArrayKey( _a169 );
-			while ( isDefined( _k169 ) )
+			foreach ( weapon in primaries )
 			{
-				weapon = _a169[ _k169 ];
 				self takeweapon( weapon );
-				_k169 = getNextArrayKey( _a169, _k169 );
 			}
 			lethal = self get_player_lethal_grenade();
 			if ( isDefined( lethal ) && lethal != "" )
@@ -176,20 +173,17 @@ ejected_overrun( trig )
 	}
 }
 
-change_bad_spawner()
+change_bad_spawner() //checked changed to match cerberus output
 {
 	flag_wait( "always_on" );
 	spawner_array = getstructarray( "zone_blue_level4a_spawners", "targetname" );
-	_a214 = spawner_array;
-	_k214 = getFirstArrayKey( _a214 );
-	while ( isDefined( _k214 ) )
+	foreach ( struct in spawner_array )
 	{
-		struct = _a214[ _k214 ];
-		if ( isDefined( struct.origin ) && struct.origin == ( 2154, 748,5, 1312 ) )
+		if ( isDefined( struct.origin ) && struct.origin == ( 2154, 748.5, 1312 ) )
 		{
 			struct.script_noteworthy = "riser_location";
 			return;
 		}
-		_k214 = getNextArrayKey( _a214, _k214 );
 	}
 }
+

@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zombies/_zm_powerups;
 #include maps/mp/zombies/_zm_ai_basic;
@@ -12,7 +13,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-set_zombie_var_once( var, value, is_float, column, is_team_based )
+set_zombie_var_once( var, value, is_float, column, is_team_based ) //checked matches cerberus output
 {
 	if ( !isDefined( level.zombie_vars ) || !isDefined( level.zombie_vars[ var ] ) )
 	{
@@ -20,7 +21,7 @@ set_zombie_var_once( var, value, is_float, column, is_team_based )
 	}
 }
 
-init()
+init() //checked matches cerberus output
 {
 	if ( !maps/mp/zombies/_zm_weapons::is_weapon_included( "slipgun_zm" ) )
 	{
@@ -55,7 +56,7 @@ init()
 	thread wait_init_damage();
 }
 
-wait_init_damage()
+wait_init_damage() //checked matches cerberus output
 {
 	while ( !isDefined( level.zombie_vars ) || !isDefined( level.zombie_vars[ "zombie_health_start" ] ) )
 	{
@@ -66,12 +67,12 @@ wait_init_damage()
 	level.slipgun_damage_mod = "MOD_PROJECTILE_SPLASH";
 }
 
-slipgun_player_connect()
+slipgun_player_connect() //checked matches cerberus output
 {
 	self thread watch_for_slip_bolt();
 }
 
-watch_for_slip_bolt()
+watch_for_slip_bolt() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -84,16 +85,14 @@ watch_for_slip_bolt()
 			case "slip_bolt_zm":
 				grenade thread slip_bolt( self, 0 );
 				break;
-			continue;
 			case "slip_bolt_upgraded_zm":
 				grenade thread slip_bolt( self, 1 );
 				break;
-			continue;
 		}
 	}
 }
 
-slip_bolt( player, upgraded )
+slip_bolt( player, upgraded ) //checked matches cerberus output
 {
 	startpos = player getweaponmuzzlepoint();
 	self waittill( "explode", position );
@@ -105,7 +104,7 @@ slip_bolt( player, upgraded )
 	thread add_slippery_spot( position, duration, startpos );
 }
 
-dropslipgun()
+dropslipgun() //checked matches cerberus output
 {
 	item = self maps/mp/zombies/_zm_equipment::placed_equipment_think( "t6_wpn_zmb_slipgun_world", "slipgun_zm", self.origin + vectorScale( ( 0, 0, 1 ), 30 ), self.angles );
 	if ( isDefined( item ) )
@@ -121,7 +120,7 @@ dropslipgun()
 	return item;
 }
 
-pickupslipgun( item )
+pickupslipgun( item ) //checked matches cerberus output
 {
 	item.owner = self;
 	self giveweapon( item.name );
@@ -140,7 +139,7 @@ transferslipgun( fromplayer, toplayer )
 	fromplayer notify( "slipgun_zm_taken" );
 }
 
-slipgun_activation_watcher_thread()
+slipgun_activation_watcher_thread() //checked matches cerberus output
 {
 	self endon( "zombified" );
 	self endon( "disconnect" );
@@ -151,7 +150,7 @@ slipgun_activation_watcher_thread()
 	}
 }
 
-slipgun_debug_circle( origin, radius, seconds, onslope, parent, start )
+slipgun_debug_circle( origin, radius, seconds, onslope, parent, start ) //dev call didn't check
 {
 /*
 /#
@@ -191,7 +190,7 @@ slipgun_debug_circle( origin, radius, seconds, onslope, parent, start )
 */
 }
 
-slipgun_debug_line( start, end, color, seconds )
+slipgun_debug_line( start, end, color, seconds ) //dev call didn't check
 {
 /*
 /#
@@ -204,7 +203,7 @@ slipgun_debug_line( start, end, color, seconds )
 */
 }
 
-canzombieongoofall()
+canzombieongoofall() //checked changed to match cerberus output
 {
 	if ( is_true( self.is_inert ) )
 	{
@@ -220,7 +219,7 @@ canzombieongoofall()
 	}
 	if ( randomint( 100 ) < 20 )
 	{
-		trace = groundtrace( self.origin + vectorScale( ( 0, 0, 1 ), 5 ), self.origin + vectorScale( ( 0, 0, 1 ), 300 ), 0, undefined );
+		trace = groundtrace( self.origin + vectorScale( ( 0, 0, 1 ), 5 ), self.origin + vectorScale( ( 0, 0, -1 ), 300 ), 0, undefined );
 		origin = trace[ "position" ];
 		groundnormal = trace[ "normal" ];
 		if ( distancesquared( self.origin, origin ) > 256 )
@@ -233,7 +232,7 @@ canzombieongoofall()
 			return 0;
 		}
 		trace_origin = self.origin + vectorScale( anglesToForward( self.angles ), 200 );
-		trace = groundtrace( trace_origin + vectorScale( ( 0, 0, 1 ), 5 ), self.origin + vectorScale( ( 0, 0, 1 ), 300 ), 0, undefined );
+		trace = groundtrace( trace_origin + vectorScale( ( 0, 0, 1 ), 5 ), self.origin + vectorScale( ( 0, 0, -1 ), 300 ), 0, undefined );
 		origin = trace[ "position" ];
 		groundnormal = trace[ "normal" ];
 		if ( distancesquared( trace_origin, origin ) > 256 )
@@ -250,7 +249,7 @@ canzombieongoofall()
 	return 0;
 }
 
-zombiemoveongoo()
+zombiemoveongoo() //checked partially changed to match cerberus output some conditionals changed to is_true()
 {
 	self endon( "death" );
 	self endon( "removed" );
@@ -274,48 +273,40 @@ zombiemoveongoo()
 	self maps/mp/zombies/_zm_spawner::zombie_history( "zombieMoveOnGoo " + getTime() );
 	self.sliding_on_goo = 0;
 	self thread zombiemoveongoo_on_killanimscript();
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		self_on_goo = is_true( self.is_on_goo );
+		velocity = self getvelocity();
+		velocitylength = length( self getvelocity() );
+		iscrawler = !is_true( self.has_legs );
+		isleaper = self is_leaper();
+		while ( is_true( self.is_leaping ) )
 		{
-			if ( isDefined( self.is_on_goo ) )
+			wait 0.1;
+			continue;
+		}
+		if ( !self_on_goo )
+		{
+			self animcustom( ::zombie_moveongoo_animcustom_recover );
+			self waittill( "zombie_MoveOnGoo_animCustom_recover_done" );
+			break;
+		}
+		if ( velocitylength <= 0.2 )
+		{
+			self animmode( "normal" );
+			wait 0.1;
+			self animmode( "slide" );
+		}
+		if ( !self.sliding_on_goo || !issubstr( self.zombie_move_speed, "slide" ) )
+		{
+			if ( !iscrawler && !isleaper && !isDefined( self.fell_while_sliding ) && canzombieongoofall() )
 			{
-				self_on_goo = self.is_on_goo;
-			}
-			velocity = self getvelocity();
-			velocitylength = length( self getvelocity() );
-			if ( isDefined( self.has_legs ) )
-			{
-				iscrawler = !self.has_legs;
-			}
-			isleaper = self is_leaper();
-			while ( is_true( self.is_leaping ) )
-			{
-				wait 0.1;
-			}
-			if ( !self_on_goo )
-			{
-				self animcustom( ::zombie_moveongoo_animcustom_recover );
-				self waittill( "zombie_MoveOnGoo_animCustom_recover_done" );
-				break;
+				self animcustom( ::zombie_moveongoo_animcustom_fall );
+				self waittill( "zombie_MoveOnGoo_animCustom_fall_done" );
 			}
 			else
 			{
-				if ( velocitylength <= 0.2 )
-				{
-					self animmode( "normal" );
-					wait 0.1;
-					self animmode( "slide" );
-				}
-				if ( !self.sliding_on_goo || !issubstr( self.zombie_move_speed, "slide" ) )
-				{
-					if ( !iscrawler && !isleaper && !isDefined( self.fell_while_sliding ) && canzombieongoofall() )
-					{
-						self animcustom( ::zombie_moveongoo_animcustom_fall );
-						self waittill( "zombie_MoveOnGoo_animCustom_fall_done" );
-					}
-				}
-				else self.sliding_on_goo = 1;
+				self.sliding_on_goo = 1;
 				if ( velocitylength <= 0.2 )
 				{
 					wait 0.1;
@@ -329,7 +320,6 @@ zombiemoveongoo()
 						animstatedef = self maps/mp/animscripts/zm_utility::append_missing_legs_suffix( "sprint_slide" );
 						self set_zombie_run_cycle( animstatedef );
 					}
-					break;
 				}
 				else if ( self.zombie_move_speed == "run" )
 				{
@@ -338,24 +328,20 @@ zombiemoveongoo()
 						animstatedef = self maps/mp/animscripts/zm_utility::append_missing_legs_suffix( "run_slide" );
 						self set_zombie_run_cycle( animstatedef );
 					}
-					break;
 				}
-				else
+				else if ( !isDefined( self.zombie_move_speed ) || isDefined( self.zombie_move_speed ) && self.zombie_move_speed != "walk_slide" )
 				{
-					if ( !isDefined( self.zombie_move_speed ) || isDefined( self.zombie_move_speed ) && self.zombie_move_speed != "walk_slide" )
-					{
-						animstatedef = self maps/mp/animscripts/zm_utility::append_missing_legs_suffix( "walk_slide" );
-						self set_zombie_run_cycle( animstatedef );
-					}
+					animstatedef = self maps/mp/animscripts/zm_utility::append_missing_legs_suffix( "walk_slide" );
+					self set_zombie_run_cycle( animstatedef );
 				}
 			}
-			wait 0.05;
 		}
+		wait 0.05;
 	}
 	zombiemoveongoo_gobacktonormal();
 }
 
-zombie_moveongoo_animcustom_fall()
+zombie_moveongoo_animcustom_fall() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "removed" );
@@ -369,7 +355,7 @@ zombie_moveongoo_animcustom_fall()
 	self notify( "zombie_MoveOnGoo_animCustom_fall_done" );
 }
 
-zombie_moveongoo_animcustom_recover()
+zombie_moveongoo_animcustom_recover() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "removed" );
@@ -386,7 +372,7 @@ zombie_moveongoo_animcustom_recover()
 	self notify( "zombie_MoveOnGoo_animCustom_recover_done" );
 }
 
-zombiemoveongoo_on_killanimscript()
+zombiemoveongoo_on_killanimscript() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "removed" );
@@ -397,7 +383,7 @@ zombiemoveongoo_on_killanimscript()
 	zombiemoveongoo_gobacktonormal();
 }
 
-zombiemoveongoo_gobacktonormal()
+zombiemoveongoo_gobacktonormal() //checked matches cerberus output
 {
 	self animmode( "normal" );
 	self set_zombie_run_cycle();
@@ -424,7 +410,7 @@ zombiemoveongoo_gobacktonormal()
 	}
 }
 
-zombie_can_slip()
+zombie_can_slip() //checked matches cerberus output
 {
 	if ( is_true( self.barricade_enter ) )
 	{
@@ -445,7 +431,7 @@ zombie_can_slip()
 	return 1;
 }
 
-zombie_set_slipping( onoff )
+zombie_set_slipping( onoff ) //checked matches cerberus output
 {
 	if ( isDefined( self ) )
 	{
@@ -457,7 +443,7 @@ zombie_set_slipping( onoff )
 	}
 }
 
-slippery_spot_choke( lifetime )
+slippery_spot_choke( lifetime ) //checked matches cerberus output
 {
 	level.sliquifier_distance_checks++;
 	if ( level.sliquifier_distance_checks >= 32 )
@@ -469,7 +455,7 @@ slippery_spot_choke( lifetime )
 	return lifetime;
 }
 
-add_slippery_spot( origin, duration, startpos )
+add_slippery_spot( origin, duration, startpos ) //checked partially changed to match cerberus output
 {
 	wait 0.5;
 	level.slippery_spot_count++;
@@ -541,20 +527,21 @@ add_slippery_spot( origin, duration, startpos )
 	while ( lifetime > 0 )
 	{
 		oldlifetime = lifetime;
-		_a612 = get_players();
-		_k612 = getFirstArrayKey( _a612 );
-		while ( isDefined( _k612 ) )
+		foreach ( player in get_players() )
 		{
-			player = _a612[ _k612 ];
 			num = player getentitynumber();
 			morigin = origin;
 			if ( isDefined( moving_parent ) )
 			{
 				morigin = origin + ( moving_parent.origin - moving_parent_start );
 			}
-			if ( distance2dsquared( player.origin, morigin ) < radius2 )
+			if ( distance2dsquared( player.origin, morigin ) < radius2 && abs( player.origin[ 2 ] - morigin[ 2 ] ) < height )
 			{
-				should_be_slick = abs( player.origin[ 2 ] - morigin[ 2 ] ) < height;
+				should_be_slick = 1;
+			}
+			else
+			{
+				should_be_slick = 0;
 			}
 			is_slick = isDefined( slicked_players[ num ] );
 			if ( should_be_slick != is_slick )
@@ -576,20 +563,17 @@ add_slippery_spot( origin, duration, startpos )
 					assert( player.slick_count >= 0 );
 #/
 */
+					slicked_players[ num ] = undefined;
 				}
 				player forceslick( player.slick_count );
 			}
 			lifetime = slippery_spot_choke( lifetime );
-			_k612 = getNextArrayKey( _a612, _k612 );
 		}
 		zombies = get_round_enemy_array();
-		while ( isDefined( zombies ) )
+		if ( isDefined( zombies ) )
 		{
-			_a645 = zombies;
-			_k645 = getFirstArrayKey( _a645 );
-			while ( isDefined( _k645 ) )
+			foreach ( zombie in zombies )
 			{
-				zombie = _a645[ _k645 ];
 				if ( isDefined( zombie ) )
 				{
 					num = zombie getentitynumber();
@@ -598,9 +582,13 @@ add_slippery_spot( origin, duration, startpos )
 					{
 						morigin = origin + ( moving_parent.origin - moving_parent_start );
 					}
-					if ( distance2dsquared( zombie.origin, morigin ) < radius2 )
+					if ( distance2dsquared( zombie.origin, morigin ) < radius2 && abs( zombie.origin[ 2 ] - morigin[ 2 ] ) < height )
 					{
-						should_be_slick = abs( zombie.origin[ 2 ] - morigin[ 2 ] ) < height;
+						should_be_slick = 1;
+					}
+					else
+					{
+						should_be_slick = 0;
 					}
 					if ( should_be_slick && !zombie zombie_can_slip() )
 					{
@@ -618,32 +606,25 @@ add_slippery_spot( origin, duration, startpos )
 							zombie.slick_count++;
 							slicked_zombies[ num ] = zombie;
 						}
-						else
+						else if ( zombie.slick_count > 0 )
 						{
-							if ( zombie.slick_count > 0 )
-							{
-								zombie.slick_count--;
+							zombie.slick_count--;
 
-							}
 						}
 						zombie zombie_set_slipping( zombie.slick_count > 0 );
 					}
 					lifetime = slippery_spot_choke( lifetime );
 				}
-				_k645 = getNextArrayKey( _a645, _k645 );
 			}
 		}
-		if ( oldlifetime == lifetime )
+		else if ( oldlifetime == lifetime )
 		{
 			lifetime -= 0.05;
 			wait 0.05;
 		}
 	}
-	_a684 = slicked_players;
-	_k684 = getFirstArrayKey( _a684 );
-	while ( isDefined( _k684 ) )
+	foreach ( player in slicked_players )
 	{
-		player = _a684[ _k684 ];
 		player.slick_count--;
 		/*
 
@@ -652,13 +633,9 @@ add_slippery_spot( origin, duration, startpos )
 #/
 	*/
 		player forceslick( player.slick_count );
-		_k684 = getNextArrayKey( _a684, _k684 );
 	}
-	_a690 = slicked_zombies;
-	_k690 = getFirstArrayKey( _a690 );
-	while ( isDefined( _k690 ) )
+	foreach ( zombie in slicked_zombies )
 	{
-		zombie = _a690[ _k690 ];
 		if ( isDefined( zombie ) )
 		{
 			if ( zombie.slick_count > 0 )
@@ -668,14 +645,12 @@ add_slippery_spot( origin, duration, startpos )
 			}
 			zombie zombie_set_slipping( zombie.slick_count > 0 );
 		}
-		_k690 = getNextArrayKey( _a690, _k690 );
 	}
 	arrayremovevalue( level.slippery_spots, origin, 0 );
 	level.slippery_spot_count--;
-
 }
 
-pool_of_goo( origin, duration )
+pool_of_goo( origin, duration ) //checked matches cerberus output
 {
 	effect_life = 24;
 	if ( duration > effect_life )
@@ -690,7 +665,7 @@ pool_of_goo( origin, duration )
 	wait duration;
 }
 
-explode_into_goo( player, chain_depth )
+explode_into_goo( player, chain_depth ) //checked matches cerberus output
 {
 	if ( isDefined( self.marked_for_insta_upgraded_death ) )
 	{
@@ -720,7 +695,7 @@ explode_into_goo( player, chain_depth )
 	level thread explode_to_near_zombies( player, self.origin, chain_radius, self.goo_chain_depth );
 }
 
-explode_to_near_zombies( player, origin, radius, chain_depth )
+explode_to_near_zombies( player, origin, radius, chain_depth ) //checked partially changed to match cerberus output changed at own discretion
 {
 	if ( level.zombie_vars[ "slipgun_max_kill_chain_depth" ] > 0 && chain_depth > level.zombie_vars[ "slipgun_max_kill_chain_depth" ] )
 	{
@@ -733,7 +708,7 @@ explode_to_near_zombies( player, origin, radius, chain_depth )
 	rsquared = radius * radius;
 	tag = "J_Head";
 	marked_zombies = [];
-	while ( isDefined( enemies ) && enemies.size )
+	if ( isDefined( enemies ) && enemies.size )
 	{
 		index = 0;
 		enemy = enemies[ index ];
@@ -759,13 +734,10 @@ explode_to_near_zombies( player, origin, radius, chain_depth )
 			}
 		}
 	}
-	while ( isDefined( marked_zombies ) && marked_zombies.size )
+	if ( isDefined( marked_zombies ) && marked_zombies.size )
 	{
-		_a799 = marked_zombies;
-		_k799 = getFirstArrayKey( _a799 );
-		while ( isDefined( _k799 ) )
+		foreach(enemy in marked_zombies)
 		{
-			enemy = _a799[ _k799 ];
 			if ( isalive( enemy ) && !is_true( enemy.guts_explosion ) && !is_true( enemy.nuked ) )
 			{
 				wait randomfloatrange( minchainwait, maxchainwait );
@@ -797,12 +769,11 @@ explode_to_near_zombies( player, origin, radius, chain_depth )
 					}
 				}
 			}
-			_k799 = getNextArrayKey( _a799, _k799 );
 		}
 	}
 }
 
-slipgun_zombie_1st_hit_response( upgraded, player )
+slipgun_zombie_1st_hit_response( upgraded, player ) //checked matches cerberus output
 {
 	self notify( "stop_find_flesh" );
 	self notify( "zombie_acquire_enemy" );
@@ -826,7 +797,7 @@ slipgun_zombie_1st_hit_response( upgraded, player )
 	}
 }
 
-slipgun_zombie_hit_response_internal( mod, damageweapon, player )
+slipgun_zombie_hit_response_internal( mod, damageweapon, player ) //checked matches cerberus output
 {
 	if ( !self is_slipgun_damage( mod, damageweapon ) && !is_slipgun_explosive_damage( mod, damageweapon ) )
 	{
@@ -842,12 +813,12 @@ slipgun_zombie_hit_response_internal( mod, damageweapon, player )
 	return 1;
 }
 
-slipgun_zombie_damage_response( mod, hit_location, hit_origin, player, amount )
+slipgun_zombie_damage_response( mod, hit_location, hit_origin, player, amount ) //checked matches cerberus output
 {
 	return slipgun_zombie_hit_response_internal( mod, self.damageweapon, player );
 }
 
-slipgun_zombie_death_response()
+slipgun_zombie_death_response() //checked matches cerberus output
 {
 	if ( !self is_slipgun_damage( self.damagemod, self.damageweapon ) && !is_slipgun_explosive_damage( self.damagemod, self.damageweapon ) )
 	{
@@ -862,25 +833,29 @@ is_slipgun_explosive_damage( mod, weapon )
 {
 	if ( isDefined( weapon ) )
 	{
-		if ( weapon != "slip_goo_zm" && weapon != "slip_bolt_zm" )
+		if ( weapon == "slip_goo_zm" || weapon == "slip_bolt_zm" || weapon == "slip_bolt_upgraded_zm" )
 		{
-			return weapon == "slip_bolt_upgraded_zm";
+			return 1;
 		}
+		return 0;
 	}
+	return 0;
 }
 
 is_slipgun_damage( mod, weapon )
 {
 	if ( isDefined( weapon ) )
 	{
-		if ( weapon != "slipgun_zm" )
+		if ( weapon == "slipgun_zm" || weapon == "slipgun_upgraded_zm" )
 		{
-			return weapon == "slipgun_upgraded_zm";
+			return 1;
 		}
+		return 0;
 	}
+	return 0;
 }
 
-slipgun_play_zombie_hit_vox()
+slipgun_play_zombie_hit_vox() //checked matches cerberus output
 {
 	rand = randomintrange( 0, 101 );
 	if ( rand >= 20 )
@@ -888,4 +863,5 @@ slipgun_play_zombie_hit_vox()
 		self maps/mp/zombies/_zm_audio::create_and_play_dialog( "kill", "human" );
 	}
 }
+
 
