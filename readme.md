@@ -46,3 +46,6 @@ An older Bo2 gsc dump from its initial release has comments from developers
 GSC studio which has a built in compiler for bo2 scripting
 ```
 
+This is the black ops 2 beta dump
+https://drive.google.com/file/d/1Rt3sAIoYhCgqhsotrElygta7-BXn-3ZM/view?usp=sharing
+
