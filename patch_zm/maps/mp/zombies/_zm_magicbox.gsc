@@ -188,10 +188,14 @@ get_chest_pieces() //checked changed to match cerberus output
 	self.unitrigger_stub.script_unitrigger_type = "unitrigger_box_use";
 	self.unitrigger_stub.script_width = 104;
 	self.unitrigger_stub.script_height = 50;
-	if(level.script == "zm_origins" || level.script == "zm_prison)
+	if ( level.script == "zm_origins" || level.script == "zm_prison" )
+	{	
 		self.unitrigger_stub.script_length = 60;
+	}
 	else
+	{
 		self.unitrigger_stub.script_length = 45;
+	}
 	self.unitrigger_stub.trigger_target = self;
 	unitrigger_force_per_player_triggers( self.unitrigger_stub, 1 );
 	self.unitrigger_stub.prompt_and_visibility_func = ::boxtrigger_update_prompt;
