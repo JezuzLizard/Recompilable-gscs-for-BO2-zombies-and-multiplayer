@@ -1,6 +1,7 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
 zm_tomb_patch/maps/mp/zm_tomb.gsc
+zm_tomb_patch/maps/mp/zm_tomb_classic.gsc
 zm_tomb_patch/maps/mp/zm_tomb_dig.gsc
 zm_tomb_patch/maps/mp/zombies/_zm_perk_random.gsc
 ```
@@ -27,7 +28,6 @@ zm_tomb_patch/maps/mp/zm_tomb_capture_zones.gsc
 zm_tomb_patch/maps/mp/zm_tomb_capture_zones_ffotd.gsc
 zm_tomb_patch/maps/mp/zm_tomb_challenges.gsc
 zm_tomb_patch/maps/mp/zm_tomb_chamber.gsc
-zm_tomb_patch/maps/mp/zm_tomb_classic.gsc
 zm_tomb_patch/maps/mp/zm_tomb_distance_tracking.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_lights.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main.gsc
