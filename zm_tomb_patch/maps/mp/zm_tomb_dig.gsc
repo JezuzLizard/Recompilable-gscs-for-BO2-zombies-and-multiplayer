@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_powerup_zombie_blood;
 #include maps/mp/zombies/_zm_weap_claymore;
 #include maps/mp/zombies/_zm_powerups;
@@ -12,7 +13,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init_shovel()
+init_shovel() //checked changed to match cerberus output
 {
 	precachemodel( "p6_zm_tm_dig_mound" );
 	precachemodel( "p6_zm_tm_dig_mound_blood" );
@@ -23,29 +24,21 @@ init_shovel()
 	onplayerconnect_callback( ::init_shovel_player );
 	a_shovel_pos = getstructarray( "shovel_location", "targetname" );
 	a_shovel_zone = [];
-	_a45 = a_shovel_pos;
-	_k45 = getFirstArrayKey( _a45 );
-	while ( isDefined( _k45 ) )
+	foreach ( s_shovel_pos in a_shovel_pos )
 	{
-		s_shovel_pos = _a45[ _k45 ];
 		if ( !isDefined( a_shovel_zone[ s_shovel_pos.script_noteworthy ] ) )
 		{
 			a_shovel_zone[ s_shovel_pos.script_noteworthy ] = [];
 		}
 		a_shovel_zone[ s_shovel_pos.script_noteworthy ][ a_shovel_zone[ s_shovel_pos.script_noteworthy ].size ] = s_shovel_pos;
-		_k45 = getNextArrayKey( _a45, _k45 );
 	}
-	_a55 = a_shovel_zone;
-	_k55 = getFirstArrayKey( _a55 );
-	while ( isDefined( _k55 ) )
+	foreach ( a_zone in a_shovel_zone )
 	{
-		a_zone = _a55[ _k55 ];
 		s_pos = a_zone[ randomint( a_zone.size ) ];
 		m_shovel = spawn( "script_model", s_pos.origin );
 		m_shovel.angles = s_pos.angles;
 		m_shovel setmodel( "p6_zm_tm_shovel" );
 		generate_shovel_unitrigger( m_shovel );
-		_k55 = getNextArrayKey( _a55, _k55 );
 	}
 	level.get_player_perk_purchase_limit = ::get_player_perk_purchase_limit;
 	level.bonus_points_powerup_override = ::bonus_points_powerup_override;
@@ -59,12 +52,14 @@ init_shovel()
 	registerclientfield( "world", "helmet_player2", 14000, 1, "int", undefined, 0 );
 	registerclientfield( "world", "helmet_player3", 14000, 1, "int", undefined, 0 );
 	registerclientfield( "world", "helmet_player4", 14000, 1, "int", undefined, 0 );
+	/*
 /#
 	level thread setup_dig_devgui();
 #/
+	*/
 }
 
-init_shovel_player()
+init_shovel_player() //checked matches cerberus output
 {
 	self.dig_vars[ "has_shovel" ] = 0;
 	self.dig_vars[ "has_upgraded_shovel" ] = 0;
@@ -73,10 +68,10 @@ init_shovel_player()
 	self.dig_vars[ "n_losing_streak" ] = 0;
 }
 
-generate_shovel_unitrigger( e_shovel )
+generate_shovel_unitrigger( e_shovel ) //checked changed to match cerberus output
 {
 	s_unitrigger_stub = spawnstruct();
-	s_unitrigger_stub.origin = e_shovel.origin + vectorScale( ( 0, 0, -1 ), 32 );
+	s_unitrigger_stub.origin = e_shovel.origin + vectorScale( ( 0, 0, 1 ), 32 );
 	s_unitrigger_stub.angles = e_shovel.angles;
 	s_unitrigger_stub.radius = 32;
 	s_unitrigger_stub.script_length = 64;
@@ -92,7 +87,7 @@ generate_shovel_unitrigger( e_shovel )
 	maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( s_unitrigger_stub, ::shovel_unitrigger_think );
 }
 
-shovel_trigger_prompt_and_visiblity( e_player )
+shovel_trigger_prompt_and_visiblity( e_player ) //checked matches cerberus output
 {
 	can_use = self.stub shovel_prompt_update( e_player );
 	self setinvisibletoplayer( e_player, !can_use );
@@ -100,7 +95,7 @@ shovel_trigger_prompt_and_visiblity( e_player )
 	return can_use;
 }
 
-shovel_prompt_update( e_player )
+shovel_prompt_update( e_player ) //checked matches cerberus output
 {
 	if ( !self unitrigger_stub_show_hint_prompt_valid( e_player ) )
 	{
@@ -114,13 +109,13 @@ shovel_prompt_update( e_player )
 	return 1;
 }
 
-shovel_unitrigger_think()
+shovel_unitrigger_think() //checked changed to match cerberus output
 {
 	self endon( "kill_trigger" );
 	while ( 1 )
 	{
 		self waittill( "trigger", e_player );
-		while ( e_player != self.parent_player )
+		if ( e_player != self.parent_player )
 		{
 			continue;
 		}
@@ -138,7 +133,7 @@ shovel_unitrigger_think()
 	}
 }
 
-dig_reward_dialog( str_category )
+dig_reward_dialog( str_category ) //checked matches cerberus output
 {
 	if ( isDefined( self.dig_vo_cooldown ) && !self.dig_vo_cooldown )
 	{
@@ -150,7 +145,7 @@ dig_reward_dialog( str_category )
 	}
 }
 
-dig_reward_vo_cooldown()
+dig_reward_vo_cooldown() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self.dig_vo_cooldown = 1;
@@ -158,7 +153,7 @@ dig_reward_vo_cooldown()
 	self.dig_vo_cooldown = undefined;
 }
 
-unitrigger_stub_show_hint_prompt_valid( e_player )
+unitrigger_stub_show_hint_prompt_valid( e_player ) //checked matches cerberus output
 {
 	if ( !is_player_valid( e_player ) )
 	{
@@ -168,7 +163,7 @@ unitrigger_stub_show_hint_prompt_valid( e_player )
 	return 1;
 }
 
-dig_disconnect_watch( n_player, v_origin, v_angles )
+dig_disconnect_watch( n_player, v_origin, v_angles ) //checked matches cerberus output
 {
 	self waittill( "disconnect" );
 	level setclientfield( "shovel_player" + n_player, 0 );
@@ -179,20 +174,17 @@ dig_disconnect_watch( n_player, v_origin, v_angles )
 	generate_shovel_unitrigger( m_shovel );
 }
 
-dig_spots_init()
+dig_spots_init() //checked changed to match cerberus output
 {
 	flag_wait( "start_zombie_round_logic" );
 	level.n_dig_spots_cur = 0;
 	level.n_dig_spots_max = 15;
 	level.a_dig_spots = getstructarray( "dig_spot", "targetname" );
-	_a242 = level.a_dig_spots;
-	_k242 = getFirstArrayKey( _a242 );
-	while ( isDefined( _k242 ) )
+	foreach ( s_dig_spot in level.a_dig_spots )
 	{
-		s_dig_spot = _a242[ _k242 ];
 		if ( !isDefined( s_dig_spot.angles ) )
 		{
-			s_dig_spot.angles = ( 0, 0, -1 );
+			s_dig_spot.angles = ( 0, 0, 0 );
 		}
 		if ( isDefined( s_dig_spot.script_noteworthy ) && s_dig_spot.script_noteworthy == "initial_spot" )
 		{
@@ -202,21 +194,22 @@ dig_spots_init()
 		{
 			s_dig_spot.dug = 1;
 		}
-		s_dig_spot.str_zone = maps/mp/zombies/_zm_zonemgr::get_zone_from_position( s_dig_spot.origin + vectorScale( ( 0, 0, -1 ), 32 ), 1 );
+		s_dig_spot.str_zone = maps/mp/zombies/_zm_zonemgr::get_zone_from_position( s_dig_spot.origin + vectorScale( ( 0, 0, 1 ), 32 ), 1 );
 		if ( !isDefined( s_dig_spot.str_zone ) )
 		{
 			s_dig_spot.str_zone = "";
+			/*
 /#
 			assertmsg( "Dig spot at ( " + s_dig_spot.origin[ 0 ] + ", " + s_dig_spot.origin[ 1 ] + ", " + s_dig_spot.origin[ 2 ] + ") is not in a zone." );
 #/
+			*/
 		}
 		wait_network_frame();
-		_k242 = getNextArrayKey( _a242, _k242 );
 	}
 	level thread dig_spots_respawn();
 }
 
-dig_spots_respawn( a_dig_spots )
+dig_spots_respawn( a_dig_spots ) //checked partially changed to match cerberus output see info.md
 {
 	while ( 1 )
 	{
@@ -229,19 +222,15 @@ dig_spots_respawn( a_dig_spots )
 		{
 			n_respawned_max = 0;
 		}
-		else
+		else if ( level.weather_rain > 0 )
 		{
-			if ( level.weather_rain > 0 )
-			{
-				n_respawned_max = 5;
-			}
+			n_respawned_max = 5;
 		}
 		if ( level.weather_snow == 0 )
 		{
 			n_respawned_max += randomint( get_players().size );
 		}
-		i = 0;
-		while ( i < a_dig_spots.size )
+		for ( i = 0; i < a_dig_spots.size; i++ )
 		{
 			if ( isDefined( a_dig_spots[ i ].dug ) && a_dig_spots[ i ].dug && n_respawned < n_respawned_max && level.n_dig_spots_cur <= level.n_dig_spots_max )
 			{
@@ -250,35 +239,26 @@ dig_spots_respawn( a_dig_spots )
 				wait_network_frame();
 				n_respawned++;
 			}
-			i++;
 		}
-		while ( level.weather_snow > 0 && level.ice_staff_pieces.size > 0 )
+		if ( level.weather_snow > 0 && level.ice_staff_pieces.size > 0 )
 		{
-			_a316 = level.ice_staff_pieces;
-			_k316 = getFirstArrayKey( _a316 );
-			while ( isDefined( _k316 ) )
+			foreach ( s_staff in level.ice_staff_pieces )
 			{
-				s_staff = _a316[ _k316 ];
 				a_staff_spots = [];
 				n_active_mounds = 0;
-				_a321 = level.a_dig_spots;
-				_k321 = getFirstArrayKey( _a321 );
-				while ( isDefined( _k321 ) )
+				for ( i = 0; i < level.a_dig_spots.size; i++ )
 				{
-					s_dig_spot = _a321[ _k321 ];
 					if ( isDefined( s_dig_spot.str_zone ) && issubstr( s_dig_spot.str_zone, s_staff.zone_substr ) )
 					{
 						if ( isDefined( s_dig_spot.dug ) && !s_dig_spot.dug )
 						{
 							n_active_mounds++;
-							break;
 						}
 						else
 						{
 							a_staff_spots[ a_staff_spots.size ] = s_dig_spot;
 						}
 					}
-					_k321 = getNextArrayKey( _a321, _k321 );
 				}
 				if ( n_active_mounds < 2 && a_staff_spots.size > 0 && level.n_dig_spots_cur <= level.n_dig_spots_max )
 				{
@@ -289,13 +269,12 @@ dig_spots_respawn( a_dig_spots )
 					n_active_mounds++;
 					wait_network_frame();
 				}
-				_k316 = getNextArrayKey( _a316, _k316 );
 			}
 		}
 	}
 }
 
-dig_spot_spawn()
+dig_spot_spawn() //checked changed to match cerberus output
 {
 	level.n_dig_spots_cur++;
 	self.m_dig = spawn( "script_model", self.origin + vectorScale( ( 0, 0, -1 ), 40 ) );
@@ -303,7 +282,7 @@ dig_spot_spawn()
 	self.m_dig.angles = self.angles;
 	self.m_dig moveto( self.origin, 3, 0, 1 );
 	self.m_dig waittill( "movedone" );
-	t_dig = tomb_spawn_trigger_radius( self.origin + vectorScale( ( 0, 0, -1 ), 20 ), 100, 1 );
+	t_dig = tomb_spawn_trigger_radius( self.origin + vectorScale( ( 0, 0, 1 ), 20 ), 100, 1 );
 	t_dig.prompt_and_visibility_func = ::dig_spot_trigger_visibility;
 	t_dig.require_look_at = 1;
 	t_dig waittill_dug( self );
@@ -313,7 +292,7 @@ dig_spot_spawn()
 	self.m_dig = undefined;
 }
 
-dig_spot_trigger_visibility( player )
+dig_spot_trigger_visibility( player ) //checked matches cerberus output
 {
 	if ( isDefined( player.dig_vars[ "has_shovel" ] ) && player.dig_vars[ "has_shovel" ] )
 	{
@@ -326,7 +305,7 @@ dig_spot_trigger_visibility( player )
 	return 1;
 }
 
-waittill_dug( s_dig_spot )
+waittill_dug( s_dig_spot ) //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -347,53 +326,56 @@ waittill_dug( s_dig_spot )
 				s_staff_piece maps/mp/zm_tomb_main_quest::show_ice_staff_piece( self.origin );
 				player dig_reward_dialog( "dig_staff_part" );
 			}
-			else n_good_chance = 50;
-			if ( player.dig_vars[ "n_spots_dug" ] == 0 || player.dig_vars[ "n_losing_streak" ] == 3 )
+			else 
 			{
-				player.dig_vars[ "n_losing_streak" ] = 0;
-				n_good_chance = 100;
-			}
-			if ( player.dig_vars[ "has_upgraded_shovel" ] )
-			{
-				if ( !player.dig_vars[ "has_helmet" ] )
+				n_good_chance = 50;
+				if ( player.dig_vars[ "n_spots_dug" ] == 0 || player.dig_vars[ "n_losing_streak" ] == 3 )
 				{
-					n_helmet_roll = randomint( 100 );
-					if ( n_helmet_roll >= 95 )
-					{
-						player.dig_vars[ "has_helmet" ] = 1;
-						n_player = player getentitynumber() + 1;
-						level setclientfield( "helmet_player" + n_player, 1 );
-						player playsoundtoplayer( "zmb_squest_golden_anything", player );
-						player maps/mp/zombies/_zm_stats::increment_client_stat( "tomb_golden_hard_hat", 0 );
-						player maps/mp/zombies/_zm_stats::increment_player_stat( "tomb_golden_hard_hat" );
-						return;
-					}
+					player.dig_vars[ "n_losing_streak" ] = 0;
+					n_good_chance = 100;
 				}
-				n_good_chance = 70;
-			}
-			n_prize_roll = randomint( 100 );
-			if ( n_prize_roll > n_good_chance )
-			{
-				if ( cointoss() )
+				if ( player.dig_vars[ "has_upgraded_shovel" ] )
 				{
-					player dig_reward_dialog( "dig_grenade" );
-					self thread dig_up_grenade( player );
+					if ( !player.dig_vars[ "has_helmet" ] )
+					{
+						n_helmet_roll = randomint( 100 );
+						if ( n_helmet_roll >= 95 )
+						{
+							player.dig_vars[ "has_helmet" ] = 1;
+							n_player = player getentitynumber() + 1;
+							level setclientfield( "helmet_player" + n_player, 1 );
+							player playsoundtoplayer( "zmb_squest_golden_anything", player );
+							player maps/mp/zombies/_zm_stats::increment_client_stat( "tomb_golden_hard_hat", 0 );
+							player maps/mp/zombies/_zm_stats::increment_player_stat( "tomb_golden_hard_hat" );
+							return;
+						}
+					}
+					n_good_chance = 70;
+				}
+				n_prize_roll = randomint( 100 );
+				if ( n_prize_roll > n_good_chance )
+				{
+					if ( cointoss() )
+					{
+						player dig_reward_dialog( "dig_grenade" );
+						self thread dig_up_grenade( player );
+					}
+					else
+					{
+						player dig_reward_dialog( "dig_zombie" );
+						self thread dig_up_zombie( player, s_dig_spot );
+					}
+					player.dig_vars[ "n_losing_streak" ]++;
+				}
+				else if ( cointoss() )
+				{
+					self thread dig_up_powerup( player );
 				}
 				else
 				{
-					player dig_reward_dialog( "dig_zombie" );
-					self thread dig_up_zombie( player, s_dig_spot );
+					player dig_reward_dialog( "dig_gun" );
+					self thread dig_up_weapon( player );
 				}
-				player.dig_vars[ "n_losing_streak" ]++;
-			}
-			else if ( cointoss() )
-			{
-				self thread dig_up_powerup( player );
-			}
-			else
-			{
-				player dig_reward_dialog( "dig_gun" );
-				self thread dig_up_weapon( player );
 			}
 			if ( !player.dig_vars[ "has_upgraded_shovel" ] )
 			{
@@ -414,16 +396,16 @@ waittill_dug( s_dig_spot )
 	}
 }
 
-dig_up_zombie( player, s_dig_spot )
+dig_up_zombie( player, s_dig_spot ) //checked changed to match cerberus output
 {
 	ai_zombie = spawn_zombie( level.dig_spawners[ 0 ] );
 	ai_zombie endon( "death" );
 	ai_zombie ghost();
-	e_linker = spawn( "script_origin", ( 0, 0, -1 ) );
+	e_linker = spawn( "script_origin", ( 0, 0, 0 ) );
 	e_linker.origin = ai_zombie.origin;
 	e_linker.angles = ai_zombie.angles;
 	ai_zombie linkto( e_linker );
-	e_linker moveto( player.origin + vectorScale( ( 0, 0, -1 ), 100 ), 0,1 );
+	e_linker moveto( player.origin + vectorScale( ( 1, 1, 0 ), 100 ), 0,1 );
 	e_linker waittill( "movedone" );
 	ai_zombie unlink();
 	e_linker delete();
@@ -431,17 +413,17 @@ dig_up_zombie( player, s_dig_spot )
 	ai_zombie playsound( "evt_zombie_dig_dirt" );
 	ai_zombie dug_zombie_rise( s_dig_spot );
 	find_flesh_struct_string = "find_flesh";
-	ai_zombie notify( "zombie_custom_think_done" );
+	ai_zombie notify( "zombie_custom_think_done", find_flesh_struct_string );
 }
 
-dig_up_powerup( player )
+dig_up_powerup( player ) //checked changed to match cerberus output
 {
 	powerup = spawn( "script_model", self.origin );
 	powerup endon( "powerup_grabbed" );
 	powerup endon( "powerup_timedout" );
 	a_rare_powerups = dig_get_rare_powerups( player );
 	powerup_item = undefined;
-	if ( ( level.dig_n_powerups_spawned + level.powerup_drop_count ) > 4 && !level.dig_last_prize_rare || a_rare_powerups.size == 0 && randomint( 100 ) < 80 )
+	if ( ( level.dig_n_powerups_spawned + level.powerup_drop_count ) > 4 || level.dig_last_prize_rare || a_rare_powerups.size == 0 || randomint( 100 ) < 80 )
 	{
 		if ( level.dig_n_zombie_bloods_spawned < 1 && randomint( 100 ) > 70 )
 		{
@@ -466,14 +448,14 @@ dig_up_powerup( player )
 		dig_set_powerup_spawned( powerup_item );
 	}
 	powerup maps/mp/zombies/_zm_powerups::powerup_setup( powerup_item );
-	powerup movez( 40, 0,6 );
+	powerup movez( 40, 0.6 );
 	powerup waittill( "movedone" );
 	powerup thread maps/mp/zombies/_zm_powerups::powerup_timeout();
 	powerup thread maps/mp/zombies/_zm_powerups::powerup_wobble();
 	powerup thread maps/mp/zombies/_zm_powerups::powerup_grab();
 }
 
-dig_get_rare_powerups( player )
+dig_get_rare_powerups( player ) //checked changed to match cerberus output
 {
 	a_rare_powerups = [];
 	a_possible_powerups = array( "nuke", "double_points" );
@@ -485,31 +467,27 @@ dig_get_rare_powerups( player )
 	{
 		a_possible_powerups = combinearrays( a_possible_powerups, array( "insta_kill", "full_ammo" ) );
 	}
-	_a639 = a_possible_powerups;
-	_k639 = getFirstArrayKey( _a639 );
-	while ( isDefined( _k639 ) )
+	foreach ( powerup in a_possible_powerups )
 	{
-		powerup = _a639[ _k639 ];
 		if ( !dig_has_powerup_spawned( powerup ) )
 		{
 			a_rare_powerups[ a_rare_powerups.size ] = powerup;
 		}
-		_k639 = getNextArrayKey( _a639, _k639 );
 	}
 	return a_rare_powerups;
 }
 
-dig_up_grenade( player )
+dig_up_grenade( player ) //checked changed to match cerberus output
 {
 	player endon( "disconnect" );
 	v_spawnpt = self.origin;
 	grenade = "frag_grenade_zm";
 	n_rand = randomintrange( 0, 4 );
-	player magicgrenadetype( grenade, v_spawnpt, vectorScale( ( 0, 0, -1 ), 300 ), 3 );
+	player magicgrenadetype( grenade, v_spawnpt, vectorScale( ( 0, 0, 1 ), 300 ), 3 );
 	player playsound( "evt_grenade_digup" );
 	if ( n_rand )
 	{
-		wait 0,3;
+		wait 0.3;
 		if ( cointoss() )
 		{
 			player magicgrenadetype( grenade, v_spawnpt, ( 50, 50, 300 ), 3 );
@@ -517,7 +495,7 @@ dig_up_grenade( player )
 	}
 }
 
-dig_up_weapon( digger )
+dig_up_weapon( digger ) //checked changed to match cerberus output
 {
 	a_common_weapons = array( "ballista_zm", "c96_zm", "870mcs_zm" );
 	a_rare_weapons = array( "dsr50_zm", "srm1216_zm" );
@@ -535,20 +513,20 @@ dig_up_weapon( digger )
 		str_weapon = a_rare_weapons[ getarraykeys( a_rare_weapons )[ randomint( getarraykeys( a_rare_weapons ).size ) ] ];
 	}
 	v_spawnpt = self.origin + ( 0, 0, 40 );
-	v_spawnang = ( 0, 0, -1 );
+	v_spawnang = ( 0, 0, 0 );
 	str_spec_model = undefined;
 	if ( str_weapon == "claymore_zm" )
 	{
 		str_spec_model = "t6_wpn_claymore_world";
-		v_spawnang += vectorScale( ( 0, 0, -1 ), 90 );
+		v_spawnang += vectorScale( ( 0, 1, 0 ), 90 );
 	}
 	v_angles = digger getplayerangles();
-	v_angles = ( 0, v_angles[ 1 ], 0 ) + vectorScale( ( 0, 0, -1 ), 90 ) + v_spawnang;
+	v_angles = ( 0, v_angles[ 1 ], 0 ) + vectorScale( ( 0, 1, 0 ), 90 ) + v_spawnang;
 	m_weapon = spawn_weapon_model( str_weapon, str_spec_model, v_spawnpt, v_angles );
 	if ( str_weapon == "claymore_zm" )
 	{
 		m_weapon setmodel( "t6_wpn_claymore_world" );
-		v_spawnang += vectorScale( ( 0, 0, -1 ), 90 );
+		v_spawnang += vectorScale( ( 0, 0, 1 ), 90 );
 	}
 	m_weapon.angles = v_angles;
 	m_weapon playloopsound( "evt_weapon_digup" );
@@ -576,7 +554,7 @@ dig_up_weapon( digger )
 	}
 }
 
-swap_weapon( str_weapon, e_player )
+swap_weapon( str_weapon, e_player ) //checked matches cerberus output
 {
 	str_current_weapon = e_player getcurrentweapon();
 	if ( str_weapon == "claymore_zm" )
@@ -607,7 +585,7 @@ swap_weapon( str_weapon, e_player )
 	}
 }
 
-take_old_weapon_and_give_new( current_weapon, weapon )
+take_old_weapon_and_give_new( current_weapon, weapon ) //checked matches cerberus output
 {
 	a_weapons = self getweaponslistprimaries();
 	if ( isDefined( a_weapons ) && a_weapons.size >= get_player_weapon_limit( self ) )
@@ -618,11 +596,11 @@ take_old_weapon_and_give_new( current_weapon, weapon )
 	self switchtoweapon( weapon );
 }
 
-timer_til_despawn( v_float, n_dist )
+timer_til_despawn( v_float, n_dist ) //checked matches cerberus output
 {
 	self endon( "weapon_grabbed" );
 	putbacktime = 12;
-	self movez( n_dist, putbacktime, putbacktime * 0,5 );
+	self movez( n_dist, putbacktime, putbacktime * 0.5 );
 	self waittill( "movedone" );
 	self notify( "dig_up_weapon_timed_out" );
 	if ( isDefined( self.trigger ) )
@@ -636,7 +614,7 @@ timer_til_despawn( v_float, n_dist )
 	}
 }
 
-get_player_perk_purchase_limit()
+get_player_perk_purchase_limit() //checked matches cerberus output
 {
 	if ( isDefined( self.player_perk_purchase_limit ) )
 	{
@@ -645,7 +623,7 @@ get_player_perk_purchase_limit()
 	return level.perk_purchase_limit;
 }
 
-increment_player_perk_purchase_limit()
+increment_player_perk_purchase_limit() //checked matches cerberus output
 {
 	if ( !isDefined( self.player_perk_purchase_limit ) )
 	{
@@ -657,12 +635,12 @@ increment_player_perk_purchase_limit()
 	}
 }
 
-ee_zombie_blood_dig()
+ee_zombie_blood_dig() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
 	n_z_spots_found = 0;
 	a_z_spots = getstructarray( "zombie_blood_dig_spot", "targetname" );
-	self.t_zombie_blood_dig = spawn( "trigger_radius_use", ( 0, 0, -1 ), 0, 100, 50 );
+	self.t_zombie_blood_dig = spawn( "trigger_radius_use", ( 0, 0, 0 ), 0, 100, 50 );
 	self.t_zombie_blood_dig.e_unique_player = self;
 	self.t_zombie_blood_dig triggerignoreteam();
 	self.t_zombie_blood_dig setcursorhint( "HINT_NOICON" );
@@ -672,22 +650,19 @@ ee_zombie_blood_dig()
 	{
 		a_randomized = array_randomize( a_z_spots );
 		n_index = undefined;
-		i = 0;
-		while ( i < a_randomized.size )
+		for ( i = 0; i < a_randomized.size; i++ )
 		{
 			if ( !isDefined( a_randomized[ i ].n_player ) )
 			{
 				n_index = i;
 				break;
 			}
-			else
-			{
-				i++;
-			}
 		}
+		/*
 /#
 		assert( isDefined( n_index ), "No more zombie blood dig spots.  Add more to the map." );
 #/
+		*/
 		s_z_spot = a_randomized[ n_index ];
 		s_z_spot.n_player = self getentitynumber();
 		s_z_spot create_zombie_blood_dig_spot( self );
@@ -697,7 +672,7 @@ ee_zombie_blood_dig()
 	self.t_zombie_blood_dig delete();
 }
 
-ee_zombie_blood_dig_disconnect_watch()
+ee_zombie_blood_dig_disconnect_watch() //checked changed to match cerberus output
 {
 	self waittill( "disconnect" );
 	if ( isDefined( self.t_zombie_blood_dig ) )
@@ -705,11 +680,8 @@ ee_zombie_blood_dig_disconnect_watch()
 		self.t_zombie_blood_dig delete();
 	}
 	a_z_spots = getstructarray( "zombie_blood_dig_spot", "targetname" );
-	_a917 = a_z_spots;
-	_k917 = getFirstArrayKey( _a917 );
-	while ( isDefined( _k917 ) )
+	foreach ( s_pos in a_z_spots )
 	{
-		s_pos = _a917[ _k917 ];
 		if ( isDefined( s_pos.n_player ) && s_pos.n_player == self getentitynumber() )
 		{
 			s_pos.n_player = undefined;
@@ -718,11 +690,10 @@ ee_zombie_blood_dig_disconnect_watch()
 		{
 			s_pos delete();
 		}
-		_k917 = getNextArrayKey( _a917, _k917 );
 	}
 }
 
-create_zombie_blood_dig_spot( e_player )
+create_zombie_blood_dig_spot( e_player ) //checked changed to match cerberus output
 {
 	self.m_dig = spawn( "script_model", self.origin + vectorScale( ( 0, 0, -1 ), 40 ) );
 	self.m_dig.angles = self.angles;
@@ -731,17 +702,21 @@ create_zombie_blood_dig_spot( e_player )
 	self.m_dig moveto( self.origin, 3, 0, 1 );
 	self.m_dig waittill( "movedone" );
 	self.m_dig.e_unique_player = e_player;
+	/*
 /#
-	self thread puzzle_debug_position( "+", vectorScale( ( 0, 0, -1 ), 255 ), self.origin );
+	self thread puzzle_debug_position( "+", vectorScale( ( 0, 0, 1 ), 255 ), self.origin );
 #/
-	e_player.t_zombie_blood_dig.origin = self.origin + vectorScale( ( 0, 0, -1 ), 20 );
+	*/
+	e_player.t_zombie_blood_dig.origin = self.origin + vectorScale( ( 0, 0, 1 ), 20 );
 	e_player.t_zombie_blood_dig waittill_zombie_blood_dug( self );
+	/*
 /#
 	self notify( "stop_debug_position" );
 #/
+	*/
 }
 
-waittill_zombie_blood_dug( s_dig_spot )
+waittill_zombie_blood_dug( s_dig_spot ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -749,7 +724,7 @@ waittill_zombie_blood_dug( s_dig_spot )
 		self waittill( "trigger", player );
 		if ( isDefined( player.dig_vars[ "has_shovel" ] ) && player.dig_vars[ "has_shovel" ] )
 		{
-			player.t_zombie_blood_dig.origin = ( 0, 0, -1 );
+			player.t_zombie_blood_dig.origin = ( 0, 0, 0 );
 			player playsound( "evt_dig" );
 			playfx( level._effect[ "digging" ], self.origin );
 			s_dig_spot.m_dig delete();
@@ -759,11 +734,11 @@ waittill_zombie_blood_dug( s_dig_spot )
 	}
 }
 
-spawn_perk_upgrade_bottle( v_origin, e_player )
+spawn_perk_upgrade_bottle( v_origin, e_player ) //checked changed to match cerberus output
 {
-	m_bottle = spawn( "script_model", v_origin + vectorScale( ( 0, 0, -1 ), 40 ) );
+	m_bottle = spawn( "script_model", v_origin + vectorScale( ( 0, 0, 1 ), 40 ) );
 	m_bottle setmodel( "zombie_pickup_perk_bottle" );
-	m_bottle.angles = vectorScale( ( 0, 0, -1 ), 10 );
+	m_bottle.angles = vectorScale( ( 1, 0, 0 ), 10 );
 	m_bottle setinvisibletoall();
 	m_bottle setvisibletoplayer( e_player );
 	m_fx = spawn( "script_model", m_bottle.origin );
@@ -775,7 +750,7 @@ spawn_perk_upgrade_bottle( v_origin, e_player )
 	m_fx thread rotate_perk_upgrade_bottle();
 	while ( isDefined( e_player ) && !e_player istouching( m_bottle ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	m_bottle delete();
 	m_fx delete();
@@ -787,7 +762,7 @@ spawn_perk_upgrade_bottle( v_origin, e_player )
 	}
 }
 
-rotate_perk_upgrade_bottle()
+rotate_perk_upgrade_bottle() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -797,14 +772,14 @@ rotate_perk_upgrade_bottle()
 	}
 }
 
-bonus_points_powerup_override()
+bonus_points_powerup_override() //checked matches cerberus output
 {
 	level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "blood_money" );
 	points = randomintrange( 1, 6 ) * 50;
 	return points;
 }
 
-dig_powerups_tracking()
+dig_powerups_tracking() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	level.dig_powerups_tracking = [];
@@ -815,20 +790,16 @@ dig_powerups_tracking()
 	while ( 1 )
 	{
 		level waittill( "end_of_round" );
-		_a1065 = level.dig_powerups_tracking;
-		str_powerup = getFirstArrayKey( _a1065 );
-		while ( isDefined( str_powerup ) )
+		foreach ( value in level.dig_powerups_tracking )
 		{
-			value = _a1065[ str_powerup ];
-			level.dig_powerups_tracking[ str_powerup ] = 0;
-			str_powerup = getNextArrayKey( _a1065, str_powerup );
+			level.dig_powerups_tracking[ value ] = 0;
 		}
 		level.dig_n_zombie_bloods_spawned = 0;
 		level.dig_n_powerups_spawned = 0;
 	}
 }
 
-dig_has_powerup_spawned( str_powerup )
+dig_has_powerup_spawned( str_powerup ) //checked matches cerberus output
 {
 	if ( !isDefined( level.dig_powerups_tracking[ str_powerup ] ) )
 	{
@@ -837,13 +808,14 @@ dig_has_powerup_spawned( str_powerup )
 	return level.dig_powerups_tracking[ str_powerup ];
 }
 
-dig_set_powerup_spawned( str_powerup )
+dig_set_powerup_spawned( str_powerup ) //checked matches cerberus output
 {
 	level.dig_powerups_tracking[ str_powerup ] = 1;
 }
 
-setup_dig_devgui()
+setup_dig_devgui() //dev call skipped
 {
+	/*
 /#
 	setdvar( "give_shovel", "off" );
 	setdvar( "give_golden_shovel", "off" );
@@ -865,10 +837,12 @@ setup_dig_devgui()
 	adddebugcommand( "devgui_cmd "Zombies/Tomb:1/Weather:1/Clear:3" "force_weather_none on"\n" );
 	level thread watch_devgui_dig();
 #/
+	*/
 }
 
-watch_devgui_dig()
+watch_devgui_dig() //dev call skipped
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -1031,4 +1005,6 @@ watch_devgui_dig()
 		wait 0,05;
 #/
 	}
+	*/
 }
+
