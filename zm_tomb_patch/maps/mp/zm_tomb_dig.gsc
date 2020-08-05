@@ -102,7 +102,7 @@ shovel_prompt_update( e_player ) //checked matches cerberus output
 		return 0;
 	}
 	self.hint_string = &"ZM_TOMB_SHPU";
-	if ( isDefined( e_player.dig_vars[ "has_shovel" ] ) && e_player.dig_vars[ "has_shovel" ] )
+	if ( is_true( e_player.dig_vars[ "has_shovel" ] ) )
 	{
 		self.hint_string = &"ZM_TOMB_SHAG";
 	}
@@ -119,7 +119,7 @@ shovel_unitrigger_think() //checked changed to match cerberus output
 		{
 			continue;
 		}
-		if ( isDefined( e_player.dig_vars[ "has_shovel" ] ) && !e_player.dig_vars[ "has_shovel" ] )
+		if ( !is_true( e_player.dig_vars[ "has_shovel" ] ) )
 		{
 			e_player.dig_vars[ "has_shovel" ] = 1;
 			e_player playsound( "zmb_craftable_pickup" );
@@ -135,7 +135,7 @@ shovel_unitrigger_think() //checked changed to match cerberus output
 
 dig_reward_dialog( str_category ) //checked matches cerberus output
 {
-	if ( isDefined( self.dig_vo_cooldown ) && !self.dig_vo_cooldown )
+	if ( !is_true( self.dig_vo_cooldown ) )
 	{
 		self do_player_general_vox( "digging", str_category );
 		if ( str_category != "pickup_shovel" )
@@ -232,7 +232,7 @@ dig_spots_respawn( a_dig_spots ) //checked partially changed to match cerberus o
 		}
 		for ( i = 0; i < a_dig_spots.size; i++ )
 		{
-			if ( isDefined( a_dig_spots[ i ].dug ) && a_dig_spots[ i ].dug && n_respawned < n_respawned_max && level.n_dig_spots_cur <= level.n_dig_spots_max )
+			if ( is_true( a_dig_spots[ i ].dug ) && n_respawned < n_respawned_max && level.n_dig_spots_cur <= level.n_dig_spots_max )
 			{
 				a_dig_spots[ i ].dug = undefined;
 				a_dig_spots[ i ] thread dig_spot_spawn();
@@ -250,7 +250,7 @@ dig_spots_respawn( a_dig_spots ) //checked partially changed to match cerberus o
 				{
 					if ( isDefined( s_dig_spot.str_zone ) && issubstr( s_dig_spot.str_zone, s_staff.zone_substr ) )
 					{
-						if ( isDefined( s_dig_spot.dug ) && !s_dig_spot.dug )
+						if ( !is_true( s_dig_spot.dug ) )
 						{
 							n_active_mounds++;
 						}
@@ -294,7 +294,7 @@ dig_spot_spawn() //checked changed to match cerberus output
 
 dig_spot_trigger_visibility( player ) //checked matches cerberus output
 {
-	if ( isDefined( player.dig_vars[ "has_shovel" ] ) && player.dig_vars[ "has_shovel" ] )
+	if ( is_true( player.dig_vars[ "has_shovel" ] ) )
 	{
 		self sethintstring( &"ZM_TOMB_X2D" );
 	}
@@ -310,7 +310,7 @@ waittill_dug( s_dig_spot ) //checked changed to match cerberus output
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
-		if ( isDefined( player.dig_vars[ "has_shovel" ] ) && player.dig_vars[ "has_shovel" ] )
+		if ( is_true( player.dig_vars[ "has_shovel" ] ) )
 		{
 			player playsound( "evt_dig" );
 			s_dig_spot.dug = 1;
@@ -722,7 +722,7 @@ waittill_zombie_blood_dug( s_dig_spot ) //checked changed to match cerberus outp
 	while ( 1 )
 	{
 		self waittill( "trigger", player );
-		if ( isDefined( player.dig_vars[ "has_shovel" ] ) && player.dig_vars[ "has_shovel" ] )
+		if ( is_true( player.dig_vars[ "has_shovel" ] ) )
 		{
 			player.t_zombie_blood_dig.origin = ( 0, 0, 0 );
 			player playsound( "evt_dig" );
@@ -897,7 +897,7 @@ watch_devgui_dig() //dev call skipped
 			i = 0;
 			while ( i < a_dig_spots.size )
 			{
-				if ( isDefined( a_dig_spots[ i ].dug ) && a_dig_spots[ i ].dug && level.n_dig_spots_cur <= level.n_dig_spots_max )
+				if ( is_true( a_dig_spots[ i ].dug ) && level.n_dig_spots_cur <= level.n_dig_spots_max )
 				{
 					a_dig_spots[ i ].dug = undefined;
 					a_dig_spots[ i ] thread dig_spot_spawn();
@@ -913,7 +913,7 @@ watch_devgui_dig() //dev call skipped
 			i = 0;
 			while ( i < a_dig_spots.size )
 			{
-				if ( isDefined( a_dig_spots[ i ].dug ) && a_dig_spots[ i ].dug )
+				if ( is_true( a_dig_spots[ i ].dug ) )
 				{
 					a_dig_spots[ i ].dug = undefined;
 					a_dig_spots[ i ] thread dig_spot_spawn();

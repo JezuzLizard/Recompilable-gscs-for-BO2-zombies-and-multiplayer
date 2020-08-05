@@ -453,7 +453,7 @@ craftable_model_attach_glow( n_elem, do_glow_now ) //checked matches cerberus ou
 
 tomb_staff_update_prompt( player, b_set_hint_string_now, trigger ) //checked matches cerberus output
 {
-	if ( isDefined( self.crafted ) && self.crafted )
+	if ( is_true( self.crafted ) )
 	{
 		return 1;
 	}
@@ -553,7 +553,7 @@ tankcraftableupdateprompt( player, sethintstringnow, buildabletrigger ) //checke
 		if ( isDefined( self ) )
 		{
 			self.hint_string = "";
-			if ( isDefined( sethintstringnow ) && sethintstringnow && isDefined( buildabletrigger ) )
+			if ( is_true( sethintstringnow ) && isDefined( buildabletrigger ) )
 			{
 				buildabletrigger sethintstring( self.hint_string );
 			}
@@ -632,7 +632,7 @@ clear_player_crystal( n_element ) //checked matches cerberus output
 piece_pickup_conversation( player ) //checked changed to match cerberus output
 {
 	wait 1;
-	while ( isDefined( player.isspeaking ) && player.isspeaking )
+	while ( is_true( player.isspeaking ) )
 	{
 		wait_network_frame();
 	}
@@ -673,7 +673,7 @@ staff_pickup_vo() //checked matches cerberus output
 	{
 		return;
 	}
-	if ( isDefined( level.sam_staff_line_played ) && !level.sam_staff_line_played )
+	if ( !is_true( level.sam_staff_line_played ) )
 	{
 		level.sam_staff_line_played = 1;
 		wait 1;
@@ -1157,7 +1157,7 @@ tomb_custom_craftable_validation( player ) //checked changed to match cerberus o
 		return 1;
 	}
 	str_craftable = self.stub.equipname;
-	if ( isDefined( level.craftables_crafted[ str_craftable ] ) && !level.craftables_crafted[ str_craftable ] )
+	if ( !is_true( level.craftables_crafted[ str_craftable ] ) )
 	{
 		return 1;
 	}
@@ -1309,7 +1309,7 @@ track_staff_weapon_respawn( player ) //checked partially changed to match cerber
 	has_weapon = 0;
 	while ( isalive( player ) )
 	{
-		if ( isDefined( s_elemental_staff.charger.is_inserted ) && s_elemental_staff.charger.is_inserted || isDefined( s_upgraded_staff.charger.is_inserted ) || s_upgraded_staff.charger.is_inserted && isDefined( s_upgraded_staff.ee_in_use ) && s_upgraded_staff.ee_in_use )
+		if ( is_true( s_elemental_staff.charger.is_inserted ) || is_true( s_upgraded_staff.charger.is_inserted ) || is_true( s_upgraded_staff.ee_in_use ) )
 		{
 			has_weapon = 1;
 			break;
@@ -1336,16 +1336,16 @@ track_staff_weapon_respawn( player ) //checked partially changed to match cerber
 				s_upgraded_staff.revive_ammo_stock = player getweaponammostock( "staff_revive_zm" );
 				s_upgraded_staff.revive_ammo_clip = player getweaponammoclip( "staff_revive_zm" );
 			}
-			if ( has_weapon && isDefined( player.one_inch_punch_flag_has_been_init ) && !player.one_inch_punch_flag_has_been_init && n_melee_element != 0 )
+			if ( has_weapon && !is_true( player.one_inch_punch_flag_has_been_init ) && n_melee_element != 0 )
 			{
 				cur_weapon = player getcurrentweapon();
-				if ( cur_weapon != weapon && isDefined( player.use_staff_melee ) && player.use_staff_melee )
+				if ( cur_weapon != weapon && is_true( player.use_staff_melee ) )
 				{
 					player update_staff_accessories( 0 );
 				}
 				else
 				{
-					if ( cur_weapon == weapon && isDefined( player.use_staff_melee ) && !player.use_staff_melee )
+					if ( cur_weapon == weapon && !is_true( player.use_staff_melee ) )
 					{
 						player update_staff_accessories( n_melee_element );
 					}
