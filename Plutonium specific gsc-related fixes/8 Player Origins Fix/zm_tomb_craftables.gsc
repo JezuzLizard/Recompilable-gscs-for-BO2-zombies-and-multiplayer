@@ -71,72 +71,11 @@ init_craftables() //checked changed to match cerberus output
 
 add_craftable_cheat( craftable ) //dev call skipped
 {
-	/*
-/#
-	if ( !isDefined( level.cheat_craftables ) )
-	{
-		level.cheat_craftables = [];
-	}
-	_a112 = craftable.a_piecestubs;
-	_k112 = getFirstArrayKey( _a112 );
-	while ( isDefined( _k112 ) )
-	{
-		s_piece = _a112[ _k112 ];
-		id_string = undefined;
-		client_field_val = undefined;
-		if ( isDefined( s_piece.client_field_id ) )
-		{
-			id_string = s_piece.client_field_id;
-			client_field_val = id_string;
-		}
-		else if ( isDefined( s_piece.client_field_state ) )
-		{
-			id_string = "gem";
-			client_field_val = s_piece.client_field_state;
-		}
-		else
-		{
-		}
-		tokens = strtok( id_string, "_" );
-		display_string = "piece";
-		_a134 = tokens;
-		_k134 = getFirstArrayKey( _a134 );
-		while ( isDefined( _k134 ) )
-		{
-			token = _a134[ _k134 ];
-			if ( token != "piece" && token != "staff" && token != "zm" )
-			{
-				display_string = ( display_string + "_" ) + token;
-			}
-			_k134 = getNextArrayKey( _a134, _k134 );
-		}
-		level.cheat_craftables[ "" + client_field_val ] = s_piece;
-		adddebugcommand( "devgui_cmd "Zombies/Tomb:1/Craftables:1/" + craftable.name + "/" + display_string + "" "give_craftable " + client_field_val + ""\n" );
-		s_piece.waste = "waste";
-		_k112 = getNextArrayKey( _a112, _k112 );
-	}
-	flag_wait( "start_zombie_round_logic" );
-	_a149 = craftable.a_piecestubs;
-	_k149 = getFirstArrayKey( _a149 );
-	while ( isDefined( _k149 ) )
-	{
-		s_piece = _a149[ _k149 ];
-		s_piece craftable_waittill_spawned();
-		s_piece.piecespawn.model thread puzzle_debug_position( "C", vectorScale( ( 0, 0, 1 ), 255 ), undefined, "show_craftable_locations" );
-		_k149 = getNextArrayKey( _a149, _k149 );
-#/
-	}
-	*/
 }
 
 autocraft_staffs() //checked changed to match cerberus output
 {
 	setdvar( "autocraft_staffs", "off" );
-	/*
-/#
-	adddebugcommand( "devgui_cmd "Zombies/Tomb:1/Craftables:1/Give All Staff Pieces:0" "autocraft_staffs on"\n" );
-#/
-	*/
 	while ( getDvar( "autocraft_staffs" ) != "on" )
 	{
 		wait_network_frame();
@@ -174,27 +113,6 @@ autocraft_staffs() //checked changed to match cerberus output
 
 run_craftables_devgui() //dev call skipped
 {
-	/*
-/#
-	level thread autocraft_staffs();
-	setdvar( "give_craftable", "" );
-	while ( 1 )
-	{
-		craftable_id = getDvar( "give_craftable" );
-		if ( craftable_id != "" )
-		{
-			piece_spawn = level.cheat_craftables[ craftable_id ].piecespawn;
-			if ( isDefined( piece_spawn ) )
-			{
-				players = getplayers();
-				players[ 0 ] maps/mp/zombies/_zm_craftables::player_take_piece( piece_spawn );
-			}
-			setdvar( "give_craftable", "" );
-		}
-		wait 0,05;
-#/
-	}
-	*/
 }
 
 include_craftables() //checked matches cerberus output
@@ -453,7 +371,7 @@ craftable_model_attach_glow( n_elem, do_glow_now ) //checked matches cerberus ou
 
 tomb_staff_update_prompt( player, b_set_hint_string_now, trigger ) //checked matches cerberus output
 {
-	if ( isDefined( self.crafted ) && self.crafted )
+	if ( is_true( self.crafted ) )
 	{
 		return 1;
 	}
@@ -553,7 +471,7 @@ tankcraftableupdateprompt( player, sethintstringnow, buildabletrigger ) //checke
 		if ( isDefined( self ) )
 		{
 			self.hint_string = "";
-			if ( isDefined( sethintstringnow ) && sethintstringnow && isDefined( buildabletrigger ) )
+			if ( is_true( sethintstringnow ) && isDefined( buildabletrigger ) )
 			{
 				buildabletrigger sethintstring( self.hint_string );
 			}
@@ -635,7 +553,7 @@ clear_player_crystal( n_element ) //checked matches cerberus output
 piece_pickup_conversation( player ) //checked changed to match cerberus output
 {
 	wait 1;
-	while ( isDefined( player.isspeaking ) && player.isspeaking )
+	while ( is_true( player.isspeaking ) )
 	{
 		wait_network_frame();
 	}
@@ -660,14 +578,6 @@ onpickup_common( player ) //checked changed to match cerberus output
 	player playsound( "zmb_craftable_pickup" );
 	self.piece_owner = player;
 	self thread piece_pickup_conversation( player );
-	/*
-/#
-	foreach ( spawn in self.spawns )
-	{
-		spawn notify( "stop_debug_position" );
-#/
-	}
-	*/
 }
 
 staff_pickup_vo() //checked matches cerberus output
@@ -676,7 +586,7 @@ staff_pickup_vo() //checked matches cerberus output
 	{
 		return;
 	}
-	if ( isDefined( level.sam_staff_line_played ) && !level.sam_staff_line_played )
+	if ( !is_true( level.sam_staff_line_played ) )
 	{
 		level.sam_staff_line_played = 1;
 		wait 1;
@@ -760,7 +670,7 @@ watch_part_pickup( str_quest_clientfield, n_clientfield_val ) //checked matches 
 	self craftable_waittill_spawned();
 	self.piecespawn waittill( "pickup" );
 	level notify( ( self.craftablename + "_" ) + self.piecename + "_picked_up" );
-	if ( isDefined( str_quest_clientfield ) && isDefined( n_clientfield_val ) )
+	if ( is_true( str_quest_clientfield ) )
 	{
 		level setclientfield( str_quest_clientfield, n_clientfield_val );
 	}
@@ -776,11 +686,6 @@ count_staff_piece_pickup( a_staff_pieces ) //checked changed to match cerberus o
 	level.staff_part_count[ str_name ] = a_staff_pieces.size;
 	foreach ( piece in a_staff_pieces )
 	{
-		/*
-/#
-		assert( piece.craftablename == str_name );
-#/
-		*/
 		piece thread watch_staff_pickup();
 	}
 }
@@ -1163,7 +1068,7 @@ tomb_custom_craftable_validation( player ) //checked changed to match cerberus o
 		return 1;
 	}
 	str_craftable = self.stub.equipname;
-	if ( isDefined( level.craftables_crafted[ str_craftable ] ) && !level.craftables_crafted[ str_craftable ] )
+	if ( !is_true( level.craftables_crafted[ str_craftable ] ) )
 	{
 		return 1;
 	}
@@ -1315,7 +1220,7 @@ track_staff_weapon_respawn( player ) //checked partially changed to match cerber
 	has_weapon = 0;
 	while ( isalive( player ) )
 	{
-		if ( isDefined( s_elemental_staff.charger.is_inserted ) && s_elemental_staff.charger.is_inserted || isDefined( s_upgraded_staff.charger.is_inserted ) || s_upgraded_staff.charger.is_inserted && isDefined( s_upgraded_staff.ee_in_use ) && s_upgraded_staff.ee_in_use )
+		if ( is_true( s_elemental_staff.charger.is_inserted ) || is_true( s_upgraded_staff.charger.is_inserted ) || is_true( s_upgraded_staff.ee_in_use ) )
 		{
 			has_weapon = 1;
 			break;
@@ -1342,16 +1247,16 @@ track_staff_weapon_respawn( player ) //checked partially changed to match cerber
 				s_upgraded_staff.revive_ammo_stock = player getweaponammostock( "staff_revive_zm" );
 				s_upgraded_staff.revive_ammo_clip = player getweaponammoclip( "staff_revive_zm" );
 			}
-			if ( has_weapon && isDefined( player.one_inch_punch_flag_has_been_init ) && !player.one_inch_punch_flag_has_been_init && n_melee_element != 0 )
+			if ( has_weapon && !is_true( player.one_inch_punch_flag_has_been_init ) && n_melee_element != 0 )
 			{
 				cur_weapon = player getcurrentweapon();
-				if ( cur_weapon != weapon && isDefined( player.use_staff_melee ) && player.use_staff_melee )
+				if ( cur_weapon != weapon && is_true( player.use_staff_melee ) )
 				{
 					player update_staff_accessories( 0 );
 				}
 				else
 				{
-					if ( cur_weapon == weapon && isDefined( player.use_staff_melee ) && !player.use_staff_melee )
+					if ( cur_weapon == weapon && !is_true( player.use_staff_melee ) )
 					{
 						player update_staff_accessories( n_melee_element );
 					}
@@ -1453,6 +1358,8 @@ hide_staff_model() //checked changed to match cerberus output
 		stave ghost();
 	}
 }
+
+
 
 
 
