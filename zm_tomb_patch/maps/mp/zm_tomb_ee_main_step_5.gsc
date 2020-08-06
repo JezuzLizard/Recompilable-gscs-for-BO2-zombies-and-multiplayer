@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_unitrigger;
 #include maps/mp/zombies/_zm_powerup_zombie_blood;
 #include maps/mp/zm_tomb_utility;
@@ -7,12 +8,12 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	declare_sidequest_stage( "little_girl_lost", "step_5", ::init_stage, ::stage_logic, ::exit_stage );
 }
 
-init_stage()
+init_stage() //checked matches cerberus output
 {
 	level._cur_stage_name = "step_5";
 	level.callbackvehicledamage = ::ee_plane_vehicledamage;
@@ -20,26 +21,28 @@ init_stage()
 
 }
 
-stage_logic()
+stage_logic() //checked matches cerberus output
 {
+	/*
 /#
 	iprintln( level._cur_stage_name + " of little girl lost started" );
 #/
+	*/
 	level thread spawn_zombie_blood_plane();
 	flag_wait( "ee_maxis_drone_retrieved" );
 	wait_network_frame();
 	stage_completed( "little_girl_lost", level._cur_stage_name );
 }
 
-exit_stage( success )
+exit_stage( success ) //checked matches cerberus output
 {
 	level.zombie_ai_limit++;
 }
 
-spawn_zombie_blood_plane()
+spawn_zombie_blood_plane() //checked changed to match cerberus output
 {
 	s_biplane_pos = getstruct( "air_crystal_biplane_pos", "targetname" );
-	vh_biplane = spawnvehicle( "veh_t6_dlc_zm_biplane", "zombie_blood_biplane", "biplane_zm", ( 0, 0, 1 ), ( 0, 0, 1 ) );
+	vh_biplane = spawnvehicle( "veh_t6_dlc_zm_biplane", "zombie_blood_biplane", "biplane_zm", ( 0, 0, 0 ), ( 0, 0, 0 ) );
 	vh_biplane ent_flag_init( "biplane_down", 0 );
 	vh_biplane maps/mp/zombies/_zm_powerup_zombie_blood::make_zombie_blood_entity();
 	vh_biplane playloopsound( "zmb_zombieblood_3rd_plane_loop", 1 );
@@ -80,19 +83,19 @@ spawn_zombie_blood_plane()
 	level thread spawn_quadrotor_pickup( ai_pilot.origin, ai_pilot.angles );
 }
 
-zombie_pilot_sound( ai_pilot )
+zombie_pilot_sound( ai_pilot ) //checked matches cerberus output
 {
 	sndent = spawn( "script_origin", ai_pilot.origin );
 	sndent playloopsound( "zmb_zombieblood_3rd_loop_other" );
 	while ( isDefined( ai_pilot ) && isalive( ai_pilot ) )
 	{
 		sndent.origin = ai_pilot.origin;
-		wait 0,3;
+		wait 0.3;
 	}
 	sndent delete();
 }
 
-pilot_loop_logic( s_start )
+pilot_loop_logic( s_start ) //checked matches cerberus output
 {
 	self endon( "death" );
 	s_goal = s_start;
@@ -104,7 +107,7 @@ pilot_loop_logic( s_start )
 	}
 }
 
-ee_plane_vehicledamage( e_inflictor, e_attacker, n_damage, n_dflags, str_means_of_death, str_weapon, v_point, v_dir, str_hit_loc, psoffsettime, b_damage_from_underneath, n_model_index, str_part_name )
+ee_plane_vehicledamage( e_inflictor, e_attacker, n_damage, n_dflags, str_means_of_death, str_weapon, v_point, v_dir, str_hit_loc, psoffsettime, b_damage_from_underneath, n_model_index, str_part_name ) //checked matches cerberus output
 {
 	if ( self.vehicletype == "biplane_zm" && !self ent_flag( "biplane_down" ) )
 	{
@@ -117,7 +120,7 @@ ee_plane_vehicledamage( e_inflictor, e_attacker, n_damage, n_dflags, str_means_o
 	return n_damage;
 }
 
-spawn_quadrotor_pickup( v_origin, v_angles )
+spawn_quadrotor_pickup( v_origin, v_angles ) //checked matches cerberus output
 {
 	m_quadrotor = spawn( "script_model", v_origin + vectorScale( ( 0, 0, 1 ), 30 ) );
 	m_quadrotor.angles = v_angles;
@@ -136,7 +139,7 @@ spawn_quadrotor_pickup( v_origin, v_angles )
 	unregister_unitrigger( unitrigger_stub );
 }
 
-quadrotor_pickup_think()
+quadrotor_pickup_think() //checked matches cerberus output
 {
 	self endon( "kill_trigger" );
 	m_quadrotor = getent( "quadrotor_pickup", "targetname" );
@@ -149,3 +152,4 @@ quadrotor_pickup_think()
 		m_quadrotor delete();
 	}
 }
+

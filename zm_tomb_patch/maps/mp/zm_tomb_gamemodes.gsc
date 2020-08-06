@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zm_tomb_classic;
 #include maps/mp/zm_tomb;
 #include maps/mp/gametypes_zm/_zm_gametype;
@@ -6,7 +7,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	add_map_gamemode( "zclassic", ::maps/mp/zm_tomb::zstandard_preinit, undefined, undefined );
 	add_map_location_gamemode( "zclassic", "tomb", ::maps/mp/zm_tomb_classic::precache, ::maps/mp/zm_tomb_classic::main );

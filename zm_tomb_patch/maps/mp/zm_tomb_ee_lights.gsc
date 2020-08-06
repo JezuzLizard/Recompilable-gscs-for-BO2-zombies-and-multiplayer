@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zm_tomb_quest_crypt;
 #include maps/mp/zombies/_zm_net;
 #include maps/mp/zm_tomb_utility;
@@ -7,7 +8,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-main()
+main() //checked changed to match cerberus output
 {
 	registerclientfield( "world", "light_show", 14000, 2, "int" );
 	flag_init( "show_morse_code" );
@@ -15,16 +16,12 @@ main()
 	flag_wait( "start_zombie_round_logic" );
 	chamber_discs = getentarray( "crypt_puzzle_disc", "script_noteworthy" );
 	lit_discs = [];
-	_a24 = chamber_discs;
-	_k24 = getFirstArrayKey( _a24 );
-	while ( isDefined( _k24 ) )
+	foreach ( disc in chamber_discs )
 	{
-		disc = _a24[ _k24 ];
 		if ( isDefined( disc.script_int ) )
 		{
 			lit_discs[ disc.script_int - 1 ] = disc;
 		}
-		_k24 = getNextArrayKey( _a24, _k24 );
 	}
 	flag_wait_any( "ee_all_staffs_upgraded", "show_morse_code" );
 	while ( 1 )
@@ -42,22 +39,18 @@ main()
 		wait 10;
 		setclientfield( "light_show", 2 );
 		light_show_morse( lit_discs, level.cipher_key );
-		_a56 = level.morse_messages;
-		_k56 = getFirstArrayKey( _a56 );
-		while ( isDefined( _k56 ) )
+		foreach ( message in level.morse_messages )
 		{
-			message = _a56[ _k56 ];
 			setclientfield( "light_show", 1 );
 			cipher = phrase_convert_to_cipher( message, level.cipher_key );
 			turn_all_lights_off( lit_discs );
 			wait 10;
 			light_show_morse( lit_discs, cipher );
-			_k56 = getNextArrayKey( _a56, _k56 );
 		}
 	}
 }
 
-init_morse_code()
+init_morse_code() //checked matches cerberus output
 {
 	level.morse_letters = [];
 	level.morse_letters[ "A" ] = ".-";
@@ -100,45 +93,34 @@ init_morse_code()
 
 turn_all_lights_off( a_discs )
 {
-	_a114 = a_discs;
-	_k114 = getFirstArrayKey( _a114 );
-	while ( isDefined( _k114 ) )
+	foreach ( disc in a_discs )
 	{
-		disc = _a114[ _k114 ];
 		disc maps/mp/zm_tomb_quest_crypt::bryce_cake_light_update( 0 );
-		_k114 = getNextArrayKey( _a114, _k114 );
 	}
 }
 
 turn_all_lights_on( a_discs )
 {
-	_a122 = a_discs;
-	_k122 = getFirstArrayKey( _a122 );
-	while ( isDefined( _k122 ) )
+	foreach ( disc in a_discs )
 	{
-		disc = _a122[ _k122 ];
 		disc maps/mp/zm_tomb_quest_crypt::bryce_cake_light_update( 1 );
-		_k122 = getNextArrayKey( _a122, _k122 );
 	}
 }
 
-phrase_convert_to_cipher( str_phrase, str_key )
+phrase_convert_to_cipher( str_phrase, str_key ) //checked partially changed to match cerberus output see info.md
 {
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	alphabet_vals = [];
 	num = 0;
-	i = 0;
-	while ( i < alphabet.size )
+	for ( i = 0; i < alphabet.size; i++ )
 	{
 		letter = alphabet[ i ];
 		alphabet_vals[ letter ] = num;
 		num++;
-		i++;
 	}
 	encrypted_phrase = [];
 	j = 0;
-	i = 0;
-	while ( i < str_phrase.size )
+	for ( i = 0; i < str_phrase.size; i++ )
 	{
 		cipher_letter = str_key[ j % str_key.size ];
 		original_letter = str_phrase[ i ];
@@ -146,8 +128,6 @@ phrase_convert_to_cipher( str_phrase, str_key )
 		if ( !isDefined( n_original_letter ) )
 		{
 			encrypted_phrase[ encrypted_phrase.size ] = original_letter;
-			i++;
-			continue;
 		}
 		else
 		{
@@ -156,15 +136,13 @@ phrase_convert_to_cipher( str_phrase, str_key )
 			encrypted_phrase[ encrypted_phrase.size ] = alphabet[ n_ciphered_letter ];
 			j++;
 		}
-		i++;
 	}
 	return encrypted_phrase;
 }
 
 light_show_morse( a_discs, message )
 {
-	i = 0;
-	while ( i < message.size )
+	for ( i = 0; i < message.size; i++ )
 	{
 		letter = message[ i ];
 		letter_code = level.morse_letters[ letter ];
@@ -176,22 +154,22 @@ light_show_morse( a_discs, message )
 				turn_all_lights_on( a_discs );
 				if ( letter_code[ j ] == "." )
 				{
-					wait 0,2;
+					wait 0.2;
 				}
-				else
+				else if ( letter_code[ j ] == "-" )
 				{
-					if ( letter_code[ j ] == "-" )
-					{
-						wait 1;
-					}
+					wait 1;
 				}
 				turn_all_lights_off( a_discs );
-				wait 0,5;
+				wait 0.5;
 				j++;
 			}
 		}
-		else wait 2;
-		wait 1,5;
-		i++;
+		else 
+		{
+			wait 2;
+		}
+		wait 1.5;
 	}
 }
+

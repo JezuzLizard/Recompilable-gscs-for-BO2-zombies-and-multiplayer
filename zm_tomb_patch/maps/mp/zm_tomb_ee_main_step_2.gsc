@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zm_tomb_craftables;
 #include maps/mp/zombies/_zm_unitrigger;
 #include maps/mp/zombies/_zm_powerup_zombie_blood;
@@ -7,34 +8,32 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	declare_sidequest_stage( "little_girl_lost", "step_2", ::init_stage, ::stage_logic, ::exit_stage );
 	precachemodel( "p6_zm_tm_staff_holder" );
 }
 
-init_stage()
+init_stage() //checked changed to match cerberus output
 {
 	level._cur_stage_name = "step_2";
 	a_structs = getstructarray( "robot_head_staff", "targetname" );
-	_a21 = a_structs;
-	_k21 = getFirstArrayKey( _a21 );
-	while ( isDefined( _k21 ) )
+	foreach ( unitrigger_stub in a_structs )
 	{
-		unitrigger_stub = _a21[ _k21 ];
 		level thread create_robot_head_trigger( unitrigger_stub );
 		wait_network_frame();
 		wait_network_frame();
 		wait_network_frame();
-		_k21 = getNextArrayKey( _a21, _k21 );
 	}
 }
 
-stage_logic()
+stage_logic() //checked matches cerberus output
 {
+	/*
 /#
 	iprintln( level._cur_stage_name + " of little girl lost started" );
 #/
+	*/
 	flag_wait( "ee_all_staffs_placed" );
 	playsoundatposition( "zmb_squest_robot_alarm_high", ( -14, -1, 871 ) );
 	wait 3;
@@ -42,23 +41,19 @@ stage_logic()
 	stage_completed( "little_girl_lost", level._cur_stage_name );
 }
 
-exit_stage( success )
+exit_stage( success ) //checked changed to match cerberus output
 {
 	a_structs = getstructarray( "robot_head_staff", "targetname" );
-	_a52 = a_structs;
-	_k52 = getFirstArrayKey( _a52 );
-	while ( isDefined( _k52 ) )
+	foreach ( struct in a_structs )
 	{
-		struct = _a52[ _k52 ];
 		struct thread remove_plinth();
 		wait_network_frame();
 		wait_network_frame();
 		wait_network_frame();
-		_k52 = getNextArrayKey( _a52, _k52 );
 	}
 }
 
-remove_plinth()
+remove_plinth() //checked matches cerberus output
 {
 	playfx( level._effect[ "teleport_1p" ], self.m_plinth.origin );
 	playsoundatposition( "zmb_footprintbox_disappear", self.m_plinth.origin );
@@ -76,7 +71,7 @@ remove_plinth()
 	unregister_unitrigger( self );
 }
 
-create_robot_head_trigger( unitrigger_stub )
+create_robot_head_trigger( unitrigger_stub ) //checked matches cerberus output
 {
 	playfx( level._effect[ "teleport_1p" ], unitrigger_stub.origin );
 	playsoundatposition( "zmb_footprintbox_disappear", unitrigger_stub.origin );
@@ -102,7 +97,7 @@ create_robot_head_trigger( unitrigger_stub )
 	m_sign hidepart( "j_ice" );
 	m_sign hidepart( "j_lightning" );
 	m_sign hidepart( "j_wind" );
-	switch( unitrigger_stub.script_noteworthy )
+	switch ( unitrigger_stub.script_noteworthy )
 	{
 		case "fire":
 			m_sign showpart( "j_fire" );
@@ -123,7 +118,7 @@ create_robot_head_trigger( unitrigger_stub )
 	maps/mp/zombies/_zm_unitrigger::register_static_unitrigger( unitrigger_stub, ::robot_head_trigger_think );
 }
 
-robot_head_trigger_think()
+robot_head_trigger_think() //checked matches cerberus output
 {
 	self endon( "kill_trigger" );
 	str_weap_staff = "staff_" + self.script_noteworthy + "_upgraded_zm";
@@ -157,3 +152,4 @@ place_staff( m_plinth )
 	m_staff show();
 	m_plinth playsound( "zmb_squest_robot_place_staff" );
 }
+

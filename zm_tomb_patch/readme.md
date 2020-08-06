@@ -17,20 +17,10 @@ zm_tomb_patch/maps/mp/zm_tomb_amb.gsc
 
 ### The following scripts have been checked, but they have not been tested yet
 ```
-zm_tomb_patch/maps/mp/zm_tomb_craftables.gsc
-zm_tomb_patch/maps/mp/zm_tomb_main_quest.gsc
-```
-### The following scripts are not checked yet, uploaded to setup a baseline:
-```
-zm_tomb_patch/maps/mp/zm_tomb_achivement.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ambient_scripts.gsc
-zm_tomb_patch/maps/mp/zm_tomb_capture_zones.gsc
 zm_tomb_patch/maps/mp/zm_tomb_capture_zones_ffotd.gsc
 zm_tomb_patch/maps/mp/zm_tomb_challenges.gsc
-zm_tomb_patch/maps/mp/zm_tomb_chamber.gsc
-zm_tomb_patch/maps/mp/zm_tomb_distance_tracking.gsc
-zm_tomb_patch/maps/mp/zm_tomb_ee_lights.gsc
-zm_tomb_patch/maps/mp/zm_tomb_ee_main.gsc
+zm_tomb_patch/maps/mp/zm_tomb_craftables.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_1.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_2.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_3.gsc
@@ -39,18 +29,28 @@ zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_5.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_6.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_7.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_main_step_8.gsc
+zm_tomb_patch/maps/mp/zm_tomb_gamemodes.gsc
+zm_tomb_patch/maps/mp/zm_tomb_giant_robot_ffotd.gsc
+zm_tomb_patch/maps/mp/zm_tomb_main_quest.gsc
+zm_tomb_patch/maps/mp/zm_tomb_standard.gsc
+```
+### The following scripts are not checked yet, uploaded to setup a baseline:
+```
+zm_tomb_patch/maps/mp/zm_tomb_achivement.gsc
+zm_tomb_patch/maps/mp/zm_tomb_capture_zones.gsc
+zm_tomb_patch/maps/mp/zm_tomb_chamber.gsc
+zm_tomb_patch/maps/mp/zm_tomb_distance_tracking.gsc
+zm_tomb_patch/maps/mp/zm_tomb_ee_lights.gsc
+zm_tomb_patch/maps/mp/zm_tomb_ee_main.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ee_side.gsc
 zm_tomb_patch/maps/mp/zm_tomb_ffotd.gsc
 zm_tomb_patch/maps/mp/zm_tomb_fx.gsc
-zm_tomb_patch/maps/mp/zm_tomb_gamemodes.gsc
 zm_tomb_patch/maps/mp/zm_tomb_giant_robot.gsc
-zm_tomb_patch/maps/mp/zm_tomb_giant_robot_ffotd.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_air.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_crypt.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_elec.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_fire.gsc
 zm_tomb_patch/maps/mp/zm_tomb_quest_ice.gsc
-zm_tomb_patch/maps/mp/zm_tomb_standard.gsc
 zm_tomb_patch/maps/mp/zm_tomb_tank.gsc
 zm_tomb_patch/maps/mp/zm_tomb_teleporter.gsc
 zm_tomb_patch/maps/mp/zm_tomb_utility.gsc

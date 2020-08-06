@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zm_tomb_chamber;
 #include maps/mp/gametypes_zm/_hud;
 #include maps/mp/gametypes_zm/_hud_util;
@@ -9,46 +10,40 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	declare_sidequest_stage( "little_girl_lost", "step_8", ::init_stage, ::stage_logic, ::exit_stage );
 }
 
-init_stage()
+init_stage() //checked matches cerberus output
 {
 	level._cur_stage_name = "step_8";
 	level.quadrotor_custom_behavior = ::move_into_portal;
 }
 
-stage_logic()
+stage_logic() //checked changed to match cerberus output
 {
+	/*
 /#
 	iprintln( level._cur_stage_name + " of little girl lost started" );
 #/
+	*/
 	level notify( "tomb_sidequest_complete" );
-	_a34 = get_players();
-	_k34 = getFirstArrayKey( _a34 );
-	while ( isDefined( _k34 ) )
+	foreach ( player in get_players() )
 	{
-		player = _a34[ _k34 ];
 		if ( player is_player_in_chamber() )
 		{
-			player thread fadetoblackforxsec( 0, 1, 0,5, 0,5, "white" );
+			player thread fadetoblackforxsec( 0, 1, 0.5, 0.5, "white" );
 		}
-		_k34 = getNextArrayKey( _a34, _k34 );
 	}
-	wait 0,5;
+	wait 0.5;
 	level setclientfield( "ee_sam_portal", 2 );
 	level notify( "stop_random_chamber_walls" );
 	a_walls = getentarray( "chamber_wall", "script_noteworthy" );
-	_a51 = a_walls;
-	_k51 = getFirstArrayKey( _a51 );
-	while ( isDefined( _k51 ) )
+	foreach ( e_wall in a_walls )
 	{
-		e_wall = _a51[ _k51 ];
 		e_wall thread maps/mp/zm_tomb_chamber::move_wall_up();
 		e_wall hide();
-		_k51 = getNextArrayKey( _a51, _k51 );
 	}
 	flag_wait( "ee_quadrotor_disabled" );
 	wait 1;
@@ -58,7 +53,7 @@ stage_logic()
 	t_portal.require_look_at = 1;
 	t_portal.hint_string = &"ZM_TOMB_TELE";
 	t_portal thread waittill_player_activates();
-	level.ee_ending_beam_fx = spawn( "script_model", s_pos.origin + vectorScale( ( 0, 1, 0 ), 300 ) );
+	level.ee_ending_beam_fx = spawn( "script_model", s_pos.origin + vectorScale( ( 0, 0, -1 ), 300 ) );
 	level.ee_ending_beam_fx.angles = vectorScale( ( 0, 1, 0 ), 90 );
 	level.ee_ending_beam_fx setmodel( "tag_origin" );
 	playfxontag( level._effect[ "ee_beam" ], level.ee_ending_beam_fx, "tag_origin" );
@@ -70,11 +65,11 @@ stage_logic()
 	stage_completed( "little_girl_lost", level._cur_stage_name );
 }
 
-exit_stage( success )
+exit_stage( success ) //checked matches cerberus output
 {
 }
 
-waittill_player_activates()
+waittill_player_activates() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -83,7 +78,7 @@ waittill_player_activates()
 	}
 }
 
-move_into_portal()
+move_into_portal() //checked matches cerberus output 
 {
 	s_goal = getstruct( "maxis_portal_path", "targetname" );
 	if ( distance2dsquared( self.origin, s_goal.origin ) < 250000 )
@@ -103,3 +98,4 @@ move_into_portal()
 		level.maxis_quadrotor = undefined;
 	}
 }
+

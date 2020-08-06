@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/animscripts/zm_shared;
 #include maps/mp/zombies/_zm_powerups;
 #include maps/mp/zombies/_zm_spawner;
@@ -14,12 +15,12 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	declare_sidequest_stage( "little_girl_lost", "step_4", ::init_stage, ::stage_logic, ::exit_stage );
 }
 
-init_stage()
+init_stage() //checked matches cerberus output
 {
 	level._cur_stage_name = "step_4";
 	level.ee_mech_zombies_killed = 0;
@@ -28,14 +29,16 @@ init_stage()
 	level.quadrotor_custom_behavior = ::mech_zombie_hole_search;
 }
 
-stage_logic()
+stage_logic() //checked changed to match cerberus output
 {
+	/*
 /#
 	iprintln( level._cur_stage_name + " of little girl lost started" );
 #/
+	*/
 	flag_wait( "ee_quadrotor_disabled" );
 	level thread sndee4music();
-	while ( !flag( "ee_mech_zombie_fight_completed" ) )
+	if ( !flag( "ee_mech_zombie_fight_completed" ) )
 	{
 		while ( level.ee_mech_zombies_spawned < 8 )
 		{
@@ -46,7 +49,7 @@ stage_logic()
 				level.ee_mech_zombies_alive++;
 				level.ee_mech_zombies_spawned++;
 			}
-			wait randomfloatrange( 0,5, 1 );
+			wait randomfloatrange( 0.5, 1 );
 		}
 	}
 	flag_wait( "ee_mech_zombie_fight_completed" );
@@ -54,12 +57,12 @@ stage_logic()
 	stage_completed( "little_girl_lost", level._cur_stage_name );
 }
 
-exit_stage( success )
+exit_stage( success ) //checked matches cerberus output
 {
 	level.quadrotor_custom_behavior = undefined;
 }
 
-mech_zombie_hole_search()
+mech_zombie_hole_search() //checked matches cerberus output
 {
 	s_goal = getstruct( "ee_mech_hole_goal_0", "targetname" );
 	if ( distance2dsquared( self.origin, s_goal.origin ) < 250000 )
@@ -82,7 +85,7 @@ mech_zombie_hole_search()
 	}
 }
 
-ee_mechz_spawn( n_spawn_pos )
+ee_mechz_spawn( n_spawn_pos ) //checked matches cerberus output
 {
 	self maps/mp/zombies/_zm_ai_mechz_ffotd::spawn_start();
 	self endon( "death" );
@@ -91,7 +94,7 @@ ee_mechz_spawn( n_spawn_pos )
 	self mechz_set_starting_health();
 	self mechz_setup_fx();
 	self mechz_setup_snd();
-	self.closest_player_override = ::maps/mp/zombies/_zm_ai_mechz::get_favorite_enemy;
+	self.closest_player_override = maps/mp/zombies/_zm_ai_mechz::get_favorite_enemy;
 	self.animname = "mechz_zombie";
 	self.has_legs = 1;
 	self.no_gib = 1;
@@ -139,7 +142,7 @@ ee_mechz_spawn( n_spawn_pos )
 	self maps/mp/zombies/_zm_ai_mechz_ffotd::spawn_end();
 }
 
-mechz_death_ee()
+mechz_death_ee() //checked matches cerberus output
 {
 	self waittill( "death" );
 	level.ee_mech_zombies_killed++;
@@ -158,10 +161,11 @@ mechz_death_ee()
 	}
 }
 
-ee_mechz_do_jump( s_spawn_pos )
+ee_mechz_do_jump( s_spawn_pos ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "kill_jump" );
+	/*
 /#
 	if ( getDvarInt( #"E7121222" ) > 0 )
 	{
@@ -174,6 +178,7 @@ ee_mechz_do_jump( s_spawn_pos )
 		println( "\nMZ: Jump setting not interruptable\n" );
 #/
 	}
+	*/
 	self.not_interruptable = 1;
 	self setfreecameralockonallowed( 0 );
 	self animscripted( self.origin, self.angles, "zm_fly_out" );
@@ -205,17 +210,19 @@ ee_mechz_do_jump( s_spawn_pos )
 	self maps/mp/animscripts/zm_shared::donotetracks( "jump_anim" );
 	self.not_interruptable = 0;
 	self setfreecameralockonallowed( 1 );
+	/*
 /#
 	if ( getDvarInt( #"E7121222" ) > 1 )
 	{
 		println( "\nMZ: Jump clearing not interruptable\n" );
 #/
 	}
+	*/
 	mechz_jump_cleanup();
 	self.closest_jump_point = s_landing_point;
 }
 
-sndee4music()
+sndee4music() //checked matches cerberus output
 {
 	shouldplay = sndwait();
 	if ( !shouldplay )
@@ -229,11 +236,11 @@ sndee4music()
 	flag_wait( "ee_mech_zombie_fight_completed" );
 	level setclientfield( "mus_zmb_egg_snapshot_loop", 0 );
 	level.music_override = 0;
-	wait 0,05;
+	wait 0.05;
 	ent delete();
 }
 
-sndwait()
+sndwait() //checked matches cerberus output
 {
 	counter = 0;
 	while ( is_true( level.music_override ) )
@@ -247,3 +254,4 @@ sndwait()
 	}
 	return 1;
 }
+

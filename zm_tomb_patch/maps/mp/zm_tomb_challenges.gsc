@@ -1,10 +1,11 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_weap_one_inch_punch;
 #include maps/mp/zombies/_zm_perks;
 #include maps/mp/zombies/_zm_powerup_zombie_blood;
 #include maps/mp/zombies/_zm_audio_announcer;
 #include maps/mp/zombies/_zm_powerups;
 #include maps/mp/zombies/_zm_weapons;
-#include raw/maps/mp/_zm_challenges;
+#include maps/mp/zombies/_zm_challenges;
 #include maps/mp/zm_tomb_vo;
 #include maps/mp/zm_tomb_utility;
 #include maps/mp/zombies/_zm_audio;
@@ -12,20 +13,21 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props_dlc4" );
+//#using_animtree( "fxanim_props_dlc4" );
 
-challenges_init()
+challenges_init() //checked matches cerberus output
 {
 	level.challenges_add_stats = ::tomb_challenges_add_stats;
 	maps/mp/zombies/_zm_challenges::init();
 }
 
-tomb_challenges_add_stats()
+tomb_challenges_add_stats() //checked matches cerberus output
 {
 	n_kills = 115;
 	n_zone_caps = 6;
 	n_points_spent = 30000;
 	n_boxes_filled = 4;
+	/*
 /#
 	if ( getDvarInt( "zombie_cheat" ) > 0 )
 	{
@@ -35,13 +37,14 @@ tomb_challenges_add_stats()
 		n_boxes_filled = 1;
 #/
 	}
+	*/
 	add_stat( "zc_headshots", 0, &"ZM_TOMB_CH1", n_kills, undefined, ::reward_packed_weapon );
 	add_stat( "zc_zone_captures", 0, &"ZM_TOMB_CH2", n_zone_caps, undefined, ::reward_powerup_max_ammo );
 	add_stat( "zc_points_spent", 0, &"ZM_TOMB_CH3", n_points_spent, undefined, ::reward_double_tap, ::track_points_spent );
 	add_stat( "zc_boxes_filled", 1, &"ZM_TOMB_CHT", n_boxes_filled, undefined, ::reward_one_inch_punch, ::init_box_footprints );
 }
 
-track_points_spent()
+track_points_spent() //checked matches cerberus output
 {
 	while ( 1 )
 	{
@@ -50,7 +53,7 @@ track_points_spent()
 	}
 }
 
-init_box_footprints()
+init_box_footprints() //checked matches cerberus output
 {
 	level.n_soul_boxes_completed = 0;
 	flag_init( "vo_soul_box_intro_played" );
@@ -59,16 +62,18 @@ init_box_footprints()
 	array_thread( a_boxes, ::box_footprint_think );
 }
 
-box_footprint_think()
+box_footprint_think() //checked changed to match cerberus output
 {
 	self.n_souls_absorbed = 0;
 	n_souls_required = 30;
+	/*
 /#
 	if ( getDvarInt( "zombie_cheat" ) > 0 )
 	{
 		n_souls_required = 10;
 #/
 	}
+	*/
 	self useanimtree( -1 );
 	self thread watch_for_foot_stomp();
 	wait 1;
@@ -86,7 +91,7 @@ box_footprint_think()
 			self delay_thread( 1, ::setclientfield, "foot_print_box_glow", 1 );
 			if ( isDefined( player ) && !flag( "vo_soul_box_intro_played" ) )
 			{
-				player delay_thread( 1,5, ::richtofenrespondvoplay, "zm_box_start", 0, "vo_soul_box_intro_played" );
+				player delay_thread( 1.5, ::richtofenrespondvoplay, "zm_box_start", 0, "vo_soul_box_intro_played" );
 			}
 		}
 		if ( self.n_souls_absorbed == floor( n_souls_required / 4 ) )
@@ -114,25 +119,23 @@ box_footprint_think()
 	level.n_soul_boxes_completed++;
 	e_volume = getent( self.target, "targetname" );
 	e_volume delete();
-	self delay_thread( 0,5, ::setclientfield, "foot_print_box_glow", 0 );
+	self delay_thread( 0.5, ::setclientfield, "foot_print_box_glow", 0 );
 	wait 1;
 	self movez( 30, 1, 1 );
-	wait 0,5;
+	wait 0.5;
 	n_rotations = randomintrange( 5, 7 );
 	v_start_angles = self.angles;
-	i = 0;
-	while ( i < n_rotations )
+	for ( i = 0; i < n_rotations; i++ )
 	{
 		v_rotate_angles = v_start_angles + ( randomfloatrange( -10, 10 ), randomfloatrange( -10, 10 ), randomfloatrange( -10, 10 ) );
-		n_rotate_time = randomfloatrange( 0,2, 0,4 );
+		n_rotate_time = randomfloatrange( 0.2, 0.4 );
 		self rotateto( v_rotate_angles, n_rotate_time );
 		self waittill( "rotatedone" );
-		i++;
 	}
-	self rotateto( v_start_angles, 0,3 );
-	self movez( -60, 0,5, 0,5 );
+	self rotateto( v_start_angles, 0.3 );
+	self movez( -60, 0.5, 0.5 );
 	self waittill( "rotatedone" );
-	trace_start = self.origin + vectorScale( ( 0, 1, 0 ), 200 );
+	trace_start = self.origin + vectorScale( ( 0, 0, 1 ), 200 );
 	trace_end = self.origin;
 	fx_trace = bullettrace( trace_start, trace_end, 0, self );
 	playfx( level._effect[ "mech_booster_landing" ], fx_trace[ "position" ], anglesToForward( self.angles ), anglesToUp( self.angles ) );
@@ -145,18 +148,15 @@ box_footprint_think()
 		{
 			player thread richtofenrespondvoplay( "zm_box_complete" );
 		}
-		else
+		else if ( level.n_soul_boxes_completed == 4 )
 		{
-			if ( level.n_soul_boxes_completed == 4 )
-			{
-				player thread richtofenrespondvoplay( "zm_box_final_complete", 1 );
-			}
+			player thread richtofenrespondvoplay( "zm_box_final_complete", 1 );
 		}
 	}
 	self delete();
 }
 
-watch_for_foot_stomp()
+watch_for_foot_stomp() //checked matches cerberus output
 {
 	self endon( "box_finished" );
 	while ( 1 )
@@ -170,14 +170,11 @@ watch_for_foot_stomp()
 	}
 }
 
-footprint_zombie_killed( attacker )
+footprint_zombie_killed( attacker ) //checked changed to match cerberus output
 {
 	a_volumes = getentarray( "foot_box_volume", "script_noteworthy" );
-	_a268 = a_volumes;
-	_k268 = getFirstArrayKey( _a268 );
-	while ( isDefined( _k268 ) )
+	foreach ( e_volume in a_volumes )
 	{
-		e_volume = _a268[ _k268 ];
 		if ( self istouching( e_volume ) && isDefined( attacker ) && isplayer( attacker ) )
 		{
 			self setclientfield( "foot_print_box_fx", 1 );
@@ -185,12 +182,11 @@ footprint_zombie_killed( attacker )
 			m_box notify( "soul_absorbed" );
 			return 1;
 		}
-		_k268 = getNextArrayKey( _a268, _k268 );
 	}
 	return 0;
 }
 
-reward_packed_weapon( player, s_stat )
+reward_packed_weapon( player, s_stat ) //checked matches cerberus output
 {
 	if ( !isDefined( s_stat.str_reward_weapon ) )
 	{
@@ -200,7 +196,7 @@ reward_packed_weapon( player, s_stat )
 	m_weapon = spawn( "script_model", self.origin );
 	m_weapon.angles = self.angles + vectorScale( ( 0, 1, 0 ), 180 );
 	m_weapon playsound( "zmb_spawn_powerup" );
-	m_weapon playloopsound( "zmb_spawn_powerup_loop", 0,5 );
+	m_weapon playloopsound( "zmb_spawn_powerup_loop", 0.5 );
 	str_model = getweaponmodel( s_stat.str_reward_weapon );
 	options = player maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( s_stat.str_reward_weapon );
 	m_weapon useweaponmodel( s_stat.str_reward_weapon, str_model, options );
@@ -221,28 +217,28 @@ reward_packed_weapon( player, s_stat )
 		player givestartammo( s_stat.str_reward_weapon );
 	}
 	player switchtoweapon( s_stat.str_reward_weapon );
-	m_weapon stoploopsound( 0,1 );
+	m_weapon stoploopsound( 0.1 );
 	player playsound( "zmb_powerup_grabbed" );
 	m_weapon delete();
 	return 1;
 }
 
-reward_powerup_max_ammo( player, s_stat )
+reward_powerup_max_ammo( player, s_stat ) //checked matches cerberus output
 {
 	return reward_powerup( player, "full_ammo" );
 }
 
-reward_powerup_double_points( player, n_timeout )
+reward_powerup_double_points( player, n_timeout ) //checked matches cerberus output
 {
 	return reward_powerup( player, "double_points", n_timeout );
 }
 
-reward_powerup_zombie_blood( player, n_timeout )
+reward_powerup_zombie_blood( player, n_timeout ) //checked matches cerberus output
 {
 	return reward_powerup( player, "zombie_blood", n_timeout );
 }
 
-reward_powerup( player, str_powerup, n_timeout )
+reward_powerup( player, str_powerup, n_timeout ) //checked matches cerberus output
 {
 	if ( !isDefined( n_timeout ) )
 	{
@@ -257,7 +253,7 @@ reward_powerup( player, str_powerup, n_timeout )
 	m_reward.angles = self.angles + vectorScale( ( 0, 1, 0 ), 180 );
 	m_reward setmodel( s_powerup.model_name );
 	m_reward playsound( "zmb_spawn_powerup" );
-	m_reward playloopsound( "zmb_spawn_powerup_loop", 0,5 );
+	m_reward playloopsound( "zmb_spawn_powerup_loop", 0.5 );
 	wait_network_frame();
 	if ( !reward_rise_and_grab( m_reward, 50, 2, 2, n_timeout ) )
 	{
@@ -268,7 +264,7 @@ reward_powerup( player, str_powerup, n_timeout )
 	{
 		player = self.player_using;
 	}
-	switch( str_powerup )
+	switch ( str_powerup )
 	{
 		case "full_ammo":
 			level thread maps/mp/zombies/_zm_powerups::full_ammo_powerup( m_reward, player );
@@ -284,14 +280,14 @@ reward_powerup( player, str_powerup, n_timeout )
 			level thread maps/mp/zombies/_zm_powerup_zombie_blood::zombie_blood_powerup( m_reward, player );
 			level thread maps/mp/zombies/_zm_audio_announcer::leaderdialog( "zombie_blood", player.pers[ "team" ] );
 	}
-	wait 0,1;
-	m_reward stoploopsound( 0,1 );
+	wait 0.1;
+	m_reward stoploopsound( 0.1 );
 	player playsound( "zmb_powerup_grabbed" );
 	m_reward delete();
 	return 1;
 }
 
-reward_double_tap( player, s_stat )
+reward_double_tap( player, s_stat ) //checked matches cerberus output
 {
 	m_reward = spawn( "script_model", self.origin );
 	m_reward.angles = self.angles + vectorScale( ( 0, 1, 0 ), 180 );
@@ -309,14 +305,14 @@ reward_double_tap( player, s_stat )
 		m_reward thread bottle_reject_sink( player );
 		return 0;
 	}
-	m_reward stoploopsound( 0,1 );
+	m_reward stoploopsound( 0.1 );
 	player playsound( "zmb_powerup_grabbed" );
 	m_reward thread maps/mp/zombies/_zm_perks::vending_trigger_post_think( player, "specialty_rof" );
 	m_reward delete();
 	return 1;
 }
 
-bottle_reject_sink( player )
+bottle_reject_sink( player ) //checked matches cerberus output
 {
 	n_time = 1;
 	player playlocalsound( level.zmb_laugh_alias );
@@ -325,14 +321,14 @@ bottle_reject_sink( player )
 	self delete();
 }
 
-reward_one_inch_punch( player, s_stat )
+reward_one_inch_punch( player, s_stat ) //checked matches cerberus output
 {
 	m_reward = spawn( "script_model", self.origin );
 	m_reward.angles = self.angles + vectorScale( ( 0, 1, 0 ), 180 );
 	m_reward setmodel( "tag_origin" );
 	playfxontag( level._effect[ "staff_soul" ], m_reward, "tag_origin" );
 	m_reward playsound( "zmb_spawn_powerup" );
-	m_reward playloopsound( "zmb_spawn_powerup_loop", 0,5 );
+	m_reward playloopsound( "zmb_spawn_powerup_loop", 0.5 );
 	wait_network_frame();
 	if ( !reward_rise_and_grab( m_reward, 50, 2, 2, 10 ) )
 	{
@@ -346,7 +342,7 @@ reward_one_inch_punch( player, s_stat )
 	return 1;
 }
 
-one_inch_punch_watch_for_death( s_stat )
+one_inch_punch_watch_for_death( s_stat ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill( "bled_out" );
@@ -364,20 +360,21 @@ reward_beacon( player, s_stat )
 	str_model = getweaponmodel( "beacon_zm" );
 	m_reward setmodel( str_model );
 	m_reward playsound( "zmb_spawn_powerup" );
-	m_reward playloopsound( "zmb_spawn_powerup_loop", 0,5 );
+	m_reward playloopsound( "zmb_spawn_powerup_loop", 0.5 );
 	wait_network_frame();
 	if ( !reward_rise_and_grab( m_reward, 50, 2, 2, 10 ) )
 	{
 		return 0;
 	}
 	player maps/mp/zombies/_zm_weapons::weapon_give( "beacon_zm" );
-	if ( isDefined( level.zombie_include_weapons[ "beacon_zm" ] ) && !level.zombie_include_weapons[ "beacon_zm" ] )
+	if ( !is_true( level.zombie_include_weapons[ "beacon_zm" ] ) )
 	{
 		level.zombie_include_weapons[ "beacon_zm" ] = 1;
 		level.zombie_weapons[ "beacon_zm" ].is_in_box = 1;
 	}
-	m_reward stoploopsound( 0,1 );
+	m_reward stoploopsound( 0.1 );
 	player playsound( "zmb_powerup_grabbed" );
 	m_reward delete();
 	return 1;
 }
+
