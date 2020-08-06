@@ -6,9 +6,9 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props_dlc4" );
+//#using_animtree( "fxanim_props_dlc4" );
 
-tomb_ambient_precache()
+tomb_ambient_precache() //checked matches cerberus output
 {
 	precachemodel( "veh_t6_dlc_zm_zeppelin" );
 }
