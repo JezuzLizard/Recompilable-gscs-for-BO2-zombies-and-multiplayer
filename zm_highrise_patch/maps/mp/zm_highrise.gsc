@@ -179,12 +179,12 @@ main() //checked changed to match cerberus output
 	level._zombie_custom_add_weapons = ::custom_add_weapons;
 	level._allow_melee_weapon_switching = 1;
 	level.custom_ai_type = [];
-	level.custom_ai_type[ level.custom_ai_type.size ] = ::maps/mp/zombies/_zm_ai_leaper::init;
+	level.custom_ai_type[ level.custom_ai_type.size ] = maps/mp/zombies/_zm_ai_leaper::init; //remove unneeded :: before filepath. makes map fail to launch due to not being able to find _zm_ai_leaper
 	include_weapons();
 	include_powerups();
 	include_equipment_for_level();
 	init_level_specific_wall_buy_fx();
-	level.special_weapon_magicbox_check = ::highrise_special_weapon_magicbox_check;
+//	level.special_weapon_magicbox_check = ::highrise_special_weapon_magicbox_check;  //no function highrise_special_weapon_magicbox_check found. makes map fail to launch due to unresolved external error.
 	level.melee_anim_state = ::melee_anim_state;
 	level.pandora_fx_func = ::zm_highrise_pandora_fx_func;
 	maps/mp/zm_highrise_elevators::init_elevator_perks();
