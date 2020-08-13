@@ -184,7 +184,8 @@ main() //checked changed to match cerberus output
 	include_powerups();
 	include_equipment_for_level();
 	init_level_specific_wall_buy_fx();
-//	level.special_weapon_magicbox_check = ::highrise_special_weapon_magicbox_check;  //no function highrise_special_weapon_magicbox_check found. makes map fail to launch due to unresolved external error.
+	level.special_weapon_magicbox_check = ::highrise_special_weapon_magicbox_check;  //no function highrise_special_weapon_magicbox_check found. makes map fail to launch due to unresolved external error. //I forgot to include this function from cerberus; for some reason certain functions and code are
+	//missing from certain functions in the scripts I use as a base.
 	level.melee_anim_state = ::melee_anim_state;
 	level.pandora_fx_func = ::zm_highrise_pandora_fx_func;
 	maps/mp/zm_highrise_elevators::init_elevator_perks();
