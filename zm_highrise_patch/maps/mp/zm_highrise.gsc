@@ -1844,4 +1844,28 @@ elevator_traverse_watcher() //checked matches cerberus output
 	}
 }
 
-
+highrise_special_weapon_magicbox_check(weapon)
+{
+	if ( is_true( level.raygun2_included ) )
+	{
+		if ( weapon == "ray_gun_zm" )
+		{
+			if(self has_weapon_or_upgrade( "raygun_mark2_zm" ) || maps/mp/zombies/_zm_chugabud::is_weapon_available_in_chugabud_corpse( "raygun_mark2_zm", self ) )
+			{
+				return 0;
+			}
+		}
+		if ( weapon == "raygun_mark2_zm" )
+		{
+			if ( self has_weapon_or_upgrade( "ray_gun_zm" ) || maps/mp/zombies/_zm_chugabud::is_weapon_available_in_chugabud_corpse( "ray_gun_zm", self ) )
+			{
+				return 0;
+			}
+			if ( randomint( 100 ) >= 33 )
+			{
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
