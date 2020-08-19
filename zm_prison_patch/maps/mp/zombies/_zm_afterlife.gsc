@@ -133,7 +133,7 @@ afterlife_load_fx()
 afterlife_start_zombie_logic()
 {
 	flag_wait( "start_zombie_round_logic" );
-	wait 0,5;
+	wait 0.5;
 	b_everyone_alive = 0;
 	while ( isDefined( b_everyone_alive ) && !b_everyone_alive )
 	{
@@ -147,7 +147,7 @@ afterlife_start_zombie_logic()
 			if ( isDefined( player.afterlife ) && player.afterlife )
 			{
 				b_everyone_alive = 0;
-				wait 0,05;
+				wait 0.05;
 				break;
 			}
 			else
@@ -156,10 +156,10 @@ afterlife_start_zombie_logic()
 			}
 		}
 	}
-	wait 0,5;
+	wait 0.5;
 	while ( level.intermission )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	flag_set( "afterlife_start_over" );
 	wait 2;
@@ -327,7 +327,7 @@ afterlife_player_damage_callback( einflictor, eattacker, idamage, idflags, smean
 			}
 			if ( isDefined( self.hasriotshieldequipped ) && self.hasriotshieldequipped )
 			{
-				if ( self player_shield_facing_attacker( vdir, 0,2 ) && isDefined( self.player_shield_apply_damage ) )
+				if ( self player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
 				{
 					self [[ self.player_shield_apply_damage ]]( item_dmg, 0 );
 					return 0;
@@ -337,7 +337,7 @@ afterlife_player_damage_callback( einflictor, eattacker, idamage, idflags, smean
 			{
 				if ( !isDefined( self.riotshieldentity ) )
 				{
-					if ( !self player_shield_facing_attacker( vdir, -0,2 ) && isDefined( self.player_shield_apply_damage ) )
+					if ( !self player_shield_facing_attacker( vdir, -0.2 ) && isDefined( self.player_shield_apply_damage ) )
 					{
 						self [[ self.player_shield_apply_damage ]]( item_dmg, 0 );
 						return 0;
@@ -571,8 +571,8 @@ afterlife_laststand( b_electric_chair )
 	{
 		self clientnotify( "al_t" );
 		wait 1;
-		self thread fadetoblackforxsec( 0, 1, 0,5, 0,5, "white" );
-		wait 0,5;
+		self thread fadetoblackforxsec( 0, 1, 0.5, 0.5, "white" );
+		wait 0.5;
 	}
 	self ghost();
 	self.e_afterlife_corpse = self afterlife_spawn_corpse();
@@ -581,7 +581,7 @@ afterlife_laststand( b_electric_chair )
 	self afterlife_fake_revive();
 	self afterlife_enter();
 	self.e_afterlife_corpse setclientfield( "player_corpse_id", self getentitynumber() + 1 );
-	wait 0,5;
+	wait 0.5;
 	self show();
 	if ( isDefined( self.hostmigrationcontrolsfrozen ) && !self.hostmigrationcontrolsfrozen )
 	{
@@ -674,8 +674,8 @@ afterlife_mana_watch( corpse )
 	corpse endon( "player_revived" );
 	while ( self.manacur > 0 )
 	{
-		wait 0,05;
-		self afterlife_reduce_mana( 0,05 * self.afterlifedeaths * 3 );
+		wait 0.05;
+		self afterlife_reduce_mana( 0.05 * self.afterlifedeaths * 3 );
 		if ( self.manacur < 0 )
 		{
 			self.manacur = 0;
@@ -687,12 +687,12 @@ afterlife_mana_watch( corpse )
 	{
 		while ( corpse.revivetrigger.beingrevived )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 	corpse notify( "stop_revive_trigger" );
-	self thread fadetoblackforxsec( 0, 0,5, 0,5, 0,5, "black" );
-	wait 0,5;
+	self thread fadetoblackforxsec( 0, 0.5, 0.5, 0.5, "black" );
+	wait 0.5;
 	self notify( "out_of_mana" );
 	self afterlife_leave( 0 );
 }
@@ -875,7 +875,7 @@ afterlife_corpse_create_pois()
 		while ( i < 3 )
 		{
 			self.pois[ i ] = afterlife_corpse_create_poi( a_nodes[ i ].origin, n_attractors );
-			wait 0,05;
+			wait 0.05;
 			i++;
 		}
 	}
@@ -886,9 +886,9 @@ afterlife_corpse_create_poi( v_origin, n_attractors )
 	e_poi = spawn( "script_origin", v_origin );
 	e_poi create_zombie_point_of_interest( 10000, 24, 5000, 1 );
 	e_poi thread create_zombie_point_of_interest_attractor_positions();
-/#
-	e_poi thread print3d_ent( "Corpse POI" );
-#/
+//#/
+//	e_poi thread print3d_ent( "Corpse POI" );
+//#//
 	return e_poi;
 }
 
@@ -934,7 +934,7 @@ afterlife_revive_hud_create()
 	self.revive_hud.y = -160;
 	self.revive_hud.foreground = 1;
 	self.revive_hud.font = "default";
-	self.revive_hud.fontscale = 1,5;
+	self.revive_hud.fontscale = 1.5;
 	self.revive_hud.alpha = 0;
 	self.revive_hud.color = ( 0, 0, 1 );
 	self.revive_hud.hidewheninmenu = 1;
@@ -965,7 +965,7 @@ afterlife_revive_trigger_think()
 	wait 1;
 	while ( 1 )
 	{
-		wait 0,1;
+		wait 0.1;
 		self.revivetrigger sethintstring( "" );
 		players = get_players();
 		i = 0;
@@ -993,9 +993,9 @@ afterlife_revive_trigger_think()
 			else
 			{
 				gun = reviver getcurrentweapon();
-/#
-				assert( isDefined( gun ) );
-#/
+//#
+//				assert( isDefined( gun ) );
+//#/
 				if ( gun == level.revive_tool || gun == level.afterlife_revive_tool )
 				{
 					i++;
@@ -1094,9 +1094,9 @@ afterlife_can_revive( revivee )
 
 afterlife_revive_do_revive( playerbeingrevived, revivergun )
 {
-/#
-	assert( self is_reviving_afterlife( playerbeingrevived ) );
-#/
+//#
+//	assert( self is_reviving_afterlife( playerbeingrevived ) );
+//#/
 	revivetime = 3;
 	playloop = 0;
 	if ( isDefined( self.afterlife ) && self.afterlife )
@@ -1130,7 +1130,7 @@ afterlife_revive_do_revive( playerbeingrevived, revivergun )
 	}
 	self.is_reviving_any++;
 	self thread laststand_clean_up_reviving_any( playerbeingrevived );
-	self.reviveprogressbar updatebar( 0,01, 1 / revivetime );
+	self.reviveprogressbar updatebar( 0.01, 1 / revivetime );
 	self.revivetexthud.alignx = "center";
 	self.revivetexthud.aligny = "middle";
 	self.revivetexthud.horzalign = "center";
@@ -1142,13 +1142,13 @@ afterlife_revive_do_revive( playerbeingrevived, revivergun )
 	}
 	self.revivetexthud.foreground = 1;
 	self.revivetexthud.font = "default";
-	self.revivetexthud.fontscale = 1,8;
+	self.revivetexthud.fontscale = 1.8;
 	self.revivetexthud.alpha = 1;
 	self.revivetexthud.color = ( 0, 0, 1 );
 	self.revivetexthud.hidewheninmenu = 1;
 	if ( isDefined( self.pers_upgrades_awarded[ "revive" ] ) && self.pers_upgrades_awarded[ "revive" ] )
 	{
-		self.revivetexthud.color = ( 0,5, 0,5, 1 );
+		self.revivetexthud.color = ( 0.5, 0.5, 1 );
 	}
 	self.revivetexthud settext( &"GAME_REVIVING" );
 	self thread check_for_failed_revive( playerbeingrevived );
@@ -1158,12 +1158,12 @@ afterlife_revive_do_revive( playerbeingrevived, revivergun )
 	playfxontag( level._effect[ "afterlife_leave" ], e_fx, "tag_origin" );
 	if ( isDefined( playloop ) && playloop )
 	{
-		e_fx playloopsound( "zmb_afterlife_reviving", 0,05 );
+		e_fx playloopsound( "zmb_afterlife_reviving", 0.05 );
 	}
 	while ( self is_reviving_afterlife( playerbeingrevived ) )
 	{
-		wait 0,05;
-		timer += 0,05;
+		wait 0.05;
+		timer += 0.05;
 		if ( self player_is_in_laststand() )
 		{
 			break;
@@ -1457,7 +1457,7 @@ afterlife_fake_death()
 	{
 		while ( self is_jumping() )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 	playfx( level._effect[ "afterlife_enter" ], self.origin );
@@ -1547,9 +1547,9 @@ afterlife_get_spawnpoint()
 		{
 			spawnpoints = getstructarray( "initial_spawn_points", "targetname" );
 		}
-/#
-		assert( isDefined( spawnpoints ), "Could not find initial spawn points!" );
-#/
+//#
+//		assert( isDefined( spawnpoints ), "Could not find initial spawn points!" );
+//#/
 		spawnpoint = maps/mp/zombies/_zm::getfreespawnpoint( spawnpoints, self );
 	}
 	return spawnpoint;
@@ -1583,9 +1583,9 @@ check_for_valid_spawn_in_zone( player )
 	{
 		str_player_zone = player maps/mp/zombies/_zm_zonemgr::get_player_zone();
 	}
-/#
-	println( "The player is not in a zone at origin " + player.origin );
-#/
+//#
+//	println( "The player is not in a zone at origin " + player.origin );
+//#/
 	_a1929 = a_spawn_points;
 	_k1929 = getFirstArrayKey( _a1929 );
 	while ( isDefined( _k1929 ) )
@@ -1696,13 +1696,13 @@ afterlife_reduce_mana( n_mana )
 		self.manacur = 200;
 		return;
 	}
-/#
-	if ( getDvarInt( "zombie_cheat" ) >= 1 )
-	{
-		self.manacur = 200;
-		return;
-#/
-	}
+// /#
+// 	if ( getDvarInt( "zombie_cheat" ) >= 1 )
+// 	{
+// 		self.manacur = 200;
+// 		return;
+// #/
+// //	}
 	if ( isDefined( self.e_afterlife_corpse ) && isDefined( self.e_afterlife_corpse.revivetrigger.beingrevived ) && self.e_afterlife_corpse.revivetrigger.beingrevived )
 	{
 		return;
@@ -1718,7 +1718,7 @@ afterlife_lightning_watch( corpse )
 	{
 		self waittill( "weapon_fired" );
 		self afterlife_reduce_mana( 1 );
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
@@ -1730,10 +1730,10 @@ afterlife_jump_watch( corpse )
 	{
 		if ( self is_jumping() )
 		{
-			self afterlife_reduce_mana( 0,3 );
-			earthquake( 0,1, 0,05, self.origin, 200, self );
+			self afterlife_reduce_mana( 0.3 );
+			earthquake( 0.1, 0.05, self.origin, 200, self );
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
@@ -1777,7 +1777,7 @@ afterlife_trigger_visibility( player )
 	else
 	{
 		self sethintstring( self.stub.hint_string );
-		if ( !isDefined( player.has_played_afterlife_trigger_hint ) && player is_player_looking_at( self.stub.origin, 0,25 ) )
+		if ( !isDefined( player.has_played_afterlife_trigger_hint ) && player is_player_looking_at( self.stub.origin, 0.25 ) )
 		{
 			if ( isDefined( player.dontspeak ) && !player.dontspeak )
 			{
@@ -1802,7 +1802,7 @@ afterlife_trigger_think()
 		}
 		while ( player is_reviving_any() || player player_is_in_laststand() )
 		{
-			wait 0,1;
+			wait 0.1;
 		}
 		if ( isDefined( player.afterlife ) && !player.afterlife )
 		{
@@ -1984,7 +1984,7 @@ afterlife_trigger_visible_in_afterlife( player )
 	self sethintstring( self.stub.hint_string );
 	if ( !b_is_invis )
 	{
-		if ( player is_player_looking_at( self.origin, 0,25 ) )
+		if ( player is_player_looking_at( self.origin, 0.25 ) )
 		{
 			if ( cointoss() )
 			{
@@ -2034,7 +2034,7 @@ afterlife_damage_func( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 				{
 					a_zombies[ i ] notify( "zapped" );
 					a_zombies[ i ] thread [[ level.afterlife_zapped ]]();
-					wait 0,05;
+					wait 0.05;
 				}
 				i++;
 			}
@@ -2113,9 +2113,9 @@ afterlife_zapped()
 		}
 		else
 		{
-/#
-			iprintln( "Could not teleport" );
-#/
+///#
+//			iprintln( "Could not teleport" );
+//#/
 			playfx( level._effect[ "afterlife_teleport" ], self.origin );
 			playsoundatposition( "zmb_afterlife_zombie_warp_out", self.origin );
 			level.zombie_total++;
@@ -2265,7 +2265,7 @@ last_stand_conscience_vo()
 			self playsoundtoplayer( convo[ i ], self );
 			self thread conscience_vo_ended_early( convo[ i ] );
 			wait ( n_duration / 1000 );
-			wait 0,5;
+			wait 0.5;
 			i++;
 		}
 	}
