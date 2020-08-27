@@ -100,7 +100,7 @@ cleanupoldturbine( preserve_state ) //checked matches cerberus output
 		}
 		self.buildableturbine stoploopsound();
 		self.buildableturbine delete();
-		if ( isDefined( preserve_state ) && !preserve_state )
+		if ( !is_true( preserve_state ) )
 		{
 			self.turbine_health = undefined;
 			self.turbine_emped = undefined;
@@ -179,15 +179,15 @@ pickupturbine( item ) //checked matches cerberus output
 
 transferturbine( fromplayer, toplayer ) //checked changed to match cerberus output
 {
-	while ( isDefined( toplayer.turbine_is_powering_on ) && toplayer.turbine_is_powering_on || isDefined( fromplayer.turbine_is_powering_on ) && fromplayer.turbine_is_powering_on )
+	while ( is_true( toplayer.turbine_is_powering_on ) || is_true( fromplayer.turbine_is_powering_on ) )
 	{
 		wait 0.05;
 	}
-	if ( isDefined( fromplayer.buildableturbine ) && isDefined( fromplayer.buildableturbine.dying ) && fromplayer.buildableturbine.dying )
+	if ( isDefined( fromplayer.buildableturbine ) && is_true( fromplayer.buildableturbine.dying ) )
 	{
 		fromplayer cleanupoldturbine( 0 );
 	}
-	if ( isDefined( toplayer.buildableturbine ) && isDefined( toplayer.buildableturbine.dying ) && toplayer.buildableturbine.dying )
+	if ( isDefined( toplayer.buildableturbine ) && is_true( toplayer.buildableturbine.dying ) )
 	{
 		toplayer cleanupoldturbine( 0 );
 	}
@@ -268,7 +268,7 @@ startturbinedeploy( weapon ) //checked matches cerberus output
 		self thread turbineaudio();
 		self thread turbineanim();
 		self thread turbinepowerthink( weapon, powerradius );
-		if ( isDefined( weapon.equipment_can_move ) && weapon.equipment_can_move )
+		if ( is_true( weapon.equipment_can_move ) )
 		{
 			self thread turbinepowermove( weapon );
 		}
@@ -310,14 +310,14 @@ turbinepowerthink( weapon, powerradius ) //checked changed to match cerberus out
 	self.buildableturbine endon( "death" );
 	origin = weapon.origin;
 	self thread turbine_watch_for_emp( weapon, powerradius );
-	if ( isDefined( self.turbine_power_on ) && self.turbine_power_on || isDefined( self.turbine_emped ) && self.turbine_emped )
+	if ( is_true( self.turbine_power_on ) || is_true( self.turbine_emped ) )
 	{
 		self thread turbinepoweron( origin, powerradius );
 	}
 	while ( isDefined( self.buildableturbine ) )
 	{
 		self waittill( "turbine_power_change" );
-		if ( isDefined( self.turbine_emped ) && self.turbine_emped )
+		if ( is_true( self.turbine_emped ) )
 		{
 			self thread turbinepoweroff( origin, powerradius );
 			if ( isDefined( weapon ) )
@@ -327,7 +327,7 @@ turbinepowerthink( weapon, powerradius ) //checked changed to match cerberus out
 			self thread turbinepoweron( origin, powerradius );
 			//continue;
 		}
-		else if ( isDefined( self.turbine_power_is_on ) && !self.turbine_power_is_on )
+		else if ( !is_true( self.turbine_power_is_on ) )
 		{
 			self thread turbinepoweroff( origin, powerradius );
 			break;
@@ -363,7 +363,7 @@ turbinepowermove( weapon ) //checked matches cerberus output
 
 turbinewarmup() //checked matches cerberus output //order of operations may need to be checked
 {
-	if ( isDefined( self.turbine_emped ) && self.turbine_emped )
+	if ( is_true( self.turbine_emped ) )
 	{
 		emp_time = level.zombie_vars[ "emp_perk_off_time" ];
 		now = getTime();
@@ -389,7 +389,7 @@ turbinepoweron( origin, powerradius ) //checked matches cerberus output
 	self endon( "disconnect" );
 	self endon( "equip_turbine_zm_taken" );
 	self.buildableturbine endon( "death" );
-	if ( isDefined( self.turbine_power_is_on ) && !self.turbine_power_is_on && isDefined( self.turbine_is_powering_on ) && !self.turbine_is_powering_on && isDefined( self.buildableturbine.dying ) && !self.buildableturbine.dying )
+	if ( !is_true( self.turbine_power_is_on ) && !is_true( self.turbine_is_powering_on ) && !is_true( self.buildableturbine.dying ) )
 	{
 		self.turbine_is_powering_on = 1;
 		self.buildableturbine playloopsound( "zmb_turbine_loop", 2 );
@@ -400,7 +400,7 @@ turbinepoweron( origin, powerradius ) //checked matches cerberus output
 		}
 		self.localpower = undefined;
 		self.turbine_power_is_on = 0;
-		if ( isDefined( self.turbine_emped ) && !self.turbine_emped )
+		if ( !is_true( self.turbine_emped ) )
 		{
 			self.localpower = maps/mp/zombies/_zm_power::add_local_power( origin, powerradius );
 			self thread depower_on_disconnect( self.localpower );
@@ -415,7 +415,7 @@ turbinepoweron( origin, powerradius ) //checked matches cerberus output
 
 turbinepoweroff( origin, powerradius ) //checked matches cerberus output
 {
-	if ( isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
+	if ( is_true( self.turbine_power_is_on ) )
 	{
 		if ( isDefined( self.localpower ) )
 		{
@@ -425,7 +425,7 @@ turbinepoweroff( origin, powerradius ) //checked matches cerberus output
 		self.localpower = undefined;
 		self.turbine_power_is_on = 0;
 		self thread turbineaudio();
-		if ( isDefined( self.buildableturbine.dying ) && !self.buildableturbine.dying )
+		if ( !is_true( self.buildableturbine.dying ) )
 		{
 			self thread turbineanim();
 		}
@@ -447,7 +447,7 @@ turbine_disappear_fx( origin, waittime ) //checked matches cerberus output
 
 turbinefxonce( withaoe ) //checked matches cerberus output
 {
-	if ( isDefined( self ) && isDefined( self.buildableturbine ) && isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
+	if ( isDefined( self ) && isDefined( self.buildableturbine ) && is_true( self.turbine_power_is_on ) )
 	{
 		value = 0;
 		switch( self.turbine_power_level )
@@ -465,7 +465,7 @@ turbinefxonce( withaoe ) //checked matches cerberus output
 		}
 		if ( withaoe )
 		{
-			if ( isDefined( self.buildableturbine.equipment_can_move ) && self.buildableturbine.equipment_can_move && isDefined( self.buildableturbine.move_parent.ismoving ) && self.buildableturbine.move_parent.ismoving )
+			if ( is_true( self.buildableturbine.equipment_can_move ) && is_true( self.buildableturbine.move_parent.ismoving ) )
 			{
 				value |= 4;
 			}
@@ -474,7 +474,7 @@ turbinefxonce( withaoe ) //checked matches cerberus output
 				value |= 8;
 			}
 		}
-		if ( value && isDefined( self.buildableturbine ) && isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
+		if ( value && isDefined( self.buildableturbine ) && is_true( self.turbine_power_is_on ) )
 		{
 			self.buildableturbine thread maps/mp/zombies/_zm_equipment::signal_equipment_activated( value );
 		}
@@ -485,7 +485,7 @@ turbinefx() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "equip_turbine_zm_taken" );
-	while ( isDefined( self ) && isDefined( self.buildableturbine ) && isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
+	while ( isDefined( self ) && isDefined( self.buildableturbine ) && is_true( self.turbine_power_is_on ) )
 	{
 		self turbinefxonce( 1 );
 		wait 0.5;
@@ -500,7 +500,7 @@ turbineaudio() //checked changed to match cerberus output
 	{
 		return;
 	}
-	if ( isDefined( self.turbine_power_is_on ) && !self.turbine_power_is_on || isDefined( self.turbine_emped ) && self.turbine_emped )
+	if ( !is_true( self.turbine_power_is_on ) || is_true( self.turbine_emped ) )
 	{
 		self.buildableturbine stoploopsound();
 		return;
@@ -521,13 +521,13 @@ turbineanim( wait_for_end ) //checked changed to match cerberus output
 	}
 	animlength = 0;
 	self.buildableturbine useanimtree( -1 );
-	if ( isDefined( self.buildableturbine.dying ) && self.buildableturbine.dying )
+	if ( is_true( self.buildableturbine.dying ) )
 	{
 		animlength = getanimlength( %o_zombie_buildable_turbine_death );
 		self.buildableturbine setanim( %o_zombie_buildable_turbine_death );
 		break;
 	}
-	if ( isDefined( self.turbine_emped ) && self.turbine_emped )
+	if ( is_true( self.turbine_emped ) )
 	{
 		self.buildableturbine clearanim( %o_zombie_buildable_turbine_fullpower, 0 );
 		return;
@@ -548,7 +548,7 @@ turbineanim( wait_for_end ) //checked changed to match cerberus output
 			self.buildableturbine setanim( %o_zombie_buildable_turbine_neardeath );
 			break;
 	}
-	if ( isDefined( wait_for_end ) && wait_for_end )
+	if ( is_true( wait_for_end ) )
 	{
 		wait animlength;
 	}
@@ -570,7 +570,7 @@ turbinedecay() //checked changed to match cerberus output //order of operations 
 	while ( self.turbine_health > 0 )
 	{
 		old_power_level = self.turbine_power_level;
-		if ( isDefined( self.turbine_emped ) && self.turbine_emped && isDefined( self.turbine_is_powering_on ) && self.turbine_is_powering_on )
+		if ( is_true( self.turbine_emped ) && is_true( self.turbine_is_powering_on ) )
 		{
 			emp_time = level.zombie_vars[ "emp_perk_off_time" ];
 			now = getTime();
@@ -583,11 +583,11 @@ turbinedecay() //checked changed to match cerberus output //order of operations 
 				old_power_level = -1;
 			}
 		}
-		if ( isDefined( self.turbine_emped ) && self.turbine_emped )
+		if ( is_true( self.turbine_emped ) )
 		{
 			self.turbine_power_level = 0;
 		}
-		else if ( isDefined( self.turbine_power_is_on ) && self.turbine_power_is_on )
+		else if ( is_true( self.turbine_power_is_on ) )
 		{
 			cost = 1;
 			if ( isDefined( self.localpower ) )
@@ -614,7 +614,7 @@ turbinedecay() //checked changed to match cerberus output //order of operations 
 		{
 			self notify( "turbine_power_change" );
 			self thread turbineaudio();
-			if ( isDefined( self.buildableturbine.dying ) && !self.buildableturbine.dying )
+			if ( !is_true( self.buildableturbine.dying ) )
 			{
 				self thread turbineanim();
 			}
@@ -640,7 +640,7 @@ destroy_placed_turbine() //checked matches cerberus output
 {
 	if ( isDefined( self.buildableturbine ) )
 	{
-		if ( isDefined( self.buildableturbine.dying ) && self.buildableturbine.dying )
+		if ( is_true( self.buildableturbine.dying ) )
 		{
 			while ( isDefined( self.buildableturbine ) )
 			{
@@ -670,7 +670,7 @@ turbinepowerdiminish( origin, powerradius ) //checked changed to match cerberus 
 	self endon( "disconnect" );
 	self endon( "equip_turbine_zm_taken" );
 	self.buildableturbine endon( "death" );
-	while ( isDefined( self.buildableturbine.dying ) && !self.buildableturbine.dying )
+	while ( !is_true( self.buildableturbine.dying ) )
 	{
 		if ( isDefined( self.turbine_power_level ) && isDefined( self.buildableturbine ) )
 		{

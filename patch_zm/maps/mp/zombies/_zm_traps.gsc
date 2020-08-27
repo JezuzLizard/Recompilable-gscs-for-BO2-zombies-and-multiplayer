@@ -668,7 +668,7 @@ play_elec_vocals() //checked matches cerberus output
 electroctute_death_fx() //checked matches cerberus output
 {
 	self endon( "death" );
-	if ( isDefined( self.is_electrocuted ) && self.is_electrocuted )
+	if ( is_true( self.is_electrocuted ) )
 	{
 		return;
 	}

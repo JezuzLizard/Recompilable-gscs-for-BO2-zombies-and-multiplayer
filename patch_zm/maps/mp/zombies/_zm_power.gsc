@@ -88,7 +88,7 @@ standard_powered_items() //checked partially changed to match cerberus output //
 		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
 		{
 			power_sources = 0;
-			if ( isDefined( level.power_local_doors_globally ) && !level.power_local_doors_globally )
+			if ( !is_true( level.power_local_doors_globally ) )
 			{
 				power_sources = 1;
 			}
@@ -335,11 +335,11 @@ has_local_power( origin ) //checked changed to match cerberus output
 
 get_powered_item_cost() //checked matches cerberus output
 {
-	if ( isDefined( self.power ) && !self.power )
+	if ( !is_true( self.power ) )
 	{
 		return 0;
 	}
-	if ( isDefined( level._power_global ) && level._power_global && self.power_sources != 1 )
+	if ( is_true( level._power_global ) && self.power_sources != 1 )
 	{
 		return 0;
 	}
@@ -451,11 +451,11 @@ cost_low_if_local() //checked matches cerberus output
 		self.one_time_cost = undefined;
 		return cost;
 	}
-	if ( isDefined( level._power_global ) && level._power_global )
+	if ( is_true( level._power_global ) )
 	{
 		return 0;
 	}
-	if ( isDefined( self.self_powered ) && self.self_powered )
+	if ( is_true( self.self_powered ) )
 	{
 		return 0;
 	}
@@ -593,7 +593,7 @@ stun_zombie() //checked matches cerberus output
 		*/
 		return;
 	}
-	if ( isDefined( self.ignore_inert ) && self.ignore_inert )
+	if ( is_true( self.ignore_inert ) )
 	{
 		return;
 	}
@@ -610,11 +610,11 @@ perk_range( delta, origin, radius ) //checked changed to match cerberus output
 	if ( isDefined( self.target ) )
 	{
 		perkorigin = self.target.origin;
-		if ( isDefined( self.target.trigger_off ) && self.target.trigger_off )
+		if ( is_true( self.target.trigger_off ) )
 		{
 			perkorigin = self.target.realorigin;
 		}
-		else if ( isDefined( self.target.disabled ) && self.target.disabled )
+		else if ( is_true( self.target.disabled ) )
 		{
 			perkorigin += vectorScale( ( 0, 0, 1 ), 10000 );
 		}
@@ -667,11 +667,11 @@ pap_range( delta, origin, radius ) //checked changed to match cerberus output
 	if ( isDefined( self.target ) )
 	{
 		paporigin = self.target.origin;
-		if ( isDefined( self.target.trigger_off ) && self.target.trigger_off )
+		if ( is_true( self.target.trigger_off ) )
 		{
 			paporigin = self.target.realorigin;
 		}
-		else if ( isDefined( self.target.disabled ) && self.target.disabled )
+		else if ( is_true( self.target.disabled ) )
 		{
 			paporigin += vectorScale( ( 0, 0, 1 ), 10000 );
 		}

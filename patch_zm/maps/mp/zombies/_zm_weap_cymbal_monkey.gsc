@@ -17,7 +17,7 @@ init() //checked matches cerberus output
 	level.zombiemode_devgui_cymbal_monkey_give = ::player_give_cymbal_monkey;
 #/
 	*/
-	if ( isDefined( level.legacy_cymbal_monkey ) && level.legacy_cymbal_monkey )
+	if ( is_true( level.legacy_cymbal_monkey ) )
 	{
 		level.cymbal_monkey_model = "weapon_zombie_monkey_bomb";
 	}
@@ -282,7 +282,7 @@ player_throw_cymbal_monkey( grenade, num_attractors, max_attract_dist, attract_d
 		model.angles = grenade.angles;
 		model thread monkey_cleanup( grenade );
 		clone = undefined;
-		if ( isDefined( level.cymbal_monkey_dual_view ) && level.cymbal_monkey_dual_view )
+		if ( is_true( level.cymbal_monkey_dual_view ) )
 		{
 			model setvisibletoallexceptteam( level.zombie_team );
 			clone = maps/mp/zombies/_zm_clone::spawn_player_clone( self, vectorScale( ( 0, 0, -1 ), 999 ), level.cymbal_monkey_clone_weapon, undefined );
@@ -307,7 +307,7 @@ player_throw_cymbal_monkey( grenade, num_attractors, max_attract_dist, attract_d
 			if ( isDefined( model ) )
 			{
 				model setanim( %o_monkey_bomb );
-				if ( isDefined( grenade.backlinked ) && !grenade.backlinked )
+				if ( !is_true( grenade.backlinked ) )
 				{
 					model unlink();
 					model.origin = grenade.origin;
@@ -416,7 +416,7 @@ monkey_cleanup( parent ) //checked matches cerberus output
 	{
 		if ( !isDefined( parent ) )
 		{
-			if ( isDefined( self ) && isDefined( self.dud ) && self.dud )
+			if ( isDefined( self ) && is_true( self.dud ) )
 			{
 				wait 6;
 			}
@@ -444,7 +444,7 @@ do_monkey_sound( model, info ) //checked changed to match cerberus output
 	}
 	if ( !self.monk_scream_vox && level.music_override == 0 )
 	{
-		if ( isDefined( level.cymbal_monkey_dual_view ) && level.cymbal_monkey_dual_view )
+		if ( is_true( level.cymbal_monkey_dual_view ) )
 		{
 			self playsoundtoteam( "zmb_monkey_song", "allies" );
 		}

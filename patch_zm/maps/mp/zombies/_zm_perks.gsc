@@ -78,39 +78,39 @@ init() //checked partially changed to match cerberus output
 	array_thread( vending_triggers, ::vending_trigger_think );
 	array_thread( vending_triggers, ::electric_perks_dialog );
 
-	if ( isDefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
+	if ( is_true( level.zombiemode_using_doubletap_perk ) )
 	{
 		level thread turn_doubletap_on();
 	}
-	if ( isDefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
+	if ( is_true( level.zombiemode_using_marathon_perk ) )
 	{
 		level thread turn_marathon_on();
 	}
-	if ( isDefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
+	if ( is_true( level.zombiemode_using_juggernaut_perk ) )
 	{
 		level thread turn_jugger_on();
 	}
-	if ( isDefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
+	if ( is_true( level.zombiemode_using_revive_perk ) )
 	{
 		level thread turn_revive_on();
 	}
-	if ( isDefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
+	if ( is_true( level.zombiemode_using_sleightofhand_perk ) )
 	{
 		level thread turn_sleight_on();
 	}
-	if ( isDefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
+	if ( is_true( level.zombiemode_using_deadshot_perk ) )
 	{
 		level thread turn_deadshot_on();
 	}
-	if ( isDefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
+	if ( is_true( level.zombiemode_using_tombstone_perk ) )
 	{
 		level thread turn_tombstone_on();
 	}
-	if ( isDefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
+	if ( is_true( level.zombiemode_using_additionalprimaryweapon_perk ) )
 	{
 		level thread turn_additionalprimaryweapon_on();
 	}
-	if ( isDefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
+	if ( is_true( level.zombiemode_using_chugabud_perk ) )
 	{
 		level thread turn_chugabud_on();
 	}
@@ -143,7 +143,7 @@ init() //checked partially changed to match cerberus output
 
 default_vending_precaching() //checked changed to match cerberus output
 {
-	if ( isDefined( level.zombiemode_using_pack_a_punch ) && level.zombiemode_using_pack_a_punch )
+	if ( is_true( level.zombiemode_using_pack_a_punch ) )
 	{
 		precacheitem( "zombie_knuckle_crack" );
 		precachemodel( "p6_anim_zm_buildable_pap" );
@@ -156,7 +156,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "packapunch" ].off_model = "p6_anim_zm_buildable_pap";
 		level.machine_assets[ "packapunch" ].on_model = "p6_anim_zm_buildable_pap_on";
 	}
-	if ( isDefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
+	if ( is_true( level.zombiemode_using_additionalprimaryweapon_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_additionalprimaryweapon" );
 		precacheshader( "specialty_additionalprimaryweapon_zombies" );
@@ -169,7 +169,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "additionalprimaryweapon" ].off_model = "zombie_vending_three_gun";
 		level.machine_assets[ "additionalprimaryweapon" ].on_model = "zombie_vending_three_gun_on";
 	}
-	if ( isDefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
+	if ( is_true( level.zombiemode_using_deadshot_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_deadshot" );
 		precacheshader( "specialty_ads_zombies" );
@@ -182,7 +182,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "deadshot" ].off_model = "zombie_vending_ads";
 		level.machine_assets[ "deadshot" ].on_model = "zombie_vending_ads_on";
 	}
-	if ( isDefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
+	if ( is_true( level.zombiemode_using_doubletap_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_doubletap" );
 		precacheshader( "specialty_doubletap_zombies" );
@@ -195,7 +195,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "doubletap" ].off_model = "zombie_vending_doubletap2";
 		level.machine_assets[ "doubletap" ].on_model = "zombie_vending_doubletap2_on";
 	}
-	if ( isDefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
+	if ( is_true( level.zombiemode_using_juggernaut_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_jugg" );
 		precacheshader( "specialty_juggernaut_zombies" );
@@ -208,7 +208,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "juggernog" ].off_model = "zombie_vending_jugg";
 		level.machine_assets[ "juggernog" ].on_model = "zombie_vending_jugg_on";
 	}
-	if ( isDefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
+	if ( is_true( level.zombiemode_using_marathon_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_marathon" );
 		precacheshader( "specialty_marathon_zombies" );
@@ -221,7 +221,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "marathon" ].off_model = "zombie_vending_marathon";
 		level.machine_assets[ "marathon" ].on_model = "zombie_vending_marathon_on";
 	}
-	if ( isDefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
+	if ( is_true( level.zombiemode_using_revive_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_revive" );
 		precacheshader( "specialty_quickrevive_zombies" );
@@ -235,7 +235,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "revive" ].off_model = "zombie_vending_revive";
 		level.machine_assets[ "revive" ].on_model = "zombie_vending_revive_on";
 	}
-	if ( isDefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
+	if ( is_true( level.zombiemode_using_sleightofhand_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_sleight" );
 		precacheshader( "specialty_fastreload_zombies" );
@@ -248,7 +248,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "speedcola" ].off_model = "zombie_vending_sleight";
 		level.machine_assets[ "speedcola" ].on_model = "zombie_vending_sleight_on";
 	}
-	if ( isDefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
+	if ( is_true( level.zombiemode_using_tombstone_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_tombstone" );
 		precacheshader( "specialty_tombstone_zombies" );
@@ -262,7 +262,7 @@ default_vending_precaching() //checked changed to match cerberus output
 		level.machine_assets[ "tombstone" ].off_model = "zombie_vending_tombstone";
 		level.machine_assets[ "tombstone" ].on_model = "zombie_vending_tombstone_on";
 	}
-	if ( isDefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
+	if ( is_true( level.zombiemode_using_chugabud_perk ) )
 	{
 		precacheitem( "zombie_perk_bottle_whoswho" );
 		precacheshader( "specialty_quickrevive_zombies" );
@@ -465,7 +465,7 @@ can_pack_weapon( weaponname ) //checked did not match cebrerus output changed at
 
 player_use_can_pack_now() //checked changed to match cerberus output
 {
-	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( self.intermission ) && self.intermission || self isthrowinggrenade() )
+	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || is_true( self.intermission ) || self isthrowinggrenade() )
 	{
 		return 0;
 	}
@@ -574,12 +574,12 @@ vending_weapon_upgrade() //checked matches cerberus output
 				continue;
 			}
 		}
-		if ( player maps/mp/zombies/_zm_magicbox::can_buy_weapon() && !player maps/mp/zombies/_zm_laststand::player_is_in_laststand() && isDefined( player.intermission ) && !player.intermission || player isthrowinggrenade() && !player maps/mp/zombies/_zm_weapons::can_upgrade_weapon( current_weapon ) )
+		if ( player maps/mp/zombies/_zm_magicbox::can_buy_weapon() && !player maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !is_true( player.intermission ) || player isthrowinggrenade() && !player maps/mp/zombies/_zm_weapons::can_upgrade_weapon( current_weapon ) )
 		{
 			wait 0.1;
 			continue;
 		}
-		if ( isDefined( level.pap_moving ) && level.pap_moving )
+		if ( is_true( level.pap_moving ) )
 		{
 			continue;
 		}
@@ -643,7 +643,7 @@ vending_weapon_upgrade() //checked matches cerberus output
 		self thread maps/mp/zombies/_zm_audio::play_jingle_or_stinger( "mus_perks_packa_sting" );
 		player maps/mp/zombies/_zm_audio::create_and_play_dialog( "weapon_pickup", "upgrade_wait" );
 		self disable_trigger();
-		if ( isDefined( upgrade_as_attachment ) && !upgrade_as_attachment )
+		if ( !is_true( upgrade_as_attachment ) )
 		{
 			player thread do_player_general_vox( "general", "pap_wait", 10, 100 );
 		}
@@ -674,7 +674,7 @@ vending_weapon_upgrade() //checked matches cerberus output
 		{
 			self.worldgun delete();
 		}
-		if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch )
+		if ( is_true( level.zombiemode_reusing_pack_a_punch ) )
 		{
 			self sethintstring( &"ZOMBIE_PERK_PACKAPUNCH_ATT", self.cost );
 		}
@@ -713,7 +713,7 @@ vending_weapon_upgrade_cost() //checked 3/30/20 4:19 pm //checked matches cerber
 	{
 		self.cost = 5000;
 		self.attachment_cost = 2000;
-		if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch )
+		if ( is_true( level.zombiemode_reusing_pack_a_punch ) )
 		{
 			self sethintstring( &"ZOMBIE_PERK_PACKAPUNCH_ATT", self.cost );
 		}
@@ -724,7 +724,7 @@ vending_weapon_upgrade_cost() //checked 3/30/20 4:19 pm //checked matches cerber
 		level waittill( "powerup bonfire sale" );
 		self.cost = 1000;
 		self.attachment_cost = 1000;
-		if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch )
+		if ( is_true( level.zombiemode_reusing_pack_a_punch ) )
 		{
 			self sethintstring( &"ZOMBIE_PERK_PACKAPUNCH_ATT", self.cost );
 		}
@@ -755,7 +755,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 	{
 		packa_timer playloopsound( "zmb_perks_packa_ticktock" );
 		self waittill( "trigger", trigger_player );
-		if ( isDefined( level.pap_grab_by_anyone ) && level.pap_grab_by_anyone )
+		if ( is_true( level.pap_grab_by_anyone ) )
 		{
 			player = trigger_player;
 		}
@@ -780,7 +780,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 				self notify( "pap_taken" );
 				player notify( "pap_taken" );
 				player.pap_used = 1;
-				if ( isDefined( upgrade_as_attachment ) && !upgrade_as_attachment )
+				if ( !is_true( upgrade_as_attachment ) )
 				{
 					player thread do_player_general_vox( "general", "pap_arm", 15, 100 );
 				}
@@ -801,7 +801,7 @@ wait_for_player_to_take( player, weapon, packa_timer, upgrade_as_attachment ) //
 					player givestartammo( upgrade_weapon );
 				}
 				player switchtoweapon( upgrade_weapon );
-				if ( isDefined( player.restore_ammo ) && player.restore_ammo )
+				if ( is_true( player.restore_ammo ) )
 				{
 					new_clip = player.restore_clip + ( weaponclipsize( upgrade_weapon ) - player.restore_clip_size );
 					new_stock = player.restore_stock + ( weaponmaxammo( upgrade_weapon ) - player.restore_max );
@@ -926,7 +926,7 @@ upgrade_knuckle_crack_end( gun ) //changed //checked matches cerberus output
 */
 	self enable_player_move_states();
 	weapon = level.machine_assets[ "packapunch" ].weapon;
-	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( self.intermission ) && self.intermission )
+	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || is_true( self.intermission ) )
 	{
 		self takeweapon( weapon );
 		return;
@@ -1064,7 +1064,7 @@ use_solo_revive() //checked matches cerberus output
 	}
 	players = get_players();
 	solo_mode = 0;
-	if ( players.size == 1 || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive )
+	if ( players.size == 1 || is_true( level.force_solo_quick_revive ) )
 	{
 		solo_mode = 1;
 	}
@@ -1079,7 +1079,7 @@ turn_revive_on() //checked partially changed to match cerberus output
 	machine_triggers = getentarray( "vending_revive", "target" );
 	machine_model = undefined;
 	machine_clip = undefined;
-	if ( isDefined( level.zombiemode_using_revive_perk ) && !level.zombiemode_using_revive_perk )
+	if ( !is_true( level.zombiemode_using_revive_perk ) )
 	{
 		return;
 	}
@@ -1115,7 +1115,7 @@ turn_revive_on() //checked partially changed to match cerberus output
 			level.quick_revive_machine = machine[ i ];
 		}
 		array_thread( machine_triggers, ::set_power_on, 0 );
-		if ( isDefined( start_state ) && !start_state )
+		if ( !is_true( start_state ) )
 		{
 			level waittill( "revive_on" );
 		}
@@ -1854,7 +1854,7 @@ vending_trigger_think() //checked changed to match cerberus output
 	{
 		self waittill( "trigger", player );
 		index = maps/mp/zombies/_zm_weapons::get_player_index( player );
-		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( player.intermission ) && player.intermission )
+		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() || is_true( player.intermission ) )
 		{
 			wait 0.1;
 			continue;
@@ -1954,11 +1954,11 @@ vending_trigger_post_think( player, perk ) //checked matches cerberus output
 		return;
 	}
 	player notify( "burp" );
-	if ( isDefined( level.pers_upgrade_cash_back ) && level.pers_upgrade_cash_back )
+	if ( is_true( level.pers_upgrade_cash_back ) )
 	{
 		player maps/mp/zombies/_zm_pers_upgrades_functions::cash_back_player_drinks_perk();
 	}
-	if ( isDefined( level.pers_upgrade_perk_lose ) && level.pers_upgrade_perk_lose )
+	if ( is_true( level.pers_upgrade_perk_lose ) )
 	{
 		player thread maps/mp/zombies/_zm_pers_upgrades_functions::pers_upgrade_perk_lose_bought();
 	}
@@ -2022,7 +2022,7 @@ return_retained_perks() //checked changed to match cerberus output
 		keys = getarraykeys( self._retain_perks_array );
 		foreach ( perk in keys )
 		{
-			if ( isdefined( self._retain_perks_array[ perk ] ) && self._retain_perks_array[ perk ] )
+			if ( is_true( self._retain_perks_array[ perk ] ) )
 			{
 				self give_perk( perk, 0 );
 			}
@@ -2034,10 +2034,10 @@ give_perk( perk, bought ) //checked changed to match cerberus output
 {
 	self setperk( perk );
 	self.num_perks++;
-	if ( isDefined( bought ) && bought )
+	if ( is_true( bought ) )
 	{
 		self maps/mp/zombies/_zm_audio::playerexert( "burp" );
-		if ( isDefined( level.remove_perk_vo_delay ) && level.remove_perk_vo_delay )
+		if ( is_true( level.remove_perk_vo_delay ) )
 		{
 			self maps/mp/zombies/_zm_audio::perk_vox( perk );
 		}
@@ -2051,7 +2051,7 @@ give_perk( perk, bought ) //checked changed to match cerberus output
 		self notify( "perk_bought", perk );
 	}
 	self perk_set_max_health_if_jugg( perk, 1, 0 );
-	if ( isDefined( level.disable_deadshot_clientfield ) && !level.disable_deadshot_clientfield )
+	if ( !is_true( level.disable_deadshot_clientfield ) )
 	{
 		if ( perk == "specialty_deadshot" )
 		{
@@ -2242,11 +2242,11 @@ perk_think( perk ) //checked changed to match cerberus output
 	}
 	if ( do_retain )
 	{
-		if ( isDefined( self._retain_perks ) && self._retain_perks )
+		if ( is_true( self._retain_perks ) )
 		{
 			return;
 		}
-		else if ( isDefined( self._retain_perks_array ) && isDefined( self._retain_perks_array[ perk ] ) && self._retain_perks_array[ perk ] )
+		else if ( isDefined( self._retain_perks_array ) && is_true( self._retain_perks_array[ perk ] ) )
 		{
 			return;
 		}
@@ -2266,13 +2266,13 @@ perk_think( perk ) //checked changed to match cerberus output
 			}
 			break;
 		case "specialty_deadshot":
-			if ( isDefined( level.disable_deadshot_clientfield ) && !level.disable_deadshot_clientfield )
+			if ( !is_true( level.disable_deadshot_clientfield ) )
 			{
 				self setclientfieldtoplayer( "deadshot_perk", 0 );
 			}
 			break;
 		case "specialty_deadshot_upgrade":
-			if ( isDefined( level.disable_deadshot_clientfield ) && !level.disable_deadshot_clientfield )
+			if ( !is_true( level.disable_deadshot_clientfield ) )
 			{
 				self setclientfieldtoplayer( "deadshot_perk", 0 );
 			}
@@ -2406,7 +2406,7 @@ perk_hud_start_flash( perk ) //checked does not match cerberus output did not ch
 		hud = self.perk_hud[ perk ];
 		if ( isDefined( hud ) )
 		{
-			if ( isDefined( hud.flash ) && !hud.flash )
+			if ( !is_true( hud.flash ) )
 			{
 				hud thread perk_hud_flash();
 				self thread perk_flash_audio( perk );
@@ -2551,7 +2551,7 @@ perk_give_bottle_end( gun, perk ) //checked matches cerberus output
 	{
 		weapon = level._custom_perks[ perk ].perk_bottle;
 	}
-	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || isDefined( self.intermission ) && self.intermission )
+	if ( self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || is_true( self.intermission ) )
 	{
 		self takeweapon( weapon );
 		return;
@@ -2581,7 +2581,7 @@ perk_give_bottle_end( gun, perk ) //checked matches cerberus output
 	}
 	self waittill( "weapon_change_complete" );
 	self decrement_is_drinking();
-	if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && isDefined( self.intermission ) && !self.intermission )
+	if ( !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() && !is_true( self.intermission ) )
 	{
 		self decrement_is_drinking();
 	}
@@ -2748,7 +2748,7 @@ perk_pause( perk ) //checked changed to match cerberus output
 		{
 			player.disabled_perks = [];
 		}
-		if ( isDefined( player.disabled_perks[ perk ] ) && !player.disabled_perks[ perk ] )
+		if ( !is_true( player.disabled_perks[ perk ] ) )
 		{
 			player.disabled_perks[ perk ] = player hasperk( perk );
 		}
@@ -2794,7 +2794,7 @@ perk_unpause( perk ) //checked changed to match cerberus output
 	for ( j = 0; j < get_players().size; j++ )
 	{
 		player = get_players()[ j ];
-		if ( isDefined( player.disabled_perks ) && isDefined( player.disabled_perks[ perk ] ) && player.disabled_perks[ perk ] )
+		if ( isDefined( player.disabled_perks ) && is_true( player.disabled_perks[ perk ] ) )
 		{
 			player.disabled_perks[ perk ] = 0;
 			player set_perk_clientfield( perk, 1 );
@@ -2837,7 +2837,7 @@ perk_unpause_all_perks() //checked changed to match cerberus output
 
 has_perk_paused( perk ) //checked matches cerberus output
 {
-	if ( isDefined( self.disabled_perks ) && isDefined( self.disabled_perks[ perk ] ) && self.disabled_perks[ perk ] )
+	if ( isDefined( self.disabled_perks ) && is_true( self.disabled_perks[ perk ] ) )
 	{
 		return 1;
 	}
@@ -2985,7 +2985,7 @@ perk_machine_spawn_init()
 				k++;
 			}
 		}
-		else if ( isDefined( useDefaultLocation ) && useDefaultLocation )
+		else if ( is_true( useDefaultLocation ) )
 		{
 			pos[ pos.size ] = structs[ i ];
 		}
@@ -3010,7 +3010,7 @@ perk_machine_spawn_init()
 			perk_machine = Spawn( "script_model", pos[ i ].origin );
 			perk_machine.angles = pos[ i ].angles;
 			perk_machine SetModel( pos[ i ].model );
-			if ( isdefined( level._no_vending_machine_bump_trigs ) && level._no_vending_machine_bump_trigs )
+			if ( is_true( level._no_vending_machine_bump_trigs ) )
 			{
 				bump_trigger = undefined;
 			}
@@ -3201,7 +3201,7 @@ perk_machine_spawn_init()
 
 get_perk_machine_start_state( perk ) //checked matches cerberus output
 {
-	if ( isDefined( level.vending_machines_powered_on_at_start ) && level.vending_machines_powered_on_at_start )
+	if ( is_true( level.vending_machines_powered_on_at_start ) )
 	{
 		return 1;
 	}
@@ -3214,43 +3214,43 @@ get_perk_machine_start_state( perk ) //checked matches cerberus output
 
 perks_register_clientfield() //checked matches cerberus output
 {
-	if ( isDefined( level.zombiemode_using_additionalprimaryweapon_perk ) && level.zombiemode_using_additionalprimaryweapon_perk )
+	if ( is_true( level.zombiemode_using_additionalprimaryweapon_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_additional_primary_weapon", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_deadshot_perk ) && level.zombiemode_using_deadshot_perk )
+	if ( is_true( level.zombiemode_using_deadshot_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_dead_shot", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_doubletap_perk ) && level.zombiemode_using_doubletap_perk )
+	if ( is_true( level.zombiemode_using_doubletap_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_double_tap", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_juggernaut_perk ) && level.zombiemode_using_juggernaut_perk )
+	if ( is_true( level.zombiemode_using_juggernaut_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_juggernaut", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_marathon_perk ) && level.zombiemode_using_marathon_perk )
+	if ( is_true( level.zombiemode_using_marathon_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_marathon", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_revive_perk ) && level.zombiemode_using_revive_perk )
+	if ( is_true( level.zombiemode_using_revive_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_quick_revive", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_sleightofhand_perk ) && level.zombiemode_using_sleightofhand_perk )
+	if ( is_true( level.zombiemode_using_sleightofhand_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_sleight_of_hand", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
+	if ( is_true( level.zombiemode_using_tombstone_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_tombstone", 1, 2, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_perk_intro_fx ) && level.zombiemode_using_perk_intro_fx )
+	if ( is_true( level.zombiemode_using_perk_intro_fx ) )
 	{
 		registerclientfield( "scriptmover", "clientfield_perk_intro_fx", 1000, 1, "int" );
 	}
-	if ( isDefined( level.zombiemode_using_chugabud_perk ) && level.zombiemode_using_chugabud_perk )
+	if ( is_true( level.zombiemode_using_chugabud_perk ) )
 	{
 		registerclientfield( "toplayer", "perk_chugabud", 1000, 1, "int" );
 	}
@@ -3312,7 +3312,7 @@ reenable_quickrevive( machine_clip, solo_mode ) //checked changed to match cerbe
 		{
 			perk_unpause( "specialty_quickrevive" );
 		}
-		if ( isDefined( level.solo_revive_init ) && level.solo_revive_init && flag( "solo_revive" ) )
+		if ( is_true( level.solo_revive_init ) && flag( "solo_revive" ) )
 		{
 			disable_quickrevive( machine_clip );
 			return;
@@ -3326,7 +3326,7 @@ reenable_quickrevive( machine_clip, solo_mode ) //checked changed to match cerbe
 	}
 	else
 	{
-		if ( isDefined( level._dont_unhide_quickervive_on_hotjoin ) && !level._dont_unhide_quickervive_on_hotjoin )
+		if ( !is_true( level._dont_unhide_quickervive_on_hotjoin ) )
 		{
 			unhide_quickrevive();
 			level notify( "revive_off" );
@@ -3561,7 +3561,7 @@ unhide_quickrevive() //checked matches cerberus output
 			org += level.quick_revive_linked_ent_offset;
 		}
 	}
-	if ( isDefined( level.quick_revive_linked_ent_moves ) && !level.quick_revive_linked_ent_moves && level.quick_revive_machine.origin != org )
+	if ( !is_true( level.quick_revive_linked_ent_moves ) && level.quick_revive_machine.origin != org )
 	{
 		level.quick_revive_machine moveto( org, 3 );
 		level.quick_revive_machine vibrate( direction, 10, 0.5, 2.9 );

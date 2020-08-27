@@ -373,14 +373,14 @@ redflashingoverlay( overlay ) //checked matches cerberus output
 	self endon( "disconnect" );
 	self endon( "clear_red_flashing_overlay" );
 	self.stopflashingbadlytime = getTime() + level.longregentime;
-	if ( isDefined( self.is_in_process_of_zombify ) && !self.is_in_process_of_zombify && isDefined( self.is_zombie ) && !self.is_zombie )
+	if ( !is_true( self.is_in_process_of_zombify ) && !is_true( self.is_zombie ) )
 	{
 		fadefunc( overlay, 1, 1, 0 );
-		while ( getTime() < self.stopflashingbadlytime && isalive( self ) && isDefined( self.is_in_process_of_zombify ) && !self.is_in_process_of_zombify && isDefined( self.is_zombie ) && !self.is_zombie )
+		while ( getTime() < self.stopflashingbadlytime && isalive( self ) && !is_true( self.is_in_process_of_zombify ) && !is_true( self.is_zombie ) )
 		{
 			fadefunc( overlay, 0.9, 1, 0 );
 		}
-		if ( isDefined( self.is_in_process_of_zombify ) && !self.is_in_process_of_zombify && isDefined( self.is_zombie ) && !self.is_zombie )
+		if ( !is_true( self.is_in_process_of_zombify ) && !is_true( self.is_zombie ) )
 		{
 			if ( isalive( self ) )
 			{

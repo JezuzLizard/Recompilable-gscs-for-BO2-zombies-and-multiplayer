@@ -23,7 +23,7 @@ enable_electric_cherry_perk_for_level() //checked matches cerberus output
 	register_perk_threads( "specialty_grenadepulldeath", ::electric_cherry_reload_attack, ::electric_cherry_perk_lost );
 	register_perk_machine( "specialty_grenadepulldeath", ::electric_cherry_perk_machine_setup, ::electric_cherry_perk_machine_think );
 	register_perk_host_migration_func( "specialty_grenadepulldeath", ::electric_cherry_host_migration_func );
-	if ( isDefined( level.custom_electric_cherry_perk_threads ) && level.custom_electric_cherry_perk_threads )
+	if ( is_true( level.custom_electric_cherry_perk_threads ) )
 	{
 		level thread [[ level.custom_electric_cherry_perk_threads ]]();
 	}

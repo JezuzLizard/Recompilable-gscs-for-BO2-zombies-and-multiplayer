@@ -199,7 +199,7 @@ get_inert_crawl_substate() //checked matches cerberus output
 start_inert( in_place ) //checked changed to match cerberus output
 {
 	self endon( "death" );
-	if ( isDefined( self.is_inert ) && self.is_inert )
+	if ( is_true( self.is_inert ) )
 	{
 		self maps/mp/zombies/_zm_spawner::zombie_history( "is_inert already set " + getTime() );
 		return;
@@ -209,9 +209,9 @@ start_inert( in_place ) //checked changed to match cerberus output
 	self maps/mp/zombies/_zm_spawner::zombie_eye_glow_stop();
 	self maps/mp/zombies/_zm_spawner::zombie_history( "is_inert set " + getTime() );
 	self playsound( "zmb_zombie_go_inert" );
-	if ( isDefined( self.barricade_enter ) && self.barricade_enter )
+	if ( is_true( self.barricade_enter ) )
 	{
-		while ( isDefined( self.barricade_enter ) && self.barricade_enter )
+		while ( is_true( self.barricade_enter ) )
 		{
 			wait 0.1;
 		}
@@ -221,7 +221,7 @@ start_inert( in_place ) //checked changed to match cerberus output
 		self notify( "stop_zombie_goto_entrance" );
 		self maps/mp/zombies/_zm_spawner::reset_attack_spot();
 	}
-	if ( isDefined( self.completed_emerging_into_playable_area ) && self.completed_emerging_into_playable_area )
+	if ( is_true( self.completed_emerging_into_playable_area ) )
 	{
 		self notify( "stop_find_flesh" );
 		self notify( "zombie_acquire_enemy" );
@@ -230,12 +230,12 @@ start_inert( in_place ) //checked changed to match cerberus output
 	{
 		in_place = 1;
 	}
-	if ( isDefined( self.in_the_ground ) && self.in_the_ground )
+	if ( is_true( self.in_the_ground ) )
 	{
 		self waittill( "risen", find_flesh_struct_string );
 		if ( self maps/mp/zombies/_zm_spawner::should_skip_teardown( find_flesh_struct_string ) )
 		{
-			if ( isDefined( self.completed_emerging_into_playable_area ) && !self.completed_emerging_into_playable_area )
+			if ( !is_true( self.completed_emerging_into_playable_area ) )
 			{
 				self waittill( "completed_emerging_into_playable_area" );
 			}
@@ -243,14 +243,14 @@ start_inert( in_place ) //checked changed to match cerberus output
 			self notify( "zombie_acquire_enemy" );
 		}
 	}
-	if ( isDefined( self.is_traversing ) && self.is_traversing )
+	if ( is_true( self.is_traversing ) )
 	{
 		while ( self isinscriptedstate() )
 		{
 			wait 0.1;
 		}
 	}
-	if ( isDefined( self.doing_equipment_attack ) && self.doing_equipment_attack )
+	if ( is_true( self.doing_equipment_attack ) )
 	{
 		self stopanimscripted();
 	}
@@ -269,7 +269,7 @@ inert_think( in_place ) //checked changed to match cerberus output
 	self animmode( "normal" );
 	if ( self.has_legs )
 	{
-		if ( isDefined( in_place ) && in_place )
+		if ( is_true( in_place ) )
 		{
 			self setgoalpos( self.origin );
 			if ( randomint( 100 ) > 50 )
@@ -322,7 +322,7 @@ inert_think( in_place ) //checked changed to match cerberus output
 	{
 		self [[ self.inert_wakeup_override ]]();
 	}
-	else if ( isDefined( self.completed_emerging_into_playable_area ) && self.completed_emerging_into_playable_area )
+	else if ( is_true( self.completed_emerging_into_playable_area ) )
 	{
 		self.ignoreall = 0;
 		if ( isDefined( level.ignore_find_flesh ) && !self [[ level.ignore_find_flesh ]]() )
@@ -419,12 +419,12 @@ inert_bump() //checked changed at own discretion parity in behavior to cerberus 
 				i++;
 				continue;
 			}
-			if ( isDefined( zombies[ i ].is_inert ) && zombies[ i ].is_inert )
+			if ( is_true( zombies[ i ].is_inert ) )
 			{
 				i++;
 				continue;
 			}
-			if ( isDefined( zombies[ i ].becoming_inert ) && zombies[ i ].becoming_inert )
+			if ( is_true( zombies[ i ].becoming_inert ) )
 			{
 				i++;
 				continue;

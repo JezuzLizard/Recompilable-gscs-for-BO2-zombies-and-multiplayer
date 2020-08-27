@@ -27,7 +27,6 @@ init() //checked matches cerberus output
 		level.debugLogging_zm_weapons = 0;
 	}
 	//end debug
-	level.monolingustic_prompt_format = 0;
 	init_weapons();
 	init_weapon_upgrade();
 	init_weapon_toggle();
@@ -252,7 +251,7 @@ take_fallback_weapon() //checked matches cerberus output
 
 switch_back_primary_weapon( oldprimary ) //checked changed to match cerberus output
 {
-	if ( isDefined( self.laststand ) && self.laststand )
+	if ( is_true( self.laststand ) )
 	{
 		return;
 	}
@@ -569,7 +568,7 @@ add_zombie_weapon( weapon_name, upgrade_name, hint, cost, weaponvo, weaponvoresp
 	
 	
 	level.zombie_weapons[ weapon_name ] = struct;
-	if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch && isDefined( upgrade_name ) )
+	if ( is_true( level.zombiemode_reusing_pack_a_punch ) && isDefined( upgrade_name ) )
 	{
 		add_attachments( weapon_name, upgrade_name );
 	}
@@ -734,8 +733,6 @@ include_zombie_weapon( weapon_name, in_box, collector, weighting_func ) //checke
 
 init_weapons() //checked matches cerberus output
 {
-	//throws exe_client_field_mismatch on join
-	//or the server won't rotate to the map
 	if ( isdefined( level._zombie_custom_add_weapons ) )
 	{
 		[[ level._zombie_custom_add_weapons ]]();
@@ -978,7 +975,7 @@ init_spawnable_weapon_upgrade() //checked partially changed to match cerberus ou
 		if ( spawn_list[ i ].targetname == "weapon_upgrade" )
 		{
 			unitrigger_stub.cost = get_weapon_cost( spawn_list[ i ].zombie_weapon_upgrade );
-			if ( isDefined( level.monolingustic_prompt_format ) && !level.monolingustic_prompt_format )
+			if ( !is_true( level.monolingustic_prompt_format ) )
 			{
 				unitrigger_stub.hint_string = get_weapon_hint( spawn_list[ i ].zombie_weapon_upgrade );
 				unitrigger_stub.hint_parm1 = unitrigger_stub.cost;
@@ -1149,7 +1146,7 @@ wall_weapon_update_prompt( player ) //checked partially changed to match cerberu
 	if ( isDefined( level.monolingustic_prompt_format ) && !level.monolingustic_prompt_format )
 	{
 		player_has_weapon = player has_weapon_or_upgrade( weapon );
-		if ( !player_has_weapon && isDefined( level.weapons_using_ammo_sharing ) && level.weapons_using_ammo_sharing )
+		if ( !player_has_weapon && is_true( level.weapons_using_ammo_sharing ) )
 		{
 			shared_ammo_weapon = player get_shared_ammo_weapon( self.zombie_weapon_upgrade );
 			if ( isDefined( shared_ammo_weapon ) )
@@ -1164,7 +1161,7 @@ wall_weapon_update_prompt( player ) //checked partially changed to match cerberu
 			self.stub.hint_string = get_weapon_hint( weapon );
 			self sethintstring( self.stub.hint_string, cost );
 		}
-		else if ( isDefined( level.use_legacy_weapon_prompt_format ) && level.use_legacy_weapon_prompt_format )
+		else if ( is_true( level.use_legacy_weapon_prompt_format ) )
 		{
 			cost = get_weapon_cost( weapon );
 			ammo_cost = get_ammo_cost( weapon );
@@ -1185,7 +1182,7 @@ wall_weapon_update_prompt( player ) //checked partially changed to match cerberu
 	else if ( !player has_weapon_or_upgrade( weapon ) )
 	{
 		string_override = 0;
-		if ( isDefined( player.pers_upgrades_awarded[ "nube" ] ) && player.pers_upgrades_awarded[ "nube" ] )
+		if ( is_true( player.pers_upgrades_awarded[ "nube" ] ) )
 		{
 			string_override = maps/mp/zombies/_zm_pers_upgrades_functions::pers_nube_ammo_hint_string( player, weapon );
 		}
@@ -1287,7 +1284,7 @@ init_weapon_upgrade() //checked changed to match cerberus output
 	weapon_spawns = getentarray( "weapon_upgrade", "targetname" );
 	for ( i = 0; i < weapon_spawns.size; i++ )
 	{
-		if ( isDefined( level.monolingustic_prompt_format ) && !level.monolingustic_prompt_format )
+		if ( !is_true( level.monolingustic_prompt_format ) )
 		{
 			hint_string = get_weapon_hint( weapon_spawns[ i ].zombie_weapon_upgrade );
 			cost = get_weapon_cost( weapon_spawns[ i ].zombie_weapon_upgrade );
@@ -1778,7 +1775,7 @@ get_upgrade_weapon( weaponname, add_attachment ) //checked changed to match cerb
 	{
 		newweapon = level.zombie_weapons[ rootweaponname ].upgrade_name;
 	}
-	if ( isDefined( add_attachment ) && add_attachment && isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch )
+	if ( is_true( add_attachment ) && is_true( level.zombiemode_reusing_pack_a_punch ) )
 	{
 		oldatt = get_attachment_name( weaponname );
 		att = random_attachment( baseweaponname, oldatt );
@@ -1804,7 +1801,7 @@ can_upgrade_weapon( weaponname ) //checked changed to match cerberus output
 	{
 		return 1;
 	}
-	if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch && weapon_supports_attachments( weaponname ) )
+	if ( is_true( level.zombiemode_reusing_pack_a_punch ) && weapon_supports_attachments( weaponname ) )
 	{
 		return 1;
 	}
@@ -1823,7 +1820,7 @@ will_upgrade_weapon_as_attachment( weaponname ) //checked changed to match cerbe
 	{
 		return 0;
 	}
-	if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch && weapon_supports_attachments( weaponname ) )
+	if ( is_true( level.zombiemode_reusing_pack_a_punch ) && weapon_supports_attachments( weaponname ) )
 	{
 		return 1;
 	}
@@ -1851,7 +1848,7 @@ get_weapon_with_attachments( weaponname ) //checked changed to match cerberus ou
 	{
 		return weaponname;
 	}
-	if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch )
+	if ( is_true( level.zombiemode_reusing_pack_a_punch ) )
 	{
 		weaponname = tolower( weaponname );
 		weaponname = get_base_name( weaponname );
@@ -1875,7 +1872,7 @@ has_weapon_or_attachments( weaponname ) //checked changed to match cerberus outp
 	{
 		return 1;
 	}
-	if ( isDefined( level.zombiemode_reusing_pack_a_punch ) && level.zombiemode_reusing_pack_a_punch )
+	if ( is_true( level.zombiemode_reusing_pack_a_punch ) )
 	{
 		weaponname = tolower( weaponname );
 		weaponname = get_base_name( weaponname );
@@ -1981,7 +1978,7 @@ get_player_weapon_with_same_base( weaponname ) //checked changed tp match cerber
 
 get_weapon_hint_ammo() //checked matches cerberus output
 {
-	if ( isDefined( level.has_pack_a_punch ) && !level.has_pack_a_punch )
+	if ( !is_true( level.has_pack_a_punch ) )
 	{
 		return &"ZOMBIE_WEAPONCOSTAMMO";
 	}
@@ -2008,7 +2005,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 		second_endon = "kill_trigger";
 		self.first_time_triggered = self.stub.first_time_triggered;
 	}
-	if ( isDefined( self.stub ) && isDefined( self.stub.trigger_per_player ) && self.stub.trigger_per_player )
+	if ( isDefined( self.stub ) && is_true( self.stub.trigger_per_player ) )
 	{
 		self thread decide_hide_show_hint( "stop_hint_logic", second_endon, self.parent_player );
 	}
@@ -2032,7 +2029,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 	}
 	else if ( self.first_time_triggered )
 	{
-		if ( isDefined( level.use_legacy_weapon_prompt_format ) && level.use_legacy_weapon_prompt_format )
+		if ( is_true( level.use_legacy_weapon_prompt_format ) )
 		{
 			self weapon_set_first_time_hint( cost, get_ammo_cost( self.zombie_weapon_upgrade ) );
 		}
@@ -2050,7 +2047,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 			wait 0.1;
 			continue;
 		}
-		if ( isDefined( self.stub ) && isDefined( self.stub.require_look_from ) && self.stub.require_look_from )
+		if ( isDefined( self.stub ) && is_true( self.stub.require_look_from ) )
 		{
 			toplayer = player get_eye() - self.origin;
 			forward = -1 * anglesToRight( self.angles );
@@ -2066,7 +2063,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 			continue;
 		}
 		player_has_weapon = player has_weapon_or_upgrade( self.zombie_weapon_upgrade );
-		if ( !player_has_weapon && isDefined( level.weapons_using_ammo_sharing ) && level.weapons_using_ammo_sharing )
+		if ( !player_has_weapon && is_true( level.weapons_using_ammo_sharing ) )
 		{
 			shared_ammo_weapon = player get_shared_ammo_weapon( self.zombie_weapon_upgrade );
 			if ( isDefined( shared_ammo_weapon ) )
@@ -2074,7 +2071,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 				player_has_weapon = 1;
 			}
 		}
-		if ( isDefined( level.pers_upgrade_nube ) && level.pers_upgrade_nube )
+		if ( is_true( level.pers_upgrade_nube ) )
 		{
 			player_has_weapon = maps/mp/zombies/_zm_pers_upgrades_functions::pers_nube_should_we_give_raygun( player_has_weapon, player, self.zombie_weapon_upgrade );
 		}
@@ -2112,7 +2109,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 					player set_player_lethal_grenade( self.zombie_weapon_upgrade );
 				}
 				str_weapon = self.zombie_weapon_upgrade;
-				if ( isDefined( level.pers_upgrade_nube ) && level.pers_upgrade_nube )
+				if ( is_true( level.pers_upgrade_nube ) )
 				{
 					str_weapon = maps/mp/zombies/_zm_pers_upgrades_functions::pers_nube_weapon_upgrade_check( player, str_weapon );
 				}
@@ -2133,11 +2130,11 @@ weapon_spawn_think() //checked changed to match cerberus output
 			{
 				str_weapon = shared_ammo_weapon;
 			}
-			if ( isDefined( level.pers_upgrade_nube ) && level.pers_upgrade_nube )
+			if ( is_true( level.pers_upgrade_nube ) )
 			{
 				str_weapon = maps/mp/zombies/_zm_pers_upgrades_functions::pers_nube_weapon_ammo_check( player, str_weapon );
 			}
-			if ( isDefined( self.hacked ) && self.hacked )
+			if ( is_true( self.hacked ) )
 			{
 				if ( !player has_upgrade( str_weapon ) )
 				{
@@ -2156,7 +2153,7 @@ weapon_spawn_think() //checked changed to match cerberus output
 			{
 				ammo_cost = get_ammo_cost( str_weapon );
 			}
-			if ( isDefined( player.pers_upgrades_awarded[ "nube" ] ) && player.pers_upgrades_awarded[ "nube" ] )
+			if ( is_true( player.pers_upgrades_awarded[ "nube" ] ) )
 			{
 				ammo_cost = maps/mp/zombies/_zm_pers_upgrades_functions::pers_nube_override_ammo_cost( player, self.zombie_weapon_upgrade, ammo_cost );
 			}
@@ -2249,7 +2246,7 @@ show_all_weapon_buys( player, cost, ammo_cost, is_grenade ) //checked changed to
 	{
 		self weapon_set_first_time_hint( cost, ammo_cost );
 	}
-	if ( isDefined( level.dont_link_common_wallbuys ) && !level.dont_link_common_wallbuys && isDefined( level._spawned_wallbuys ) )
+	if ( !is_true( level.dont_link_common_wallbuys ) && isDefined( level._spawned_wallbuys ) )
 	{
 		i = 0;
 		while ( i < level._spawned_wallbuys.size )
@@ -2513,7 +2510,7 @@ weapon_give( weapon, is_upgrade, magic_box, nosound ) //checked changed to match
 		play_weapon_vo( weapon, magic_box );
 		return;
 	}
-	if ( isDefined( nosound ) && !nosound )
+	if ( !is_true( nosound ) )
 	{
 		self play_sound_on_ent( "purchase" );
 	}

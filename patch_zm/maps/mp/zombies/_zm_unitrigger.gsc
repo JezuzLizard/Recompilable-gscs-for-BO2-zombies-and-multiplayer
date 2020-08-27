@@ -162,7 +162,7 @@ unregister_unitrigger_internal( unitrigger_stub ) //checked changed to match cer
 		return;
 	}
 	unitrigger_stub.registered = 0;
-	if ( isDefined( unitrigger_stub.trigger_per_player ) && unitrigger_stub.trigger_per_player )
+	if ( is_true( unitrigger_stub.trigger_per_player ) )
 	{
 		if ( isDefined( unitrigger_stub.playertrigger ) && unitrigger_stub.playertrigger.size > 0 )
 		{
@@ -320,7 +320,7 @@ debug_unitriggers() //checked changed to match cerberus output dvar taken from b
 cleanup_trigger( trigger, player ) //checked changed to match cerberus output
 {
 	trigger notify( "kill_trigger" );
-	if ( isDefined( trigger.stub.trigger_per_player ) && trigger.stub.trigger_per_player )
+	if ( is_true( trigger.stub.trigger_per_player ) )
 	{
 		trigger.stub.playertrigger[player getentitynumber()] = undefined;
 	}
@@ -342,7 +342,7 @@ assess_and_apply_visibility( trigger, stub, player, default_keep ) //checked cha
 	if ( !isDefined( stub.prompt_and_visibility_func ) || trigger [[ stub.prompt_and_visibility_func ]]( player ) )
 	{
 		keep_thread = 1;
-		if ( isDefined( trigger.thread_running ) && !trigger.thread_running )
+		if ( !is_true( trigger.thread_running ) )
 		{
 			trigger thread trigger_thread( trigger.stub.trigger_func );
 		}
@@ -352,7 +352,7 @@ assess_and_apply_visibility( trigger, stub, player, default_keep ) //checked cha
 			trigger.reassess_time = undefined;
 		}
 	}
-	else if ( isDefined( trigger.thread_running ) && trigger.thread_running )
+	else if ( is_true( trigger.thread_running ) )
 	{
 		keep_thread = 0;
 	}
@@ -435,7 +435,7 @@ main() //checked against bo3 _zm_unitrigger.gsc and cerberus output changed at o
 					}
 				}
 				closest = get_closest_unitriggers( player_origin, candidate_list, valid_range );
-				if ( isDefined( trigger ) && time_to_ressess && closest.size < 2 || isDefined( trigger.thread_running ) && trigger.thread_running )
+				if ( isDefined( trigger ) && time_to_ressess && closest.size < 2 || is_true( trigger.thread_running ) )
 				{
 					if ( assess_and_apply_visibility( trigger, trigger.stub, player, 1 ) )
 					{
@@ -456,12 +456,12 @@ main() //checked against bo3 _zm_unitrigger.gsc and cerberus output changed at o
 			last_trigger = undefined;
 			while ( index < closest.size )
 			{
-				if ( !maps/mp/zombies/_zm_utility::is_player_valid( player ) && isDefined( closest[ index ].ignore_player_valid ) && !closest[ index ].ignore_player_valid )
+				if ( !maps/mp/zombies/_zm_utility::is_player_valid( player ) && !is_true( closest[ index ].ignore_player_valid ) )
 				{
 					index++;
 					continue;
 				}
-				if ( isDefined( closest[ index ].registered ) && !closest[ index ].registered )
+				if ( !is_true( closest[ index ].registered ) )
 				{
 					index++;
 					continue;
@@ -472,7 +472,7 @@ main() //checked against bo3 _zm_unitrigger.gsc and cerberus output changed at o
 					last_trigger = undefined;
 				}
 				trigger = undefined;
-				if ( isDefined( closest[ index ].trigger_per_player ) && closest[ index ].trigger_per_player )
+				if ( is_true( closest[ index ].trigger_per_player ) )
 				{
 					if ( !isDefined( closest[ index ].playertrigger ) )
 					{
@@ -517,7 +517,7 @@ run_visibility_function_for_all_triggers() //checked changed to match cerberus o
 	{
 		return;
 	}
-	if ( isDefined( self.trigger_per_player ) && self.trigger_per_player )
+	if ( is_true( self.trigger_per_player ) )
 	{
 		if ( !isDefined( self.playertrigger ) )
 		{
@@ -606,7 +606,7 @@ build_trigger_from_unitrigger_stub( stub, player ) //checked matches cerberus ou
 			}
 		}
 		trigger triggerignoreteam();
-		if ( isDefined( stub.require_look_at ) && stub.require_look_at )
+		if ( is_true( stub.require_look_at ) )
 		{
 			trigger usetriggerrequirelookat();
 		}
@@ -632,7 +632,7 @@ build_trigger_from_unitrigger_stub( stub, player ) //checked matches cerberus ou
 		trigger.stub = stub;
 	}
 	copy_zombie_keys_onto_trigger( trigger, stub );
-	if ( isDefined( stub.trigger_per_player ) && stub.trigger_per_player )
+	if ( is_true( stub.trigger_per_player ) )
 	{
 		if ( isDefined( trigger ) )
 		{

@@ -50,7 +50,7 @@ faller_script_parameters() //checked changed to match cerberus output
 setup_deathfunc( func_name ) //checked matches cerberus output
 {
 	self endon( "death" );
-	while ( isDefined( self.zombie_init_done ) && !self.zombie_init_done )
+	while ( !is_true( self.zombie_init_done ) )
 	{
 		wait_network_frame();
 	}
@@ -74,7 +74,7 @@ do_zombie_fall( spot ) //checked changed to match cerberus output
 	self.zombie_faller_location = spot;
 	self.zombie_faller_location.is_enabled = 0;
 	self.zombie_faller_location faller_script_parameters();
-	if ( isDefined( self.zombie_faller_location.emerge_bottom ) && self.zombie_faller_location.emerge_bottom || isDefined( self.zombie_faller_location.emerge_top ) && self.zombie_faller_location.emerge_top )
+	if ( is_true( self.zombie_faller_location.emerge_bottom ) || is_true( self.zombie_faller_location.emerge_top ) )
 	{
 		self do_zombie_emerge( spot );
 		return;
@@ -205,7 +205,7 @@ zombie_land() //checked matches cerberus output
 
 zombie_faller_always_drop() //checked matches cerberus output
 {
-	if ( isDefined( self.zombie_faller_location.drop_now ) && self.zombie_faller_location.drop_now )
+	if ( is_true( self.zombie_faller_location.drop_now ) )
 	{
 		return 1;
 	}
@@ -214,7 +214,7 @@ zombie_faller_always_drop() //checked matches cerberus output
 
 zombie_faller_drop_not_occupied() //checked matches cerberus output
 {
-	if ( isDefined( self.zombie_faller_location.drop_not_occupied ) && self.zombie_faller_location.drop_not_occupied )
+	if ( is_true( self.zombie_faller_location.drop_not_occupied ) )
 	{
 		if ( isDefined( self.zone_name ) && isDefined( level.zones[ self.zone_name ] ) )
 		{
@@ -569,7 +569,7 @@ do_zombie_emerge( spot ) //checked changed to match cerberus output
 zombie_faller_emerge( spot ) //checked matches cerberus output
 {
 	self endon( "death" );
-	if ( isDefined( self.zombie_faller_location.emerge_bottom ) && self.zombie_faller_location.emerge_bottom )
+	if ( is_true( self.zombie_faller_location.emerge_bottom ) )
 	{
 		self animscripted( self.zombie_faller_location.origin, self.zombie_faller_location.angles, "zombie_riser_elevator_from_floor" );
 	}

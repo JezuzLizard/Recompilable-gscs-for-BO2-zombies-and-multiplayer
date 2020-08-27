@@ -26,7 +26,7 @@ setexertvoice( exert_id ) //checked matches cerberus output
 
 playerexert( exert ) //checked changed to match cerberus output
 {
-	if ( isDefined( self.isspeaking ) && self.isspeaking || isDefined( self.isexerting ) && self.isexerting )
+	if ( is_true( self.isspeaking ) || is_true( self.isexerting ) )
 	{
 		return;
 	}
@@ -328,11 +328,11 @@ do_zombies_playvocals( alias_type, zombie_type ) //checked changed to match cerb
 	{
 		zombie_type = "zombie";
 	}
-	if ( isDefined( self.shrinked ) && self.shrinked )
+	if ( is_true( self.shrinked ) )
 	{
 		return;
 	}
-	if ( isDefined( self.is_inert ) && self.is_inert )
+	if ( is_true( self.is_inert ) )
 	{
 		return;
 	}
@@ -447,7 +447,7 @@ oh_shit_vox() //checked changed to match cerberus output
 			}
 			if ( close_zombs > 4 )
 			{
-				if ( randomint( 100 ) > 75 && isDefined( self.isonbus ) && !self.isonbus )
+				if ( randomint( 100 ) > 75 && !is_true( self.isonbus ) )
 				{
 					self create_and_play_dialog( "general", "oh_shit" );
 					wait 4;
@@ -464,7 +464,7 @@ create_and_play_dialog( category, type, response, force_variant, override ) //ch
 	{
 		return;
 	}
-	if ( isDefined( self.dontspeak ) && self.dontspeak )
+	if ( is_true( self.dontspeak ) )
 	{
 		return;
 	}
@@ -516,7 +516,7 @@ create_and_play_dialog( category, type, response, force_variant, override ) //ch
 do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type, override, isresponse ) //checked partially changed to match cerberus output
 {
 	self endon( "death_or_disconnect" );
-	if ( isDefined( level.skit_vox_override ) && level.skit_vox_override && isDefined( override ) && !override )
+	if ( is_true( level.skit_vox_override ) && !is_true( override ) )
 	{
 		return;
 	}
@@ -524,11 +524,11 @@ do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type
 	{
 		self.isspeaking = 0;
 	}
-	if ( isDefined( self.isspeaking ) && self.isspeaking )
+	if ( is_true( self.isspeaking ) )
 	{
 		return;
 	}
-	if ( !self arenearbyspeakersactive() || isDefined( self.ignorenearbyspkrs ) && self.ignorenearbyspkrs )
+	if ( !self arenearbyspeakersactive() || is_true( self.ignorenearbyspkrs ) )
 	{
 		self.speakingline = sound_to_play;
 		self.isspeaking = 1;
@@ -552,7 +552,7 @@ do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type
 		}
 		self playsoundontag( prefix + sound_to_play, "J_Head" );
 		wait playbacktime;
-		if ( isplayer( self ) && isDefined( isresponse ) && !isresponse && isDefined( self.last_vo_played_time ) )
+		if ( isplayer( self ) && !is_true( isresponse ) && isDefined( self.last_vo_played_time ) )
 		{
 			if ( getTime() < ( self.last_vo_played_time + 5000 ) )
 			{
@@ -570,7 +570,7 @@ do_player_or_npc_playvox( prefix, index, sound_to_play, waittime, category, type
 		{
 			self.last_vo_played_time = getTime();
 		}
-		if ( isDefined( isresponse ) && isresponse )
+		if ( is_true( isresponse ) )
 		{
 			return;
 		}
@@ -744,7 +744,7 @@ player_killstreak_timer() //checked matches cerberus output
 		{
 			continue;
 		}
-		if ( isDefined( zomb.microwavegun_death ) && zomb.microwavegun_death )
+		if ( is_true( zomb.microwavegun_death ) )
 		{
 			continue;
 		}
@@ -768,7 +768,7 @@ player_zombie_kill_vox( hit_location, player, mod, zombie ) //checked does not m
 	instakill = level.zombie_vars[ player.team ][ "zombie_insta_kill" ];
 	death = [[ level.audio_get_mod_type ]]( hit_location, mod, weapon, zombie, instakill, dist, player );
 	chance = get_response_chance( death );
-	if ( chance > randomintrange( 1, 100 ) && isDefined( player.force_wait_on_kill_line ) && !player.force_wait_on_kill_line )
+	if ( chance > randomintrange( 1, 100 ) && !is_true( player.force_wait_on_kill_line ) )
 	{
 		player.force_wait_on_kill_line = 1;
 		player create_and_play_dialog( "kill", death );
@@ -879,7 +879,7 @@ get_mod_type( impact, mod, weapon, zombie, instakill, dist, player ) //checked d
 			return "weapon_instakill";
 		}
 	}
-	if ( is_explosive_damage( mod ) && weapon != "ray_gun_zm" && isDefined( zombie.is_on_fire ) && !zombie.is_on_fire )
+	if ( is_explosive_damage( mod ) && weapon != "ray_gun_zm" && !is_true( zombie.is_on_fire ) )
 	{
 		if ( !instakill )
 		{
@@ -1197,7 +1197,7 @@ addasspeakernpc( ignorenearbyspeakers ) //checked matches cerberus output
 	{
 		level.npcs = [];
 	}
-	if ( isDefined( ignorenearbyspeakers ) && ignorenearbyspeakers )
+	if ( is_true( ignorenearbyspeakers ) )
 	{
 		self.ignorenearbyspkrs = 1;
 	}
@@ -1235,7 +1235,7 @@ arenearbyspeakersactive() //checked partially changed to match cerberus output
 				continue;
 			}
 		}
-		if ( isdefined( person.isspeaking ) && person.isspeaking && isdefined( person.ignorenearbyspkrs ) && !person.ignorenearbyspkrs )
+		if ( is_true( person.isspeaking ) && !is_true( person.ignorenearbyspkrs ) )
 		{
 			if ( distancesquared( self.origin, person.origin ) < radius * radius )
 			{

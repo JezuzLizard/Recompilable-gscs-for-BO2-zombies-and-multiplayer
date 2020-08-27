@@ -248,7 +248,7 @@ wait_for_team_death_and_round_end() //checked partially changed to match cerberu
 			}
 			i++;
 		}
-		if ( cia_alive == 0 && cdc_alive == 0 && !level.isresetting_grief && isDefined( level.host_ended_game ) && !level.host_ended_game )
+		if ( cia_alive == 0 && cdc_alive == 0 && !level.isresetting_grief && !is_true( level.host_ended_game ) )
 		{
 			wait 0.5;
 			if ( isDefined( level._grief_reset_message ) )
@@ -332,14 +332,14 @@ wait_for_team_death() //checked partially changed to match cerberus output //did
 		{
 			if ( players[ i ]._encounters_team == "A" )
 			{
-				if ( is_player_valid( players[ i ] ) || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && isDefined( players[ i ].lives ) && players[ i ].lives > 0 )
+				if ( is_player_valid( players[ i ] ) || is_true( level.force_solo_quick_revive ) && isDefined( players[ i ].lives ) && players[ i ].lives > 0 )
 				{
 					cia_alive++;
 					i++;
 					continue;
 				}
 			}
-			if ( is_player_valid( players[ i ] ) || isDefined( level.force_solo_quick_revive ) && level.force_solo_quick_revive && isDefined( players[ i ].lives ) && players[ i ].lives > 0 )
+			if ( is_player_valid( players[ i ] ) || is_true( level.force_solo_quick_revive ) && isDefined( players[ i ].lives ) && players[ i ].lives > 0 )
 			{
 				cdc_alive++;
 			}
@@ -411,7 +411,7 @@ create_fireworks( launch_spots, min_wait, max_wait, randomize ) //checked change
 	level endon( "stop_fireworks" );
 	while ( 1 )
 	{
-		if ( isDefined( randomize ) && randomize )
+		if ( is_true( randomize ) )
 		{
 			launch_spots = array_randomize( launch_spots );
 		}

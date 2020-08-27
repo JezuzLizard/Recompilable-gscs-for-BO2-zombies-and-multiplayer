@@ -310,7 +310,7 @@ door_activate( time, open, quick, use_blocker_clip_for_pathing ) //checked match
 		}
 	}
 	self.door_moving = 1;
-	if ( open || isDefined( quick ) && !quick )
+	if ( open || !is_true( quick ) )
 	{
 		self notsolid();
 	}
@@ -567,7 +567,7 @@ waittill_door_can_close() //checked changed to match cerberus output
 				self waittill_door_trigger_clear_local_power_off( trigger, all_trigs );
 				self thread kill_trapped_zombies( trigger );
 			}
-			else if ( isDefined( self.local_power_on ) && self.local_power_on )
+			else if ( is_true( self.local_power_on ) )
 			{
 				self waittill( "local_power_off" );
 			}
@@ -581,7 +581,7 @@ waittill_door_can_close() //checked changed to match cerberus output
 					self thread kill_trapped_zombies( trigger );
 				}
 			}
-			else if ( isDefined( self.power_on ) && self.power_on )
+			else if ( is_true( self.power_on ) )
 			{
 				self waittill( "power_off" );
 			}
@@ -603,11 +603,11 @@ door_think() //checked changed to match cerberus output
 		switch ( self.script_noteworthy )
 		{
 			case "local_electric_door":
-				if ( isDefined( self.local_power_on ) && !self.local_power_on )
+				if ( !is_true( self.local_power_on ) )
 				{
 					self waittill( "local_power_on" );
 				}
-				if ( isDefined( self._door_open ) && !self._door_open )
+				if ( !is_true( self._door_open ) )
 				{
 					/*
 /#
@@ -622,14 +622,14 @@ door_think() //checked changed to match cerberus output
 					self.power_cost += 200;
 				}
 				self sethintstring( "" );
-				if ( isDefined( level.local_doors_stay_open ) && level.local_doors_stay_open )
+				if ( is_true( level.local_doors_stay_open ) )
 				{
 					return;
 				}
 				wait 3;
 				self waittill_door_can_close();
 				self door_block();
-				if ( isDefined( self._door_open ) && self._door_open )
+				if ( is_true( self._door_open ) )
 				{
 					/*
 /#
@@ -642,11 +642,11 @@ door_think() //checked changed to match cerberus output
 				wait 3;
 				continue;
 			case "electric_door":
-				if ( isDefined( self.power_on ) && !self.power_on )
+				if ( !is_true( self.power_on ) )
 				{
 					self waittill( "power_on" );
 				}
-				if ( isDefined( self._door_open ) && !self._door_open )
+				if ( !is_true( self._door_open ) )
 				{
 					/*
 /#
@@ -661,14 +661,14 @@ door_think() //checked changed to match cerberus output
 					self.power_cost += 200;
 				}
 				self sethintstring( "" );
-				if ( isDefined( level.local_doors_stay_open ) && level.local_doors_stay_open )
+				if ( is_true( level.local_doors_stay_open ) )
 				{
 					return;
 				}
 				wait 3;
 				self waittill_door_can_close();
 				self door_block();
-				if ( isDefined( self._door_open ) && self._door_open )
+				if ( is_true( self._door_open ) )
 				{
 					/*
 /#
@@ -718,7 +718,7 @@ door_think() //checked changed to match cerberus output
 self_and_flag_wait( msg ) //checked matches cerberus output
 {
 	self endon( msg );
-	if ( isDefined( self.power_door_ignore_flag_wait ) && self.power_door_ignore_flag_wait )
+	if ( is_true( self.power_door_ignore_flag_wait ) )
 	{
 		level waittill( "forever" );
 	}
@@ -744,7 +744,7 @@ door_block() //checked changed to match cerberus output
 
 door_opened( cost, quick_close ) //checked partially changed to match cerberus output //did not foreach to prevent infinite loop with continues
 {
-	if ( isDefined( self.door_is_moving ) && self.door_is_moving )
+	if ( is_true( self.door_is_moving ) )
 	{
 		return;
 	}
@@ -846,7 +846,7 @@ door_opened( cost, quick_close ) //checked partially changed to match cerberus o
 	{
 		trig.door_is_moving = 0;
 	}
-	if ( isDefined( quick_close ) && quick_close )
+	if ( is_true( quick_close ) )
 	{
 		for ( i = 0; i < all_trigs.size; i++ ) 
 		{
@@ -963,7 +963,7 @@ debris_think() //partially changed to match cerberus output //did not change whi
 	while ( 1 )
 	{
 		self waittill( "trigger", who, force );
-		if ( getDvarInt( "zombie_unlock_all" ) > 0 || isDefined( force ) && force )
+		if ( getDvarInt( "zombie_unlock_all" ) > 0 || is_true( force ) )
 		{
 		}
 		else if ( !who usebuttonpressed() )
@@ -1126,7 +1126,7 @@ blocker_init() //checked partially changed to match cerberus output //did not ch
 				continue;
 			}
 			self.zbarrier = targets[ j ];
-			if ( isDefined( level.zbarrier_script_string_sets_collision ) && level.zbarrier_script_string_sets_collision )
+			if ( is_true( level.zbarrier_script_string_sets_collision ) )
 			{
 				m_collision = "p6_anim_zm_barricade_board_collision";
 			}
@@ -1430,7 +1430,7 @@ blocker_unitrigger_think() //checked matches cerberus output
 blocker_trigger_think() //checked changed to match cerberus output
 {
 	self endon( "blocker_hacked" );
-	if ( isDefined( level.no_board_repair ) && level.no_board_repair )
+	if ( is_true( level.no_board_repair ) )
 	{
 		return;
 	}
@@ -1547,7 +1547,7 @@ blocker_trigger_think() //checked changed to match cerberus output
 				}
 				if ( isDefined( chunk.script_parameters ) && chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" && chunk.script_parameters == "barricade_vents" )
 				{
-					if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
+					if ( !is_true( level.use_clientside_board_fx ) )
 					{
 						if ( !isDefined( chunk.material ) || isDefined( chunk.material ) && chunk.material != "rock" )
 						{
@@ -1678,7 +1678,7 @@ remove_chunk( chunk, node, destroy_immediately, zomb ) //checked changed to matc
 	{
 		fx = self.script_fxid;
 	}
-	if ( isDefined( chunk.script_moveoverride ) && chunk.script_moveoverride )
+	if ( is_true( chunk.script_moveoverride ) )
 	{
 		chunk hide();
 	}
@@ -1894,7 +1894,7 @@ zombie_boardtear_audio_offset( chunk ) //checked changed to match cerberus outpu
 	}
 	else if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
-		if ( isDefined( level.use_clientside_rock_tearin_fx ) && !level.use_clientside_rock_tearin_fx )
+		if ( !is_true( level.use_clientside_rock_tearin_fx ) )
 		{
 			chunk playsound( "zmb_break_rock_barrier" );
 			wait randomfloatrange( 0.3, 0.6 );
@@ -1904,12 +1904,12 @@ zombie_boardtear_audio_offset( chunk ) //checked changed to match cerberus outpu
 	}
 	else if ( isDefined( chunk.material ) && chunk.material == "metal_vent" )
 	{
-		if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
+		if ( !is_true( level.use_clientside_board_fx ) )
 		{
 			chunk playsound( "evt_vent_slat_remove" );
 		}
 	}
-	else if ( isDefined( level.use_clientside_board_fx ) && !level.use_clientside_board_fx )
+	else if ( !is_true( level.use_clientside_board_fx ) )
 	{
 		chunk play_sound_on_ent( "break_barrier_piece" );
 		wait randomfloatrange( 0.3, 0.6 );
@@ -2018,7 +2018,7 @@ zombie_boardtear_audio_plus_fx_offset_repair_horizontal( chunk ) //checked chang
 {
 	if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
-		if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+		if ( is_true( level.use_clientside_rock_tearin_fx ) )
 		{
 			chunk clearclientflag( level._zombie_scriptmover_flag_rock_fx );
 		}
@@ -2031,7 +2031,7 @@ zombie_boardtear_audio_plus_fx_offset_repair_horizontal( chunk ) //checked chang
 			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( 0, 0, -1 ), 30 ) );
 		}
 	}
-	else if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
+	else if ( is_true( level.use_clientside_board_fx ) )
 	{
 		chunk clearclientflag( level._zombie_scriptmover_flag_board_horizontal_fx );
 	}
@@ -2049,7 +2049,7 @@ zombie_boardtear_audio_plus_fx_offset_repair_verticle( chunk ) //checked changed
 {
 	if ( isDefined( chunk.material ) && chunk.material == "rock" )
 	{
-		if ( isDefined( level.use_clientside_rock_tearin_fx ) && level.use_clientside_rock_tearin_fx )
+		if ( is_true( level.use_clientside_rock_tearin_fx ) )
 		{
 			chunk clearclientflag( level._zombie_scriptmover_flag_rock_fx );
 		}
@@ -2062,7 +2062,7 @@ zombie_boardtear_audio_plus_fx_offset_repair_verticle( chunk ) //checked changed
 			playfx( level._effect[ "wood_chunk_destory" ], chunk.origin + vectorScale( ( -1, 0, 0 ), 30 ) );
 		}
 	}
-	else if ( isDefined( level.use_clientside_board_fx ) && level.use_clientside_board_fx )
+	else if ( is_true( level.use_clientside_board_fx ) )
 	{
 		chunk clearclientflag( level._zombie_scriptmover_flag_board_vertical_fx );
 	}

@@ -473,7 +473,7 @@ generate_piece_unitrigger( classname, origin, angles, flags, radius, script_heig
 	unitrigger_stub.prompt_and_visibility_func = ::piecetrigger_update_prompt;
 	unitrigger_stub.originfunc = ::piecestub_get_unitrigger_origin;
 	unitrigger_stub.onspawnfunc = ::anystub_on_spawn_trigger;
-	if ( isDefined( moving ) && moving )
+	if ( is_true( moving ) )
 	{
 		maps/mp/zombies/_zm_unitrigger::register_unitrigger( unitrigger_stub, ::piece_unitrigger_think );
 	}
@@ -722,7 +722,7 @@ player_throw_piece( piece, origin, dir, return_to_spawn, return_time, endangles 
 		{
 			piece [[ piece.ondrop ]]( self );
 		}
-		if ( isDefined( return_to_spawn ) && return_to_spawn )
+		if ( is_true( return_to_spawn ) )
 		{
 			piece piece_wait_and_return( return_time );
 		}
@@ -1117,7 +1117,7 @@ piece_spawn_in( piecespawn ) //checked matches cerberus output
 	{
 		return;
 	}
-	if ( isDefined( self.managed_spawn ) && self.managed_spawn )
+	if ( is_true( self.managed_spawn ) )
 	{
 		if ( !isDefined( self.current_spawn ) )
 		{
@@ -1182,7 +1182,7 @@ piece_spawn_at( origin, angles ) //checked changed to match cerberus output
 	{
 		return;
 	}
-	if ( isDefined( self.managed_spawn ) && self.managed_spawn )
+	if ( is_true( self.managed_spawn ) )
 	{
 		if ( !isDefined( self.current_spawn ) && !isDefined( origin ) )
 		{
@@ -1256,7 +1256,7 @@ piece_unspawn() //checked matches cerberus output
 	{
 		self [[ self.onunspawn ]]();
 	}
-	if ( isDefined( self.managed_spawn ) && self.managed_spawn )
+	if ( is_true( self.managed_spawn ) )
 	{
 		self piece_deallocate_spawn();
 	}
@@ -1366,7 +1366,7 @@ buildable_piece_unitriggers( buildable_name, origin ) //checked changed to match
 		{
 			buildablepiece.generated_instances = 0;
 		}
-		if ( isDefined( buildablepiece.generated_piece ) && isDefined( buildablepiece.can_reuse ) && buildablepiece.can_reuse )
+		if ( isDefined( buildablepiece.generated_piece ) && is_true( buildablepiece.can_reuse ) )
 		{
 			piece = buildablepiece.generated_piece;
 			break;
@@ -1605,9 +1605,9 @@ buildable_is_piece_built_or_building( piece ) //checked partially changed to mat
 	{
 		if ( self.pieces[ i ].modelname == piece.modelname && self.pieces[ i ].buildablename == piece.buildablename )
 		{
-			if ( isDefined( self.pieces[ i ].built ) && !self.pieces[ i ].built )
+			if ( !is_true( self.pieces[ i ].built ) )
 			{
-				if ( isDefined( self.pieces[ i ].building ) && self.pieces[ i ].building )
+				if ( is_true( self.pieces[ i ].building ) )
 				{
 					return 1;
 				}
@@ -1622,7 +1622,7 @@ buildable_all_built() //checked changed to match cerberus output
 {
 	for ( i = 0; i < self.pieces.size; i++ )
 	{
-		if ( isDefined( self.pieces[ i ].built ) && !self.pieces[ i ].built )
+		if ( !is_true( self.pieces[ i ].built ) )
 		{
 			return 0;
 		}
@@ -1644,7 +1644,7 @@ player_can_build( buildable, continuing ) //checked changed to match cerberus ou
 	{
 		return 0;
 	}
-	if ( isDefined( continuing ) && continuing )
+	if ( is_true( continuing ) )
 	{
 		if ( buildable buildable_is_piece_built( self player_get_buildable_piece( buildable.buildable_slot ) ) )
 		{
@@ -1685,7 +1685,7 @@ player_build( buildable, pieces ) //checked partially changed to match cerberus 
 			if ( isDefined( buildable.pieces[ i ].part_name ) )
 			{
 				buildable.stub.model notsolid();
-				if ( isDefined( buildable.pieces[ i ].built ) && !buildable.pieces[ i ].built )
+				if ( !is_true( buildable.pieces[ i ].built ) )
 				{
 					buildable.stub.model hidepart( buildable.pieces[ i ].part_name );
 					i++;
@@ -1877,7 +1877,7 @@ buildablestub_update_prompt( player ) //checked changed to match cerberus output
 			self.hint_string = &"ZOMBIE_GO_TO_THE_BOX_LIMITED";
 			return 0;
 		}
-		else if ( isDefined( self.bought ) && self.bought )
+		else if ( is_true( self.bought ) )
 		{
 			self.hint_string = &"ZOMBIE_GO_TO_THE_BOX";
 			return 0;
@@ -1941,7 +1941,7 @@ player_continue_building( buildablezone, build_stub ) //checked matches cerberus
 			return 0;
 		}
 	}
-	if ( isDefined( build_stub.require_look_at ) && build_stub.require_look_at && !self is_player_looking_at( trigger.origin, 0.4 ) )
+	if ( is_true( build_stub.require_look_at ) && !self is_player_looking_at( trigger.origin, 0.4 ) )
 	{
 		return 0;
 	}
@@ -2039,7 +2039,7 @@ buildable_use_hold_think_internal( player, bind_stub ) //checked changed to matc
 	player notify( "buildable_progress_end" );
 	player maps/mp/zombies/_zm_weapons::switch_back_primary_weapon( orgweapon );
 	player takeweapon( "zombie_builder_zm" );
-	if ( isDefined( player.is_drinking ) && player.is_drinking )
+	if ( is_true( player.is_drinking ) )
 	{
 		player decrement_is_drinking();
 	}
@@ -2090,7 +2090,7 @@ buildable_place_think() //checked partially changed to match cerberus output //c
 {
 	self endon( "kill_trigger" );
 	player_built = undefined;
-	while ( isDefined( self.stub.built ) && !self.stub.built )
+	while ( !is_true( self.stub.built ) )
 	{
 		self waittill( "trigger", player );
 		if ( player != self.parent_player )
@@ -2189,7 +2189,7 @@ bptrigger_think_one_use_and_fly( player_built ) //checked changed to match cerbe
 		self sethintstring( self.stub.hint_string );
 		return;
 	}
-	if ( isDefined( self.stub.bought ) && self.stub.bought )
+	if ( is_true( self.stub.bought ) )
 	{
 		self.stub.hint_string = &"ZOMBIE_GO_TO_THE_BOX";
 		self sethintstring( self.stub.hint_string );
@@ -2203,7 +2203,7 @@ bptrigger_think_one_use_and_fly( player_built ) //checked changed to match cerbe
 	while ( self.stub.persistent == 2 )
 	{
 		self waittill( "trigger", player );
-		while ( isDefined( player.screecher_weapon ) )
+		if ( isDefined( player.screecher_weapon ) )
 		{
 			continue;
 		}
@@ -2213,7 +2213,7 @@ bptrigger_think_one_use_and_fly( player_built ) //checked changed to match cerbe
 			self sethintstring( self.stub.hint_string );
 			return;
 		}
-		if ( isDefined( self.stub.built ) && !self.stub.built )
+		if ( !is_true( self.stub.built ) )
 		{
 			self.stub.hint_string = "";
 			self sethintstring( self.stub.hint_string );
@@ -2266,7 +2266,7 @@ bptrigger_think_persistent( player_built ) //checked changed to match cerberus o
 			{
 				continue;
 			}
-			if ( isDefined( self.stub.built ) && !self.stub.built )
+			if ( !is_true( self.stub.built ) )
 			{
 				self.stub.hint_string = "";
 				self sethintstring( self.stub.hint_string );
@@ -2394,7 +2394,7 @@ stub_unbuild_buildable( stub, return_pieces, origin, angles ) //checked partiall
 			if ( isDefined( buildable.pieces[ i ].part_name ) )
 			{
 				buildable.stub.model notsolid();
-				if ( isDefined( buildable.pieces[ i ].built ) && !buildable.pieces[ i ].built )
+				if ( is_true( buildable.pieces[ i ].built ) )
 				{
 					buildable.stub.model hidepart( buildable.pieces[ i ].part_name );
 				}
@@ -2404,7 +2404,7 @@ stub_unbuild_buildable( stub, return_pieces, origin, angles ) //checked partiall
 					buildable.stub.model showpart( buildable.pieces[ i ].part_name );
 				}
 			}
-			if ( isDefined( return_pieces ) && return_pieces )
+			if ( is_true( return_pieces ) )
 			{
 				if ( isDefined( buildable.stub.str_unbuild_notify ) )
 				{
@@ -2441,7 +2441,7 @@ player_explode_buildable( equipname, origin, speed, return_to_spawn, return_time
 			if ( isDefined( buildable.pieces[ i ].part_name ) )
 			{
 				buildable.stub.model notsolid();
-				if ( isDefined( buildable.pieces[ i ].built ) && !buildable.pieces[ i ].built )
+				if ( !is_true( buildable.pieces[ i ].built ) )
 				{
 					buildable.stub.model hidepart( buildable.pieces[ i ].part_name );
 				}
@@ -2995,7 +2995,7 @@ track_buildables_planted( equipment ) //checked matches cerberus output
 	{
 		vo_name = "build_plc_trap";
 	}
-	if ( isDefined( self.buildable_timer ) && !self.buildable_timer )
+	if ( !is_true( self.buildable_timer ) )
 	{
 		self thread do_player_general_vox( "general", vo_name );
 		self thread placed_buildable_vo_timer();
@@ -3029,7 +3029,7 @@ track_planted_buildables_pickedup( equipment ) //checked changed to match cerber
 		self maps/mp/zombies/_zm_stats::increment_client_stat( "planted_buildables_pickedup", 0 );
 		self maps/mp/zombies/_zm_stats::increment_player_stat( "planted_buildables_pickedup" );
 	}
-	if ( isDefined( self.buildable_pickedup_timer ) && !self.buildable_pickedup_timer )
+	if ( !is_true( self.buildable_pickedup_timer ) )
 	{
 		self say_pickup_buildable_vo( equipment, 1 );
 		self thread buildable_pickedup_timer();
@@ -3061,7 +3061,7 @@ add_map_buildable_stat( piece_name, stat_name, value ) //checked changed to matc
 	{
 		return;
 	}
-	if ( isDefined( level.zm_disable_recording_stats ) && level.zm_disable_recording_stats || isDefined( level.zm_disable_recording_buildable_stats ) && level.zm_disable_recording_buildable_stats )
+	if ( is_true( level.zm_disable_recording_stats ) || is_true( level.zm_disable_recording_buildable_stats ) )
 	{
 		return;
 	}
@@ -3070,7 +3070,7 @@ add_map_buildable_stat( piece_name, stat_name, value ) //checked changed to matc
 
 say_pickup_buildable_vo( buildable_name, world ) //checked matches cerberus output
 {
-	if ( isDefined( self.buildable_pickedup_timer ) && self.buildable_pickedup_timer )
+	if ( is_true( self.buildable_pickedup_timer ) )
 	{
 		return;
 	}
@@ -3080,7 +3080,7 @@ say_pickup_buildable_vo( buildable_name, world ) //checked matches cerberus outp
 		return;
 	}
 	vo_name = "build_pck_b" + name;
-	if ( isDefined( world ) && world )
+	if ( is_true( world ) )
 	{
 		vo_name = "build_pck_w" + name;
 	}

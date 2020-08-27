@@ -14,14 +14,14 @@ init() //checked matches cerberus output
 	init_equipment_upgrade();
 	onplayerconnect_callback( ::equipment_placement_watcher );
 	level._equipment_disappear_fx = loadfx( "maps/zombie/fx_zmb_tranzit_electrap_explo" );
-	if ( isDefined( level.disable_fx_zmb_tranzit_shield_explo ) && !level.disable_fx_zmb_tranzit_shield_explo )
+	if ( !is_true( level.disable_fx_zmb_tranzit_shield_explo ) )
 	{
 		level._riotshield_dissapear_fx = loadfx( "maps/zombie/fx_zmb_tranzit_shield_explo" );
 	}
 	level.placeable_equipment_destroy_fn = [];
 	registerclientfield( "scriptmover", "equipment_activated", 12000, 4, "int" );
 
-	if ( isDefined( level._no_equipment_activated_clientfield ) && !level._no_equipment_activated_clientfield )
+	if ( !is_true( level._no_equipment_activated_clientfield ) )
 	{
 		registerclientfield( "scriptmover", "equipment_activated", 12000, 4, "int" );
 	}
@@ -33,7 +33,7 @@ signal_equipment_activated( val ) //checked changed to match cerberus output
 	{
 		val = 1;
 	}
-	if ( isDefined( level._no_equipment_activated_clientfield ) && level._no_equipment_activated_clientfield )
+	if ( is_true( level._no_equipment_activated_clientfield ) )
 	{
 		return;
 	}
@@ -48,7 +48,7 @@ signal_equipment_activated( val ) //checked changed to match cerberus output
 
 register_equipment( equipment_name, hint, howto_hint, hint_icon, equipmentvo, watcher_thread, transfer_fn, drop_fn, pickup_fn, place_fn ) //checked matches cerberus output
 {
-	if ( !isDefined( level.zombie_include_equipment ) || isDefined( level.zombie_include_equipment[ equipment_name ] ) && !level.zombie_include_equipment[ equipment_name ] )
+	if ( !isDefined( level.zombie_include_equipment ) || !is_true( level.zombie_include_equipment[ equipment_name ] ) )
 	{
 		return;
 	}
@@ -251,7 +251,7 @@ equipment_take( equipment ) //checked matches cerberus output
 	println( "ZM EQUIPMENT: " + self.name + " lost " + equipment + "\n" );
 #/
 	*/
-	if ( isDefined( self.current_equipment_active[ equipment ] ) && self.current_equipment_active[ equipment ] )
+	if ( is_true( self.current_equipment_active[ equipment ] ) )
 	{
 		self.current_equipment_active[ equipment ] = 0;
 		self notify( equipment + "_deactivate" );
@@ -485,7 +485,7 @@ show_equipment_hint( equipment ) //checked matches cerberus output
 	self endon( "kill_previous_show_equipment_hint_thread" );
 	self endon( "death" );
 	self endon( "disconnect" );
-	if ( isDefined( self.do_not_display_equipment_pickup_hint ) && self.do_not_display_equipment_pickup_hint )
+	if ( is_true( self.do_not_display_equipment_pickup_hint ) )
 	{
 		return;
 	}
@@ -531,7 +531,7 @@ equipment_onspawnretrievableweaponobject( watcher, player ) //checked partially 
 			waittillframeend;
 			if ( iswallmount )
 			{
-				if ( isDefined( player.planted_wallmount_on_a_zombie ) && player.planted_wallmount_on_a_zombie )
+				if ( is_true( player.planted_wallmount_on_a_zombie ) )
 				{
 					equip_name = self.name;
 					thread equipment_disappear_fx( self.origin, undefined, self.angles );
@@ -600,7 +600,7 @@ equipment_onspawnretrievableweaponobject( watcher, player ) //checked partially 
 				plant_origin = ( plant_origin[ 0 ], plant_origin[ 1 ], player.origin[ 2 ] + 10 );
 			}
 		}
-		if ( isDefined( iswallmount ) && iswallmount )
+		if ( is_true( iswallmount ) )
 		{
 			self ghost();
 		}
@@ -642,7 +642,7 @@ equipment_retrieve( player ) //checked changed to match cerberus output
 			self.owner = player;
 		}
 		player equipment_from_deployed( weaponname );
-		if ( isDefined( self.requires_pickup ) && self.requires_pickup )
+		if ( is_true( self.requires_pickup ) )
 		{
 			if ( isDefined( level.zombie_equipment[ weaponname ].pickup_fn ) )
 			{
@@ -1022,7 +1022,7 @@ generate_equipment_unitrigger( classname, origin, angles, flags, radius, script_
 	}
 	unitrigger_stub.originfunc = ::eqstub_get_unitrigger_origin;
 	unitrigger_stub.onspawnfunc = ::eqstub_on_spawn_trigger;
-	if ( isDefined( moving ) && moving )
+	if ( is_true( moving ) )
 	{
 		maps/mp/zombies/_zm_unitrigger::register_unitrigger( unitrigger_stub, think );
 	}
@@ -1055,11 +1055,11 @@ can_pick_up_equipment( equipment_name, equipment_trigger ) //checked matches cer
 	{
 		return 0;
 	}
-	if ( isDefined( self.pickup_equipment ) && self.pickup_equipment )
+	if ( is_true( self.pickup_equipment ) )
 	{
 		return 0;
 	}
-	if ( isDefined( level.equipment_team_pick_up ) && level.equipment_team_pick_up && !self same_team_placed_equipment( equipment_trigger ) )
+	if ( is_true( level.equipment_team_pick_up ) && !self same_team_placed_equipment( equipment_trigger ) )
 	{
 		return 0;
 	}
@@ -1306,7 +1306,7 @@ pickup_dropped_equipment( player ) //checked matches cerberus output
 dropped_equipment_destroy( gusto ) //checked changed to match cerberus output
 {
 	stub = self.stub;
-	if ( isDefined( gusto ) && gusto )
+	if ( is_true( gusto ) )
 	{
 		equipment_disappear_fx( self.origin, undefined, self.angles );
 	}
@@ -1388,7 +1388,7 @@ equipment_watch_placement( equipment ) //checked changed to match cerberus outpu
 	}
 	self notify( "create_equipment_turret", placeturret );
 	ended = self waittill_any_return( "weapon_change", "grenade_fire", "death_or_disconnect" );
-	if ( isDefined( level.use_legacy_equipment_placement ) && !level.use_legacy_equipment_placement )
+	if ( !is_true( level.use_legacy_equipment_placement ) )
 	{
 		self.turret_placement = self canplayerplaceturret( placeturret );
 	}
@@ -1486,7 +1486,7 @@ player_damage_equipment( equipment, damage, origin ) //checked matches cerberus 
 
 item_damage( damage ) //checked changed to match cerberus output
 {
-	if ( isDefined( self.isriotshield ) && self.isriotshield )
+	if ( is_true( self.isriotshield ) )
 	{
 		if ( isDefined( level.riotshield_damage_callback ) && isDefined( self.owner ) )
 		{
@@ -1686,7 +1686,7 @@ item_attract_zombies() //checked partially changed to match cerberus output did 
 				i++;
 				continue;
 			}
-			if ( isDefined( ai[ i ].ignore_equipment ) && ai[ i ].ignore_equipment )
+			if ( is_true( ai[ i ].ignore_equipment ) )
 			{
 				i++;
 				continue;
@@ -1699,12 +1699,12 @@ item_attract_zombies() //checked partially changed to match cerberus output did 
 					continue;
 				}
 			}
-			if ( isDefined( ai[ i ].is_inert ) && ai[ i ].is_inert )
+			if ( is_true( ai[ i ].is_inert ) )
 			{
 				i++;
 				continue;
 			}
-			if ( isDefined( ai[ i ].is_traversing ) && ai[ i ].is_traversing )
+			if ( is_true( ai[ i ].is_traversing ) )
 			{
 				i++;
 				continue;
@@ -1722,7 +1722,7 @@ item_attract_zombies() //checked partially changed to match cerberus output did 
 			}
 			if ( distsqrd < distmax && distsqrd > distmin && vdist < vdistmax || should_attack )
 			{
-				if ( isDefined( ai[ i ].isscreecher ) && !ai[ i ].isscreecher && !ai[ i ] is_quad() && !ai[ i ] is_leaper() )
+				if ( !is_true( ai[ i ].isscreecher ) && !ai[ i ] is_quad() && !ai[ i ] is_leaper() )
 				{
 					ai[ i ] thread attack_item( self );
 					item_choke();
@@ -1740,11 +1740,11 @@ attack_item( item ) //checked changed to match cerberus output
 	self endon( "death" );
 	item endon( "death" );
 	self endon( "start_inert" );
-	if ( isDefined( self.doing_equipment_attack ) && self.doing_equipment_attack )
+	if ( is_true( self.doing_equipment_attack ) )
 	{
 		return 0;
 	}
-	if ( isDefined( self.not_interruptable ) && self.not_interruptable )
+	if ( is_true( self.not_interruptable ) )
 	{
 		return 0;
 	}
@@ -1804,14 +1804,14 @@ attack_item( item ) //checked changed to match cerberus output
 
 attack_item_interrupt( item ) //checked matches cerberus output
 {
-	if ( isDefined( self.has_legs ) && !self.has_legs )
+	if ( !is_true( self.has_legs ) )
 	{
 		return;
 	}
 	self notify( "attack_item_interrupt" );
 	self endon( "attack_item_interrupt" );
 	self endon( "death" );
-	while ( isDefined( self.has_legs ) && self.has_legs )
+	while ( is_true( self.has_legs ) )
 	{
 		self waittill( "damage" );
 	}

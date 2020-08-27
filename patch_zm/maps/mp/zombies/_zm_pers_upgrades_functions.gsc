@@ -13,11 +13,11 @@
 
 pers_boards_updated( zbarrier ) //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_boards ) && level.pers_upgrade_boards )
+	if ( is_true( level.pers_upgrade_boards ) )
 	{
 		if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 		{
-			if ( isDefined( self.pers_upgrades_awarded[ "board" ] ) && !self.pers_upgrades_awarded[ "board" ] )
+			if ( !is_true( self.pers_upgrades_awarded[ "board" ] ) )
 			{
 				if ( level.round_number >= level.pers_boarding_round_start )
 				{
@@ -39,7 +39,7 @@ pers_revive_active() //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "revive" ] ) && self.pers_upgrades_awarded[ "revive" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "revive" ] ) )
 		{
 			return 1;
 		}
@@ -59,7 +59,7 @@ pers_mulit_kill_headshot_active() //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "multikill_headshots" ] ) && self.pers_upgrades_awarded[ "multikill_headshots" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "multikill_headshots" ] ) )
 		{
 			return 1;
 		}
@@ -96,9 +96,9 @@ cash_back_player_drinks_perk() //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( level.pers_upgrade_cash_back ) && level.pers_upgrade_cash_back )
+		if ( is_true( level.pers_upgrade_cash_back ) )
 		{
-			if ( isDefined( self.pers_upgrades_awarded[ "cash_back" ] ) && self.pers_upgrades_awarded[ "cash_back" ] )
+			if ( is_true self.pers_upgrades_awarded[ "cash_back" ] ) )
 			{
 				self thread cash_back_money_reward();
 				self thread cash_back_player_prone_check( 1 );
@@ -160,7 +160,7 @@ cash_back_player_prone_check( got_ability ) //checked changed to match cerberus 
 
 pers_upgrade_insta_kill_upgrade_check() //checked changed to match cerberus output
 {
-	if ( isDefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
+	if ( is_true( level.pers_upgrade_insta_kill ) )
 	{
 		self endon( "death" );
 		if ( !maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
@@ -171,12 +171,12 @@ pers_upgrade_insta_kill_upgrade_check() //checked changed to match cerberus outp
 		for ( i = 0; i < players.size; i++ )
 		{
 			e_player = players[ i ];
-			if ( isDefined( e_player.pers_upgrades_awarded[ "insta_kill" ] ) && e_player.pers_upgrades_awarded[ "insta_kill" ] )
+			if ( is_true( e_player.pers_upgrades_awarded[ "insta_kill" ] ) )
 			{
 				e_player thread insta_kill_upgraded_player_kill_func( level.pers_insta_kill_upgrade_active_time );
 			}
 		}
-		if ( isDefined( self.pers_upgrades_awarded[ "insta_kill" ] ) && !self.pers_upgrades_awarded[ "insta_kill" ] )
+		if ( !is_true( self.pers_upgrades_awarded[ "insta_kill" ] ) )
 		{
 			kills_start = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "kills" );
 			self waittill( "insta_kill_over" );
@@ -267,11 +267,11 @@ pers_insta_kill_melee_swipe( smeansofdeath, eattacker ) //checked matches cerber
 
 pers_upgrade_jugg_player_death_stat() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_jugg ) && level.pers_upgrade_jugg )
+	if ( is_true( level.pers_upgrade_jugg ) )
 	{
 		if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 		{
-			if ( isDefined( self.pers_upgrades_awarded[ "jugg" ] ) && !self.pers_upgrades_awarded[ "jugg" ] )
+			if ( !is_true( self.pers_upgrades_awarded[ "jugg" ] ) )
 			{
 				if ( level.round_number <= level.pers_jugg_hit_and_die_round_limit )
 				{
@@ -286,7 +286,7 @@ pers_jugg_active() //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "jugg" ] ) && self.pers_upgrades_awarded[ "jugg" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "jugg" ] ) )
 		{
 			return 1;
 		}
@@ -304,7 +304,7 @@ pers_upgrade_flopper_damage_check( smeansofdeath, idamage ) //checked changed to
 	{
 		return 0;
 	}
-	if ( isDefined( self.pers_upgrades_awarded[ "flopper" ] ) && !self.pers_upgrades_awarded[ "flopper" ] )
+	if ( !is_true( self.pers_upgrades_awarded[ "flopper" ] ) )
 	{
 		if ( idamage < level.pers_flopper_min_fall_damage_activate )
 		{
@@ -325,7 +325,7 @@ pers_upgrade_flopper_damage_check( smeansofdeath, idamage ) //checked changed to
 			*/
 		}
 	}
-	else if ( isDefined( self.pers_flopper_active ) && !self.pers_flopper_active )
+	else if ( !is_true( self.pers_flopper_active ) )
 	{
 		if ( idamage >= level.pers_flopper_min_fall_damage_deactivate )
 		{
@@ -385,7 +385,7 @@ pers_flopper_explode( attacker, origin ) //checked matches cerberus output
 	radius = level.zombie_vars[ "zombie_perk_divetonuke_radius" ];
 	min_damage = level.zombie_vars[ "zombie_perk_divetonuke_min_damage" ];
 	max_damage = level.zombie_vars[ "zombie_perk_divetonuke_max_damage" ];
-	if ( isDefined( level.pers_flopper_network_optimized ) && level.pers_flopper_network_optimized )
+	if ( is_true( level.pers_flopper_network_optimized ) )
 	{
 		attacker thread pers_flopper_damage_network_optimized( origin, radius, max_damage, min_damage, "MOD_GRENADE_SPLASH" );
 	}
@@ -441,7 +441,7 @@ pers_upgrade_pistol_points_kill() //checked matches cerberus output
 		self.pers_num_zombies_killed_in_game = 0;
 	}
 	self.pers_num_zombies_killed_in_game++;
-	if ( isDefined( self.pers_upgrades_awarded[ "pistol_points" ] ) && !self.pers_upgrades_awarded[ "pistol_points" ] )
+	if ( !is_true( self.pers_upgrades_awarded[ "pistol_points" ] ) )
 	{
 		if ( self.pers_num_zombies_killed_in_game >= level.pers_pistol_points_num_kills_in_game )
 		{
@@ -467,7 +467,7 @@ pers_upgrade_pistol_points_set_score( score, event, mod, damage_weapon ) //check
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "pistol_points" ] ) && self.pers_upgrades_awarded[ "pistol_points" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "pistol_points" ] ) )
 		{
 			if ( isDefined( event ) )
 			{
@@ -501,7 +501,7 @@ pers_upgrade_double_points_pickup_start() //checked changed to match cerberus ou
 	{
 		return;
 	}
-	if ( isDefined( self.double_points_ability_check_active ) && self.double_points_ability_check_active )
+	if ( is_true( self.double_points_ability_check_active ) )
 	{
 		self.double_points_ability_start_time = getTime();
 		return;
@@ -555,7 +555,7 @@ pers_upgrade_double_points_pickup_start() //checked changed to match cerberus ou
 	{
 		bank_withdrawal_total = 0;
 	}
-	if ( isDefined( self.pers_upgrades_awarded[ "double_points" ] ) && self.pers_upgrades_awarded[ "double_points" ] )
+	if ( is_true( self.pers_upgrades_awarded[ "double_points" ] ) )
 	{
 		if ( ability_lost == 1 )
 		{
@@ -583,9 +583,9 @@ pers_upgrade_double_points_set_score( score ) //checked matches cerberus output
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "double_points" ] ) && self.pers_upgrades_awarded[ "double_points" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "double_points" ] ) )
 		{
-			if ( isDefined( level.pers_double_points_active ) && level.pers_double_points_active )
+			if ( is_true( level.pers_double_points_active ) )
 			{
 				score = int( score * 0.5 );
 			}
@@ -598,7 +598,7 @@ pers_upgrade_double_points_cost( current_cost ) //checked matches cerberus outpu
 {
 	if ( maps/mp/zombies/_zm_pers_upgrades::is_pers_system_active() )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "double_points" ] ) && self.pers_upgrades_awarded[ "double_points" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "double_points" ] ) )
 		{
 			current_cost = int( current_cost / 2 );
 		}
@@ -608,9 +608,9 @@ pers_upgrade_double_points_cost( current_cost ) //checked matches cerberus outpu
 
 is_pers_double_points_active() //checked matches cerberus output
 {
-	if ( isDefined( self.pers_upgrades_awarded[ "double_points" ] ) && self.pers_upgrades_awarded[ "double_points" ] )
+	if ( is_true( self.pers_upgrades_awarded[ "double_points" ] ) )
 	{
-		if ( isDefined( level.pers_double_points_active ) && level.pers_double_points_active )
+		if ( is_true( level.pers_double_points_active ) )
 		{
 			return 1;
 		}
@@ -625,7 +625,7 @@ pers_upgrade_perk_lose_bought() //checked changed to match cerberus output
 		return;
 	}
 	wait 1;
-	if ( isDefined( self.pers_upgrades_awarded[ "perk_lose" ] ) && !self.pers_upgrades_awarded[ "perk_lose" ] )
+	if ( !is_true( self.pers_upgrades_awarded[ "perk_lose" ] ) )
 	{
 		if ( level.round_number <= level.pers_perk_round_reached_max )
 		{
@@ -765,7 +765,7 @@ pers_upgrade_sniper_kill_check( zombie, attacker ) //checked changed to match ce
 	{
 		return;
 	}
-	if ( isDefined( zombie.marked_for_insta_upgraded_death ) && zombie.marked_for_insta_upgraded_death )
+	if ( is_true( zombie.marked_for_insta_upgraded_death ) )
 	{
 		return;
 	}
@@ -774,7 +774,7 @@ pers_upgrade_sniper_kill_check( zombie, attacker ) //checked changed to match ce
 	{
 		return;
 	}
-	if ( isDefined( self.pers_upgrades_awarded[ "sniper" ] ) && self.pers_upgrades_awarded[ "sniper" ] )
+	if ( is_true( self.pers_upgrades_awarded[ "sniper" ] ) )
 	{
 		self thread pers_sniper_score_reward();
 	}
@@ -838,7 +838,7 @@ pers_sniper_player_fires( weapon, hit ) //checked changed to match cerberus outp
 	}
 	if ( isDefined( weapon ) && isDefined( hit ) )
 	{
-		if ( isDefined( self.pers_upgrades_awarded[ "sniper" ] ) && self.pers_upgrades_awarded[ "sniper" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "sniper" ] ) )
 		{
 			if ( is_sniper_weapon( weapon ) )
 			{
@@ -917,7 +917,7 @@ pers_upgrade_box_weapon_used( e_user, e_grabber ) //checked changed to match cer
 		{
 			return;
 		}
-		if ( isDefined( e_grabber.pers_upgrades_awarded[ "box_weapon" ] ) && e_grabber.pers_upgrades_awarded[ "box_weapon" ] )
+		if ( is_true( e_grabber.pers_upgrades_awarded[ "box_weapon" ] ) )
 		{
 			return;
 		}
@@ -925,7 +925,7 @@ pers_upgrade_box_weapon_used( e_user, e_grabber ) //checked changed to match cer
 	}
 	else if ( isDefined( e_user ) && isplayer( e_user ) )
 	{
-		if ( isDefined( e_user.pers_upgrades_awarded[ "box_weapon" ] ) && e_user.pers_upgrades_awarded[ "box_weapon" ] )
+		if ( is_true( e_user.pers_upgrades_awarded[ "box_weapon" ] ) )
 		{
 			return;
 		}
@@ -936,7 +936,7 @@ pers_upgrade_box_weapon_used( e_user, e_grabber ) //checked changed to match cer
 pers_magic_box_teddy_bear() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
-	if ( isDefined( level.pers_magic_box_firesale ) && level.pers_magic_box_firesale )
+	if ( is_true( level.pers_magic_box_firesale ) )
 	{
 		self thread pers_magic_box_firesale();
 	}
@@ -978,10 +978,10 @@ pers_magic_box_teddy_bear() //checked changed to match cerberus output
 			wait 0.1;
 			m_bear setvisibletoplayer( self );
 		}
-		if ( isDefined( level.sloth_moving_box ) && level.sloth_moving_box )
+		if ( is_true( level.sloth_moving_box ) )
 		{
 			m_bear setinvisibletoall();
-			while ( isDefined( level.sloth_moving_box ) && level.sloth_moving_box )
+			while ( is_true( level.sloth_moving_box ) )
 			{
 				wait 0.1;
 			}
@@ -989,12 +989,12 @@ pers_magic_box_teddy_bear() //checked changed to match cerberus output
 			wait 0.1;
 			m_bear setvisibletoplayer( self );
 		}
-		if ( isDefined( box._box_open ) && box._box_open )
+		if ( is_true( box._box_open ) )
 		{
 			m_bear setinvisibletoall();
 			while ( 1 )
 			{
-				if ( isDefined( box._box_open ) && !box._box_open )
+				if ( !is_true( box._box_open ) )
 				{
 					break;
 				}
@@ -1145,12 +1145,12 @@ box_firesale_teddy_bear( box, box_index ) //checked changed to match cerberus ou
 	m_bear setvisibletoplayer( self );
 	while ( 1 )
 	{
-		if ( isDefined( box._box_open ) && box._box_open )
+		if ( is_true( box._box_open ) )
 		{
 			m_bear setinvisibletoall();
 			while ( 1 )
 			{
-				if ( isDefined( box._box_open ) && !box._box_open )
+				if ( !is_true( box._box_open ) )
 				{
 					break;
 				}
@@ -1219,7 +1219,7 @@ pers_nube_weapon_upgrade_check( player, str_weapon ) //checked matches cerberus 
 	{
 		if ( getsubstr( str_weapon, 0, 11 ) == "rottweil72_" )
 		{
-			if ( isDefined( player.pers_upgrades_awarded[ "nube" ] ) && !player.pers_upgrades_awarded[ "nube" ] )
+			if ( !is_true( player.pers_upgrades_awarded[ "nube" ] ) )
 			{
 				if ( pers_nube_player_ranked_as_nube( player ) )
 				{
@@ -1247,7 +1247,7 @@ pers_nube_weapon_ammo_check( player, str_weapon ) //checked matches cerberus out
 	{
 		if ( getsubstr( str_weapon, 0, 11 ) == "rottweil72_" )
 		{
-			if ( isDefined( player.pers_upgrades_awarded[ "nube" ] ) && player.pers_upgrades_awarded[ "nube" ] )
+			if ( is_true( player.pers_upgrades_awarded[ "nube" ] ) )
 			{
 				if ( player hasweapon( "ray_gun_zm" ) )
 				{
@@ -1297,7 +1297,7 @@ pers_nube_should_we_give_raygun( player_has_weapon, player, weapon_buy ) //check
 	{
 		player_has_weapon = 0;
 	}
-	else if ( isDefined( player.pers_upgrades_awarded[ "nube" ] ) && player.pers_upgrades_awarded[ "nube" ] && player_has_raygun )
+	else if ( is_true( player.pers_upgrades_awarded[ "nube" ] ) && player_has_raygun )
 	{
 		player_has_weapon = 1;
 	}

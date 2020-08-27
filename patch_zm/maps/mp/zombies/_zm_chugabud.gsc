@@ -39,7 +39,7 @@ chugabud_laststand() //checked changed to match cerberus output
 	self maps/mp/zombies/_zm_chugabud::chugabud_save_loadout();
 	self maps/mp/zombies/_zm_chugabud::chugabud_fake_death();
 	wait 3;
-	if ( isDefined( self.insta_killed ) && self.insta_killed || isDefined( self.disable_chugabud_corpse ) )
+	if ( is_true( self.insta_killed ) || isDefined( self.disable_chugabud_corpse ) )
 	{
 		create_corpse = 0;
 	}
@@ -58,8 +58,6 @@ chugabud_laststand() //checked changed to match cerberus output
 			}
 		}
 	}
-	logline1 = "INFO: _zm_chugabud.gsc chugabud_laststand() create_corpse: " + create_corpse + "\n";
-	logprint( logline1 );
 	if ( create_corpse == 1 )
 	{
 		self thread activate_chugabud_effects_and_audio();
@@ -352,7 +350,7 @@ chugabud_give_loadout() //checked partially changed to match cerberus output con
 
 chugabud_restore_grenades() //checked matches cerberus output
 {
-	if ( isDefined( self.loadout.hasemp ) && self.loadout.hasemp )
+	if ( is_true( self.loadout.hasemp ) )
 	{
 		self giveweapon( "emp_grenade_zm" );
 		self setweaponammoclip( "emp_grenade_zm", self.loadout.empclip );
@@ -366,7 +364,7 @@ chugabud_restore_grenades() //checked matches cerberus output
 
 chugabud_restore_claymore() //checked matches cerberus output
 {
-	if ( isDefined( self.loadout.hasclaymore ) && self.loadout.hasclaymore && !self hasweapon( "claymore_zm" ) )
+	if ( is_true( self.loadout.hasclaymore ) && !self hasweapon( "claymore_zm" ) )
 	{
 		self giveweapon( "claymore_zm" );
 		self set_player_placeable_mine( "claymore_zm" );
@@ -605,7 +603,7 @@ restore_weapon_for_chugabud( player, weapon_name ) //checked changed to match ce
 	{
 		return;
 	}
-	if ( isDefined( self.chugabud_melee_weapons[ weapon_name ] ) && self.chugabud_melee_weapons[ weapon_name ] )
+	if ( is_true( self.chugabud_melee_weapons[ weapon_name ] ) )
 	{
 		player giveweapon( weapon_name );
 		player set_player_melee_weapon( weapon_name );

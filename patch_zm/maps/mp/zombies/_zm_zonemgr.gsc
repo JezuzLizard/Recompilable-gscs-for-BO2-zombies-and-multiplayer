@@ -129,7 +129,7 @@ player_in_zone( zone_name ) //checked changed to match cerberus output
 
 entity_in_zone( zone_name, ignore_enabled_check ) //checked changed to match cerberus output
 {
-	if ( !zone_is_enabled( zone_name ) && isdefined( ignore_enabled_check ) && !ignore_enabled_check )
+	if ( !zone_is_enabled( zone_name ) && !is_true( ignore_enabled_check ) )
 	{
 		return 0;
 	}
@@ -214,7 +214,7 @@ zone_init( zone_name ) //checked changed to match cerberus output
 		for (i = 0; i < spots.size; i++)
 		{
 			spots[ i ].zone_name = zone_name;
-			if ( isDefined( spots[ i ].is_blocked ) && !spots[ i ].is_blocked || !isDefined( spots[ i ].is_blocked ) ) //spots[ i ].isblocked is not defined
+			if ( !is_true( spots[ i ].is_blocked ) )
 			{
 				spots[ i ].is_enabled = 1;
 			}

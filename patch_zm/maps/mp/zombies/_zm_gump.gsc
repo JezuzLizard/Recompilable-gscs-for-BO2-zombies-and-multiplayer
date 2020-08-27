@@ -10,7 +10,7 @@ init() //checked changed to match cerberus output //changed partially at own dis
 		registerclientfield( "toplayer", "blackscreen", 1, 1, "int" );
 	}
 */	//the value of level.disable_blackscreen_clientfield is not defined in any map file except buried meaning
-	if ( !isDefined( level.disable_blackscreen_clientfield ) || !level.disable_blackscreen_clientfield )
+	if ( !is_true( level.disable_blackscreen_clientfield ) )
 	{
 		registerclientfield( "toplayer", "blackscreen", 1, 1, "int" );
 	}
@@ -18,7 +18,7 @@ init() //checked changed to match cerberus output //changed partially at own dis
 	{
 		level.uses_gumps = 0;
 	}
-	if ( isDefined( level.uses_gumps ) && level.uses_gumps )
+	if ( is_true( level.uses_gumps ) )
 	{
 		onplayerconnect_callback( ::player_connect_gump );
 	}
@@ -26,11 +26,11 @@ init() //checked changed to match cerberus output //changed partially at own dis
 
 player_teleport_blackscreen_on() //checked matches cerberus output
 {
-	if ( isDefined( level.disable_blackscreen_clientfield ) && level.disable_blackscreen_clientfield )
+	if ( is_true( level.disable_blackscreen_clientfield ) )
 	{
 		return;
 	}
-	if ( isDefined( level.uses_gumps ) && level.uses_gumps )
+	if ( is_true( level.uses_gumps ) )
 	{
 		self setclientfieldtoplayer( "blackscreen", 1 );
 		wait 0.05;
@@ -44,7 +44,7 @@ player_connect_gump() //checked matches cerberus output
 
 player_watch_spectate_change() //checked matches cerberus output
 {
-	if ( isDefined( level.disable_blackscreen_clientfield ) && level.disable_blackscreen_clientfield )
+	if ( is_true( level.disable_blackscreen_clientfield ) )
 	{
 		return;
 	}

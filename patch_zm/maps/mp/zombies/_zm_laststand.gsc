@@ -333,7 +333,7 @@ laststand_disable_player_weapons() //checked partially changed to match cerberus
 
 laststand_enable_player_weapons() //checked matches cerberus output
 {
-	if ( isDefined( self.hadpistol ) && !self.hadpistol && isDefined( self.laststandpistol ) )
+	if ( !is_true( self.hadpistol ) && isDefined( self.laststandpistol ) )
 	{
 		self takeweapon( self.laststandpistol );
 	}
@@ -467,11 +467,11 @@ bleed_out() //checked changed to match cerberus output
 	}
 	level notify( "bleed_out", self.characterindex );
 	self undolaststand();
-	if ( isDefined( level.is_zombie_level ) && level.is_zombie_level )
+	if ( is_true( level.is_zombie_level ) )
 	{
 		self thread [[ level.player_becomes_zombie ]]();
 	}
-	if ( isDefined( level.is_specops_level ) && level.is_specops_level )
+	if ( is_true( level.is_specops_level ) )
 	{
 		self thread [[ level.spawnspectator ]]();
 	}
@@ -672,7 +672,7 @@ can_suicide() //checked matches cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( self.is_zombie ) && self.is_zombie )
+	if ( is_true( self.is_zombie ) )
 	{
 		return 0;
 	}
@@ -820,7 +820,7 @@ can_revive( revivee ) //checked changed to match cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( self.is_zombie ) && self.is_zombie )
+	if ( is_true( self.is_zombie ) )
 	{
 		return 0;
 	}
@@ -828,7 +828,7 @@ can_revive( revivee ) //checked changed to match cerberus output
 	{
 		return 0;
 	}
-	if ( isDefined( level.can_revive_use_depthinwater_test ) && level.can_revive_use_depthinwater_test && revivee depthinwater() > 10 )
+	if ( is_true( level.can_revive_use_depthinwater_test ) && revivee depthinwater() > 10 )
 	{
 		return 1;
 	}
@@ -1065,7 +1065,7 @@ auto_revive( reviver, dont_enable_weapons ) //checked changed to match cerberus 
 	self allowjump( 1 );
 	self.ignoreme = 0;
 	self.laststand = undefined;
-	if ( isDefined( level.isresetting_grief ) && !level.isresetting_grief )
+	if ( !is_true( level.isresetting_grief ) )
 	{
 		reviver.revives++;
 		reviver maps/mp/zombies/_zm_stats::increment_client_stat( "revives" );
@@ -1096,18 +1096,18 @@ revive_success( reviver, b_track_stats ) //checked changed to match cerberus out
 		self notify( "player_revived", reviver );
 		return;
 	}
-	if ( isDefined( b_track_stats ) && b_track_stats )
+	if ( is_true( b_track_stats ) )
 	{
 		maps/mp/_demo::bookmark( "zm_player_revived", getTime(), self, reviver );
 	}
 	self notify( "player_revived", reviver );
 	self reviveplayer();
 	self maps/mp/zombies/_zm_perks::perk_set_max_health_if_jugg( "health_reboot", 1, 0 );
-	if ( isDefined( self.pers_upgrades_awarded[ "perk_lose" ] ) && self.pers_upgrades_awarded[ "perk_lose" ] )
+	if ( is_true( self.pers_upgrades_awarded[ "perk_lose" ] ) )
 	{
 		self thread maps/mp/zombies/_zm_pers_upgrades_functions::pers_upgrade_perk_lose_restore();
 	}
-	if ( !is_true( level.isresetting_grief ) && isDefined( b_track_stats ) && b_track_stats )
+	if ( !is_true( level.isresetting_grief ) && is_true( b_track_stats ) )
 	{
 		reviver.revives++;
 		reviver maps/mp/zombies/_zm_stats::increment_client_stat( "revives" );
@@ -1115,11 +1115,11 @@ revive_success( reviver, b_track_stats ) //checked changed to match cerberus out
 		self recordplayerrevivezombies( reviver );
 		reviver.upgrade_fx_origin = self.origin;
 	}
-	if ( is_classic() && isDefined( b_track_stats ) && b_track_stats )
+	if ( is_classic() && is_true( b_track_stats ) )
 	{
 		maps/mp/zombies/_zm_pers_upgrades_functions::pers_increment_revive_stat( reviver );
 	}
-	if ( isDefined( b_track_stats ) && b_track_stats )
+	if ( is_true( b_track_stats ) )
 	{
 		reviver thread check_for_sacrifice();
 	}

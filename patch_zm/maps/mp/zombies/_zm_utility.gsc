@@ -55,7 +55,7 @@ is_player() //checked does not match cerberus output changed at own discretion
 	{
 		return 0;
 	}
-	if ( isDefined( self.pers ) && isDefined( self.pers[ "isBot" ] ) && self.pers[ "isBot" ] )
+	if ( isDefined( self.pers ) && is_true( self.pers[ "isBot" ] ) )
 	{
 		return 0;
 	}
@@ -143,7 +143,7 @@ get_round_enemy_array() //checked partially changed to match cerberus output//di
 	i = 0;
 	while ( i < enemies.size )
 	{
-		if ( isDefined( enemies[ i ].ignore_enemy_count ) && enemies[ i ].ignore_enemy_count )
+		if ( is_true( enemies[ i ].ignore_enemy_count ) )
 		{
 			i++;
 			continue;
@@ -275,7 +275,7 @@ spawn_zombie( spawner, target_name, spawn_point, round_number ) //checked matche
 		wait 0.05;
 	}
 	spawner.script_moveoverride = 1;
-	if ( isDefined( spawner.script_forcespawn ) && spawner.script_forcespawn )
+	if ( is_true( spawner.script_forcespawn ) )
 	{
 		guy = spawner spawnactor();
 		if ( isDefined( level.giveextrazombies ) )
@@ -419,7 +419,7 @@ is_survival() //checked matches cerberus output
 
 is_encounter() //checked matches cerberus output
 {
-	if ( isDefined( level._is_encounter ) && level._is_encounter )
+	if ( is_true( level._is_encounter ) )
 	{
 		return 1;
 	}
@@ -494,9 +494,9 @@ check_point_in_enabled_zone( origin, zone_is_active, player_zones ) //checked pa
 		if ( scr_org istouching( player_zones[ i ] ) )
 		{
 			zone = level.zones[ player_zones[ i ].targetname ];
-			if ( isDefined( zone ) && isDefined( zone.is_enabled ) && zone.is_enabled )
+			if ( isDefined( zone ) && is_true( zone.is_enabled ) )
 			{
-				if ( isDefined( zone_is_active ) && zone_is_active == 1 && isDefined( zone.is_active ) && !zone.is_active )
+				if ( isDefined( zone_is_active ) && zone_is_active == 1 && !is_true( zone.is_active ) )
 				{
 					i++;
 					continue;
@@ -698,7 +698,7 @@ generated_radius_attract_positions( forward, offset, num_positions, attract_radi
 		{
 			pos = [[ level.poi_positioning_func ]]( self.origin, rotated_forward );
 		}
-		else if ( isDefined( level.use_alternate_poi_positioning ) && level.use_alternate_poi_positioning )
+		else if ( is_true( level.use_alternate_poi_positioning ) )
 		{
 			pos = maps/mp/zombies/_zm_server_throttle::server_safe_ground_trace( "poi_trace", 10, self.origin + rotated_forward + vectorScale( ( 0, 0, 1 ), 10 ) );
 		}
@@ -710,7 +710,7 @@ generated_radius_attract_positions( forward, offset, num_positions, attract_radi
 		{
 			failed++;
 		}
-		else if ( isDefined( level.use_alternate_poi_positioning ) && level.use_alternate_poi_positioning )
+		else if ( is_true( level.use_alternate_poi_positioning ) )
 		{
 			if ( isDefined( self ) && isDefined( self.origin ) )
 			{
@@ -769,7 +769,7 @@ debug_draw_attractor_positions() //checked changed to match cerberus output
 
 get_zombie_point_of_interest( origin, poi_array ) //checked partially changed to match cerberus output //did not change while loop to for loop because continues cause infinite loops in for loops
 {
-	if ( isDefined( self.ignore_all_poi ) && self.ignore_all_poi )
+	if ( is_true( self.ignore_all_poi ) )
 	{
 		return undefined;
 	}
@@ -852,13 +852,13 @@ get_zombie_point_of_interest( origin, poi_array ) //checked partially changed to
 				return undefined;
 			}
 		}
-		if ( isDefined( best_poi._new_ground_trace ) && best_poi._new_ground_trace )
+		if ( is_true( best_poi._new_ground_trace ) )
 		{
 			position = [];
 			position[ 0 ] = groundpos_ignore_water_new( best_poi.origin + vectorScale( ( 0, 0, 1 ), 100 ) );
 			position[ 1 ] = self;
 		}
-		else if ( isDefined( best_poi.attract_to_origin ) && best_poi.attract_to_origin )
+		else if ( is_true( best_poi.attract_to_origin ) )
 		{
 			position = [];
 			position[ 0 ] = groundpos( best_poi.origin + vectorScale( ( 0, 0, 1 ), 100 ) );
@@ -1058,7 +1058,7 @@ can_attract( attractor ) //checked matches cerberus output
 	{
 		return 1;
 	}
-	if ( isDefined( self.num_poi_attracts ) && self.attractor_array.size >= self.num_poi_attracts )
+	if ( isDefined( self.num_poi_attracts ) && ( self.attractor_array.size >= self.num_poi_attracts ) )
 	{
 		return 0;
 	}
@@ -1235,7 +1235,7 @@ get_closest_valid_player( origin, ignore_player ) //checked changed to match cer
 {
 	valid_player_found = 0;
 	players = get_players();
-	if ( isDefined( level._zombie_using_humangun ) && level._zombie_using_humangun )
+	if ( is_true( level._zombie_using_humangun ) )
 	{
 		players = arraycombine( players, level._zombie_human_array, 0, 0 );
 	}
@@ -1275,7 +1275,7 @@ get_closest_valid_player( origin, ignore_player ) //checked changed to match cer
 		{
 			player = [[ level.closest_player_override ]]( origin, players );
 		}
-		else if ( isDefined( level.calc_closest_player_using_paths ) && level.calc_closest_player_using_paths )
+		else if ( is_true( level.calc_closest_player_using_paths ) )
 		{
 			player = get_closest_player_using_paths( origin, players );
 		}
@@ -1287,7 +1287,7 @@ get_closest_valid_player( origin, ignore_player ) //checked changed to match cer
 		{
 			return undefined;
 		}
-		if ( isDefined( level._zombie_using_humangun ) && level._zombie_using_humangun && isai( player ) )
+		if ( is_true( level._zombie_using_humangun ) && isai( player ) )
 		{
 			return player;
 		}
@@ -1329,18 +1329,18 @@ is_player_valid( player, checkignoremeflag, ignore_laststand_players ) //checked
 	{
 		return 0;
 	}
-	if ( isDefined( self.intermission ) && self.intermission )
+	if ( is_true( self.intermission ) )
 	{
 		return 0;
 	}
-	if ( isDefined( ignore_laststand_players ) && !ignore_laststand_players )
+	if ( !is_true( ignore_laststand_players ) )
 	{
 		if ( player maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
 			return 0;
 		}
 	}
-	if ( isDefined( checkignoremeflag ) && checkignoremeflag && player.ignoreme )
+	if ( is_true( checkignoremeflag ) && player.ignoreme )
 	{
 		return 0;
 	}
@@ -2441,11 +2441,11 @@ add_spawner( spawner ) //checked matches cerberus output
 	{
 		return;
 	}
-	if ( isDefined( spawner.is_enabled ) && !spawner.is_enabled )
+	if ( !is_true( spawner.is_enabled ) )
 	{
 		return;
 	}
-	if ( isDefined( spawner.has_been_added ) && spawner.has_been_added )
+	if ( is_true( spawner.has_been_added ) )
 	{
 		return;
 	}
@@ -2498,7 +2498,7 @@ set_hint_string( ent, default_ref, cost ) //checked matches cerberus output
 	{
 		ref = ent.script_hint;
 	}
-	if ( isDefined( level.legacy_hint_system ) && level.legacy_hint_system )
+	if ( is_true( level.legacy_hint_system ) )
 	{
 		ref = ref + "_" + cost;
 		self sethintstring( get_zombie_hint( ref ) );
@@ -2525,7 +2525,7 @@ get_hint_string( ent, default_ref, cost ) //checked matches cerberus output
 	{
 		ref = ent.script_hint;
 	}
-	if ( isDefined( level.legacy_hint_system ) && level.legacy_hint_system && isDefined( cost ) )
+	if ( is_true( level.legacy_hint_system ) && isDefined( cost ) )
 	{
 		ref = ref + "_" + cost;
 	}
@@ -2551,7 +2551,7 @@ unitrigger_set_hint_string( ent, default_ref, cost ) //checked partially changed
 		{
 			ref = ent.script_hint;
 		}
-		if ( isDefined( level.legacy_hint_system ) && level.legacy_hint_system )
+		if ( is_true( level.legacy_hint_system ) )
 		{
 			ref = ref + "_" + cost;
 			triggers[ i ] sethintstring( get_zombie_hint( ref ) );
@@ -2714,7 +2714,7 @@ set_zombie_var( var, value, is_float, column, is_team_based ) //checked changed 
 			value = int( table_value );
 		}
 	}
-	if ( isDefined( is_team_based ) && is_team_based )
+	if ( is_true( is_team_based ) )
 	{
 		foreach ( team in level.teams )
 		{
@@ -3028,7 +3028,7 @@ stop_magic_bullet_shield() //checked matches cerberus output
 
 magic_bullet_shield() //checked matches cerberus output
 {
-	if ( isDefined( self.magic_bullet_shield ) && !self.magic_bullet_shield )
+	if ( !is_true( self.magic_bullet_shield ) )
 	{
 		if ( isai( self ) || isplayer( self ) )
 		{
@@ -3203,7 +3203,7 @@ trigger_invisible( enable ) //checked changed to match cerberus output
 print3d_ent( text, color, scale, offset, end_msg, overwrite ) //checked changed to match cerberus output
 {
 	self endon( "death" );
-	if ( isDefined( overwrite ) && overwrite && isDefined( self._debug_print3d_msg ) )
+	if ( is_true( overwrite ) && isDefined( self._debug_print3d_msg ) )
 	{
 		self notify( "end_print3d" );
 		wait 0.05;
@@ -3324,7 +3324,7 @@ get_current_zone( return_zone ) //checked changed to match cerberus output
 		{
 			if ( self istouching( zone.volumes[ i ] ) )
 			{
-				if ( isDefined( return_zone ) && return_zone )
+				if ( is_true( return_zone ) )
 				{
 					return zone;
 				}
@@ -3386,11 +3386,11 @@ shock_onpain() //checked changed to match cerberus output
 	{
 		oldhealth = self.health;
 		self waittill( "damage", damage, attacker, direction_vec, point, mod );
-		if ( isDefined( level.shock_onpain ) && !level.shock_onpain )
+		if ( !is_true( level.shock_onpain ) )
 		{
 			continue;
 		}
-		if ( isDefined( self.shock_onpain ) && !self.shock_onpain )
+		if ( !is_true( self.shock_onpain ) )
 		{
 			continue;
 		}
@@ -3406,7 +3406,7 @@ shock_onpain() //checked changed to match cerberus output
 		{
 			shocktype = undefined;
 			shocklight = undefined;
-			if ( isDefined( self.is_burning ) && self.is_burning )
+			if ( is_true( self.is_burning ) )
 			{
 				shocktype = "lava";
 				shocklight = "lava_small";
@@ -3985,7 +3985,7 @@ is_player_offhand_weapon( weaponname ) //checked changed at own discretion
 
 has_powerup_weapon() //checked changed at own discretion
 {
-	if ( isDefined( self.has_powerup_weapon ) && self.has_powerup_weapon )
+	if ( is_true( self.has_powerup_weapon ) )
 	{
 		return 1;
 	}
@@ -3996,7 +3996,7 @@ give_start_weapon( switch_to_weapon ) //checked matches cerberus output
 {
 	self giveweapon( level.start_weapon );
 	self givestartammo( level.start_weapon );
-	if ( isDefined( switch_to_weapon ) && switch_to_weapon )
+	if ( is_true( switch_to_weapon ) )
 	{
 		self switchtoweapon( level.start_weapon );
 	}
@@ -4037,7 +4037,7 @@ array_removedead( array ) //checked partially changed to match cerberus output /
 	i = 0;
 	while ( i < array.size )
 	{
-		if ( !isalive( array[ i ] ) || isDefined( array[ i ].isacorpse ) && array[ i ].isacorpse )
+		if ( !isalive( array[ i ] ) || is_true( array[ i ].isacorpse ) )
 		{
 			i++;
 			continue;
@@ -4231,20 +4231,20 @@ giveachievement_wrapper( achievement, all_players ) //checked changed to match c
 	{
 		return;
 	}
-	if ( isDefined( level.zm_disable_recording_stats ) && level.zm_disable_recording_stats )
+	if ( is_true( level.zm_disable_recording_stats ) )
 	{
 		return;
 	}
 	achievement_lower = tolower( achievement );
 	global_counter = 0;
-	if ( isDefined( all_players ) && all_players )
+	if ( is_true( all_players ) )
 	{
 		players = get_players();
 		for ( i = 0; i < players.size; i++ )
 		{
 			players[ i ] giveachievement( achievement );
 			has_achievement = players[ i ] maps/mp/zombies/_zm_stats::get_global_stat( achievement_lower );
-			if ( isDefined( has_achievement ) && !has_achievement )
+			if ( !is_true( has_achievement ) )
 			{
 				global_counter++;
 			}
@@ -4269,7 +4269,7 @@ giveachievement_wrapper( achievement, all_players ) //checked changed to match c
 	}
 	self giveachievement( achievement );
 	has_achievement = self maps/mp/zombies/_zm_stats::get_global_stat( achievement_lower );
-	if ( isDefined( has_achievement ) && !has_achievement )
+	if ( !is_true( has_achievement ) )
 	{
 		global_counter++;
 	}
@@ -4519,7 +4519,7 @@ ent_flag_init( message, val ) //checked matches cerberus output
 #/
 		*/
 	}
-	if ( isDefined( val ) && val )
+	if ( is_true( val ) )
 	{
 		self.ent_flag[ message ] = 1;
 		/*
@@ -5100,16 +5100,12 @@ is_favorite_weapon( weapon_to_check )
 	{
 		return 0;
 	}
-	_a6174 = self.favorite_wall_weapons_list;
-	_k6174 = getFirstArrayKey( _a6174 );
-	while ( isDefined( _k6174 ) )
+	foreach ( weapon in self.favorite_wall_weapons_list )
 	{
-		weapon = _a6174[ _k6174 ];
 		if ( weapon_to_check == weapon )
 		{
 			return 1;
 		}
-		_k6174 = getNextArrayKey( _a6174, _k6174 );
 	}
 	return 0;
 }
@@ -5257,7 +5253,7 @@ sq_refresh_player_navcard_hud_internal() //checked changed to match cerberus out
 
 set_player_is_female( onoff ) //checked matches cerberus output
 {
-	if ( isDefined( level.use_female_animations ) && level.use_female_animations )
+	if ( is_true( level.use_female_animations ) )
 	{
 		female_perk = "specialty_gpsjammer";
 		if ( onoff )

@@ -35,11 +35,11 @@ pers_abilities_init_globals() //checked matches cerberus output
 	self.pers[ "last_headshot_kill_time" ] = getTime();
 	self.pers[ "zombies_multikilled" ] = 0;
 	self.non_headshot_kill_counter = 0;
-	if ( isDefined( level.pers_upgrade_box_weapon ) && level.pers_upgrade_box_weapon )
+	if ( is_true( level.pers_upgrade_box_weapon ) )
 	{
 		self.pers_box_weapon_awarded = undefined;
 	}
-	if ( isDefined( level.pers_upgrade_nube ) && level.pers_upgrade_nube )
+	if ( is_true( level.pers_upgrade_nube ) )
 	{
 		self thread pers_nube_unlock_watcher();
 	}
@@ -69,7 +69,7 @@ is_pers_system_disabled() //checked matches cerberus output
 
 setup_pers_upgrade_boards() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_boards ) && level.pers_upgrade_boards )
+	if ( is_true( level.pers_upgrade_boards ) )
 	{
 		level.pers_boarding_round_start = 10;
 		level.pers_boarding_number_of_boards_required = 74;
@@ -79,7 +79,7 @@ setup_pers_upgrade_boards() //checked matches cerberus output
 
 setup_pers_upgrade_revive() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_revive ) && level.pers_upgrade_revive )
+	if ( is_true( level.pers_upgrade_revive ) )
 	{
 		level.pers_revivenoperk_number_of_revives_required = 17;
 		level.pers_revivenoperk_number_of_chances_to_keep = 1;
@@ -89,7 +89,7 @@ setup_pers_upgrade_revive() //checked matches cerberus output
 
 setup_pers_upgrade_multi_kill_headshots() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_multi_kill_headshots ) && level.pers_upgrade_multi_kill_headshots )
+	if ( is_true( level.pers_upgrade_multi_kill_headshots ) )
 	{
 		level.pers_multikill_headshots_required = 5;
 		level.pers_multikill_headshots_upgrade_reset_counter = 25;
@@ -99,7 +99,7 @@ setup_pers_upgrade_multi_kill_headshots() //checked matches cerberus output
 
 setup_pers_upgrade_cash_back() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_cash_back ) && level.pers_upgrade_cash_back )
+	if ( is_true( level.pers_upgrade_cash_back ) )
 	{
 		level.pers_cash_back_num_perks_required = 50;
 		level.pers_cash_back_perk_buys_prone_required = 15;
@@ -112,7 +112,7 @@ setup_pers_upgrade_cash_back() //checked matches cerberus output
 
 setup_pers_upgrade_insta_kill() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_insta_kill ) && level.pers_upgrade_insta_kill )
+	if ( is_true( level.pers_upgrade_insta_kill ) )
 	{
 		level.pers_insta_kill_num_required = 2;
 		level.pers_insta_kill_upgrade_active_time = 18;
@@ -122,7 +122,7 @@ setup_pers_upgrade_insta_kill() //checked matches cerberus output
 
 setup_pers_upgrade_jugg() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_jugg ) && level.pers_upgrade_jugg )
+	if ( is_true( level.pers_upgrade_jugg ) )
 	{
 		level.pers_jugg_hit_and_die_total = 3;
 		level.pers_jugg_hit_and_die_round_limit = 2;
@@ -135,7 +135,7 @@ setup_pers_upgrade_jugg() //checked matches cerberus output
 
 setup_pers_upgrade_carpenter() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_carpenter ) && level.pers_upgrade_carpenter )
+	if ( is_true( level.pers_upgrade_carpenter ) )
 	{
 		level.pers_carpenter_zombie_kills = 1;
 		pers_register_upgrade( "carpenter", ::pers_upgrade_carpenter_active, "pers_carpenter", level.pers_carpenter_zombie_kills, 0 );
@@ -144,7 +144,7 @@ setup_pers_upgrade_carpenter() //checked matches cerberus output
 
 setup_pers_upgrade_flopper() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_flopper ) && level.pers_upgrade_flopper )
+	if ( is_true( level.pers_upgrade_flopper ) )
 	{
 		level.pers_flopper_damage_counter = 6;
 		level.pers_flopper_counter = 1;
@@ -156,7 +156,7 @@ setup_pers_upgrade_flopper() //checked matches cerberus output
 
 setup_pers_upgrade_perk_lose() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_perk_lose ) && level.pers_upgrade_perk_lose )
+	if ( is_true( level.pers_upgrade_perk_lose ) )
 	{
 		level.pers_perk_round_reached_max = 6;
 		level.pers_perk_lose_counter = 3;
@@ -166,7 +166,7 @@ setup_pers_upgrade_perk_lose() //checked matches cerberus output
 
 setup_pers_upgrade_pistol_points() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_pistol_points ) && level.pers_upgrade_pistol_points )
+	if ( is_true( level.pers_upgrade_pistol_points ) )
 	{
 		level.pers_pistol_points_num_kills_in_game = 8;
 		level.pers_pistol_points_accuracy = 0.25;
@@ -177,7 +177,7 @@ setup_pers_upgrade_pistol_points() //checked matches cerberus output
 
 setup_pers_upgrade_double_points() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_double_points ) && level.pers_upgrade_double_points )
+	if ( is_true( level.pers_upgrade_double_points ) )
 	{
 		level.pers_double_points_score = 2500;
 		level.pers_double_points_counter = 1;
@@ -187,7 +187,7 @@ setup_pers_upgrade_double_points() //checked matches cerberus output
 
 setup_pers_upgrade_sniper() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_sniper ) && level.pers_upgrade_sniper )
+	if ( is_true( level.pers_upgrade_sniper ) )
 	{
 		level.pers_sniper_round_kills_counter = 5;
 		level.pers_sniper_kill_distance = 800;
@@ -199,7 +199,7 @@ setup_pers_upgrade_sniper() //checked matches cerberus output
 
 setup_pers_upgrade_box_weapon() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_box_weapon ) && level.pers_upgrade_box_weapon )
+	if ( is_true( level.pers_upgrade_box_weapon ) )
 	{
 		level.pers_box_weapon_counter = 5;
 		level.pers_box_weapon_lose_round = 10;
@@ -209,7 +209,7 @@ setup_pers_upgrade_box_weapon() //checked matches cerberus output
 
 setup_pers_upgrade_nube() //checked matches cerberus output
 {
-	if ( isDefined( level.pers_upgrade_nube ) && level.pers_upgrade_nube )
+	if ( is_true( level.pers_upgrade_nube ) )
 	{
 		level.pers_nube_counter = 1;
 		level.pers_nube_lose_round = 10;
@@ -315,7 +315,7 @@ pers_upgrade_insta_kill_active() //checked changed to match cerberus output
 			if ( isDefined( level.pers_melee_swipe_zombie_swiper ) )
 			{
 				e_zombie = level.pers_melee_swipe_zombie_swiper;
-				if ( isalive( e_zombie ) && isDefined( e_zombie.is_zombie ) && e_zombie.is_zombie )
+				if ( isalive( e_zombie ) && is_true( e_zombie.is_zombie ) )
 				{
 					e_zombie.marked_for_insta_upgraded_death = 1;
 					e_zombie dodamage( e_zombie.health + 666, e_zombie.origin, self, self, "none", "MOD_PISTOL_BULLET", 0, "knife_zm" );
@@ -336,7 +336,7 @@ is_insta_kill_upgraded_and_active() //checked matches cerberus output
 	{
 		if ( self maps/mp/zombies/_zm_powerups::is_insta_kill_active() )
 		{
-			if ( isDefined( self.pers_upgrades_awarded[ "insta_kill" ] ) && self.pers_upgrades_awarded[ "insta_kill" ] )
+			if ( is_true( self.pers_upgrades_awarded[ "insta_kill" ] ) )
 			{
 				return 1;
 			}
@@ -398,10 +398,10 @@ pers_upgrade_carpenter_active() //checked changed to match cerberus output
 
 persistent_carpenter_ability_check() //checked changed to match cerberus output
 {
-	if ( isDefined( level.pers_upgrade_carpenter ) && level.pers_upgrade_carpenter )
+	if ( is_true( level.pers_upgrade_carpenter ) )
 	{
 		self endon( "disconnect" );
-		if ( isDefined( self.pers_upgrades_awarded[ "carpenter" ] ) && self.pers_upgrades_awarded[ "carpenter" ] )
+		if ( is_true( self.pers_upgrades_awarded[ "carpenter" ] ) )
 		{
 			level.pers_carpenter_boards_active = 1;
 		}
@@ -429,7 +429,7 @@ persistent_carpenter_ability_check() //checked changed to match cerberus output
 				}
 				else if ( isDefined( self.pers_carpenter_kill ) )
 				{
-					if ( isDefined( self.pers_upgrades_awarded[ "carpenter" ] ) && self.pers_upgrades_awarded[ "carpenter" ] )
+					if ( is_true( self.pers_upgrades_awarded[ "carpenter" ] ) )
 					{
 						break;
 					}

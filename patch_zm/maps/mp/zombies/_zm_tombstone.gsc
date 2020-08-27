@@ -13,7 +13,7 @@ init() //checked matches cerberus output
 	level.tombstone_laststand_func = ::tombstone_laststand;
 	level.tombstone_spawn_func = ::tombstone_spawn;
 	level thread tombstone_hostmigration();
-	if ( isDefined( level.zombiemode_using_tombstone_perk ) && level.zombiemode_using_tombstone_perk )
+	if ( is_true( level.zombiemode_using_tombstone_perk ) )
 	{
 		add_custom_limited_weapon_check( ::is_weapon_available_in_tombstone );
 	}
@@ -69,7 +69,7 @@ tombstone_revived( player ) //checked changed to match cerberus output
 	shown = 1;
 	while ( isDefined( self ) && isDefined( player ) )
 	{
-		if ( isDefined( player.revivetrigger ) && isDefined( player.revivetrigger.beingrevived ) && player.revivetrigger.beingrevived )
+		if ( isDefined( player.revivetrigger ) && is_true( player.revivetrigger.beingrevived ) )
 		{
 			if ( shown )
 			{
@@ -103,7 +103,7 @@ tombstone_laststand() //checked changed to match cerberus output
 			dc.current_weapon = index;
 		}
 	}
-	if ( isDefined( self.hasriotshield ) && self.hasriotshield )
+	if ( is_true( self.hasriotshield ) )
 	{
 		dc.hasriotshield = 1;
 	}
@@ -189,7 +189,7 @@ tombstone_grab() //checked partially changed to match cerberus output
 				istombstonepowered = 0;
 				foreach ( trigger in tombstone_machine_triggers )
 				{
-					if ( isdefined( trigger.power_on ) && trigger.power_on || isdefined( trigger.turbine_power_on ) && trigger.turbine_power_on )
+					if ( is_true( trigger.power_on ) || is_true( trigger.turbine_power_on ) )
 					{
 						istombstonepowered = 1;
 					}
@@ -261,7 +261,7 @@ tombstone_give() //checked partially changed to match cerberus output
 			i++;
 		}
 	}
-	if ( isDefined( dc.hasriotshield ) && dc.hasriotshield )
+	if ( is_true( dc.hasriotshield ) )
 	{
 		self maps/mp/zombies/_zm_equipment::equipment_give( "riotshield_zm" );
 		if ( isDefined( self.player_shield_reset_health ) )
@@ -270,14 +270,14 @@ tombstone_give() //checked partially changed to match cerberus output
 		}
 	}
 	dc restore_weapons_for_tombstone( self );
-	if ( isDefined( dc.hasclaymore ) && dc.hasclaymore && !self hasweapon( "claymore_zm" ) )
+	if ( is_true( dc.hasclaymore ) && !self hasweapon( "claymore_zm" ) )
 	{
 		self giveweapon( "claymore_zm" );
 		self set_player_placeable_mine( "claymore_zm" );
 		self setactionslot( 4, "weapon", "claymore_zm" );
 		self setweaponammoclip( "claymore_zm", dc.claymoreclip );
 	}
-	if ( isDefined( dc.hasemp ) && dc.hasemp )
+	if ( is_true( dc.hasemp ) )
 	{
 		self giveweapon( "emp_grenade_zm" );
 		self setweaponammoclip( "emp_grenade_zm", dc.empclip );
@@ -432,7 +432,7 @@ restore_weapon_for_tombstone( player, weapon_name ) //checked changed to match c
 	{
 		return;
 	}
-	if ( isDefined( self.tombstone_melee_weapons[ weapon_name ] ) && self.tombstone_melee_weapons[ weapon_name ] )
+	if ( is_true( self.tombstone_melee_weapons[ weapon_name ] ) )
 	{
 		player giveweapon( weapon_name );
 		player change_melee_weapon( weapon_name, "none" );

@@ -309,11 +309,11 @@ leaderdialogonplayer( dialog, group, queue, waittime ) //checked changed to matc
 			return;
 		}
 	}
-	if ( isDefined( self.zmbdialogactive ) && !self.zmbdialogactive )
+	if ( !is_true( self.zmbdialogactive ) )
 	{
 		self thread playleaderdialogonplayer( dialog, team, waittime );
 	}
-	else if ( isdefined( queue ) && queue )
+	else if ( is_true( queue ) )
 	{
 		self.zmbdialogqueue[ self.zmbdialogqueue.size ] = dialog;
 	}

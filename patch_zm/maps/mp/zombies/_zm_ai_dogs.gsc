@@ -21,17 +21,6 @@
 
 init() //checked matches cerberus output
 {
-	//begin of debug additions
-	level.custom_zm_ai_dogs_loaded = 1;
-	maps/mp/zombies/_zm_bot::init(); 
-	if ( isDefined( level.debugLogging ) && level.debugLogging )
-	{
-		if ( !isDefined( level.debugLogging_zm_ai_dogs ) )
-		{
-			level.debuglogging_zm_ai_dogs = 0;
-		}
-	}
-	//end of debug additions
 	level.dogs_enabled = 1;
 	level.dog_rounds_enabled = 0;
 	level.dog_round_count = 1;
@@ -70,41 +59,20 @@ init() //checked matches cerberus output
 enable_dog_rounds() //checked matches cerberus output
 {
 	level.dog_rounds_enabled = 1;
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline2 = "_zm_ai_dogs.gsc: Dog rounds enabled by enable_dog_rounds() " + "\n";
-		logprint( logline2 );
-	}
-	
 	if ( !isDefined( level.dog_round_track_override ) )
 	{
 		level.dog_round_track_override = ::dog_round_tracker;
 	}
 	level thread [[ level.dog_round_track_override ]]();
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline3 = "_zm_ai_dogs.gsc: level.dog_round_track_override called " + "\n";
-		logprint( logline3 );
-	}
 }
 
 dog_spawner_init() //checked does not match cerberus output did not change
 {
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline25 = "_zm_ai_dogs.gsc: dog_spawner_init() start " + " \n";
-		logprint( logline25 );
-	}
 	level.dog_spawners = getentarray( "zombie_dog_spawner", "script_noteworthy" );
 	later_dogs = getentarray( "later_round_dog_spawners", "script_noteworthy" );
 	level.dog_spawners = arraycombine( level.dog_spawners, later_dogs, 1, 0 );
 	if ( level.dog_spawners.size == 0 )
 	{
-		if ( level.debuglogging_zm_ai_dogs )
-		{
-			logline4 = "_zm_ai_dogs.gsc: dog_spawner_init() found no level.dog_spawners!, returning " + "\n";
-			logprint( logline4 );
-		}
 		return;
 	}
 	i = 0;
@@ -112,21 +80,11 @@ dog_spawner_init() //checked does not match cerberus output did not change
 	{
 		if ( maps/mp/zombies/_zm_spawner::is_spawner_targeted_by_blocker( level.dog_spawners[ i ] ) )
 		{
-			if ( level.debuglogging_zm_ai_dogs )
-			{
-				logline5 = "_zm_ai_dogs.gsc: dog_spawner_init() disabled level.dog_spawners: " + level.dog_spawners[ i ] + " \n";
-				logprint( logline5 );
-			}
 			level.dog_spawners[ i ].is_enabled = 0;
 			i++;
 		}
 		else
 		{
-			if ( level.debuglogging_zm_ai_dogs )
-			{
-				logline6 = "_zm_ai_dogs.gsc: dog_spawner_init() enabled level.dog_spawners: " + level.dog_spawners[ i ] + " \n";
-				logprint( logline6 );
-			}
 			level.dog_spawners[ i ].is_enabled = 1;
 			level.dog_spawners[ i ].script_forcespawn = 1;
 			i++;
@@ -147,20 +105,10 @@ dog_round_spawning() //checked partially matches cerberus output
 	}
 	if ( level.intermission )
 	{
-		if ( level.debuglogging_zm_ai_dogs )
-		{
-			logline7 = "_zm_ai_dogs.gsc: dog_round_spawning() found the game ended!, returning " + " \n";
-			logprint( logline7 );
-		}
 		return;
 	}
 	level.dog_intermission = 1;
 	level thread dog_round_aftermath();
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline8 = "_zm_ai_dogs.gsc: dog_round_aftermath() is called by dog_round_spawning() " + " \n";
-		logprint( logline8 );
-	}
 	players = get_players();
 	array_thread( players, ::play_dog_round );
 	wait 1;
@@ -175,17 +123,7 @@ dog_round_spawning() //checked partially matches cerberus output
 		max = players.size * 8;
 	}
 	level.zombie_total = max;
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline9 = "_zm_ai_dogs.gsc: Total dogs in round is set to: " + max + " \n";
-		logprint( logline9 );
-	}
 	dog_health_increase();
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline10 = "_zm_ai_dogs.gsc: dog_health_increase() is called by dog_round_spawning() " + " \n";
-		logprint( logline10 );
-	}
 	count = 0;
 	while ( count < max )
 	{
@@ -207,11 +145,6 @@ dog_round_spawning() //checked partially matches cerberus output
 				spawn_loc thread dog_spawn_fx( ai, spawn_loc );
 				level.zombie_total--;
 				count++;
-				if ( level.debuglogging_zm_ai_dogs )
-				{
-					logline11 = "_zm_ai_dogs.gsc: hellhound spawned using level.dog_spawn_func, hunting: " + favorite_enemy + " \n";
-					logprint( logline11 );
-				}
 			}
 		}
 		else
@@ -225,17 +158,7 @@ dog_round_spawning() //checked partially matches cerberus output
 				level.zombie_total--;
 				count++;
 				flag_set( "dog_clips" );
-				if ( level.debuglogging_zm_ai_dogs )
-				{
-					logline12 = "_zm_ai_dogs.gsc: hellhound spawned using dog_spawn_factory_logic(), hunting: " + favorite_enemy + " \n";
-					logprint( logline12 );
-				}
 			}
-		}
-		if ( level.debuglogging_zm_ai_dogs )
-		{
-			logline13 = "_zm_ai_dogs.gsc: waiting_for_next_dog_spawn() is called by dog_round_spawning() " + " \n";
-			logprint( logline13 );
 		}
 		waiting_for_next_dog_spawn( count, max );	
 	}
@@ -261,11 +184,6 @@ waiting_for_next_dog_spawn( count, max ) //checked matches cerberus output
 		default_wait = 1.5;
 	}
 	default_wait = default_wait - count / max;
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline14 = "_zm_ai_dogs.gsc: waiting_for_next_dog_spawn() waits for: " + default_wait + " \n";
-		logprint( logline14 );
-	}
 	wait default_wait;
 }
 
@@ -276,22 +194,12 @@ dog_round_aftermath() //checked matches cerberus output
 	power_up_origin = level.last_dog_origin;
 	if ( isDefined( power_up_origin ) )
 	{
-		if ( level.debuglogging_zm_ai_dogs )
-		{
-			logline15 = "_zm_ai_dogs.gsc: dog_round_aftermath() drops max ammo from final hellhound " + " \n";
-			logprint( logline15 );
-		}
 		level thread maps/mp/zombies/_zm_powerups::specific_powerup_drop( "full_ammo", power_up_origin );
 	}
 	wait 2;
 	clientnotify( "dog_stop" );
 	wait 6;
 	level.dog_intermission = 0;
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline16 = "_zm_ai_dogs.gsc: dog_round_aftermath() sets level.dog_intermission to 0 " + " \n";
-		logprint( logline16 );
-	}
 }
 
 dog_spawn_fx( ai, ent ) //checked matches cerberus output
@@ -360,18 +268,8 @@ dog_spawn_factory_logic( dog_array, favorite_enemy ) //checked matches cerberus 
 		if ( dist_squared > 160000 && dist_squared < 1000000 )
 		{
 			level.old_dog_spawn = dog_locs[ i ];
-			if ( level.debuglogging_zm_ai_dogs )
-			{
-				logline17 = "_zm_ai_dogs.gsc: dog_spawn_factory_logic() found a spawn not previously used and is far enough from the player; returning: " + dog_locs[ i ] + " \n";
-				logprint( logline17 );
-			}
 			return dog_locs[ i ];
 		}
-	}
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline18 = "_zm_ai_dogs.gsc: dog_spawn_factory_logic() couldn't find a spawner not previously used, far enough from the player; returning first spawner in array: " + dog_locs[ 0 ] + " \n";
-		logprint( logline18 );
 	}
 	return dog_locs[ 0 ];
 }
@@ -429,11 +327,6 @@ dog_health_increase() //checked changed to match cerberus output
 	{
 		level.dog_health = 1600;
 	}
-	if ( level.debuglogging_zm_ai_dogs )
-	{
-		logline19 = "_zm_ai_dogs.gsc: dog_health_increase() sets dog health to: " + level.dog_health + " \n";
-		logprint( logline19 );
-	}
 }
 
 dog_round_tracker() //checked changed to match cerberus output
@@ -453,11 +346,6 @@ dog_round_tracker() //checked changed to match cerberus output
 			dog_round_start();
 			level.round_spawn_func = ::dog_round_spawning;
 			level.next_dog_round = level.round_number + randomintrange( 4, 6 );
-			if ( isDefined( level.debuglogging_zm_ai_dogs ) && level.debuglogging_zm_ai_dogs )
-			{
-				logline20 = "_zm_ai_dogs.gsc: dog_round_tracker() sets next dog round to: " + level.next_dog_round + " \n";
-				logprint( logline20 );
-			}
 		}
 		else if ( flag( "dog_round" ) )
 		{
@@ -765,11 +653,6 @@ special_dog_spawn( spawners, num_to_spawn ) //checked matches cerberus output
 				spawn_point thread dog_spawn_fx( ai );
 				count++;
 				flag_set( "dog_clips" );
-				if ( level.debuglogging_zm_ai_dogs )
-				{
-					logline21 = "_zm_ai_dogs.gsc: special_dog_spawn() spawns a hellhound from spawner using spawners defined " + " \n";
-					logprint( logline21 );
-				}
 			}
 		}
 		else if ( isDefined( level.dog_spawn_func ) )
@@ -782,11 +665,6 @@ special_dog_spawn( spawners, num_to_spawn ) //checked matches cerberus output
 				spawn_loc thread dog_spawn_fx( ai, spawn_loc );
 				count++;
 				flag_set( "dog_clips" );
-				if ( level.debuglogging_zm_ai_dogs )
-				{
-					logline22 = "_zm_ai_dogs.gsc: special_dog_spawn() spawns a hellhound from spawner using level.dog_spawn_func " + " \n";
-					logprint( logline22 );
-				}
 			}
 		}
 		else
@@ -799,11 +677,6 @@ special_dog_spawn( spawners, num_to_spawn ) //checked matches cerberus output
 				spawn_point thread dog_spawn_fx( ai, spawn_point );
 				count++;
 				flag_set( "dog_clips" );
-				if ( level.debuglogging_zm_ai_dogs )
-				{
-					logline23 = "_zm_ai_dogs.gsc: special_dog_spawn() spawns a hellhound from spawner using dog_spawn_factory_logic() " + " \n";
-					logprint( logline23 );
-				}
 			}
 		}
 		waiting_for_next_dog_spawn( count, num_to_spawn );
@@ -828,11 +701,6 @@ dog_run_think() //checked matches cerberus output
 		if ( !is_player_valid( self.favoriteenemy ) )
 		{
 			self.favoriteenemy = get_favorite_enemy();
-			if ( level.debuglogging_zm_ai_dogs )
-			{
-				logline24 = "_zm_ai_dogs.gsc: dog_run_think() hellhound couldn't find current target, changing target to: " + self.favoriteenemy + " \n";
-				logprint( logline24 );
-			}
 		}
 		wait 0.2;
 	}

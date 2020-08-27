@@ -73,7 +73,7 @@ pers_upgrades_monitor() //checked partially changed to match cerberus output //d
 			player = players[ player_index ];
 			if ( is_player_valid( player ) && isDefined( player.stats_this_frame ) )
 			{
-				if ( !player.stats_this_frame.size && isDefined( player.pers_upgrade_force_test ) && !player.pers_upgrade_force_test )
+				if ( !player.stats_this_frame.size && !is_true( player.pers_upgrade_force_test ) )
 				{
 					player_index++;
 					continue;
@@ -88,7 +88,7 @@ pers_upgrades_monitor() //checked partially changed to match cerberus output //d
 						should_award = player check_pers_upgrade( pers_upgrade );
 						if ( should_award )
 						{
-							if ( isDefined( player.pers_upgrades_awarded[ level.pers_upgrades_keys[ pers_upgrade_index ] ] ) && player.pers_upgrades_awarded[ level.pers_upgrades_keys[ pers_upgrade_index ] ] )
+							if ( is_true( player.pers_upgrades_awarded[ level.pers_upgrades_keys[ pers_upgrade_index ] ] ) )
 							{
 								pers_upgrade_index++;
 								continue;
@@ -102,7 +102,7 @@ pers_upgrades_monitor() //checked partially changed to match cerberus output //d
 									type = level.snd_pers_upgrade_force_type;
 								}
 								player playsoundtoplayer( "evt_player_upgrade", player );
-								if ( isDefined( level.pers_upgrade_vo_spoken ) && level.pers_upgrade_vo_spoken )
+								if ( is_true( level.pers_upgrade_vo_spoken ) )
 								{
 									player delay_thread( 1, maps/mp/zombies/_zm_audio::create_and_play_dialog, "general", type, undefined, level.snd_pers_upgrade_force_variant );
 								}
@@ -137,7 +137,7 @@ pers_upgrades_monitor() //checked partially changed to match cerberus output //d
 							pers_upgrade_index++;
 							continue;
 						}
-						if ( isDefined( player.pers_upgrades_awarded[ level.pers_upgrades_keys[ pers_upgrade_index ] ] ) && player.pers_upgrades_awarded[ level.pers_upgrades_keys[ pers_upgrade_index ] ] )
+						if ( is_true( player.pers_upgrades_awarded[ level.pers_upgrades_keys[ pers_upgrade_index ] ] ) )
 						{
 							if ( flag( "initial_blackscreen_passed" ) && !is_true( player.is_hotjoining ) )
 							{
@@ -179,7 +179,7 @@ wait_for_game_end() //checked changed to match cerberus output
 			game_end_reset_if_not_achieved = level.pers_upgrades[ str_name ].game_end_reset_if_not_achieved;
 			if ( isDefined( game_end_reset_if_not_achieved ) && game_end_reset_if_not_achieved == 1 )
 			{
-				if ( isDefined( player.pers_upgrades_awarded[ str_name ] ) && !player.pers_upgrades_awarded[ str_name ] )
+				if ( !is_true( player.pers_upgrades_awarded[ str_name ] ) )
 				{
 					for ( stat_index = 0; stat_index < level.pers_upgrades[ str_name ].stat_names.size; stat_index++ )
 					{
@@ -208,7 +208,7 @@ check_pers_upgrade( pers_upgrade ) //checked changed to match cerberus output
 
 is_any_pers_upgrade_stat_updated( pers_upgrade ) //checked changed to match cerberus output
 {
-	if ( isDefined( self.pers_upgrade_force_test ) && self.pers_upgrade_force_test )
+	if ( is_true( self.pers_upgrade_force_test ) )
 	{
 		return 1;
 	}

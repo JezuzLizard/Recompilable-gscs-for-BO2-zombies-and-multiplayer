@@ -13,7 +13,7 @@ init() //checked matches cerberus output
 	level.turnedmeleeweapon_dw = "zombiemelee_dw";
 	precacheitem( level.turnedmeleeweapon );
 	precacheitem( level.turnedmeleeweapon_dw );
-	if ( isDefined( level.custom_zombie_player_loadout_init ) && !level.custom_zombie_player_loadout_init )
+	if ( !is_true( level.custom_zombie_player_loadout_init ) )
 	{
 		precachemodel( "c_zom_player_zombie_fb" );
 		precachemodel( "c_zom_zombie_viewhands" );
@@ -50,15 +50,15 @@ delay_turning_on_eyes() //checked matches cerberus output
 
 turn_to_zombie() //checked changed to match cerberus output
 {
-	if ( self.sessionstate == "playing" && isDefined( self.is_zombie ) && self.is_zombie && isDefined( self.laststand ) && !self.laststand )
+	if ( self.sessionstate == "playing" && is_true( self.is_zombie ) && !is_true( self.laststand ) )
 	{
 		return;
 	}
-	if ( isDefined( self.is_in_process_of_zombify ) && self.is_in_process_of_zombify )
+	if ( is_true( self.is_in_process_of_zombify ) )
 	{
 		return;
 	}
-	while ( isDefined( self.is_in_process_of_humanify ) && self.is_in_process_of_humanify )
+	while ( is_true( self.is_in_process_of_humanify ) )
 	{
 		wait 0.1;
 	}
@@ -86,7 +86,7 @@ turn_to_zombie() //checked changed to match cerberus output
 	self freezecontrols( 1 );
 	self.is_zombie = 1;
 	self setburn( 0 );
-	if ( isDefined( self.turned_visionset ) && self.turned_visionset )
+	if ( is_true( self.turned_visionset ) )
 	{
 		maps/mp/_visionset_mgr::vsmgr_deactivate( "visionset", "zm_turned", self );
 		wait_network_frame();
@@ -159,15 +159,15 @@ turn_to_zombie() //checked changed to match cerberus output
 
 turn_to_human() //checked changed to match cerberus output
 {
-	if ( self.sessionstate == "playing" && isDefined( self.is_zombie ) && !self.is_zombie && isDefined( self.laststand ) && !self.laststand )
+	if ( self.sessionstate == "playing" && !is_true( self.is_zombie ) && !is_true( self.laststand ) )
 	{
 		return;
 	}
-	if ( isDefined( self.is_in_process_of_humanify ) && self.is_in_process_of_humanify )
+	if ( is_true( self.is_in_process_of_humanify ) )
 	{
 		return;
 	}
-	while ( isDefined( self.is_in_process_of_zombify ) && self.is_in_process_of_zombify )
+	while ( is_true( self.is_in_process_of_zombify ) )
 	{
 		wait 0.1;
 	}
@@ -230,7 +230,7 @@ turn_to_human() //checked changed to match cerberus output
 	{
 		self freezecontrols( level.player_movement_suppressed );
 	}
-	else if ( isDefined( self.hostmigrationcontrolsfrozen ) && !self.hostmigrationcontrolsfrozen )
+	else if ( !is_true( self.hostmigrationcontrolsfrozen ) )
 	{
 		self freezecontrols( 0 );
 	}
@@ -245,7 +245,7 @@ deletezombiesinradius( origin ) //checked changed to match cerberus output
 	maxradius = 128;
 	foreach ( zombie in zombies )
 	{
-		if ( isDefined( zombie ) && isalive( zombie ) && isDefined( zombie.is_being_used_as_spawner ) && !zombie.is_being_used_as_spawner )
+		if ( isDefined( zombie ) && isalive( zombie ) && !is_true( zombie.is_being_used_as_spawner ) )
 		{
 			if ( distancesquared( zombie.origin, origin ) < ( maxradius * maxradius ) )
 			{
@@ -268,7 +268,7 @@ turned_give_melee_weapon() //checked matches cerberus output
 #/
 	*/
 	self.turned_had_knife = self hasweapon( "knife_zm" );
-	if ( isDefined( self.turned_had_knife ) && self.turned_had_knife )
+	if ( is_true( self.turned_had_knife ) )
 	{
 		self takeweapon( "knife_zm" );
 	}
@@ -285,7 +285,7 @@ turned_player_buttons() //checked changed to match cerberus output
 	self endon( "disconnect" );
 	self endon( "humanify" );
 	level endon( "end_game" );
-	while ( isDefined( self.is_zombie ) && self.is_zombie )
+	while ( is_true( self.is_zombie ) )
 	{
 		if ( self attackbuttonpressed() || self adsbuttonpressed() || self meleebuttonpressed() )
 		{
@@ -320,7 +320,7 @@ turned_player_buttons() //checked changed to match cerberus output
 
 turned_disable_player_weapons() //checked matches cerberus output
 {
-	if ( isDefined( self.is_zombie ) && self.is_zombie )
+	if ( is_true( self.is_zombie ) )
 	{
 		return;
 	}
@@ -357,7 +357,7 @@ turned_enable_player_weapons() //checked changed to match cerberus output
 		self giveweapon( "rottweil72_zm" );
 		self switchtoweapon( "rottweil72_zm" );
 	}
-	if ( isDefined( self.is_zombie ) && !self.is_zombie && !self hasweapon( level.start_weapon ) )
+	if ( !is_true( self.is_zombie ) && !self hasweapon( level.start_weapon ) )
 	{
 		if ( !self hasweapon( "knife_zm" ) )
 		{
@@ -393,7 +393,7 @@ get_farthest_available_zombie( player ) //checked changed to match cerberus outp
 		for ( x = 0; x < zombies.size; x++ )
 		{
 			zombie = zombies[ x ];
-			if ( isDefined( zombie ) && isalive( zombie ) && isDefined( zombie.in_the_ground ) && !zombie.in_the_ground && isDefined( zombie.gibbed ) && !zombie.gibbed && isDefined( zombie.head_gibbed ) && !zombie.head_gibbed && isDefined( zombie.is_being_used_as_spawnpoint ) && !zombie.is_being_used_as_spawnpoint && zombie in_playable_area() )
+			if ( isDefined( zombie ) && isalive( zombie ) && !is_true( zombie.in_the_ground ) && !is_true( zombie.gibbed ) && !is_true( zombie.head_gibbed ) && !is_true( zombie.is_being_used_as_spawnpoint ) && zombie in_playable_area() )
 			{
 				zombie.is_being_used_as_spawnpoint = 1;
 				return zombie;
@@ -408,7 +408,7 @@ get_available_human() //checked changed to match cerberus output
 	players = get_players();
 	foreach ( player in players )
 	{
-		if ( isDefined( player.is_zombie ) && !player.is_zombie )
+		if ( !is_true( player.is_zombie ) )
 		{
 			return player;
 		}
