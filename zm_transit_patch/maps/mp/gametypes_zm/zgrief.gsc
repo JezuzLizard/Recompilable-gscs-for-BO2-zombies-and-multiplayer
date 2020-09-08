@@ -611,12 +611,12 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 	i = 0;
 	while ( i < self.grief_savedweapon_weapons.size )
 	{
-		if ( isdefined( self.grief_savedweapon_grenades ) && weapon == self.grief_savedweapon_grenades || ( isdefined( self.grief_savedweapon_tactical ) && weapon == self.grief_savedweapon_tactical ) )
+		if ( isdefined( self.grief_savedweapon_grenades ) && self.grief_savedweapon_weapons[ i ] == self.grief_savedweapon_grenades || ( isdefined( self.grief_savedweapon_tactical ) && self.grief_savedweapon_weapons[ i ] == self.grief_savedweapon_tactical ) )
 		{
 			i++;
 			continue;
 		}
-		if ( isweaponprimary( weapon ) )
+		if ( isweaponprimary( self.grief_savedweapon_weapons[ i ] ) )
 		{
 			if ( primary_weapons_returned >= 2 )
 			{
@@ -625,19 +625,19 @@ grief_laststand_weapons_return() //checked changed to match cerberus output
 			}
 			primary_weapons_returned++;
 		}
-		if ( "item_meat_zm" == weapon )
+		if ( "item_meat_zm" == self.grief_savedweapon_weapons[ i ] )
 		{
 			i++;
 			continue;
 		}
-		self giveweapon( weapon, 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( weapon ) );
+		self giveweapon( self.grief_savedweapon_weapons[ i ], 0, self maps/mp/zombies/_zm_weapons::get_pack_a_punch_weapon_options( self.grief_savedweapon_weapons[ i ] ) );
 		if ( isdefined( self.grief_savedweapon_weaponsammo_clip[ index ] ) )
 		{
-			self setweaponammoclip( weapon, self.grief_savedweapon_weaponsammo_clip[ index ] );
+			self setweaponammoclip( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_clip[ index ] );
 		}
 		if ( isdefined( self.grief_savedweapon_weaponsammo_stock[ index ] ) )
 		{
-			self setweaponammostock( weapon, self.grief_savedweapon_weaponsammo_stock[ index ] );
+			self setweaponammostock( self.grief_savedweapon_weapons[ i ], self.grief_savedweapon_weaponsammo_stock[ index ] );
 		}
 		i++;
 	}
