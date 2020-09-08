@@ -1,6 +1,7 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
 zm_transit_patch/maps/mp/gametypes_zm/zgrief.gsc
+zm_transit_patch/maps/mp/gametypes_zm/zmeat.gsc
 zm_transit_patch/maps/mp/zm_transit_classic.gsc
 zm_transit_patch/maps/mp/zm_transit_utility.gsc
 ```
@@ -17,7 +18,6 @@ zm_transit_patch/maps/mp/zombies/_zm_weap_jetgun.gsc
 
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
-zm_transit_patch/maps/mp/gametypes_zm/zmeat.gsc
 zm_transit_patch/maps/mp/gametypes_zm/zstandard.gsc
 
 zm_transit_patch/maps/mp/zombies/_zm_ai_avogadro.gsc
