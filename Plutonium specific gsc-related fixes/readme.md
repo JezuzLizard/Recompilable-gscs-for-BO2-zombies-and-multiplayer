@@ -12,12 +12,6 @@ Compile zm_transit_utility.gsc and place it in maps/mp.
 
 This will allow tombstone to spawn in on dedicated servers.
 
-### MP Bots Fix
-
-Compile _bot.gsc and place it maps/mp/bots
-
-This should fix the bots difficulty on dedicated servers.
-
 ### 8 Player Origins Fix
 
 Compile zm_tomb_amb.gsc as zm_tomb_amb.gsc and place it maps/mp
