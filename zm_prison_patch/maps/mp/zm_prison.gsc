@@ -1108,6 +1108,7 @@ alcatraz_afterlife_doors() //checked changed to match cerberus output
 						{
 							array_delete( getentarray( m_shockbox.script_string, "script_noteworthy" ) );
 						}
+						self maps/mp/zombies/_zm_blockers::door_opened( 0 ); //you have to buy doors after powering them if you don't do this
 						attacker notify( "player_opened_afterlife_door" );
 						break;
 					}
