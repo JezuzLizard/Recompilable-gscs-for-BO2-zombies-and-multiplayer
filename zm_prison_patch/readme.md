@@ -15,6 +15,7 @@ zm_prison_patch/maps/mp/zombies/_zm_perk_divetonuke.gsc
 ```
 ### The following scripts compile but cause a minidump or other severe error:
 ```
+zm_prison_patch/maps/mp/zm_alcatraz_weap_quest.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
@@ -22,7 +23,6 @@ zm_prison_patch/maps/mp/_sticky_grenade.gsc
 zm_prison_patch/maps/mp/zm_alcatraz_gamemodes.gsc
 zm_prison_patch/maps/mp/zm_alcatraz_grief_cellblock.gsc
 zm_prison_patch/maps/mp/zm_alcatraz_standard.gsc
-zm_prison_patch/maps/mp/zm_alcatraz_weap_quest.gsc
 zm_prison_patch/maps/mp/zombies/_zm_game_module_grief.gsc
 zm_prison_patch/maps/mp/zombies/_zm_game_module_meat.gsc
 zm_prison_patch/maps/mp/zombies/_zm_game_module_utility.gsc
