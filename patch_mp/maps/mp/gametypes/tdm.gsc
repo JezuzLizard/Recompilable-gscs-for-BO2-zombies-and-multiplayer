@@ -57,6 +57,7 @@ onstartgametype() //checked changed to match cerberus output
 		game[ "attackers" ] = olddefenders;
 		game[ "defenders" ] = oldattackers;
 	}
+	allowed = [];
 	allowed[ 0 ] = "tdm";
 	level.displayroundendtext = 0;
 	maps/mp/gametypes/_gameobjects::main( allowed );
@@ -137,7 +138,7 @@ onspawnplayerunified( question ) //checked matches cerberus output
 	maps/mp/gametypes/_spawning::onspawnplayer_unified();
 }
 
-onspawnplayer( predictedspawn, question ) //checked changed to match cerberus output
+onspawnplayer( predictedspawn, question ) //minor edit to fix spawns 
 {
 	pixbeginevent( "TDM:onSpawnPlayer" );
 	self.usingobj = undefined;
@@ -179,12 +180,15 @@ onspawnplayer( predictedspawn, question ) //checked changed to match cerberus ou
 			spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_random( spawnpoints );
 		}
 	}
-	else if ( game[ "switchedsides" ] )
+	else 
 	{
-		spawnteam = maps/mp/_utility::getotherteam( spawnteam );
+		if ( game[ "switchedsides" ] )
+		{
+			spawnteam = maps/mp/_utility::getotherteam( spawnteam );
+		}
+		spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( spawnteam );
+		spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_nearteam( spawnpoints );
 	}
-	spawnpoints = maps/mp/gametypes/_spawnlogic::getteamspawnpoints( spawnteam );
-	spawnpoint = maps/mp/gametypes/_spawnlogic::getspawnpoint_nearteam( spawnpoints );
 	if ( predictedspawn )
 	{
 		self predictspawnpoint( spawnpoint.origin, spawnpoint.angles );
@@ -233,7 +237,7 @@ onroundendgame( roundwinner ) //checked changed to match cerberus output
 	return winner;
 }
 
-onscoreclosemusic() //checked changed to match cerberus output
+onscoreclosemusic() //added parenthese to fix order of operations
 {
 	teamscores = [];
 	while ( !level.gameended )
@@ -258,7 +262,7 @@ onscoreclosemusic() //checked changed to match cerberus output
 			}
 		}
 		scoredif = topscore - runnerupscore;
-		if ( scoredif <= scorethreshold && scorethresholdstart <= topscore )
+		if ( ( scoredif <= scorethreshold ) && ( scorethresholdstart <= topscore ) )
 		{
 			thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "TIME_OUT", "both" );
 			thread maps/mp/gametypes/_globallogic_audio::actionmusicset();
