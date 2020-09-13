@@ -48,15 +48,14 @@ WILL COMPILE
 EXAMPLE:
 ```a = b && c;```
 WILL NOT COMPILE
-```
 
 **7. Scripts that contain #using_animtree( "animtree" ); will compile but crash upon loading**
 Unfortunately, for certain scripts #using_animtree( "animtree" ); is required for the script to function so scripts containing it will crash on start/while running
 There is a workaround using script names such as maps/mp/gametypes_zm/_globalentities and naming an extracted but not decompiled script
 
  **8. You cannot use variable defined notifies/waittills**
+ ```
 EXAMPLE:
-```
 var = "connected";
 level notify( var, player );
 level waittill( var, player );
