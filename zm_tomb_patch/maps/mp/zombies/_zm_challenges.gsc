@@ -1,5 +1,5 @@
 
-//checked matches cerberus output
+//checked changed to match cerberus output
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_laststand;
 #include maps/mp/zombies/_zm_unitrigger;
@@ -24,9 +24,14 @@ init()//checked matches cerberus output
 	registerclientfield( "toplayer", "challenge_complete_2", 14000, 1, "int" );
 	registerclientfield( "toplayer", "challenge_complete_3", 14000, 1, "int" );
 	registerclientfield( "toplayer", "challenge_complete_4", 14000, 1, "int" );
+	/*
+	/#
+		level thread challenges_devgui();
+	#/
+	*/
 }
 
-onplayerconnect()//checked partially matches cerberus output (can't use nested foreach)
+onplayerconnect()//checked partially changed to match cerberus output (can't use nested foreach)
 {
 	player_stats_init( self.characterindex );
 	foreach(s_stat in level._challenges.a_players[self.characterindex].a_stats)
@@ -86,7 +91,7 @@ onplayerspawned()//checked partially matches cerberus output (can't use nested f
 	}
 }
 
-stats_init()
+stats_init()//checked partially changed to match cerberus output
 {
 	level._challenges.a_stats = [];
 	if ( isDefined( level.challenges_add_stats ) )
@@ -137,7 +142,7 @@ add_stat( str_name, b_team, str_hint, n_goal, str_reward_model, fp_give_reward, 
 	stat.cf_complete = "challenge_complete_" + level._challenges.a_stats.size;
 }
 
-player_stats_init( n_index )//checked matches cerberus output
+player_stats_init( n_index )//checked changed to match cerberus output
 {
 	a_characters = array( "d", "n", "r", "t" );
 	str_character = a_characters[ n_index ];
@@ -172,7 +177,7 @@ player_stats_init( n_index )//checked matches cerberus output
 	s_player_set.n_medals_held = 0;
 }
 
-team_stats_init( n_index )//checked matches cerberus output
+team_stats_init( n_index )//checked changed to match cerberus output
 {
 	if ( !isDefined( level._challenges.s_team ) )
 	{
@@ -218,6 +223,14 @@ challenge_exists( str_name )//checked matches cerberus output
 get_stat( str_stat, player )//checked matches cerberus output (skipped dev asserts)
 {
 	s_parent_stat = level._challenges.a_stats[ str_stat ];
+	/*
+		/#
+		assert(isdefined(s_parent_stat), "Challenge stat: " + str_stat + " does not exist");
+	#/
+	/#
+		assert(s_parent_stat.b_team || isdefined(player), "Challenge stat: " + str_stat + " is a player stat, but no player passed in");
+	#/
+	*/
 	if ( s_parent_stat.b_team )
 	{
 		s_stat = level._challenges.s_team.a_stats[ str_stat ];
@@ -253,7 +266,7 @@ set_stat( str_stat, n_set )//checked matches cerberus output
 	}
 }
 
-check_stat_complete( s_stat )//checked matches cerberus output
+check_stat_complete( s_stat )//checked changed to match cerberus output
 {
 	if ( s_stat.b_medal_awarded )
 	{
@@ -334,7 +347,7 @@ stat_reward_available( stat, player )//checked matches cerberus output
 	return 1;
 }
 
-player_has_unclaimed_team_reward()//checked matches cerberus output
+player_has_unclaimed_team_reward()//checked changed to match cerberus output
 {
 	foreach(s_stat in level._challenges.s_team.a_stats)
 	{
@@ -346,7 +359,7 @@ player_has_unclaimed_team_reward()//checked matches cerberus output
 	return 0;
 }
 
-board_init( m_board )//checked partially matches cerberus output (can't use nested foreach)
+board_init( m_board )//checked partially changed to match cerberus output (can't use nested foreach)
 {
 	self.m_board = m_board;
 	a_challenges = getarraykeys( level._challenges.a_stats );
@@ -435,7 +448,7 @@ box_prompt_and_visiblity( player )//checked matches cerberus output
 	return 1;
 }
 
-update_box_prompt( player )//checked partially matches cerberus output (continue can't be used in a foreach)
+update_box_prompt( player )//checked partially changed to match cerberus output (continue can't be used in a foreach)
 {
 	self endon( "kill_trigger" );
 	player endon( "death_or_disconnect" );
@@ -570,7 +583,7 @@ box_think()//checked matches cerberus output
 	}
 }
 
-get_reward_category( player, s_select_stat )//checked partially matches cerberus output (can't use continue in foreach)
+get_reward_category( player, s_select_stat )//checked partially changed to match cerberus output (can't use continue in foreach)
 {
 	if(isdefined(s_select_stat) && s_select_stat.s_parent.b_team || level._challenges.s_team.n_medals_held > 0)
 	{
@@ -632,7 +645,7 @@ open_box( player, ut_stub, fp_reward_override, param1 )//checked matches cerberu
 	ut_stub.player_using = undefined;
 }
 
-spawn_reward( player, s_select_stat )//checked matches cerberus output
+spawn_reward( player, s_select_stat )//checked changed to match cerberus output
 {
 	if ( isDefined( player ) )
 	{
@@ -695,7 +708,7 @@ reward_grab_wait( n_timeout )//checked matches cerberus output
 	}
 }
 
-reward_sink( n_delay, n_z, n_time )
+reward_sink( n_delay, n_z, n_time )//checked matches cerberus output
 {
 	if ( isDefined( n_delay ) )
 	{
@@ -730,12 +743,81 @@ reward_points( player, s_stat )//checked matches cerberus output
 
 challenges_devgui()//dev call didn't check
 {
+/* 
+	/#
+		setdvar("award_challenge", "0");
+		adddebugcommand("devgui_cmd "Zombies/Tomb:1/Challenges:10/Award Player1" "award_challenge 1"
+");
+		adddebugcommand("devgui_cmd "Zombies/Tomb:1/Challenges:10/Award Player2" "award_challenge 2"
+");
+		adddebugcommand("devgui_cmd "Zombies/Tomb:1/Challenges:10/Award Player3" "award_challenge 3"
+");
+		adddebugcommand("devgui_cmd "Zombies/Tomb:1/Challenges:10/Award Team" "award_challenge 4"
+");
+		thread watch_devgui_award_challenges();
+	#/
+*/
 }
 
 watch_devgui_award_challenges()//dev call didn't check
 {
+/*
+	/#
+		while(1)
+		{
+			n_award_challenge = GetDvarInt(hash_af0d5c36);
+			if(n_award_challenge != 0)
+			{
+				devgui_award_challenge(n_award_challenge);
+				setdvarint("award_challenge", 0);
+			}
+			wait(0.5);
+		}
+	#/
+*/
 }
 
 devgui_award_challenge( n_index )//dev call didn't check
 {
+/*
+	/#
+		if(n_index == 4)
+		{
+			s_team_stats = level._challenges.s_team;
+			s_team_stats.n_completed = 1;
+			s_team_stats.n_medals_held = 1;
+			a_keys = getarraykeys(level._challenges.s_team.a_stats);
+			s_stat = level._challenges.s_team.a_stats[a_keys[0]];
+			s_stat.b_medal_awarded = 1;
+			s_stat.b_reward_claimed = 0;
+			a_players = get_players();
+			foreach(player in a_players)
+			{
+				s_stat.a_b_player_rewarded[player.characterindex] = 0;
+				player setclientfieldtoplayer(s_stat.s_parent.cf_complete, 1);
+			}
+			foreach(m_board in level.a_m_challenge_boards)
+			{
+				m_board showpart(s_stat.str_glow_tag);
+			}
+			break;
+		}
+		a_keys = getarraykeys(level._challenges.a_players[0].a_stats);
+		a_players = get_players();
+		foreach(player in a_players)
+		{
+			s_player_data = level._challenges.a_players[player.characterindex];
+			s_player_data.n_completed++;
+			s_player_data.n_medals_held++;
+			s_stat = s_player_data.a_stats[a_keys[n_index - 1]];
+			s_stat.b_medal_awarded = 1;
+			s_stat.b_reward_claimed = 0;
+			player setclientfieldtoplayer(s_stat.s_parent.cf_complete, 1);
+			foreach(m_board in level.a_m_challenge_boards)
+			{
+				m_board showpart(s_stat.str_glow_tag);
+			}
+		}
+	#/
+*/
 }
