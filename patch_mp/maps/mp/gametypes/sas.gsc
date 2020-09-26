@@ -204,6 +204,7 @@ onstartgametype() //checked changed to match cerberus output
 	}
 	maps/mp/_utility::setobjectivehinttext( "allies", &"OBJECTIVES_SAS_HINT" );
 	maps/mp/_utility::setobjectivehinttext( "axis", &"OBJECTIVES_SAS_HINT" );
+	allowed = [];
 	allowed[ 0 ] = "sas";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();

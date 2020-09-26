@@ -101,6 +101,7 @@ onstartgametype() //checked changed to match cerberus output
 	level.flagbasefxid[ "allies" ] = loadfx( "misc/fx_ui_flagbase_" + game[ "allies" ] );
 	level.flagbasefxid[ "axis" ] = loadfx( "misc/fx_ui_flagbase_" + game[ "axis" ] );
 	setclientnamemode( "auto_change" );
+	allowed = [];
 	allowed[ 0 ] = "dom";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -151,21 +152,17 @@ onspawnplayer( predictedspawn ) //checked partially changed to match cerberus ou
 		flagsowned = 0;
 		enemyflagsowned = 0;
 		enemyteam = getotherteam( self.pers[ "team" ] );
-		i = 0;
-		while ( i < level.flags.size )
+		for ( i = 0; i < level.flags.size; i++ )
 		{
 			team = level.flags[ i ] getflagteam();
 			if ( team == self.pers[ "team" ] )
 			{
 				flagsowned++;
-				i++;
-				continue;
 			}
-			if ( team == enemyteam )
+			else if ( team == enemyteam )
 			{
 				enemyflagsowned++;
 			}
-			i++;
 		}
 		enemyteam = getotherteam( spawnteam );
 		if ( flagsowned == level.flags.size )
@@ -180,7 +177,7 @@ onspawnplayer( predictedspawn ) //checked partially changed to match cerberus ou
 		else
 		{
 			bestflag = undefined;
-			if ( enemyflagsowned > 0 && enemyflagsowned < level.flags.size )
+			if ( ( enemyflagsowned > 0 ) && ( enemyflagsowned < level.flags.size ) )
 			{
 				bestflag = getunownedflagneareststart( spawnteam );
 			}
@@ -288,6 +285,7 @@ domflags() //checked changed to match cerberus output
 		return;
 	}
 	level.flags = [];
+	visuals = [];
 	for ( index = 0; index < primaryflags.size; index++ )
 	{
 		level.flags[ level.flags.size ] = primaryflags[ index ];
@@ -367,7 +365,7 @@ getunownedflagneareststart( team, excludeflag ) //checked partially changed to m
 			continue;
 		}
 		distsq = distancesquared( flag.origin, level.startpos[ team ] );
-		if ( isDefined( excludeflag ) && flag != excludeflag || !isDefined( best ) && distsq < bestdistsq )
+		if ( ( !isDefined( excludeflag ) || flag != excludeflag ) && ( !isDefined( best ) || ( distsq < bestdistsq ) ) )
 		{
 			bestdistsq = distsq;
 			best = flag;
@@ -736,7 +734,7 @@ updatedomscores() //checked matches cerberus output
 		}
 		onscoreclosemusic();
 		timepassed = maps/mp/gametypes/_globallogic_utils::gettimepassed();
-		if ( ( timepassed / 1000 ) > 120 && numownedflags < 2 && ( timepassed / 1000 ) > 300 && numownedflags < 3 && gamemodeismode( level.gamemode_public_match ) )
+		if ( ( ( timepassed / 1000 ) > 120 ) && numownedflags < 2 || ( ( timepassed / 1000 ) > 300 ) && numownedflags < 3 && gamemodeismode( level.gamemode_public_match ) )
 		{
 			thread maps/mp/gametypes/_globallogic::endgame( "tie", game[ "strings" ][ "time_limit_reached" ] );
 			return;
@@ -769,7 +767,7 @@ onscoreclosemusic() //checked matches cerberus output
 	}
 	/*
 /#
-	if ( getDvarInt( #"0BC4784C" ) > 0 )
+	if ( getDvarInt( "debug_music" ) > 0 )
 	{
 		println( "Music System Domination - scoreDif " + scoredif );
 		println( "Music System Domination - axisScore " + axisscore );
@@ -782,7 +780,7 @@ onscoreclosemusic() //checked matches cerberus output
 #/
 	}
 	*/
-	if ( scoredif <= scorethreshold && scorethresholdstart <= currentscore && level.playingactionmusic != 1 )
+	if ( ( scoredif <= scorethreshold ) && ( scorethresholdstart <= currentscore ) && level.playingactionmusic != 1 )
 	{
 		thread maps/mp/gametypes/_globallogic_audio::set_music_on_team( "TIME_OUT", "both" );
 		thread maps/mp/gametypes/_globallogic_audio::actionmusicset();
@@ -907,11 +905,14 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 						self recordkillmodifier( "assaulting" );
 						break;
 					}
-						/*
-					/#
-						attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU OFFENSIVE CREDIT AS BOOSTING PREVENTION" );
-					#/
-						*/
+					else 
+					{
+							/*
+						/#
+							attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU OFFENSIVE CREDIT AS BOOSTING PREVENTION" );
+						#/
+							*/
+					}
 				}
 			}
 		}
@@ -945,7 +946,7 @@ killwhilecontesting( flag ) //checked matches cerberus output
 	}
 	self.clearenemycount++;
 	flag waittill( "contest_over" );
-	if ( playerteam != self.pers[ "team" ] || isDefined( self.spawntime ) && killtime < self.spawntime )
+	if ( playerteam != self.pers[ "team" ] || isDefined( self.spawntime ) && ( killtime < self.spawntime ) )
 	{
 		self.clearenemycount = 0;
 		return;
@@ -1192,20 +1193,22 @@ flagsetup() //checked partially changed to match cerberus output did not change 
 				continue;
 			}
 			nearestflag = desc.flag;
-			break;
 		}
-		nearestflag = undefined;
-		nearestdist = undefined;
-		for ( j = 0; j < flags.size; j++ )
+		else 
 		{
-			dist = distancesquared( flags[ j ].origin, spawnpoints[ i ].origin );
-			if ( !isDefined( nearestflag ) || dist < nearestdist )
+			nearestflag = undefined;
+			nearestdist = undefined;
+			for ( j = 0; j < flags.size; j++ )
 			{
-				nearestflag = flags[ j ];
-				nearestdist = dist;
+				dist = distancesquared( flags[ j ].origin, spawnpoints[ i ].origin );
+				if ( !isDefined( nearestflag ) || ( dist < nearestdist ) )
+				{
+					nearestflag = flags[ j ];
+					nearestdist = dist;
+				}
 			}
+			nearestflag.nearbyspawns[ nearestflag.nearbyspawns.size ] = spawnpoints[ i ];
 		}
-		nearestflag.nearbyspawns[ nearestflag.nearbyspawns.size ] = spawnpoints[ i ];
 		i++;
 	}
 	if ( maperrors.size > 0 )
@@ -1332,13 +1335,16 @@ change_dom_spawns() //checked changed to match cerberus output
 			maps/mp/gametypes/_spawnlogic::addspawnpoints( "axis", flagspawnname );
 		}
 	}
-	for ( i = 0; i < flag_number; i++ )
+	else 
 	{
-		label = level.flags[ i ].useobj maps/mp/gametypes/_gameobjects::getlabel();
-		flagspawnname = "mp_dom_spawn_flag" + label;
-		flag_team = level.flags[ i ] getflagteam();
-		addspawnpointsforflag( "allies", flag_team, flagspawnname );
-		addspawnpointsforflag( "axis", flag_team, flagspawnname );
+		for ( i = 0; i < flag_number; i++ )
+		{
+			label = level.flags[ i ].useobj maps/mp/gametypes/_gameobjects::getlabel();
+			flagspawnname = "mp_dom_spawn_flag" + label;
+			flag_team = level.flags[ i ] getflagteam();
+			addspawnpointsforflag( "allies", flag_team, flagspawnname );
+			addspawnpointsforflag( "axis", flag_team, flagspawnname );
+		}
 	}
 	maps/mp/gametypes/_spawning::updateallspawnpoints();
 }
@@ -1363,7 +1369,7 @@ dominated_challenge_check() //checked changed to match cerberus output
 		{
 			return 0;
 		}
-		if ( allied_flags > 0 && axis_flags > 0 )
+		if ( ( allied_flags > 0 ) && ( axis_flags > 0 ) )
 		{
 			return 0;
 		}
@@ -1387,7 +1393,7 @@ dominated_check() //checked changed to match cerberus output
 		{
 			axis_flags++;
 		}
-		if ( allied_flags > 0 && axis_flags > 0 )
+		if ( ( allied_flags > 0 ) && ( axis_flags > 0 ) )
 		{
 			return 0;
 		}

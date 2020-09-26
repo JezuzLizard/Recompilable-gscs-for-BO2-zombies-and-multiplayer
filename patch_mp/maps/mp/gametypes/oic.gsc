@@ -44,7 +44,7 @@ main() //checked matches cerberus output
 
 onplayerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked changed to match cerberus output
 {
-	if ( smeansofdeath != "MOD_PISTOL_BULLET" || smeansofdeath == "MOD_RIFLE_BULLET" || smeansofdeath == "MOD_HEAD_SHOT" )
+	if ( smeansofdeath == "MOD_PISTOL_BULLET" || smeansofdeath == "MOD_RIFLE_BULLET" || smeansofdeath == "MOD_HEAD_SHOT" )
 	{
 		idamage = self.maxhealth + 1;
 	}
@@ -62,12 +62,14 @@ givecustomloadout() //checked matches cerberus output
 	if ( isDefined( self.pers[ "clip_ammo" ] ) )
 	{
 		clipammo = self.pers[ "clip_ammo" ];
+		self.pers["clip_ammo"] = undefined;
 	}
 	self setweaponammoclip( weapon, clipammo );
 	stockammo = 0;
 	if ( isDefined( self.pers[ "stock_ammo" ] ) )
 	{
 		stockammo = self.pers[ "stock_ammo" ];
+		self.pers["stock_ammo"] = undefined;
 	}
 	self setweaponammostock( weapon, stockammo );
 	self setspawnweapon( weapon );
@@ -91,6 +93,7 @@ onstartgametype() //checked matches cerberus output
 		setobjectivescoretext( "allies", &"OBJECTIVES_DM_SCORE" );
 		setobjectivescoretext( "axis", &"OBJECTIVES_DM_SCORE" );
 	}
+	allowed = [];
 	allowed[ 0 ] = "oic";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();

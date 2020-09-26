@@ -266,6 +266,7 @@ onstartgametype() //checked changed to match cerberus output
 	{
 		level.dembombzonename = "bombzone";
 	}
+	allowed = [];
 	allowed[ 0 ] = "sd";
 	allowed[ 1 ] = level.dembombzonename;
 	allowed[ 2 ] = "blocker";
@@ -394,7 +395,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				bombzone = level.bombzones[ index ];
 				break;
 			}
-			else dist = distance2d( attacker.origin, level.bombzones[ index ].curorigin );
+			dist = distance2d( attacker.origin, level.bombzones[ index ].curorigin );
 			if ( dist < level.defaultoffenseradius )
 			{
 				inbombzone = 1;
@@ -427,30 +428,33 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				*/
 			}
 		}
-		else if ( !isDefined( attacker.dem_defends ) )
+		else 
 		{
-			attacker.dem_defends = 0;
-		}
-		attacker.dem_defends++;
-		if ( level.playerdefensivemax >= attacker.dem_defends )
-		{
-			if ( isDefined( attacker.pers[ "defends" ] ) )
+			if ( !isDefined( attacker.dem_defends ) )
 			{
-				attacker.pers[ "defends" ]++;
-				attacker.defends = attacker.pers[ "defends" ];
+				attacker.dem_defends = 0;
 			}
-			attacker maps/mp/_medals::defenseglobalcount();
-			attacker addplayerstatwithgametype( "DEFENDS", 1 );
-			self recordkillmodifier( "assaulting" );
-			maps/mp/_scoreevents::processscoreevent( "killed_attacker", attacker, self, sweapon );
-		}
-		else
-		{
-			/*
-/#
-			attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU DEFENSIVE CREDIT AS BOOSTING PREVENTION" );
-#/
-			*/
+			attacker.dem_defends++;
+			if ( level.playerdefensivemax >= attacker.dem_defends )
+			{
+				if ( isDefined( attacker.pers[ "defends" ] ) )
+				{
+					attacker.pers[ "defends" ]++;
+					attacker.defends = attacker.pers[ "defends" ];
+				}
+				attacker maps/mp/_medals::defenseglobalcount();
+				attacker addplayerstatwithgametype( "DEFENDS", 1 );
+				self recordkillmodifier( "assaulting" );
+				maps/mp/_scoreevents::processscoreevent( "killed_attacker", attacker, self, sweapon );
+			}
+			else
+			{
+				/*
+	/#
+				attacker iprintlnbold( "GAMETYPE DEBUG: NOT GIVING YOU DEFENSIVE CREDIT AS BOOSTING PREVENTION" );
+	#/
+				*/
+			}
 		}
 	}
 	if ( self.isplanting == 1 )
@@ -466,7 +470,7 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 checkallowspectating() //checked changed to match cerberus output
 {
 	self endon( "disconnect" );
-	wait 0,05;
+	wait 0.05;
 	update = 0;
 	livesleft = !level.numlives && !self.pers["lives"];
 	if ( !level.alivecount[ game[ "attackers" ] ] && !livesleft )

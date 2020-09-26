@@ -180,6 +180,7 @@ onstartgametype() //checked changed to match cerberus output
 		updateobjectivehintmessage( level.objectivehintcapturehq );
 	}
 	setclientnamemode( "auto_change" );
+	allowed = [];
 	allowed[ 0 ] = "hq";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -337,10 +338,11 @@ hqmainloop() //checked changed to match cerberus output
 			{
 				timerdisplay[ team ] settimer( level.hqautodestroytime );
 			}
-			//wait 0.05;
-			continue;
 		}
-		level.hqdestroyedbytimer = 0;
+		else 
+		{		
+			level.hqdestroyedbytimer = 0;
+		}
 		while ( 1 )
 		{
 			ownerteam = level.radio.gameobject maps/mp/gametypes/_gameobjects::getownerteam();
@@ -833,7 +835,7 @@ setupnearbyspawns() //checked changed to match cerberus output
 	for ( i = 1; i < spawns.size; i++ ) 
 	{
 		thespawn = spawns[ i ];
-		for ( j = i - 1; j >= 0 && thespawn.distsq < spawns[j].distsq; j-- )
+		for ( j = i - 1; j >= 0 && thespawn.distsq < spawns[ j ].distsq; j-- )
 		{
 			spawns[ j + 1 ] = spawns[ j ];
 
@@ -849,7 +851,7 @@ setupnearbyspawns() //checked changed to match cerberus output
 	{
 		first[ first.size ] = spawns[ i ];
 	}
-	while ( i < spawns.size )
+	for ( ; i < spawns.size; i++ )
 	{
 		outer[ outer.size ] = spawns[ i ];
 		if ( i <= ( thirdsize * 2 ) )
@@ -860,7 +862,6 @@ setupnearbyspawns() //checked changed to match cerberus output
 		{
 			third[ third.size ] = spawns[ i ];
 		}
-		i++;
 	}
 	self.gameobject.nearspawns = first;
 	self.gameobject.midspawns = second;
@@ -1088,7 +1089,7 @@ onroundswitch() //checked matches cerberus output
 
 onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration ) //checked changed to match cerberus output
 {
-	if ( isplayer( attacker ) || !self.touchtriggers.size && !attacker.touchtriggers.size || attacker.pers[ "team" ] == self.pers[ "team" ] )
+	if ( isplayer( attacker ) || ( !self.touchtriggers.size && !attacker.touchtriggers.size ) || attacker.pers[ "team" ] == self.pers[ "team" ] )
 	{
 		return;
 	}
@@ -1194,7 +1195,7 @@ killwhilecontesting( radio ) //checked matches cerberus output
 	}
 	self.clearenemycount++;
 	radio waittill( "state_change" );
-	if ( playerteam != self.pers[ "team" ] || isDefined( self.spawntime ) && killtime < self.spawntime )
+	if ( playerteam != self.pers[ "team" ] || isDefined( self.spawntime ) && ( killtime < self.spawntime ) )
 	{
 		self.clearenemycount = 0;
 		return;

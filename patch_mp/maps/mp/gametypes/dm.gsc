@@ -51,6 +51,7 @@ onstartgametype() //checked matches cerberus output
 	}
 	setobjectivehinttext( "allies", &"OBJECTIVES_DM_HINT" );
 	setobjectivehinttext( "axis", &"OBJECTIVES_DM_HINT" );
+	allowed = [];
 	allowed[ 0 ] = "dm";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -104,7 +105,7 @@ onscoreclosemusic() //checked changed to match cerberus output
 	while ( !level.gameended )
 	{
 		scorelimit = level.scorelimit;
-		scorethreshold = scorelimit * 0,9;
+		scorethreshold = scorelimit * 0.9;
 		for ( i = 0; i < level.players.size; i++ )
 		{
 			scorecheck = [[ level._getplayerscore ]]( level.players[ i ] );

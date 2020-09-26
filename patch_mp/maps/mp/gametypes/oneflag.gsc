@@ -189,6 +189,7 @@ onstartgametype() //checked changed to match cerberus output
 			setobjectivehinttext( "axis", &"MP_ONE_FLAG_CTF_OVERTIME_ROUND_2_TIE" );
 		}
 	}
+	allowed = [];
 	allowed[ 0 ] = "ctf";
 	allowed[ 1 ] = "dom";
 	maps/mp/gametypes/_gameobjects::main( allowed );
@@ -464,6 +465,7 @@ updategametypedvars() //checked matches cerberus output
 
 createflag( trigger ) //checked matches cerberus output
 {
+	visuals = [];
 	if ( isDefined( trigger.target ) )
 	{
 		visuals[ 0 ] = getent( trigger.target, "targetname" );

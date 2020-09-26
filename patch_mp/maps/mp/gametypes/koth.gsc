@@ -192,6 +192,7 @@ onstartgametype() //checked partially changed to match cerberus output did not u
 		updateobjectivehintmessage( level.objectivehintcapturezone );
 	}
 	setclientnamemode( "auto_change" );
+	allowed = [];
 	allowed[ 0 ] = "koth";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -375,7 +376,6 @@ kothmainloop() //checked changed to match cerberus output
 	timerdisplay = [];
 	foreach ( team in level.teams )
 	{
-		team = _a436[ _k436 ];
 		timerdisplay[ team ] = createservertimer( "objective", 1.4, team );
 		timerdisplay[ team ] setgamemodeinfopoint();
 		timerdisplay[ team ].label = zonespawninginstr;
@@ -559,15 +559,18 @@ onzonecapture( player ) //checked partially changed to match cerberus output did
 			}
 			thread playsoundonplayers( game[ "objective_gained_sound" ], team );
 		}
-	  	else if ( oldteam == team )
+	  	else 
 		{
-			maps/mp/gametypes/_globallogic_audio::leaderdialog( "koth_lost", team, "gamemode_objective" );
+			if ( oldteam == team )
+			{
+				maps/mp/gametypes/_globallogic_audio::leaderdialog( "koth_lost", team, "gamemode_objective" );
+			}
+			else if ( oldteam == "neutral" )
+			{
+				maps/mp/gametypes/_globallogic_audio::leaderdialog( "koth_captured", team, "gamemode_objective" );
+			}
+			thread playsoundonplayers( game[ "objective_lost_sound" ], team );
 		}
-		else if ( oldteam == "neutral" )
-		{
-			maps/mp/gametypes/_globallogic_audio::leaderdialog( "koth_captured", team, "gamemode_objective" );
-		}
-		thread playsoundonplayers( game[ "objective_lost_sound" ], team );
 	}
 	level thread awardcapturepoints( capture_team, self.lastcaptureteam );
 	self.capturecount++;
@@ -1264,22 +1267,25 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 				self recordkillmodifier( "defending" );
 				scoreeventprocessed = 1;
 			}
-			else if ( !medalgiven )
+			else 
 			{
-				if ( isDefined( attacker.pers[ "defends" ] ) )
+				if ( !medalgiven )
 				{
-					attacker.pers[ "defends" ]++;
-					attacker.defends = attacker.pers[ "defends" ];
+					if ( isDefined( attacker.pers[ "defends" ] ) )
+					{
+						attacker.pers[ "defends" ]++;
+						attacker.defends = attacker.pers[ "defends" ];
+					}
+					attacker maps/mp/_medals::defenseglobalcount();
+					medalgiven = 1;
+					attacker addplayerstatwithgametype( "DEFENDS", 1 );
+					attacker recordgameevent( "return" );
 				}
-				attacker maps/mp/_medals::defenseglobalcount();
-				medalgiven = 1;
-				attacker addplayerstatwithgametype( "DEFENDS", 1 );
-				attacker recordgameevent( "return" );
+				attacker maps/mp/_challenges::killedzoneattacker( sweapon );
+				maps/mp/_scoreevents::processscoreevent( "hardpoint_kill", attacker, undefined, sweapon );
+				self recordkillmodifier( "assaulting" );
+				scoreeventprocessed = 1;
 			}
-			attacker maps/mp/_challenges::killedzoneattacker( sweapon );
-			maps/mp/_scoreevents::processscoreevent( "hardpoint_kill", attacker, undefined, sweapon );
-			self recordkillmodifier( "assaulting" );
-			scoreeventprocessed = 1;
 		}
 	}
 	if ( attacker.touchtriggers.size || level.capturetime == 0 && attacker istouching( level.zone.trig ) )
@@ -1313,16 +1319,19 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 					self recordkillmodifier( "assaulting" );
 				}
 			}
-			else if ( !medalgiven )
+			else 
 			{
-				attacker maps/mp/_medals::offenseglobalcount();
-				medalgiven = 1;
-				attacker addplayerstatwithgametype( "OFFENDS", 1 );
-			}
-			if ( scoreeventprocessed == 0 )
-			{
-				maps/mp/_scoreevents::processscoreevent( "hardpoint_kill", attacker, undefined, sweapon );
-				self recordkillmodifier( "defending" );
+				if ( !medalgiven )
+				{
+					attacker maps/mp/_medals::offenseglobalcount();
+					medalgiven = 1;
+					attacker addplayerstatwithgametype( "OFFENDS", 1 );
+				}
+				if ( scoreeventprocessed == 0 )
+				{
+					maps/mp/_scoreevents::processscoreevent( "hardpoint_kill", attacker, undefined, sweapon );
+					self recordkillmodifier( "defending" );
+				}
 			}
 		}
 	}

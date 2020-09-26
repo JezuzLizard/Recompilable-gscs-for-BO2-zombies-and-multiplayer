@@ -195,9 +195,10 @@ promoteplayer( weaponused ) //checked changed to match cerberus output
 	self endon( "cancel_promotion" );
 	level endon( "game_ended" );
 	wait 0.05;
-	for ( i = 0; i < level.gunprogression[self.gunprogress].names.size; i++ )
+	for ( i = 0; i < level.gunprogression[ self.gunprogress ].names.size; i++ )
 	{
-		if ( weaponused == level.gunprogression[ self.gunprogress ].names[ i ] || weaponused == "explosive_bolt_mp" && level.gunprogression[ self.gunprogress ].names[ i ] != "crossbow_mp" || level.gunprogression[ self.gunprogress ].names[ i ] == "crossbow_mp+reflex" && level.gunprogression[ self.gunprogress ].names[ i ] == "crossbow_mp+acog" )
+		//treyarchs original implementation of this if statement was cancer so i changed it to be simpler
+		if ( weaponused == level.gunprogression[ self.gunprogress ].names[ i ] || weaponused == "explosive_bolt_mp" && issubstr( level.gunprogression[ self.gunprogress ].names[ i ], "crossbow" ) )
 		{
 			if ( self.gunprogress < ( level.gunprogression.size - 1 ) )
 			{
@@ -305,6 +306,7 @@ onstartgametype() //checked matches cerberus output
 	}
 	setobjectivehinttext( "allies", &"OBJECTIVES_GUN_HINT" );
 	setobjectivehinttext( "axis", &"OBJECTIVES_GUN_HINT" );
+	allowed = [];
 	allowed[ 0 ] = "gun";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();

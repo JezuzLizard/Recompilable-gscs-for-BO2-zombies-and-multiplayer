@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes/_hostmigration;
 #include maps/mp/gametypes/_globallogic_utils;
 #include maps/mp/_demo;
@@ -156,7 +157,7 @@ getbetterteam() //checked changed to match cerberus output
 	{
 		player = level.players[ i ];
 		team = player.pers[ "team" ];
-		if ( isDefined( team ) || team == "allies" && team == "axis" )
+		if ( ( team == "allies" || team == "axis" ) && isDefined( team ) )
 		{
 			kills[ team ] += player.kills;
 			deaths[ team ] += player.deaths;
@@ -222,13 +223,14 @@ onstartgametype() //checked matches cerberus output
 	}
 	setobjectivehinttext( game[ "attackers" ], &"OBJECTIVES_SD_ATTACKER_HINT" );
 	setobjectivehinttext( game[ "defenders" ], &"OBJECTIVES_SD_DEFENDER_HINT" );
+	allowed = [];
 	allowed[ 0 ] = "sd";
 	allowed[ 1 ] = "bombzone";
 	allowed[ 2 ] = "blocker";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
-	level.spawnmins = ( 0, 0, 1 );
-	level.spawnmaxs = ( 0, 0, 1 );
+	level.spawnmins = ( 0, 0, 0 );
+	level.spawnmaxs = ( 0, 0, 0 );
 	maps/mp/gametypes/_spawnlogic::placespawnpoints( "mp_sd_spawn_attacker" );
 	maps/mp/gametypes/_spawnlogic::placespawnpoints( "mp_sd_spawn_defender" );
 	level.mapcenter = maps/mp/gametypes/_spawnlogic::findboxcenter( level.spawnmins, level.spawnmaxs );
@@ -313,15 +315,18 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 			self recordkillmodifier( "defending" );
 			maps/mp/_scoreevents::processscoreevent( "killed_defender", attacker, self, sweapon );
 		}
-		else if ( isDefined( attacker.pers[ "defends" ] ) )
+		else 
 		{
-			attacker.pers[ "defends" ]++;
-			attacker.defends = attacker.pers[ "defends" ];
+			if ( isDefined( attacker.pers[ "defends" ] ) )
+			{
+				attacker.pers[ "defends" ]++;
+				attacker.defends = attacker.pers[ "defends" ];
+			}
+			attacker maps/mp/_medals::defenseglobalcount();
+			attacker addplayerstatwithgametype( "DEFENDS", 1 );
+			self recordkillmodifier( "assaulting" );
+			maps/mp/_scoreevents::processscoreevent( "killed_attacker", attacker, self, sweapon );
 		}
-		attacker maps/mp/_medals::defenseglobalcount();
-		attacker addplayerstatwithgametype( "DEFENDS", 1 );
-		self recordkillmodifier( "assaulting" );
-		maps/mp/_scoreevents::processscoreevent( "killed_attacker", attacker, self, sweapon );
 	}
 	if ( isplayer( attacker ) && attacker.pers[ "team" ] != self.pers[ "team" ] && isDefined( self.isbombcarrier ) && self.isbombcarrier == 1 )
 	{
@@ -342,8 +347,15 @@ checkallowspectating() //checked matches cerberus output
 	self endon( "disconnect" );
 	wait 0.05;
 	update = 0;
-	if ( level.numliveslivesleft = self.pers[ "lives" ];
-	 && !level.alivecount[ game[ "attackers" ] ] && !livesleft )
+	if ( !level.numliveslivesleft && !self.pers[ "lives" ] )
+	{
+		livesleft = 0;
+	}
+	else
+	{
+		livesleft = 1;
+	}
+	if ( !level.alivecount[ game[ "attackers" ] ] && !livesleft )
 	{
 		level.spectateoverride[ game[ "attackers" ] ].allowenemyspectate = 1;
 		update = 1;
@@ -518,6 +530,7 @@ bombs() //checked changed to match cerberus output
 		*/
 		return;
 	}
+	visuals = [];
 	visuals[ 0 ] = getent( "sd_bomb", "targetname" );
 	if ( !isDefined( visuals[ 0 ] ) )
 	{
@@ -626,13 +639,16 @@ onbeginuse( player ) //checked changed to match cerberus output
 			level.sdbombmodel hide();
 		}
 	}
-	player.isplanting = 1;
-	player thread maps/mp/gametypes/_battlechatter_mp::gametypespecificbattlechatter( "sd_friendlyplant", player.pers[ "team" ] );
-	while ( level.multibomb )
+	else 
 	{
-		for ( i = 0; i < self.otherbombzones.size; i++ )
+		player.isplanting = 1;
+		player thread maps/mp/gametypes/_battlechatter_mp::gametypespecificbattlechatter( "sd_friendlyplant", player.pers[ "team" ] );
+		if ( level.multibomb )
 		{
-			self.otherbombzones[ i ] maps/mp/gametypes/_gameobjects::disableobject();
+			for ( i = 0; i < self.otherbombzones.size; i++ )
+			{
+				self.otherbombzones[ i ] maps/mp/gametypes/_gameobjects::disableobject();
+			}
 		}
 	}
 	player playsound( "fly_bomb_raise_plr" );
@@ -654,11 +670,14 @@ onenduse( team, player, result ) //checked changed to match cerberus output
 			level.sdbombmodel show();
 		}
 	}
-	if ( level.multibomb && !result )
+	else 
 	{
-		for ( i = 0; i < self.otherbombzones.size; i++ )
+		if ( level.multibomb && !result )
 		{
-			self.otherbombzones[ i ] maps/mp/gametypes/_gameobjects::enableobject();
+			for ( i = 0; i < self.otherbombzones.size; i++ )
+			{
+				self.otherbombzones[ i ] maps/mp/gametypes/_gameobjects::enableobject();
+			}
 		}
 	}
 }
@@ -946,7 +965,7 @@ sd_iskillboosting() //checked matches cerberus output
 	{
 		return 1;
 	}
-	if ( level.teambased || self.team == "allies" && self.team == "axis" )
+	if ( ( self.team == "allies" || self.team == "axis" ) && level.teambased )
 	{
 		if ( game[ "totalKillsTeam" ][ self.team ] > ( level.playerkillsmax * ( roundsplayed + 1 ) ) )
 		{

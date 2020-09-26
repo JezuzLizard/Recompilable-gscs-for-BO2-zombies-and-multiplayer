@@ -74,6 +74,7 @@ onstartgametype() //checked matches cerberus output
 	}
 	setobjectivehinttext( "allies", &"OBJECTIVES_SHRP_HINT" );
 	setobjectivehinttext( "axis", &"OBJECTIVES_SHRP_HINT" );
+	allowed = [];
 	allowed[ 0 ] = "shrp";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -424,6 +425,7 @@ chooserandomguns() //checked changed to match cerberus output may need to review
 			{
 				level.players[ i ] thread maps/mp/gametypes/_wager::queuewagerpopup( &"MP_SHRP_RND", 0, &"MP_SHRP_FINAL_MULTIPLIER", "wm_shrp_rnd" );
 			}
+			break;
 		}
 		else 
 		{

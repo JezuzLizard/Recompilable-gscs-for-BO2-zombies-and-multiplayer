@@ -77,6 +77,7 @@ onstartgametype() //checked changed to match cerberus output
 		game[ "attackers" ] = olddefenders;
 		game[ "defenders" ] = oldattackers;
 	}
+	allowed = [];
 	allowed[ 0 ] = level.gametype;
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	level.spawnmins = ( 0, 0, 1 );
@@ -136,6 +137,7 @@ spawndogtags( victim, attacker ) //checked changed to match cerberus output
 	}
 	else
 	{
+		visuals = [];
 		visuals[ 0 ] = spawn( "script_model", ( 0, 0, 0 ) );
 		visuals[ 0 ] setmodel( "p6_dogtags" );
 		visuals[ 1 ] = spawn( "script_model", ( 0, 0, 0 ) );
