@@ -15,7 +15,12 @@ zm_transit_patch/maps/mp/zombies/_zm_weap_jetgun.gsc
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
 
 ### The following scripts compile but cause a minidump or other severe error:
-
+```
+```
+### The following scripts have been checked, but they have not been tested yet
+```
+zm_transit_patch/maps/mp/zm_transit.gsc
+```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
 zm_transit_patch/maps/mp/gametypes_zm/zstandard.gsc
@@ -40,7 +45,6 @@ zm_transit_patch/maps/mp/zombies/_zm_weap_riotshield.gsc
 zm_transit_patch/maps/mp/zombies/_zm_weap_tazer_knuckles.gsc
 zm_transit_patch/maps/mp/zombies/_zm_weapon_locker.gsc
 
-zm_transit_patch/maps/mp/zm_transit.gsc
 zm_transit_patch/maps/mp/zm_transit_achievement.gsc
 zm_transit_patch/maps/mp/zm_transit_ai_screecher.gsc
 zm_transit_patch/maps/mp/zm_transit_ambush.gsc
