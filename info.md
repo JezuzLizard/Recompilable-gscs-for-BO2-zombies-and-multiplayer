@@ -53,7 +53,7 @@ WILL NOT COMPILE
 Unfortunately, for certain scripts #using_animtree( "animtree" ); is required for the script to function so scripts containing it will crash on start/while running
 There is a workaround using script names such as maps/mp/gametypes_zm/_globalentities and naming an extracted but not decompiled script
 
- **8. You cannot use variable defined notifies/waittills**
+ **8. You cannot use variable defined notifies/waittills with extra inputs/outputs**
  ```
 EXAMPLE:
 var = "connected";
