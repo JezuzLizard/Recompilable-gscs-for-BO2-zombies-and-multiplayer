@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/gametypes_zm/zmeat;
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/zombies/_zm_perks;
@@ -7,12 +8,12 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 	precachemodel( "zm_collision_transit_busdepot_survival" );
 }
 
-station_treasure_chest_init()
+station_treasure_chest_init() //checked matches cerberus output
 {
 	chest1 = getstruct( "depot_chest", "script_noteworthy" );
 	level.chests = [];
@@ -20,7 +21,7 @@ station_treasure_chest_init()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "depot_chest" );
 }
 
-main()
+main() //checked changed to match cerberus output
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "station" );
 	station_treasure_chest_init();
@@ -30,13 +31,9 @@ main()
 	collision disconnectpaths();
 	flag_wait( "initial_blackscreen_passed" );
 	nodes = getnodearray( "classic_only_traversal", "targetname" );
-	_a44 = nodes;
-	_k44 = getFirstArrayKey( _a44 );
-	while ( isDefined( _k44 ) )
+	foreach ( node in nodes )
 	{
-		node = _a44[ _k44 ];
 		unlink_nodes( node, getnode( node.target, "targetname" ) );
-		_k44 = getNextArrayKey( _a44, _k44 );
 	}
 	level thread maps/mp/zombies/_zm_perks::perk_machine_removal( "specialty_quickrevive", "p_glo_tools_chest_tall" );
 	maps/mp/zombies/_zm_game_module::turn_power_on_and_open_doors();
@@ -45,7 +42,7 @@ main()
 #/
 }
 
-enemy_location_override( zombie, enemy )
+enemy_location_override( zombie, enemy ) //checked matches cerberus output
 {
 	location = enemy.origin;
 	if ( is_true( self.reroute ) )

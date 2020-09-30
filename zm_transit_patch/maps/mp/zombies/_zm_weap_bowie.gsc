@@ -1,9 +1,11 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_weapons;
+#include maps/mp/zombies/_zm_melee_weapon;
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	if ( isDefined( level.bowie_cost ) )
 	{

@@ -1,3 +1,4 @@
+//checked includes matche cerberus output
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/zm_transit_utility;
 #include maps/mp/gametypes_zm/_zm_gametype;
@@ -7,12 +8,12 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 	precachemodel( "zm_collision_transit_town_survival" );
 }
 
-town_treasure_chest_init()
+town_treasure_chest_init() //checked matches cerberus output
 {
 	chest1 = getstruct( "town_chest", "script_noteworthy" );
 	chest2 = getstruct( "town_chest_2", "script_noteworthy" );
@@ -22,7 +23,7 @@ town_treasure_chest_init()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "town_chest" );
 }
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "town" );
 	town_treasure_chest_init();
@@ -50,7 +51,7 @@ main()
 	level notify( "Pack_A_Punch_on" );
 }
 
-enemy_location_override( zombie, enemy )
+enemy_location_override( zombie, enemy ) //checked matches cerberus output
 {
 	location = enemy.origin;
 	if ( is_true( self.reroute ) )

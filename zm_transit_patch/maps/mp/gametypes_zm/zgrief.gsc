@@ -108,7 +108,7 @@ custom_end_screen() //checked changed to match cerberus output
 			winner_text = &"ZOMBIE_GRIEF_WIN_SINGLE";
 			loser_text = &"ZOMBIE_GRIEF_LOSE_SINGLE";
 		}
-		if ( isDefined( level.host_ended_game ) && level.host_ended_game )
+		if ( is_true( level.host_ended_game ) )
 		{
 			players[ i ].survived_hud settext( &"MP_HOST_ENDED_GAME" );
 		}
@@ -138,12 +138,12 @@ postinit_func() //checked matches cerberus output
 	level._get_game_module_players = undefined;
 	level.powerup_drop_count = 0;
 	level.is_zombie_level = 1;
-	level._effect["meat_impact"] = loadfx("maps/zombie/fx_zmb_meat_impact");
-	level._effect["spawn_cloud"] = loadfx("maps/zombie/fx_zmb_race_zombie_spawn_cloud");
-	level._effect["meat_stink_camera"] = loadfx("maps/zombie/fx_zmb_meat_stink_camera");
-	level._effect["meat_stink_torso"] = loadfx("maps/zombie/fx_zmb_meat_stink_torso");
+	level._effect[ "meat_impact" ] = loadfx( "maps/zombie/fx_zmb_meat_impact" );
+	level._effect[ "spawn_cloud" ] = loadfx( "maps/zombie/fx_zmb_race_zombie_spawn_cloud" );
+	level._effect[ "meat_stink_camera" ] = loadfx( "maps/zombie/fx_zmb_meat_stink_camera" );
+	level._effect[ "meat_stink_torso" ] = loadfx( "maps/zombie/fx_zmb_meat_stink_torso" );
 	include_powerup("meat_stink");
-	maps/mp/zombies/_zm_powerups::add_zombie_powerup("meat_stink", "t6_wpn_zmb_meat_world", &"ZOMBIE_POWERUP_MAX_AMMO", ::func_should_drop_meat, 0, 0, 0);
+	maps/mp/zombies/_zm_powerups::add_zombie_powerup( "meat_stink", "t6_wpn_zmb_meat_world", &"ZOMBIE_POWERUP_MAX_AMMO", ::func_should_drop_meat, 0, 0, 0 );
 	setmatchtalkflag( "DeadChatWithDead", 1 );
 	setmatchtalkflag( "DeadChatWithTeam", 1 );
 	setmatchtalkflag( "DeadHearTeamLiving", 1 );
@@ -153,7 +153,7 @@ postinit_func() //checked matches cerberus output
 
 func_should_drop_meat() //checked matches cerberus output
 {
-	if(minigun_no_drop())
+	if ( minigun_no_drop() )
 	{
 		return 0;
 	}
@@ -163,14 +163,14 @@ func_should_drop_meat() //checked matches cerberus output
 minigun_no_drop() //checked matches cerberus output
 {
 	players = get_players();
-	for(i = 0; i < players.size; i++)
+	for ( i = 0; i < players.size; i++ )
 	{
-		if(players[i].ignoreme == 1)
+		if ( players[ i ].ignoreme == 1 )
 		{
 			return 1;
 		}
 	}
-	if(isdefined(level.meat_on_ground) && level.meat_on_ground)
+	if ( is_true( level.meat_on_ground) )
 	{
 		return 1;
 	}
@@ -184,7 +184,7 @@ grief_game_end_check_func() //checked matches cerberus output
 
 player_prevent_damage( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime ) //checked matches cerberus output
 {
-	if ( isDefined( eattacker ) && isplayer( eattacker ) && self != eattacker && !eattacker hasperk( "specialty_noname" ) && isDefined( self.is_zombie ) && !self.is_zombie )
+	if ( isDefined( eattacker ) && isplayer( eattacker ) && self != eattacker && !eattacker hasperk( "specialty_noname" ) && !is_true( self.is_zombie ))
 	{
 		return 1;
 	}
@@ -255,12 +255,12 @@ kill_start_chest() //checked matches cerberus output
 	start_chest maps/mp/zombies/_zm_magicbox::hide_chest();
 }
 
-meat_stink_powerup_grab(powerup, who) //checked matches cerberus output
+meat_stink_powerup_grab( powerup, who ) //checked matches cerberus output
 {
-	switch(powerup.powerup_name)
+	switch ( powerup.powerup_name )
 	{
 		case "meat_stink":
-			level thread meat_stink(who);
+			level thread meat_stink( who );
 			break;
 	}
 }
@@ -269,56 +269,56 @@ meat_stink(who) //checked matches cerberus output
 {
 	weapons = who getweaponslist();
 	has_meat = 0;
-	foreach(weapon in weapons)
+	foreach ( weapon in weapons )
 	{
-		if(weapon == "item_meat_zm")
+		if ( weapon == "item_meat_zm" )
 		{
 			has_meat = 1;
 		}
 	}
-	if(has_meat)
+	if ( has_meat )
 	{
 		return;
 	}
 	who.pre_meat_weapon = who getcurrentweapon();
-	level notify("meat_grabbed");
-	who notify("meat_grabbed");
-	who playsound("zmb_pickup_meat");
+	level notify( "meat_grabbed" );
+	who notify( "meat_grabbed" );
+	who playsound( "zmb_pickup_meat" );
 	who increment_is_drinking();
-	who giveweapon("item_meat_zm");
-	who switchtoweapon("item_meat_zm");
-	who setweaponammoclip("item_meat_zm", 1);
+	who giveweapon( "item_meat_zm" );
+	who switchtoweapon( "item_meat_zm" );
+	who setweaponammoclip( "item_meat_zm", 1 );
 }
 
 meat_stink_on_ground(position_to_play) //checked matches cerberus output
 {
 	level.meat_on_ground = 1;
-	attractor_point = spawn("script_model", position_to_play);
-	attractor_point setmodel("tag_origin");
-	attractor_point playsound("zmb_land_meat");
-	wait(0.2);
-	playfxontag(level._effect["meat_stink_torso"], attractor_point, "tag_origin");
-	attractor_point playloopsound("zmb_meat_flies");
-	attractor_point create_zombie_point_of_interest(1536, 32, 10000);
+	attractor_point = spawn( "script_model", position_to_play );
+	attractor_point setmodel( "tag_origin" );
+	attractor_point playsound( "zmb_land_meat" );
+	wait 0.2 ;
+	playfxontag( level._effect[ "meat_stink_torso" ], attractor_point, "tag_origin" );
+	attractor_point playloopsound( "zmb_meat_flies" );
+	attractor_point create_zombie_point_of_interest( 1536, 32, 10000 );
 	attractor_point.attract_to_origin = 1;
-	attractor_point thread create_zombie_point_of_interest_attractor_positions(4, 45);
+	attractor_point thread create_zombie_point_of_interest_attractor_positions( 4, 45 );
 	attractor_point thread maps/mp/zombies/_zm_weap_cymbal_monkey::wait_for_attractor_positions_complete();
-	attractor_point delay_thread(15, ::self_delete);
-	wait(16);
+	attractor_point delay_thread( 15, ::self_delete );
+	wait 16 ;
 	level.meat_on_ground = undefined;
 }
 
-meat_bounce_override(pos, normal, ent) //checked matches cerberus output
+meat_bounce_override( pos, normal, ent ) //checked matches cerberus output
 {
-	if(isdefined(ent) && isplayer(ent))
+	if ( isdefined( ent ) && isplayer( ent ) )
 	{
-		if(!ent maps/mp/zombies/_zm_laststand::player_is_in_laststand())
+		if ( !ent maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 		{
-			level thread meat_stink_player(ent);
-			if(isdefined(self.owner))
+			level thread meat_stink_player( ent );
+			if(isdefined( self.owner ) )
 			{
-				maps/mp/_demo::bookmark("zm_player_meat_stink", GetTime(), ent, self.owner, 0, self);
-				self.owner maps/mp/zombies/_zm_stats::increment_client_stat("contaminations_given");
+				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), ent, self.owner, 0, self );
+				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
 			}
 		}
 	}
@@ -330,66 +330,66 @@ meat_bounce_override(pos, normal, ent) //checked matches cerberus output
 		player_index = 0;
 		while ( player_index < players.size )
 		{
-			player_to_check = players[player_index];
-			if(self.owner == player_to_check)
+			player_to_check = players[ player_index ];
+			if ( self.owner == player_to_check )
 			{
 				player_index++;
 				continue;
 			}
-			if(player_to_check maps/mp/zombies/_zm_laststand::player_is_in_laststand())
+			if ( player_to_check maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 			{
 				player_index++;
 				continue;
 			}
-			distsq = distancesquared(pos, player_to_check.origin);
-			if(distsq < closest_player_dist)
+			distsq = distancesquared( pos, player_to_check.origin );
+			if ( distsq < closest_player_dist )
 			{
 				closest_player = player_to_check;
 				closest_player_dist = distsq;
 			}
 			player_index++;
 		}
-		if(isdefined(closest_player))
+		if ( isdefined( closest_player ) )
 		{
-			level thread meat_stink_player(closest_player);
-			if(isdefined(self.owner))
+			level thread meat_stink_player( closest_player );
+			if ( isdefined( self.owner ) )
 			{
-				maps/mp/_demo::bookmark("zm_player_meat_stink", GetTime(), closest_player, self.owner, 0, self);
-				self.owner maps/mp/zombies/_zm_stats::increment_client_stat("contaminations_given");
+				maps/mp/_demo::bookmark( "zm_player_meat_stink", GetTime(), closest_player, self.owner, 0, self );
+				self.owner maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_given" );
 			}
 		}
 		else
 		{
-			valid_poi = check_point_in_enabled_zone(pos, undefined, undefined);
-			if(valid_poi)
+			valid_poi = check_point_in_enabled_zone( pos, undefined, undefined );
+			if ( valid_poi )
 			{
 				self hide();
-				level thread meat_stink_on_ground(self.origin);
+				level thread meat_stink_on_ground( self.origin );
 			}
 		}
-		playfx(level._effect["meat_impact"], self.origin);
+		playfx( level._effect[ "meat_impact" ], self.origin );
 	}
 	self delete();
 }
 
-meat_stink_player(who) //checked matches cerberus output
+meat_stink_player( who ) //checked matches cerberus output
 {
-	level notify("new_meat_stink_player");
-	level endon("new_meat_stink_player");
+	level notify( "new_meat_stink_player" );
+	level endon( "new_meat_stink_player" );
 	who.ignoreme = 0;
 	players = get_players();
-	foreach(player in players)
+	foreach ( player in players )
 	{
 		player thread meat_stink_player_cleanup();
-		if(player != who)
+		if ( player != who ) 
 		{
 			player.ignoreme = 1;
 		}
 	}
 	who thread meat_stink_player_create();
-	who waittill_any_or_timeout(30, "disconnect", "player_downed", "bled_out");
+	who waittill_any_or_timeout( 30, "disconnect", "player_downed", "bled_out" );
 	players = get_players();
-	foreach(player in players)
+	foreach ( player in players )
 	{
 		player thread meat_stink_player_cleanup();
 		player.ignoreme = 0;
@@ -398,26 +398,26 @@ meat_stink_player(who) //checked matches cerberus output
 
 meat_stink_player_create() //checked matches cerberus output
 {
-	self maps/mp/zombies/_zm_stats::increment_client_stat("contaminations_received");
-	self endon("disconnect");
-	self endon("death");
+	self maps/mp/zombies/_zm_stats::increment_client_stat( "contaminations_received" );
+	self endon( "disconnect" );
+	self endon( "death" );
 	tagname = "J_SpineLower";
-	self.meat_stink_3p = spawn("script_model", self gettagorigin(tagname));
-	self.meat_stink_3p setmodel("tag_origin");
-	self.meat_stink_3p linkto(self, tagname);
+	self.meat_stink_3p = spawn( "script_model", self gettagorigin( tagname ) );
+	self.meat_stink_3p setmodel( "tag_origin" );
+	self.meat_stink_3p linkto( self, tagname );
 	wait 0.5;
-	playfxontag(level._effect["meat_stink_torso"], self.meat_stink_3p, "tag_origin");
-	self setclientfieldtoplayer("meat_stink", 1);
+	playfxontag( level._effect[ "meat_stink_torso" ], self.meat_stink_3p, "tag_origin" );
+	self setclientfieldtoplayer( "meat_stink", 1 );
 }
 
 meat_stink_player_cleanup() //checked matches cerberus output
 {
-	if(isdefined(self.meat_stink_3p))
+	if ( isdefined( self.meat_stink_3p ) )
 	{
 		self.meat_stink_3p unlink();
 		self.meat_stink_3p delete();
 	}
-	self setclientfieldtoplayer("meat_stink", 0);
+	self setclientfieldtoplayer( "meat_stink", 0 );
 }
 
 door_close_zombie_think() //checked changed to match cerberus output

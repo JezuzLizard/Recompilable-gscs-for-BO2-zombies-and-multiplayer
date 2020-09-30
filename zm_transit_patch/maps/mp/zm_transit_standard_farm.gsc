@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/gametypes_zm/_zm_gametype;
@@ -7,11 +8,11 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 }
 
-farm_treasure_chest_init()
+farm_treasure_chest_init() //checked matches cerberus output
 {
 	chest1 = getstruct( "farm_chest", "script_noteworthy" );
 	level.chests = [];
@@ -19,7 +20,7 @@ farm_treasure_chest_init()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "farm_chest" );
 }
 
-main()
+main() //checked matches cerberus output
 {
 	maps/mp/gametypes_zm/_zm_gametype::setup_standard_objects( "farm" );
 	init_standard_farm();
@@ -41,15 +42,12 @@ main()
 	wait_network_frame();
 }
 
-init_standard_farm()
+init_standard_farm() //checked partially changed to match cerberus output see info.md No. 1, No. 2
 {
 	maps/mp/zombies/_zm_game_module::set_current_game_module( level.game_module_standard_index );
 	ents = getentarray();
-	_a77 = ents;
-	_k77 = getFirstArrayKey( _a77 );
-	while ( isDefined( _k77 ) )
+	foreach ( ent in ents )
 	{
-		ent = _a77[ _k77 ];
 		if ( isDefined( ent.script_flag ) && ent.script_flag == "OnFarm_enter" )
 		{
 			ent delete();
@@ -60,16 +58,12 @@ init_standard_farm()
 			{
 				tokens = strtok( ent.script_parameters, " " );
 				remove = 0;
-				_a88 = tokens;
-				_k88 = getFirstArrayKey( _a88 );
-				while ( isDefined( _k88 ) )
+				for ( i = 0; i < tokens.size; i++ )
 				{
-					token = _a88[ _k88 ];
-					if ( token == "standard_remove" )
+					if ( tokens[ i ] == "standard_remove" )
 					{
 						remove = 1;
 					}
-					_k88 = getNextArrayKey( _a88, _k88 );
 				}
 				if ( remove )
 				{
@@ -77,11 +71,10 @@ init_standard_farm()
 				}
 			}
 		}
-		_k77 = getNextArrayKey( _a77, _k77 );
 	}
 }
 
-enemy_location_override( zombie, enemy )
+enemy_location_override( zombie, enemy ) //checked matches cerberus output
 {
 	location = enemy.origin;
 	if ( is_true( self.reroute ) )
