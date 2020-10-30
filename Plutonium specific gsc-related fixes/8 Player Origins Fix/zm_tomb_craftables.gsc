@@ -336,7 +336,7 @@ craftable_add_glow_fx() //checked partially changed to match cerberus output
 				*/
 				return;
 			}
-			for ( i = 0; i < s_craftable.a_piecestubs.size; i++ )
+ 			foreach ( s_piece in s_craftable.a_piecestubs ) //replaced with a foreach to get each s_piece, which is needed for craftable_model_attach_glow to work.
 			{
 				if ( s_piece.piecename == "gem" )
 				{
