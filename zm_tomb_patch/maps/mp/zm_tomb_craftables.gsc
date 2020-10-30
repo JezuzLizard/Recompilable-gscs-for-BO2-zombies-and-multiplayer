@@ -418,9 +418,11 @@ craftable_add_glow_fx() //checked partially changed to match cerberus output
 				*/
 				return;
 			}
-			foreach ( s_piece in s_craftable.a_piecestubs ) //replaced with a foreach to get each s_piece, which is needed for craftable_model_attach_glow to work.
+			piecestubs_array = s_craftable.a_piecestubs;
+			piecestubs_key = getFirstArrayKey( piecestubs_array );
+			while ( isDefined( piecestubs_key ) )
 			{
-				if ( s_piece.piecename == "gem" )
+				s_piece = piecestubs_array[ piecestubs_key ];				if ( s_piece.piecename == "gem" )
 				{
 				}
 				else
@@ -432,10 +434,11 @@ craftable_add_glow_fx() //checked partially changed to match cerberus output
 					}
 					else
 					{
-						do_glow_now = 0;
+						do_glow_now = 1;
 					}
 					s_piece.piecespawn.model thread craftable_model_attach_glow( n_elem, do_glow_now );
 				}
+				piecestubs_key = getNextArrayKey( piecestubs_array, piecestubs_key );
 			}
 		}
 	}
