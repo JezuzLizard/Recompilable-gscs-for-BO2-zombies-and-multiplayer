@@ -336,9 +336,11 @@ craftable_add_glow_fx() //checked partially changed to match cerberus output
 				*/
 				return;
 			}
-			for ( i = 0; i < s_craftable.a_piecestubs.size; i++ )
+			piecestubs_array = s_craftable.a_piecestubs;
+			piecestubs_key = getFirstArrayKey( piecestubs_array );
+			while ( isDefined( piecestubs_key ) )
 			{
-				if ( s_piece.piecename == "gem" )
+				s_piece = piecestubs_array[ piecestubs_key ];				if ( s_piece.piecename == "gem" )
 				{
 				}
 				else
@@ -354,6 +356,7 @@ craftable_add_glow_fx() //checked partially changed to match cerberus output
 					}
 					s_piece.piecespawn.model thread craftable_model_attach_glow( n_elem, do_glow_now );
 				}
+				piecestubs_key = getNextArrayKey( piecestubs_array, piecestubs_key );
 			}
 		}
 	}
