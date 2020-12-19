@@ -24,6 +24,7 @@ patch_zm/maps/mp/zombies/_zm_net.gsc
 patch_zm/maps/mp/zombies/_zm_perk_electric_cherry.gsc
 patch_zm/maps/mp/zombies/_zm_perks.gsc
 patch_zm/maps/mp/zombies/_zm_pers_upgrades.gsc
+patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 patch_zm/maps/mp/zombies/_zm_pers_upgrades_system.gsc
 patch_zm/maps/mp/zombies/_zm_powerups.gsc
 patch_zm/maps/mp/zombies/_zm_server_throttle.gsc
@@ -47,7 +48,6 @@ patch_zm/maps/mp/zombies/_zm_utility.gsc
 ```
 ### The following scripts compile but cause a minidump or other severe error:
 ```
-patch_zm/maps/mp/zombies/_zm_pers_upgrades_functions.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
