@@ -2830,7 +2830,7 @@ do_zombie_spawn() //checked changed to match cerberus output
 					i++;
 					continue;
 				}
-				else if ( isDefined( level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int ) && level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int != self.script_int )
+				if ( isDefined( level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int ) && level.zones[ level.zombie_spawn_locations[ i ].zone_name ].script_int != self.script_int )
 				{
 					i++;
 					continue;
