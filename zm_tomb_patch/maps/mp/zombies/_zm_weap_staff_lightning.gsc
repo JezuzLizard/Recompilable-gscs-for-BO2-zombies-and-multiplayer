@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/animscripts/shared;
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_powerups;
@@ -9,7 +10,7 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level._effect[ "lightning_miss" ] = loadfx( "weapon/zmb_staff/fx_zmb_staff_elec_ug_impact_miss" );
 	level._effect[ "lightning_arc" ] = loadfx( "weapon/zmb_staff/fx_zmb_staff_elec_trail_bolt_cheap" );
@@ -24,24 +25,24 @@ init()
 	maps/mp/zombies/_zm_spawner::register_zombie_death_event_callback( ::staff_lightning_death_event );
 }
 
-precache()
+precache() //checked matches cerberus output
 {
 	precacheitem( "staff_lightning_melee_zm" );
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
 	self thread onplayerspawned();
 }
 
-onplayerspawned()
+onplayerspawned() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self thread watch_staff_lightning_fired();
 	self thread watch_staff_usage();
 }
 
-watch_staff_lightning_fired()
+watch_staff_lightning_fired() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	while ( 1 )
@@ -56,7 +57,7 @@ watch_staff_lightning_fired()
 	}
 }
 
-lightning_ball_wait( n_lifetime_after_move )
+lightning_ball_wait( n_lifetime_after_move ) //checked matches cerberus output
 {
 	level endon( "lightning_ball_created" );
 	self waittill( "movedone" );
@@ -64,7 +65,7 @@ lightning_ball_wait( n_lifetime_after_move )
 	return 1;
 }
 
-staff_lightning_position_source( v_detonate, v_angles, str_weapon )
+staff_lightning_position_source( v_detonate, v_angles, str_weapon ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	level notify( "lightning_ball_created" );
@@ -92,9 +93,11 @@ staff_lightning_position_source( v_detonate, v_angles, str_weapon )
 	n_movetime_s = n_dist / staff_lightning_ball_speed;
 	n_leftover_time = n_max_movetime_s - n_movetime_s;
 	e_ball_fx thread staff_lightning_ball_kill_zombies( self );
+	/*
 /#
 	e_ball_fx thread puzzle_debug_position( "X", ( 175, 0, 255 ) );
 #/
+	*/
 	e_ball_fx moveto( v_end, n_movetime_s );
 	finished_playing = e_ball_fx lightning_ball_wait( n_leftover_time );
 	e_ball_fx notify( "stop_killing" );
@@ -109,58 +112,50 @@ staff_lightning_position_source( v_detonate, v_angles, str_weapon )
 	}
 }
 
-staff_lightning_ball_kill_zombies( e_attacker )
+staff_lightning_ball_kill_zombies( e_attacker ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "stop_killing" );
 	while ( 1 )
 	{
 		a_zombies = staff_lightning_get_valid_targets( e_attacker, self.origin );
-		while ( isDefined( a_zombies ) )
+		if ( isDefined( a_zombies ) )
 		{
-			_a173 = a_zombies;
-			_k173 = getFirstArrayKey( _a173 );
-			while ( isDefined( _k173 ) )
+			foreach ( zombie in a_zombies )
 			{
-				zombie = _a173[ _k173 ];
 				if ( staff_lightning_is_target_valid( zombie ) )
 				{
 					e_attacker thread staff_lightning_arc_fx( self, zombie );
-					wait 0,2;
+					wait 0.2;
 				}
-				_k173 = getNextArrayKey( _a173, _k173 );
 			}
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-staff_lightning_get_valid_targets( player, v_source )
+staff_lightning_get_valid_targets( player, v_source ) //checked changed to match cerberus output
 {
 	player endon( "disconnect" );
 	a_enemies = [];
 	a_zombies = getaiarray( level.zombie_team );
 	a_zombies = get_array_of_closest( v_source, a_zombies, undefined, undefined, self.n_range );
-	while ( isDefined( a_zombies ) )
+	if ( isDefined( a_zombies ) )
 	{
-		_a200 = a_zombies;
-		_k200 = getFirstArrayKey( _a200 );
-		while ( isDefined( _k200 ) )
+		foreach ( ai_zombie in a_zombies )
 		{
-			ai_zombie = _a200[ _k200 ];
 			if ( staff_lightning_is_target_valid( ai_zombie ) )
 			{
 				a_enemies[ a_enemies.size ] = ai_zombie;
 			}
-			_k200 = getNextArrayKey( _a200, _k200 );
 		}
 	}
 	return a_enemies;
 }
 
-staff_lightning_get_shot_range( n_charge )
+staff_lightning_get_shot_range( n_charge ) //checked matches cerberus output
 {
-	switch( n_charge )
+	switch ( n_charge )
 	{
 		case 3:
 			return 1200;
@@ -169,7 +164,7 @@ staff_lightning_get_shot_range( n_charge )
 	}
 }
 
-get_lightning_blast_range( n_charge )
+get_lightning_blast_range( n_charge ) //checked matches cerberus output
 {
 	switch( n_charge )
 	{
@@ -187,13 +182,13 @@ get_lightning_blast_range( n_charge )
 	return n_range;
 }
 
-get_lightning_ball_damage_per_sec( n_charge )
+get_lightning_ball_damage_per_sec( n_charge ) //checked matches cerberus output
 {
 	if ( !isDefined( n_charge ) )
 	{
 		return 2500;
 	}
-	switch( n_charge )
+	switch ( n_charge )
 	{
 		case 3:
 			return 3500;
@@ -202,7 +197,7 @@ get_lightning_ball_damage_per_sec( n_charge )
 	}
 }
 
-staff_lightning_is_target_valid( ai_zombie )
+staff_lightning_is_target_valid( ai_zombie ) //checked matches cerberus output
 {
 	if ( !isDefined( ai_zombie ) )
 	{
@@ -219,7 +214,7 @@ staff_lightning_is_target_valid( ai_zombie )
 	return 1;
 }
 
-staff_lightning_ball_damage_over_time( e_source, e_target, e_attacker )
+staff_lightning_ball_damage_over_time( e_source, e_target, e_attacker ) //checked changed at own discretion
 {
 	e_attacker endon( "disconnect" );
 	e_target setclientfield( "lightning_impact_fx", 1 );
@@ -227,7 +222,7 @@ staff_lightning_ball_damage_over_time( e_source, e_target, e_attacker )
 	n_range_sq = e_source.n_range * e_source.n_range;
 	e_target.is_being_zapped = 1;
 	e_target setclientfield( "lightning_arc_fx", 1 );
-	wait 0,5;
+	wait 0.5;
 	if ( isDefined( e_source ) )
 	{
 		if ( !isDefined( e_source.n_damage_per_sec ) )
@@ -242,28 +237,24 @@ staff_lightning_ball_damage_over_time( e_source, e_target, e_attacker )
 		wait 1;
 		if ( !isDefined( e_source ) || !isalive( e_target ) )
 		{
+			continue;
 		}
-		else
+		n_dist_sq = distancesquared( e_source.origin, e_target.origin );
+		if ( n_dist_sq > n_range_sq )
 		{
-			n_dist_sq = distancesquared( e_source.origin, e_target.origin );
-			if ( n_dist_sq > n_range_sq )
+			continue;
+		}
+		if ( isalive( e_target ) && isDefined( e_source ) )
+		{
+			instakill_on = e_attacker maps/mp/zombies/_zm_powerups::is_insta_kill_active();
+			if ( n_damage_per_pulse < e_target.health && !instakill_on )
 			{
-			}
-			else if ( isalive( e_target ) && isDefined( e_source ) )
-			{
-				instakill_on = e_attacker maps/mp/zombies/_zm_powerups::is_insta_kill_active();
-				if ( n_damage_per_pulse < e_target.health && !instakill_on )
-				{
-					e_target do_damage_network_safe( e_attacker, n_damage_per_pulse, e_source.str_weapon, "MOD_RIFLE_BULLET" );
-				}
-				else
-				{
-					e_target thread zombie_shock_eyes();
-					e_target thread staff_lightning_kill_zombie( e_attacker, e_source.str_weapon );
-				}
+				e_target do_damage_network_safe( e_attacker, n_damage_per_pulse, e_source.str_weapon, "MOD_RIFLE_BULLET" );
 			}
 			else
 			{
+				e_target thread zombie_shock_eyes();
+				e_target thread staff_lightning_kill_zombie( e_attacker, e_source.str_weapon );
 			}
 		}
 	}
@@ -274,7 +265,7 @@ staff_lightning_ball_damage_over_time( e_source, e_target, e_attacker )
 	}
 }
 
-staff_lightning_arc_fx( e_source, ai_zombie )
+staff_lightning_arc_fx( e_source, ai_zombie ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	if ( !isDefined( ai_zombie ) )
@@ -291,7 +282,7 @@ staff_lightning_arc_fx( e_source, ai_zombie )
 	}
 }
 
-staff_lightning_kill_zombie( player, str_weapon )
+staff_lightning_kill_zombie( player, str_weapon ) //checked didn't change to match cerberus output
 {
 	player endon( "disconnect" );
 	if ( !isalive( self ) )
@@ -322,7 +313,7 @@ staff_lightning_kill_zombie( player, str_weapon )
 	player maps/mp/zombies/_zm_score::player_add_points( "death", "", "" );
 }
 
-staff_lightning_death_fx()
+staff_lightning_death_fx() //checked matches cerberus output
 {
 	if ( isDefined( self ) )
 	{
@@ -332,7 +323,7 @@ staff_lightning_death_fx()
 	}
 }
 
-zombie_shock_eyes_network_safe( fx, entity, tag )
+zombie_shock_eyes_network_safe( fx, entity, tag ) //checked matches cerberus output
 {
 	if ( network_entity_valid( entity ) )
 	{
@@ -343,9 +334,9 @@ zombie_shock_eyes_network_safe( fx, entity, tag )
 	}
 }
 
-zombie_shock_eyes()
+zombie_shock_eyes() //checked changed at own discretion
 {
-	if ( isDefined( self.head_gibbed ) && self.head_gibbed )
+	if ( is_true( self.head_gibbed ) )
 	{
 		return;
 	}
@@ -353,7 +344,7 @@ zombie_shock_eyes()
 	maps/mp/zombies/_zm_net::network_choke_action( "shock_eyes", ::zombie_shock_eyes_network_safe, level._effect[ "tesla_shock_eyes" ], self, "J_Eyeball_LE" );
 }
 
-staff_lightning_zombie_damage_response( mod, hit_location, hit_origin, player, amount )
+staff_lightning_zombie_damage_response( mod, hit_location, hit_origin, player, amount ) //checked matches cerberus output
 {
 	if ( self is_staff_lightning_damage() && self.damagemod != "MOD_RIFLE_BULLET" )
 	{
@@ -362,15 +353,16 @@ staff_lightning_zombie_damage_response( mod, hit_location, hit_origin, player, a
 	return 0;
 }
 
-is_staff_lightning_damage()
+is_staff_lightning_damage() //checked partially changed to match cerberus output see info.md
 {
-	if ( isDefined( self.damageweapon ) && self.damageweapon != "staff_lightning_zm" && self.damageweapon == "staff_lightning_upgraded_zm" )
+	if ( isDefined( self.damageweapon ) && self.damageweapon == "staff_lightning_zm"  && !is_true( self.set_beacon_damage ) || isDefined( self.damageweapon ) && self.damageweapon == "staff_lightning_upgraded_zm"  && !is_true( self.set_beacon_damage ) )
 	{
-		return !is_true( self.set_beacon_damage );
+		return 1;
 	}
+	return 0;
 }
 
-staff_lightning_death_event()
+staff_lightning_death_event() //checked didn't change to match cerberus output
 {
 	if ( is_staff_lightning_damage() && self.damagemod != "MOD_MELEE" )
 	{
@@ -413,7 +405,7 @@ staff_lightning_death_event()
 	}
 }
 
-stun_zombie()
+stun_zombie() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( is_true( self.is_mechz ) )
@@ -442,3 +434,4 @@ stun_zombie()
 	self.ignoreall = 0;
 	self.is_electrocuted = 0;
 }
+
