@@ -1,13 +1,3 @@
-/*
-*	 Black Ops 2 - GSC Studio by iMCSx
-*
-*	 Creator : JezuzLizard
-*	 Project : _zm_ai_dogs
-*    Mode : Zombies
-*	 Date : 2020/03/22 - 12:33:00	
-*
-*/	
-
 #include maps/mp/zombies/_zm_net;
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/zombies/_zm_score;
