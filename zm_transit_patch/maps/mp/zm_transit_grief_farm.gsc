@@ -40,9 +40,11 @@ main() //checked matches cerberus output
 	wait_network_frame();
 	level notify( "sleight_on" );
 	wait_network_frame();
+	/*
 /#
 	level thread maps/mp/gametypes_zm/zmeat::spawn_level_meat_manager();
 #/
+	*/
 }
 
 init_standard_farm() //checked partially changed to match cerberus output see info.md No. 1, No. 2

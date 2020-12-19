@@ -37,9 +37,11 @@ main() //checked changed to match cerberus output
 	}
 	level thread maps/mp/zombies/_zm_perks::perk_machine_removal( "specialty_quickrevive", "p_glo_tools_chest_tall" );
 	maps/mp/zombies/_zm_game_module::turn_power_on_and_open_doors();
+	/*
 /#
 	level thread maps/mp/gametypes_zm/zmeat::spawn_level_meat_manager();
 #/
+	*/
 }
 
 enemy_location_override( zombie, enemy ) //checked matches cerberus output
