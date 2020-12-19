@@ -20,14 +20,14 @@ register_game_module( index, module_name, pre_init_func, post_init_func, pre_ini
 			i++;
 			continue;
 		}
-			if ( isDefined( level._game_modules[ i ].index ) && level._game_modules[ i ].index == index )
-			{
-			/*
+		if ( isDefined( level._game_modules[ i ].index ) && level._game_modules[ i ].index == index )
+		{
+		/*
 /#
-				assert( level._game_modules[ i ].index != index, "A Game module is already registered for index (" + index + ")" );
+			assert( level._game_modules[ i ].index != index, "A Game module is already registered for index (" + index + ")" );
 #/
-			*/
-			}
+		*/
+		}
 		i++;
 	}
 	level._game_modules[ level._num_registered_game_modules ] = spawnstruct();
@@ -132,20 +132,16 @@ turn_power_on_and_open_doors() //checked changed at own discretion
 	flag_set( "power_on" );
 	level setclientfield( "zombie_power_on", 1 );
 	zombie_doors = getentarray( "zombie_door", "targetname" );
-	i = 0;
-	while ( i < zombie_doors.size )
+	foreach ( door in zombie_doors )
 	{
 		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "electric_door" )
 		{
 			door notify( "power_on" );
-			i++;
-			continue;
 		}
-		if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
+		else if ( isDefined( door.script_noteworthy ) && door.script_noteworthy == "local_electric_door" )
 		{
 			door notify( "local_power_on" );
 		}
-		i++;
 	}
 }
 
