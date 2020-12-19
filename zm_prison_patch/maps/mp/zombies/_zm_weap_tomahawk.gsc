@@ -188,7 +188,7 @@ tomahawk_thrown( grenade ) //checked changed to match cerberus output
 			}
 		}
 	}
-	else if ( isDefined( a_powerups ) && a_powerups.size > 0 )
+	if ( isDefined( a_powerups ) && a_powerups.size > 0 )
 	{
 		m_tomahawk = tomahawk_spawn( grenade_origin, n_grenade_charge_power );
 		m_tomahawk.n_grenade_charge_power = n_grenade_charge_power;
