@@ -116,7 +116,7 @@ game_objects_allowed( mode, location ) //checked partially changed to match cerb
 		{
 			isallowed = maps/mp/gametypes_zm/_gameobjects::entity_is_allowed( entities[ i ], allowed );
 			isvalidlocation = maps/mp/gametypes_zm/_gameobjects::location_is_allowed( entities[ i ], location );
-			if ( !isallowed || !isvalidlocation && is_classic() )
+			if ( !isallowed || !isvalidlocation && !is_classic() )
 			{
 				if ( isDefined( entities[ i ].spawnflags ) && entities[ i ].spawnflags == 1 )
 				{
@@ -330,9 +330,9 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 	}
 	if ( isplayer( eattacker ) && isDefined( eattacker._encounters_team ) && eattacker._encounters_team != self._encounters_team )
 	{
-		if ( isDefined( self.hasriotshield ) && self.hasriotshield && isDefined( vdir ) )
+		if ( is_true( self.hasriotshield ) && isDefined( vdir ) )
 		{
-			if ( isDefined( self.hasriotshieldequipped ) && self.hasriotshieldequipped )
+			if ( is_true( self.hasriotshieldequipped ) )
 			{
 				if ( self maps/mp/zombies/_zm::player_shield_facing_attacker( vdir, 0.2 ) && isDefined( self.player_shield_apply_damage ) )
 				{
@@ -489,7 +489,7 @@ rungametypemain( gamemode, mode_main_func, use_round_logic ) //checked matches c
 	}
 	if ( isDefined( mode_main_func ) )
 	{
-		if ( isDefined( use_round_logic ) && use_round_logic )
+		if ( is_true( use_round_logic ) )
 		{
 			level thread round_logic( mode_main_func );
 		}
@@ -550,7 +550,7 @@ round_logic( mode_logic_func ) //checked matches cerberus output
 		score = get_gamemode_var( "team_2_score" );
 		set_gamemode_var( "team_2_score", score + 1 );
 	}
-	if ( isDefined( is_encounter() ) && is_encounter() )
+	if ( is_true( is_encounter() ) )
 	{
 		[[ level._setteamscore ]]( "allies", get_gamemode_var( "team_2_score" ) );
 		[[ level._setteamscore ]]( "axis", get_gamemode_var( "team_1_score" ) );
@@ -577,7 +577,7 @@ round_logic( mode_logic_func ) //checked matches cerberus output
 		}
 	}
 	level.match_is_ending = 1;
-	if ( isDefined( is_encounter() ) && is_encounter() )
+	if ( is_true( is_encounter() ) )
 	{
 		matchwonteam = "";
 		if ( get_gamemode_var( "team_1_score" ) > get_gamemode_var( "team_2_score" ) )
@@ -742,7 +742,7 @@ createtimer() //checked matches cerberus output
 	elem.color = ( 1, 1, 1 );
 	elem.alpha = 2;
 	elem thread maps/mp/gametypes_zm/_hud::fontpulseinit();
-	if ( isDefined( level.timercountdown ) && level.timercountdown )
+	if ( is_true( level.timercountdown ) )
 	{
 		elem settenthstimer( level.timelimit * 60 );
 	}
@@ -757,7 +757,7 @@ createtimer() //checked matches cerberus output
 
 revive_laststand_players() //checked changed to match cerberus output
 {
-	if ( isDefined( level.match_is_ending ) && level.match_is_ending )
+	if ( is_true( level.match_is_ending ) )
 	{
 		return;
 	}
@@ -1103,12 +1103,12 @@ displayroundend( round_winner ) //checked changed to match cerberus output
 	players = get_players();
 	foreach(player in players)
 	{
-		player thread module_hud_round_end(round_winner);
-		if(isdefined(player._team_hud) && isdefined(player._team_hud["team"]))
+		player thread module_hud_round_end( round_winner );
+		if ( isdefined( player._team_hud ) && isdefined( player._team_hud[ "team" ] ) )
 		{
-			player thread team_icon_winner(player._team_hud["team"]);
+			player thread team_icon_winner( player._team_hud[ "team" ] );
 		}
-		player freeze_player_controls(1);
+		player freeze_player_controls( 1 );
 	}
 	level thread maps/mp/zombies/_zm_audio::change_zombie_music( "round_end" );
 	level thread maps/mp/zombies/_zm_audio::zmbvoxcrowdonteam( "clap" );
@@ -1251,7 +1251,7 @@ startnextzmround( winner ) //checked matches cerberus output
 			setmatchtalkflag( "KillersHearVictim", level.voip.killershearvictim );
 			game[ "state" ] = "playing";
 			level.allowbattlechatter = getgametypesetting( "allowBattleChatter" );
-			if ( isDefined( level.zm_switchsides_on_roundswitch ) && level.zm_switchsides_on_roundswitch )
+			if ( is_true( level.zm_switchsides_on_roundswitch ) )
 			{
 				set_game_var( "switchedsides", !get_game_var( "switchedsides" ) );
 			}
@@ -1319,7 +1319,7 @@ isonezmround() //checked matches cerberus output
 
 waslastzmround() //checked changed to match cerberus output
 {
-	if ( isDefined( level.forcedend ) && level.forcedend )
+	if ( is_true( level.forcedend ) )
 	{
 		return 1;
 	}
@@ -1394,7 +1394,7 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 	pixbeginevent( "ZSURVIVAL:onSpawnPlayer" );
 	self.usingobj = undefined;
 	self.is_zombie = 0;
-	if ( isDefined( level.custom_spawnplayer ) && isDefined( self.player_initialized ) && self.player_initialized )
+	if ( isDefined( level.custom_spawnplayer ) && is_true( self.player_initialized ) )
 	{
 		self [[ level.custom_spawnplayer ]]();
 		return;
@@ -1474,7 +1474,7 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 	self.zombification_time = 0;
 	self.enabletext = 1;
 	self thread maps/mp/zombies/_zm_blockers::rebuild_barrier_reward_reset();
-	if ( isDefined( level.host_ended_game ) && !level.host_ended_game )
+	if ( !is_true( level.host_ended_game ) )
 	{
 		self freeze_player_controls( 0 );
 		self enableweapons();
@@ -1676,7 +1676,7 @@ menu_onmenuresponse() //checked changed to match cerberus output
 			if ( self issplitscreen() )
 			{
 				level.skipvote = 1;
-				if ( isDefined( level.gameended ) && level.gameended )
+				if ( is_true( level.gameended ) )
 				{
 					self maps/mp/zombies/_zm_laststand::add_weighted_down();
 					self maps/mp/zombies/_zm_stats::increment_client_stat( "deaths" );
@@ -1704,7 +1704,7 @@ menu_onmenuresponse() //checked changed to match cerberus output
 		}
 		if ( response == "endround" )
 		{
-			if ( isDefined( level.gameended ) && level.gameended )
+			if ( is_true( level.gameended ) )
 			{
 				self maps/mp/gametypes_zm/_globallogic::gamehistoryplayerquit();
 				self maps/mp/zombies/_zm_laststand::add_weighted_down();
@@ -1761,7 +1761,7 @@ menu_onmenuresponse() //checked changed to match cerberus output
 menuallieszombies() //checked changed to match cerberus output
 {
 	self maps/mp/gametypes_zm/_globallogic_ui::closemenus();
-	if ( !level.console && level.allow_teamchange == "0" && isDefined( self.hasdonecombat ) && self.hasdonecombat )
+	if ( !level.console && level.allow_teamchange == "0" && is_true( self.hasdonecombat ) )
 	{
 		return;
 	}
