@@ -1,9 +1,11 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zm_alcatraz_sq;
 #include maps/mp/zombies/_zm_craftables;
 #include maps/mp/zombies/_zm_perks;
 #include maps/mp/animscripts/zm_death;
 #include maps/mp/zombies/_zm_weap_riotshield_prison;
 #include maps/mp/zombies/_zm_unitrigger;
+#include maps/mp/animscripts/shared;
 #include maps/mp/zombies/_zm_laststand;
 #include maps/mp/zombies/_zm_ai_basic;
 #include maps/mp/zm_alcatraz_utility;
@@ -11,15 +13,17 @@
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_powerups;
 #include maps/mp/zombies/_zm_audio;
+#include maps/mp/animscripts/zm_shared;
 #include maps/mp/zombies/_zm_spawner;
 #include maps/mp/zombies/_zm_ai_brutus;
 #include maps/mp/animscripts/zm_utility;
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
+#include maps/mp/zombies/_zm_zonemgr;
 #include maps/mp/zombies/_zm_magicbox;
 
-precache()
+precache() //checked matches cerberus output
 {
 	level._effect[ "brutus_flashlight" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_brut_light" );
 	level._effect[ "brutus_spawn" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_brut_spawn" );
@@ -49,7 +53,7 @@ precache()
 	[[ level.custom_brutus_barrier_fx ]]();
 }
 
-init()
+init() //checked changed to match cerberus output
 {
 	level.brutus_spawners = getentarray( "brutus_zombie_spawner", "script_noteworthy" );
 	if ( level.brutus_spawners.size == 0 )
@@ -57,12 +61,10 @@ init()
 		return;
 	}
 	array_thread( level.brutus_spawners, ::add_spawn_function, ::brutus_prespawn );
-	i = 0;
-	while ( i < level.brutus_spawners.size )
+	for ( i = 0; i < level.brutus_spawners.size; i++ )
 	{
 		level.brutus_spawners[ i ].is_enabled = 1;
 		level.brutus_spawners[ i ].script_forcespawn = 1;
-		i++;
 	}
 	level.brutus_spawn_positions = getstructarray( "brutus_location", "script_noteworthy" );
 	level thread setup_interaction_matrix();
@@ -73,7 +75,7 @@ init()
 	level.brutus_last_spawn_round = 0;
 	level.brutus_count = 0;
 	level.brutus_max_count = 1;
-	level.brutus_damage_percent = 0,1;
+	level.brutus_damage_percent = 0.1;
 	level.brutus_helmet_shots = 5;
 	level.brutus_team_points_for_death = 500;
 	level.brutus_player_points_for_death = 250;
@@ -107,7 +109,7 @@ init()
 	{
 		level.brutus_in_grief = 1;
 	}
-	level.brutus_shotgun_damage_mod = 1,5;
+	level.brutus_shotgun_damage_mod = 1.5;
 	level.brutus_custom_goalradius = 48;
 	registerclientfield( "actor", "helmet_off", 9000, 1, "int" );
 	registerclientfield( "actor", "brutus_lock_down", 9000, 1, "int" );
@@ -115,16 +117,18 @@ init()
 	if ( !level.brutus_in_grief )
 	{
 		level thread maps/mp/zombies/_zm_ai_brutus::get_brutus_interest_points();
+		/*
 /#
 		setup_devgui();
 #/
+		*/
 		level.custom_perk_validation = ::check_perk_machine_valid;
 		level.custom_craftable_validation = ::check_craftable_table_valid;
 		level.custom_plane_validation = ::check_plane_valid;
 	}
 }
 
-setup_interaction_matrix()
+setup_interaction_matrix() //checked changed to match cerberus output
 {
 	level.interaction_types = [];
 	level.interaction_types[ "magic_box" ] = spawnstruct();
@@ -208,17 +212,18 @@ setup_interaction_matrix()
 	level.interaction_types[ "blocker" ].spawn_bias = 50;
 	level.interaction_priority = [];
 	interaction_types = getarraykeys( level.interaction_types );
-	i = 0;
-	while ( i < interaction_types.size )
+	for ( i = 0; i < interaction_types.size; i++ )
 	{
 		int_type = interaction_types[ i ];
 		interaction = level.interaction_types[ int_type ];
+		/*
 /#
 		assert( !isDefined( level.interaction_priority[ interaction.priority ] ) );
 #/
+		*/
 		level.interaction_priority[ interaction.priority ] = int_type;
-		i++;
 	}
+	/*
 /#
 	i = 0;
 	while ( i < interaction_types.size )
@@ -227,22 +232,24 @@ setup_interaction_matrix()
 		i++;
 #/
 	}
+	*/
 }
 
-brutus_prespawn()
+brutus_prespawn() //checked matches cerberus output
 {
 }
 
-brutus_spawn_prologue( spawn_pos )
+brutus_spawn_prologue( spawn_pos ) //checked matches cerberus output
 {
 	playsoundatposition( "zmb_ai_brutus_prespawn", spawn_pos.origin );
 	wait 3;
 }
 
-brutus_spawn( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zone_name )
+brutus_spawn( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zone_name ) //checked matches cerberus output
 {
 	level.num_pulls_since_brutus_spawn = 0;
-	self set_zombie_run_cycle( "run" );
+	//self set_zombie_run_cycle( "run" );
+	self set_zombie_run_cycle( "super_sprint" );
 	if ( !isDefined( has_helmet ) )
 	{
 		self.has_helmet = 1;
@@ -307,7 +314,7 @@ brutus_spawn( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zon
 	self thread maps/mp/zombies/_zm_spawner::enemy_death_detection();
 	if ( isDefined( zone_name ) && zone_name == "zone_golden_gate_bridge" )
 	{
-		wait randomfloat( 1,5 );
+		wait randomfloat( 1.5 );
 		spawn_pos = get_random_brutus_spawn_pos( zone_name );
 	}
 	else
@@ -316,10 +323,12 @@ brutus_spawn( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zon
 	}
 	if ( !isDefined( spawn_pos ) )
 	{
+		/*
 /#
 		println( "ERROR: Tried to spawn brutus with no brutus spawn_positions!\n" );
 		iprintln( "ERROR: Tried to spawn brutus with no brutus spawn_positions!" );
 #/
+		*/
 		self delete();
 		return;
 	}
@@ -346,24 +355,25 @@ brutus_spawn( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zon
 	self.not_interruptable = 1;
 	self.actor_damage_func = ::brutus_damage_override;
 	self.non_attacker_func = ::brutus_non_attacker_damage_override;
-	self thread brutus_lockdown_client_effects( 0,5 );
+	self thread brutus_lockdown_client_effects( 0.5 );
 	playfx( level._effect[ "brutus_spawn" ], self.origin );
 	playsoundatposition( "zmb_ai_brutus_spawn", self.origin );
 	self animscripted( spawn_pos.origin, spawn_pos.angles, "zm_spawn" );
 	self thread maps/mp/animscripts/zm_shared::donotetracks( "spawn_anim" );
 	self waittillmatch( "spawn_anim" );
-	return "spawn_complete";
 	self.not_interruptable = 0;
 	self.cant_melee = 0;
 	self thread brutus_chest_flashlight();
 	self thread brutus_find_flesh();
 	self thread maps/mp/zombies/_zm_spawner::delayed_zombie_eye_glow();
-	level notify( "brutus_spawned" );
+	level notify( "brutus_spawned", self, "spawn_complete" );
+	logline1 = "INFO: _zm_ai_brutus.gsc brutus_spawn() completed its operation " + "\n";
+	logprint( logline1 );
 }
 
-brutus_chest_flashlight()
+brutus_chest_flashlight() //checked matches cerberus output
 {
-	wait 0,1;
+	wait 0.1;
 	self.chest_flashlight = spawn( "script_model", self.origin );
 	self.chest_flashlight setmodel( "tag_origin" );
 	self.chest_flashlight linkto( self, "J_spineupper", ( 0, 0, 0 ), ( 0, 0, 0 ) );
@@ -375,13 +385,13 @@ brutus_chest_flashlight()
 	}
 }
 
-brutus_temp_despawn( brutus, endon_notify, respawn_notify )
+brutus_temp_despawn( brutus, endon_notify, respawn_notify ) //checked changed to match cerberus output
 {
 	level endon( endon_notify );
 	align_struct = spawn( "script_model", brutus.origin );
 	align_struct.angles = brutus.angles;
 	align_struct setmodel( "tag_origin" );
-	if ( !level.brutus_in_grief || brutus istouching( level.e_gondola.t_ride ) && isDefined( brutus.force_gondola_teleport ) && brutus.force_gondola_teleport )
+	if ( !level.brutus_in_grief && brutus istouching( level.e_gondola.t_ride ) || isDefined( brutus.force_gondola_teleport ) && brutus.force_gondola_teleport )
 	{
 		brutus.force_gondola_teleport = 0;
 		align_struct linkto( level.e_gondola );
@@ -413,11 +423,11 @@ brutus_temp_despawn( brutus, endon_notify, respawn_notify )
 	level.brutus_count--;
 
 	level waittill( respawn_notify );
-	wait randomfloatrange( 1, 2,5 );
+	wait randomfloatrange( 1, 2.5 );
 	level thread respawn_brutus( health, has_helmet, helmet_hits, explosive_dmg_taken, zone_name );
 }
 
-brutus_spawn_zone_locked( zone_name )
+brutus_spawn_zone_locked( zone_name ) //checked matches cerberus output
 {
 	ai = spawn_zombie( level.brutus_spawners[ 0 ] );
 	ai thread brutus_spawn( undefined, undefined, undefined, undefined, zone_name );
@@ -429,7 +439,7 @@ brutus_spawn_zone_locked( zone_name )
 	}
 }
 
-brutus_spawn_in_zone( zone_name, zone_locked )
+brutus_spawn_in_zone( zone_name, zone_locked ) //checked matches cerberus output
 {
 	if ( isDefined( zone_locked ) && zone_locked )
 	{
@@ -447,7 +457,7 @@ brutus_spawn_in_zone( zone_name, zone_locked )
 	}
 }
 
-snddelayedmusic()
+snddelayedmusic() //checked matches cerberus output
 {
 	self endon( "death" );
 	wait 5;
@@ -461,7 +471,7 @@ snddelayedmusic()
 	self thread sndbrutusloopwatcher( self.sndbrutusmusicent );
 }
 
-sndbrutusloopwatcher( ent )
+sndbrutusloopwatcher( ent ) //checked matches cerberus output
 {
 	self endon( "death" );
 	level waittill( "sndStopBrutusLoop" );
@@ -470,7 +480,7 @@ sndbrutusloopwatcher( ent )
 	ent delete();
 }
 
-brutus_health_increases()
+brutus_health_increases() //checked matches cerberus output
 {
 	if ( level.round_number > level.brutus_last_spawn_round )
 	{
@@ -478,7 +488,7 @@ brutus_health_increases()
 		n_player_modifier = 1;
 		if ( a_players.size > 1 )
 		{
-			n_player_modifier = a_players.size * 0,75;
+			n_player_modifier = a_players.size * 0.75;
 		}
 		level.brutus_round_count++;
 		level.brutus_health = int( level.brutus_health_increase * n_player_modifier * level.brutus_round_count );
@@ -495,15 +505,20 @@ brutus_health_increases()
 	}
 }
 
-get_brutus_spawn_pos_val( brutus_pos )
+//this function breaks in the first rooms mod when _zm_zonemgr is loaded
+get_brutus_spawn_pos_val( brutus_pos ) //checked changed to match cerberus output
 {
 	score = 0;
 	zone_name = brutus_pos.zone_name;
+	logline1 = "INFO: _zm_ai_brutus.gsc get_brutus_spawn_pos_val() zone_name: " + zone_name + "\n";
+	logprint( logline1 );
 	if ( !maps/mp/zombies/_zm_zonemgr::zone_is_enabled( zone_name ) )
 	{
 		return 0;
 	}
 	a_players_in_zone = get_players_in_zone( zone_name, 1 );
+	logline1 = "INFO: _zm_ai_brutus.gsc get_brutus_spawn_pos_val() a_players_in_zone.size: " + a_players_in_zone.size + "\n";
+	logprint( logline1 );
 	if ( a_players_in_zone.size == 0 )
 	{
 		return 0;
@@ -511,15 +526,13 @@ get_brutus_spawn_pos_val( brutus_pos )
 	else
 	{
 		n_score_addition = 1;
-		i = 0;
-		while ( i < a_players_in_zone.size )
+		for ( i = 0; i < a_players_in_zone.size; i++ )
 		{
 			if ( findpath( brutus_pos.origin, a_players_in_zone[ i ].origin, self, 0, 0 ) )
 			{
 				n_dist = distance2d( brutus_pos.origin, a_players_in_zone[ i ].origin );
 				n_score_addition += linear_map( n_dist, 2000, 0, 0, level.brutus_players_in_zone_spawn_point_cap );
 			}
-			i++;
 		}
 		if ( n_score_addition > level.brutus_players_in_zone_spawn_point_cap )
 		{
@@ -527,35 +540,35 @@ get_brutus_spawn_pos_val( brutus_pos )
 		}
 		score += n_score_addition;
 	}
-	while ( !level.brutus_in_grief )
+	if ( !level.brutus_in_grief )
 	{
 		interaction_types = getarraykeys( level.interaction_types );
 		interact_array = level.interaction_types;
-		i = 0;
-		while ( i < interaction_types.size )
+		for ( i = 0; i < interaction_types.size; i++ )
 		{
 			int_type = interaction_types[ i ];
 			interaction = interact_array[ int_type ];
 			interact_points = [[ interaction.get_func ]]( zone_name );
-			j = 0;
-			while ( j < interact_points.size )
+			for ( j = 0; j < interact_points.size; j++ )
 			{
 				if ( interact_points[ j ] [[ interaction.validity_func ]]() )
 				{
 					score += interaction.spawn_bias;
 				}
-				j++;
 			}
-			i++;
 		}
 	}
 	return score;
 }
 
-get_random_brutus_spawn_pos( zone_name )
+get_random_brutus_spawn_pos( zone_name ) //checked partially changed to match cerberus output see info.md
 {
+	logline1 = "INFO: _zm_ai_brutus.gsc get_random_brutus_spawn_pos() is called " + "\n";
+	logprint( logline1 );
 	zone_spawn_pos = [];
 	i = 0;
+	logline1 = "INFO: _zm_ai_brutus.gsc get_random_brutus_spawn_pos() level.zombie_brutus_locations: " + level.zombie_brutus_locations.size + "\n";
+	logprint( logline1 );
 	while ( i < level.zombie_brutus_locations.size )
 	{
 		if ( isDefined( zone_name ) && level.zombie_brutus_locations[ i ].zone_name != zone_name )
@@ -563,10 +576,7 @@ get_random_brutus_spawn_pos( zone_name )
 			i++;
 			continue;
 		}
-		else
-		{
-			zone_spawn_pos[ zone_spawn_pos.size ] = i;
-		}
+		zone_spawn_pos[ zone_spawn_pos.size ] = i;
 		i++;
 	}
 	if ( zone_spawn_pos.size > 0 )
@@ -577,8 +587,10 @@ get_random_brutus_spawn_pos( zone_name )
 	return undefined;
 }
 
-get_best_brutus_spawn_pos( zone_name )
+get_best_brutus_spawn_pos( zone_name ) //checked partially changed to match cerberus output see info.md
 {
+	logline1 = "INFO: _zm_ai_brutus.gsc get_best_brutus_spawn_pos() level.zombie_brutus_locations: " + level.zombie_brutus_locations.size + "\n";
+	logprint( logline1 );
 	val = 0;
 	i = 0;
 	while ( i < level.zombie_brutus_locations.size )
@@ -588,20 +600,25 @@ get_best_brutus_spawn_pos( zone_name )
 			i++;
 			continue;
 		}
-		else
+		newval = get_brutus_spawn_pos_val( level.zombie_brutus_locations[ i ] );
+		if ( newval > val )
 		{
-			newval = get_brutus_spawn_pos_val( level.zombie_brutus_locations[ i ] );
-			if ( newval > val )
-			{
-				val = newval;
-				pos_idx = i;
-			}
+			val = newval;
+			pos_idx = i;
 		}
 		i++;
 	}
 	if ( isDefined( pos_idx ) )
 	{
-		return level.zombie_brutus_locations[ pos_idx ];
+		if ( isDefined( level.zombie_brutus_locations[ pos_idx ] ) )
+		{
+			logline1 = "INFO: _zm_ai_brutus.gsc get_best_brutus_spawn_pos() level.zombie_brutus_locations[ pos_idx ] isDefined " + "\n";
+			logprint( logline1 );
+		}
+		if ( isDefined( level.zombie_brutus_locations[ pos_idx ] ) )
+		{
+			return level.zombie_brutus_locations[ pos_idx ];
+		}
 	}
 	else
 	{
@@ -609,7 +626,7 @@ get_best_brutus_spawn_pos( zone_name )
 	}
 }
 
-play_ambient_brutus_vocals()
+play_ambient_brutus_vocals() //checked changed at own discretion
 {
 	self endon( "death" );
 	wait randomintrange( 2, 4 );
@@ -619,18 +636,15 @@ play_ambient_brutus_vocals()
 		{
 			if ( isDefined( self.favoriteenemy ) && distance( self.origin, self.favoriteenemy.origin ) <= 150 )
 			{
-				break;
+				continue;
 			}
-			else
-			{
-				self playsound( "zmb_vocals_brutus_ambience" );
-			}
+			self playsound( "zmb_vocals_brutus_ambience" );
 		}
-		wait randomfloatrange( 1, 1,5 );
+		wait randomfloatrange( 1, 1.5 );
 	}
 }
 
-brutus_cleanup()
+brutus_cleanup() //checked matches cerberus output
 {
 	self waittill( "brutus_cleanup" );
 	level.sndbrutusistalking = 0;
@@ -641,7 +655,7 @@ brutus_cleanup()
 	}
 }
 
-brutus_cleanup_at_end_of_grief_round()
+brutus_cleanup_at_end_of_grief_round() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "brutus_cleanup" );
@@ -650,7 +664,7 @@ brutus_cleanup_at_end_of_grief_round()
 	self notify( "brutus_cleanup" );
 }
 
-brutus_death()
+brutus_death() //checked partially changed to match cerberus output see info.md
 {
 	self endon( "brutus_cleanup" );
 	self thread brutus_cleanup();
@@ -674,18 +688,15 @@ brutus_death()
 			level.next_brutus_round = level.round_number + 1;
 		}
 	}
-	else
+	else if ( isDefined( self.brutus_round_spawn_failsafe ) && self.brutus_round_spawn_failsafe )
 	{
-		if ( isDefined( self.brutus_round_spawn_failsafe ) && self.brutus_round_spawn_failsafe )
-		{
-			level.zombie_total++;
-			level.zombie_total_subtract++;
-			level thread brutus_round_spawn_failsafe_respawn();
-		}
+		level.zombie_total++;
+		level.zombie_total_subtract++;
+		level thread brutus_round_spawn_failsafe_respawn();
 	}
-	if ( isDefined( self.suppress_brutus_powerup_drop ) && !self.suppress_brutus_powerup_drop )
+	if ( !isDefined( self.suppress_brutus_powerup_drop ) || isDefined( self.suppress_brutus_powerup_drop ) && !self.suppress_brutus_powerup_drop )
 	{
-		if ( isDefined( level.global_brutus_powerup_prevention ) && !level.global_brutus_powerup_prevention )
+		if ( !isDefined( level.global_brutus_powerup_prevention ) || isDefined( level.global_brutus_powerup_prevention ) && !level.global_brutus_powerup_prevention )
 		{
 			if ( self maps/mp/zombies/_zm_zonemgr::entity_in_zone( "zone_golden_gate_bridge" ) )
 			{
@@ -699,7 +710,7 @@ brutus_death()
 			level thread maps/mp/zombies/_zm_powerups::powerup_drop( self.origin );
 		}
 	}
-	while ( isplayer( self.attacker ) )
+	if ( isplayer( self.attacker ) )
 	{
 		event = "death";
 		if ( issubstr( self.damageweapon, "knife_ballistic_" ) )
@@ -720,11 +731,8 @@ brutus_death()
 			player_points = multiplier * round_up_score( level.brutus_player_points_for_death, 5 );
 			a_players = getplayers();
 		}
-		_a922 = a_players;
-		_k922 = getFirstArrayKey( _a922 );
-		while ( isDefined( _k922 ) )
+		foreach ( player in a_players )
 		{
-			player = _a922[ _k922 ];
 			if ( !is_player_valid( player ) )
 			{
 			}
@@ -734,37 +742,35 @@ brutus_death()
 				if ( player == self.attacker )
 				{
 					player add_to_player_score( player_points );
-					level notify( "brutus_killed" );
+					level notify( "brutus_killed", player );
 				}
 				player.pers[ "score" ] = player.score;
 				player maps/mp/zombies/_zm_stats::increment_client_stat( "prison_brutus_killed", 0 );
 			}
-			_k922 = getNextArrayKey( _a922, _k922 );
 		}
 	}
 	self notify( "brutus_cleanup" );
 }
 
-brutus_round_spawn_failsafe_respawn()
+brutus_round_spawn_failsafe_respawn() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
 		wait 2;
 		if ( attempt_brutus_spawn( 1 ) )
 		{
-			return;
-		}
-		else
-		{
+			break;
 		}
 	}
 }
 
-get_interact_offset( item, target_type )
+get_interact_offset( item, target_type ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.interaction_types[ target_type ] ) );
 #/
+	*/
 	interaction = level.interaction_types[ target_type ];
 	anim_state = interaction.animstate;
 	animationid = self getanimfromasd( anim_state, 0 );
@@ -781,33 +787,32 @@ get_interact_offset( item, target_type )
 	return getstartorigin( origin, angles, animationid );
 }
 
-enable_brutus_rounds()
+enable_brutus_rounds() //checked matches cerberus output
 {
 	level.brutus_rounds_enabled = 1;
 	flag_init( "brutus_round" );
 	level thread brutus_round_tracker();
 }
 
-brutus_round_tracker()
+brutus_round_tracker() //checked changed to match cerberus output
 {
 	level.next_brutus_round = level.round_number + randomintrange( level.brutus_min_round_fq, level.brutus_max_round_fq );
 	old_spawn_func = level.round_spawn_func;
 	old_wait_func = level.round_wait_func;
-	for ( ;; )
+	while ( 1 )
 	{
-		while ( 1 )
+		level waittill( "between_round_over" );
+		players = get_players();
+		if ( level.round_number < 9 && isDefined( level.is_forever_solo_game ) && level.is_forever_solo_game )
 		{
-			level waittill( "between_round_over" );
-			players = get_players();
-			if ( level.round_number < 9 && isDefined( level.is_forever_solo_game ) && level.is_forever_solo_game )
-			{
-			}
+			continue;
 		}
-		else if ( level.next_brutus_round <= level.round_number )
+		if ( level.next_brutus_round <= level.round_number )
 		{
-			while ( maps/mp/zm_alcatraz_utility::is_team_on_golden_gate_bridge() )
+			if ( maps/mp/zm_alcatraz_utility::is_team_on_golden_gate_bridge() )
 			{
 				level.next_brutus_round = level.round_number + 1;
+				continue;
 			}
 			wait randomfloatrange( level.brutus_min_spawn_delay, level.brutus_max_spawn_delay );
 			if ( attempt_brutus_spawn( level.brutus_zombie_per_round ) )
@@ -821,13 +826,13 @@ brutus_round_tracker()
 	}
 }
 
-sndforcewait()
+sndforcewait() //checked matches cerberus output
 {
 	wait 10;
 	level.music_round_override = 0;
 }
 
-wait_on_box_alarm()
+wait_on_box_alarm() //checked changed to match cerberus output
 {
 	while ( 1 )
 	{
@@ -842,12 +847,11 @@ wait_on_box_alarm()
 			rand = randomint( 1000 );
 			if ( level.brutus_in_grief )
 			{
-				level notify( "spawn_brutus" );
-				break;
+				level notify( "spawn_brutus", 1 );
 			}
 			else if ( rand <= level.brutus_alarm_chance )
 			{
-				while ( flag( "moving_chest_now" ) )
+				if ( flag( "moving_chest_now" ) )
 				{
 					continue;
 				}
@@ -859,65 +863,66 @@ wait_on_box_alarm()
 					}
 					level.brutus_alarm_chance = level.brutus_min_alarm_chance;
 				}
-				break;
 			}
-			else
+			else if ( level.brutus_alarm_chance < level.brutus_max_alarm_chance )
 			{
-				if ( level.brutus_alarm_chance < level.brutus_max_alarm_chance )
-				{
-					level.brutus_alarm_chance += level.brutus_alarm_chance_increment;
-				}
+				level.brutus_alarm_chance += level.brutus_alarm_chance_increment;
 			}
 		}
 	}
 }
 
-brutus_spawning_logic()
+brutus_spawning_logic() //checked changed to match cerberus output
 {
 	if ( !level.brutus_in_grief )
 	{
 		level thread enable_brutus_rounds();
 	}
-	while ( isDefined( level.chests ) )
+	if ( isDefined( level.chests ) )
 	{
-		i = 0;
-		while ( i < level.chests.size )
+		for ( i = 0; i < level.chests.size; i++ )
 		{
 			level.chests[ i ] thread wait_on_box_alarm();
-			i++;
 		}
 	}
 	while ( 1 )
 	{
-		level waittill( "spawn_brutus", num );
-		i = 0;
-		while ( i < num )
+		level waittill( "connected", player );
+		wait 20;
+		num = 1;
+		while ( 1 )
 		{
-			ai = spawn_zombie( level.brutus_spawners[ 0 ] );
-			ai thread brutus_spawn();
-			i++;
-		}
-		if ( isDefined( ai ) )
-		{
-			ai playsound( "zmb_ai_brutus_spawn_2d" );
+			//level waittill( "spawn_brutus", num );
+			for ( i = 0; i < num; i++ )
+			{
+				ai = spawn_zombie( level.brutus_spawners[ 0 ] );
+				ai thread brutus_spawn();
+			}
+			if ( isDefined( ai ) )
+			{
+				ai playsound( "zmb_ai_brutus_spawn_2d" );
+			}
+			wait 30;
 		}
 	}
 }
 
-attempt_brutus_spawn( n_spawn_num )
+attempt_brutus_spawn( n_spawn_num ) //checked changed to match cerberus output
 {
 	if ( ( level.brutus_count + n_spawn_num ) > level.brutus_max_count )
 	{
+		/*
 /#
 		iprintln( "Brutus max count reached - Preventing Brutus from spawning!" );
 #/
+		*/
 		return 0;
 	}
-	level notify( "spawn_brutus" );
+	level notify( "spawn_brutus", n_spawn_num );
 	return 1;
 }
 
-brutus_start_basic_find_flesh()
+brutus_start_basic_find_flesh() //checked matches cerberus output
 {
 	self.goalradius = 48;
 	self.custom_goalradius_override = level.brutus_custom_goalradius;
@@ -928,7 +933,7 @@ brutus_start_basic_find_flesh()
 	}
 }
 
-brutus_stop_basic_find_flesh()
+brutus_stop_basic_find_flesh() //checked matches cerberus output
 {
 	if ( self.ai_state == "find_flesh" )
 	{
@@ -937,17 +942,20 @@ brutus_stop_basic_find_flesh()
 	}
 }
 
-setup_devgui()
+setup_devgui() //checked matches cerberus output
 {
+	/*
 /#
 	setdvar( "spawn_Brutus", "off" );
-	adddebugcommand( "devgui_cmd "Zombies:2/Zombie Spawning:2/Spawn Zombie:1/Brutus:1" "spawn_Brutus on"\n" );
+	adddebugcommand( "devgui_cmd "Zombies:2/Zombie Spawning:2/Spawn Zombie:1/Brutus:1" "spawn_Brutus on" + "\n" );
 	level thread watch_devgui_brutus();
 #/
+	*/
 }
 
-watch_devgui_brutus()
+watch_devgui_brutus() //checked matches cerberus output
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -956,12 +964,13 @@ watch_devgui_brutus()
 			level notify( "spawn_brutus" );
 			setdvar( "spawn_Brutus", "off" );
 		}
-		wait 0,1;
+		wait 0.1;
 #/
 	}
+	*/
 }
 
-respawn_brutus( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zone_name, b_no_current_valid_targets )
+respawn_brutus( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zone_name, b_no_current_valid_targets ) //checked matches cerberus output
 {
 	if ( isDefined( b_no_current_valid_targets ) && b_no_current_valid_targets )
 	{
@@ -976,14 +985,14 @@ respawn_brutus( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, z
 	ai.force_zone = zone_name;
 }
 
-respawn_brutus_after_gondola( starting_health, has_helmet, helmet_hits, explosive_dmg_taken )
+respawn_brutus_after_gondola( starting_health, has_helmet, helmet_hits, explosive_dmg_taken ) //checked matches cerberus output
 {
 	level waittill( "gondola_arrived", zone_name );
 	ai = spawn_zombie( level.brutus_spawners[ 0 ] );
 	ai thread brutus_spawn( starting_health, has_helmet, helmet_hits, explosive_dmg_taken, zone_name );
 }
 
-brutus_watch_for_gondola()
+brutus_watch_for_gondola() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -993,28 +1002,24 @@ brutus_watch_for_gondola()
 		{
 			self.force_gondola_teleport = 1;
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-are_all_targets_invalid()
+are_all_targets_invalid() //checked changed to match cerberus output
 {
 	a_players = getplayers();
-	_a1238 = a_players;
-	_k1238 = getFirstArrayKey( _a1238 );
-	while ( isDefined( _k1238 ) )
+	foreach ( player in a_players )
 	{
-		player = _a1238[ _k1238 ];
 		if ( isDefined( player.is_on_gondola ) && !player.is_on_gondola && isDefined( player.afterlife ) && !player.afterlife )
 		{
 			return 0;
 		}
-		_k1238 = getNextArrayKey( _a1238, _k1238 );
 	}
 	return 1;
 }
 
-brutus_watch_for_new_valid_targets()
+brutus_watch_for_new_valid_targets() //checked matches cerberus output
 {
 	level thread brutus_watch_for_gondola_arrive();
 	level thread brutus_watch_for_non_afterlife_players();
@@ -1022,43 +1027,39 @@ brutus_watch_for_new_valid_targets()
 	return zone_name;
 }
 
-brutus_watch_for_gondola_arrive()
+brutus_watch_for_gondola_arrive() //checked changed to match cerberus output
 {
 	level endon( "brutus_valid_targets_arrived" );
 	level waittill( "gondola_arrived", zone_name );
-	level notify( "brutus_valid_targets_arrived" );
+	level notify( "brutus_valid_targets_arrived", zone_name );
 }
 
-brutus_watch_for_non_afterlife_players()
+brutus_watch_for_non_afterlife_players() //checked changed to match cerberus output
 {
 	level endon( "brutus_valid_targets_arrived" );
 	b_all_players_in_afterlife = 1;
 	while ( b_all_players_in_afterlife )
 	{
 		a_players = getplayers();
-		_a1273 = a_players;
-		_k1273 = getFirstArrayKey( _a1273 );
-		while ( isDefined( _k1273 ) )
+		foreach ( player in a_players )
 		{
-			player = _a1273[ _k1273 ];
 			if ( isDefined( player.afterlife ) && !player.afterlife && !player maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 			{
 				b_all_players_in_afterlife = 0;
 			}
-			_k1273 = getNextArrayKey( _a1273, _k1273 );
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 	level notify( "brutus_valid_targets_arrived" );
 }
 
-brutus_stuck_teleport()
+brutus_stuck_teleport() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	align_struct = spawn( "script_model", self.origin );
 	align_struct.angles = self.angles;
 	align_struct setmodel( "tag_origin" );
-	if ( !level.brutus_in_grief || self istouching( level.e_gondola.t_ride ) && isDefined( self.force_gondola_teleport ) && self.force_gondola_teleport )
+	if ( ( self istouching( level.e_gondola.t_ride ) || isDefined( self.force_gondola_teleport ) ) && self.force_gondola_teleport && !level.brutus_in_grief )
 	{
 		self.force_gondola_teleport = 0;
 		align_struct linkto( level.e_gondola );
@@ -1091,7 +1092,7 @@ brutus_stuck_teleport()
 	self delete();
 }
 
-watch_for_riot_shield_melee()
+watch_for_riot_shield_melee() //checked matches cerberus output
 {
 	self endon( "new_stuck_watcher" );
 	self endon( "death" );
@@ -1102,14 +1103,13 @@ watch_for_riot_shield_melee()
 	}
 }
 
-watch_for_valid_melee()
+watch_for_valid_melee() //checked changed to match cerberus output
 {
 	self endon( "new_stuck_watcher" );
 	self endon( "death" );
 	while ( 1 )
 	{
 		self waittillmatch( "melee_anim" );
-		return "end";
 		if ( isDefined( self.favorite_enemy ) && distancesquared( self.origin, self.favorite_enemy.origin ) < 16384 && isDefined( self.favorite_enemy.is_on_gondola ) && !self.favorite_enemy.is_on_gondola )
 		{
 			self.fail_count = 0;
@@ -1117,7 +1117,7 @@ watch_for_valid_melee()
 	}
 }
 
-brutus_stuck_watcher()
+brutus_stuck_watcher() //checked changed to match cerberus output
 {
 	self notify( "new_stuck_watcher" );
 	self endon( "death" );
@@ -1129,17 +1129,19 @@ brutus_stuck_watcher()
 	{
 		while ( !isDefined( self.goal_pos ) )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
-		while ( self.not_interruptable )
+		if ( self.not_interruptable )
 		{
 			wait 1;
 		}
 		if ( !findpath( self.origin, self.goal_pos, self, 0, 0 ) )
 		{
+			/*
 /#
 			println( "Brutus could not path to goal_pos " + self.goal_pos );
 #/
+			*/
 			self.fail_count++;
 		}
 		else
@@ -1155,7 +1157,7 @@ brutus_stuck_watcher()
 	}
 }
 
-should_brutus_aggro( player_zone, brutus_zone )
+should_brutus_aggro( player_zone, brutus_zone ) //checked matches cerberus output
 {
 	if ( !isDefined( player_zone ) || !isDefined( brutus_zone ) )
 	{
@@ -1172,7 +1174,7 @@ should_brutus_aggro( player_zone, brutus_zone )
 	return 0;
 }
 
-brutus_find_flesh()
+brutus_find_flesh() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	level endon( "intermission" );
@@ -1191,18 +1193,20 @@ brutus_find_flesh()
 	self thread watch_for_player_dist();
 	while ( 1 )
 	{
-		while ( self.not_interruptable )
+		if ( self.not_interruptable )
 		{
-			wait 0,05;
+			wait 0.05;
+			continue;
 		}
 		player = brutus_get_closest_valid_player();
 		brutus_zone = get_zone_from_position( self.origin );
-		while ( !isDefined( brutus_zone ) )
+		if ( !isDefined( brutus_zone ) )
 		{
 			brutus_zone = self.prev_zone;
-			while ( !isDefined( brutus_zone ) )
+			if ( !isDefined( brutus_zone ) )
 			{
 				wait 1;
+				continue;
 			}
 		}
 		player_zone = undefined;
@@ -1215,14 +1219,17 @@ brutus_find_flesh()
 		{
 			self.priority_item = self get_priority_item_for_brutus( brutus_zone, 1 );
 		}
-		else player_zone = player get_player_zone();
-		if ( isDefined( player_zone ) )
+		else 
 		{
-			self.priority_item = self get_priority_item_for_brutus( player_zone );
-		}
-		else
-		{
-			self.priority_item = self get_priority_item_for_brutus( brutus_zone, 1 );
+			player_zone = player get_player_zone();
+			if ( isDefined( player_zone ) )
+			{
+				self.priority_item = self get_priority_item_for_brutus( player_zone );
+			}
+			else
+			{
+				self.priority_item = self get_priority_item_for_brutus( brutus_zone, 1 );
+			}
 		}
 		if ( isDefined( player ) && distancesquared( self.origin, player.origin ) < level.brutus_aggro_dist_sq && isDefined( player_zone ) && should_brutus_aggro( player_zone, brutus_zone ) )
 		{
@@ -1230,37 +1237,34 @@ brutus_find_flesh()
 			self.goal_pos = player.origin;
 			brutus_start_basic_find_flesh();
 		}
+		else if ( isDefined( self.priority_item ) )
+		{
+			brutus_stop_basic_find_flesh();
+			self.goalradius = 12;
+			self.custom_goalradius_override = 12;
+			self.goal_pos = self get_interact_offset( self.priority_item, self.ai_state );
+			self setgoalpos( self.goal_pos );
+			break;
+		}
+		else if ( isDefined( player ) )
+		{
+			self.favorite_enemy = player;
+			self.goal_pos = self.favorite_enemy.origin;
+			brutus_start_basic_find_flesh();
+			break;
+		}
 		else
 		{
-			if ( isDefined( self.priority_item ) )
-			{
-				brutus_stop_basic_find_flesh();
-				self.goalradius = 12;
-				self.custom_goalradius_override = 12;
-				self.goal_pos = self get_interact_offset( self.priority_item, self.ai_state );
-				self setgoalpos( self.goal_pos );
-				break;
-			}
-			else if ( isDefined( player ) )
-			{
-				self.favorite_enemy = player;
-				self.goal_pos = self.favorite_enemy.origin;
-				brutus_start_basic_find_flesh();
-				break;
-			}
-			else
-			{
-				self.goal_pos = self.origin;
-				self.ai_state = "idle";
-				self setanimstatefromasd( "zm_idle" );
-				self setgoalpos( self.goal_pos );
-			}
+			self.goal_pos = self.origin;
+			self.ai_state = "idle";
+			self setanimstatefromasd( "zm_idle" );
+			self setgoalpos( self.goal_pos );
 		}
 		wait 1;
 	}
 }
 
-trap_damage_callback( trap )
+trap_damage_callback( trap ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( self.not_interruptable ) && !self.not_interruptable )
@@ -1272,68 +1276,61 @@ trap_damage_callback( trap )
 		{
 			trap notify( "trap_finished_" + trap.script_string );
 		}
-		else
+		else if ( trap.targetname == "acid_trap" )
 		{
-			if ( trap.targetname == "acid_trap" )
-			{
-				trap notify( "acid_trap_fx_done" );
-			}
+			trap notify( "acid_trap_fx_done" );
 		}
 		self.not_interruptable = 0;
 	}
 }
 
-zone_array_contains( zone_array, zone_name )
+zone_array_contains( zone_array, zone_name ) //checked changed to match cerberus output
 {
-	j = 0;
-	while ( j < zone_array.size )
+	for ( j = 0; j < zone_array.size; j++ )
 	{
 		if ( zone_array[ j ] == zone_name )
 		{
 			return 1;
 		}
-		j++;
 	}
 	return 0;
 }
 
-get_priority_item_for_brutus( zone_name, do_secondary_zone_checks )
+get_priority_item_for_brutus( zone_name, do_secondary_zone_checks ) //checked partially changed to match cerberus output
 {
 	interact_types = level.interaction_types;
 	interact_prio = level.interaction_priority;
-	i = 0;
-	while ( i < interact_prio.size )
+	for ( i = 0; i < interact_prio.size; i++ )
 	{
 		best_score = -1;
 		best_object = undefined;
 		int_type = interact_prio[ i ];
 		int_struct = interact_types[ int_type ];
 		int_objects = self [[ int_struct.get_func ]]( zone_name );
-		j = 0;
-		while ( j < int_objects.size )
+		for ( j = 0; j < int_objects.size; j++ )
 		{
 			if ( int_objects[ j ] [[ int_struct.validity_func ]]() )
 			{
 				score = self [[ int_struct.value_func ]]( int_objects[ j ] );
+				/*
 /#
 				assert( score >= 0 );
 #/
+				*/
 				if ( score < best_score || best_score < 0 )
 				{
 					best_object = int_objects[ j ];
 					best_score = score;
 				}
 			}
-			j++;
 		}
 		if ( isDefined( best_object ) )
 		{
 			self.ai_state = int_type;
 			return best_object;
 		}
-		i++;
 	}
-	while ( isDefined( do_secondary_zone_checks ) && do_secondary_zone_checks )
+	if ( isDefined( do_secondary_zone_checks ) && do_secondary_zone_checks )
 	{
 		adj_zone_names = getarraykeys( level.zones[ zone_name ].adjacent_zones );
 		i = 0;
@@ -1344,13 +1341,10 @@ get_priority_item_for_brutus( zone_name, do_secondary_zone_checks )
 				i++;
 				continue;
 			}
-			else
+			best_object = get_priority_item_for_brutus( adj_zone_names[ i ] );
+			if ( isDefined( best_object ) )
 			{
-				best_object = get_priority_item_for_brutus( adj_zone_names[ i ] );
-				if ( isDefined( best_object ) )
-				{
-					return best_object;
-				}
+				return best_object;
 			}
 			i++;
 		}
@@ -1363,23 +1357,20 @@ get_priority_item_for_brutus( zone_name, do_secondary_zone_checks )
 				i++;
 				continue;
 			}
-			else if ( zone_array_contains( adj_zone_names, global_zone_names[ i ] ) )
+			if ( zone_array_contains( adj_zone_names, global_zone_names[ i ] ) )
 			{
 				i++;
 				continue;
 			}
-			else if ( !maps/mp/zombies/_zm_zonemgr::zone_is_enabled( global_zone_names[ i ] ) )
+			if ( !maps/mp/zombies/_zm_zonemgr::zone_is_enabled( global_zone_names[ i ] ) )
 			{
 				i++;
 				continue;
 			}
-			else
+			best_object = get_priority_item_for_brutus( global_zone_names[ i ] );
+			if ( isDefined( best_object ) )
 			{
-				best_object = get_priority_item_for_brutus( global_zone_names[ i ] );
-				if ( isDefined( best_object ) )
-				{
-					return best_object;
-				}
+				return best_object;
 			}
 			i++;
 		}
@@ -1387,29 +1378,31 @@ get_priority_item_for_brutus( zone_name, do_secondary_zone_checks )
 	return undefined;
 }
 
-get_dist_score( object )
+get_dist_score( object ) //checked matches cerberus output
 {
 	return distancesquared( self.origin, object.origin );
 }
 
-get_trap_score( object )
+get_trap_score( object ) //checked changed to match cerberus output
 {
-	if ( sighttracepassed( self.origin + ( 0, 0, 0 ), object.origin, 0, self ) )
+	if ( sighttracepassed( self.origin + ( 0, 0, 1 ), object.origin, 0, self ) )
 	{
 		return 0;
 	}
 	return distancesquared( self.origin, object.origin );
 }
 
-get_magic_boxes( zone_name )
+get_magic_boxes( zone_name ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.zones[ zone_name ] ) );
 #/
+	*/
 	return level.zones[ zone_name ].magic_boxes;
 }
 
-is_magic_box_valid()
+is_magic_box_valid() //checked matches cerberus output
 {
 	if ( self is_chest_active() && self == level.chests[ level.chest_index ] )
 	{
@@ -1418,7 +1411,7 @@ is_magic_box_valid()
 	return 0;
 }
 
-get_perk_machine_trigger()
+get_perk_machine_trigger() //checked matches cerberus output
 {
 	if ( self.targetname == "vendingelectric_cherry" )
 	{
@@ -1435,15 +1428,17 @@ get_perk_machine_trigger()
 	return perk_machine;
 }
 
-get_perk_machines( zone_name )
+get_perk_machines( zone_name ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.zones[ zone_name ] ) );
 #/
+	*/
 	return level.zones[ zone_name ].perk_machines;
 }
 
-is_perk_machine_valid()
+is_perk_machine_valid() //checked matches cerberus output
 {
 	trigger = self get_perk_machine_trigger();
 	if ( isDefined( trigger.is_locked ) && trigger.is_locked )
@@ -1457,30 +1452,30 @@ is_perk_machine_valid()
 	return 0;
 }
 
-get_trigger_for_craftable()
+get_trigger_for_craftable() //checked changed to match cerberus output
 {
-	i = 0;
-	while ( i < level.a_uts_craftables.size )
+	for ( i = 0; i < level.a_uts_craftables.size; i++ )
 	{
 		if ( isDefined( level.a_uts_craftables[ i ].target ) && level.a_uts_craftables[ i ].target == self.targetname )
 		{
 			return level.a_uts_craftables[ i ];
 		}
-		i++;
 	}
 	trig_ent = getent( self.targetname, "target" );
 	return trig_ent;
 }
 
-get_craftable_tables( zone_name )
+get_craftable_tables( zone_name ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.zones[ zone_name ] ) );
 #/
+	*/
 	return level.zones[ zone_name ].craftable_tables;
 }
 
-is_craftable_table_valid()
+is_craftable_table_valid() //checked matches cerberus output
 {
 	table_trig = self get_trigger_for_craftable();
 	if ( isDefined( table_trig.is_locked ) && table_trig.is_locked )
@@ -1494,7 +1489,7 @@ is_craftable_table_valid()
 	return 1;
 }
 
-get_closest_trap_for_brutus()
+get_closest_trap_for_brutus() //checked partially changed to match cerberus output see info.md
 {
 	best_dist = -1;
 	best_trap = undefined;
@@ -1506,14 +1501,11 @@ get_closest_trap_for_brutus()
 			i++;
 			continue;
 		}
-		else
+		dist = distancesquared( self.origin, level.trap_triggers[ i ].origin );
+		if ( dist < best_dist || best_dist < 0 )
 		{
-			dist = distancesquared( self.origin, level.trap_triggers[ i ].origin );
-			if ( dist < best_dist || best_dist < 0 )
-			{
-				best_dist = dist;
-				best_trap = level.trap_triggers[ i ];
-			}
+			best_dist = dist;
+			best_trap = level.trap_triggers[ i ];
 		}
 		i++;
 	}
@@ -1522,37 +1514,38 @@ get_closest_trap_for_brutus()
 
 get_traps( zone_name )
 {
+	/*
 /#
 	assert( isDefined( level.zones[ zone_name ] ) );
 #/
+	*/
 	return level.zones[ zone_name ].traps;
 }
 
-is_trap_valid()
+is_trap_valid() //checked changed to match cerberus output
 {
 	if ( isDefined( self.trigger.zombie_dmg_trig ) && isDefined( self.trigger.zombie_dmg_trig.active ) && self.trigger.zombie_dmg_trig.active )
 	{
 		return 1;
 	}
-	else
+	else if ( isDefined( self.trigger.active ) && self.trigger.active )
 	{
-		if ( isDefined( self.trigger.active ) && self.trigger.active )
-		{
-			return 1;
-		}
+		return 1;
 	}
 	return 0;
 }
 
-get_plane_ramps( zone_name )
+get_plane_ramps( zone_name ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( level.zones[ zone_name ] ) );
 #/
+	*/
 	return level.zones[ zone_name ].plane_triggers;
 }
 
-is_plane_ramp_valid()
+is_plane_ramp_valid() //checked matches cerberus output
 {
 	if ( isDefined( self.fly_trigger ) && isDefined( self.fly_trigger.trigger_off ) && self.fly_trigger.trigger_off )
 	{
@@ -1569,12 +1562,12 @@ is_plane_ramp_valid()
 	return 1;
 }
 
-get_blockers( zone_name )
+get_blockers( zone_name ) //checked matches cerberus output
 {
 	return get_zone_zbarriers( zone_name );
 }
 
-is_blocker_valid()
+is_blocker_valid() //checked matches cerberus output
 {
 	closed_pieces = self getzbarrierpieceindicesinstate( "closed" );
 	if ( closed_pieces.size >= level.brutus_blocker_pieces_req )
@@ -1584,7 +1577,7 @@ is_blocker_valid()
 	return 0;
 }
 
-brutus_get_closest_valid_player()
+brutus_get_closest_valid_player() //checked changed to match cerberus output
 {
 	valid_player_found = 0;
 	players = get_players();
@@ -1592,13 +1585,11 @@ brutus_get_closest_valid_player()
 	{
 		players = arraycombine( players, level._zombie_human_array, 0, 0 );
 	}
-	while ( isDefined( self.ignore_player ) )
+	if ( isDefined( self.ignore_player ) )
 	{
-		i = 0;
-		while ( i < self.ignore_player.size )
+		for ( i = 0; i < self.ignore_player.size; i++ )
 		{
 			arrayremovevalue( players, self.ignore_player[ i ] );
-			i++;
 		}
 	}
 	while ( !valid_player_found )
@@ -1619,7 +1610,7 @@ brutus_get_closest_valid_player()
 		{
 			return player;
 		}
-		while ( !is_player_valid( player, 1 ) )
+		if ( !is_player_valid( player, 1 ) )
 		{
 			arrayremovevalue( players, player );
 		}
@@ -1627,7 +1618,7 @@ brutus_get_closest_valid_player()
 	}
 }
 
-watch_for_player_dist()
+watch_for_player_dist() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -1639,11 +1630,11 @@ watch_for_player_dist()
 			self notify( "zombie_acquire_enemy" );
 			self notify( "stop_find_flesh" );
 		}
-		wait 0,5;
+		wait 0.5;
 	}
 }
 
-brutus_goal_watcher()
+brutus_goal_watcher() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -1651,7 +1642,7 @@ brutus_goal_watcher()
 		self waittill( "goal" );
 		while ( self.ai_state == "find_flesh" || self.ai_state == "idle" )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 		interaction = level.interaction_types[ self.ai_state ];
 		origin = self.priority_item.origin;
@@ -1676,22 +1667,20 @@ brutus_goal_watcher()
 		if ( isDefined( interaction.end_notetrack ) )
 		{
 			self waittillmatch( interaction.notify_name );
-			return interaction.end_notetrack;
 		}
 		else
 		{
 			self waittillmatch( interaction.notify_name );
-			return "end";
 		}
 		self.not_interruptable = 0;
 		while ( !isDefined( self.priority_item ) )
 		{
-			wait 0,05;
+			wait 0.05;
 		}
 	}
 }
 
-snddointeractionvox( type )
+snddointeractionvox( type ) //checked matches cerberus output
 {
 	alias = "vox_brutus_brutus_lockbox";
 	num = undefined;
@@ -1724,43 +1713,41 @@ snddointeractionvox( type )
 	self thread sndbrutusvox( alias, num );
 }
 
-brutus_fire_teargas_when_possible()
+brutus_fire_teargas_when_possible() //checked changed to match cerberus output
 {
 	self endon( "death" );
-	wait 0,2;
+	wait 0.2;
 	while ( isDefined( self.not_interruptable ) && self.not_interruptable )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	self.not_interruptable = 1;
 	self playsound( "vox_brutus_enraged" );
 	self animscripted( self.origin, self.angles, "zm_teargas_attack" );
 	self thread maps/mp/animscripts/zm_shared::donotetracks( "teargas_anim" );
 	self waittillmatch( "teargas_anim" );
-	return "grenade_drop";
 	v_org_left = self gettagorigin( "TAG_WEAPON_LEFT" );
 	v_org_right = self gettagorigin( "TAG_WEAPON_RIGHT" );
 	self thread sndplaydelayedsmokeaudio( v_org_left, v_org_right );
-	self magicgrenadetype( "willy_pete_zm", v_org_left, ( 0, 0, 0 ), 0,4 );
-	self magicgrenadetype( "willy_pete_zm", v_org_right, ( 0, 0, 0 ), 0,4 );
+	self magicgrenadetype( "willy_pete_zm", v_org_left, ( 0, 0, 0 ), 0.4 );
+	self magicgrenadetype( "willy_pete_zm", v_org_right, ( 0, 0, 0 ), 0.4 );
 	self waittillmatch( "teargas_anim" );
-	return "end";
 	self.not_interruptable = 0;
 }
 
-sndplaydelayedsmokeaudio( org1, org2 )
+sndplaydelayedsmokeaudio( org1, org2 ) //checked matches cerberus output
 {
-	wait 1,5;
+	wait 1.5;
 	playsoundatposition( "zmb_ai_brutus_gas_explode", org1 );
-	wait 0,25;
+	wait 0.25;
 	playsoundatposition( "zmb_ai_brutus_gas_explode", org2 );
 }
 
-brutus_afterlife_teleport()
+brutus_afterlife_teleport() //checked matches cerberus output
 {
 	playfx( level._effect[ "afterlife_teleport" ], self.origin );
 	self hide();
-	wait 0,1;
+	wait 0.1;
 	self notify( "brutus_cleanup" );
 	if ( isDefined( self.sndbrutusmusicent ) )
 	{
@@ -1773,14 +1760,14 @@ brutus_afterlife_teleport()
 	self delete();
 }
 
-brutus_remove_helmet( vdir )
+brutus_remove_helmet( vdir ) //checked changed to match cerberus output
 {
 	self.has_helmet = 0;
 	self detach( "c_zom_cellbreaker_helmet" );
 	self playsound( "evt_brutus_helmet" );
-	launch_pos = self.origin + vectorScale( ( 0, 0, 0 ), 85 );
+	launch_pos = self.origin + vectorScale( ( 0, 0, 1 ), 85 );
 	createdynentandlaunch( "c_zom_cellbreaker_helmet", launch_pos, self.angles, launch_pos, vdir );
-	if ( isDefined( self.suppress_teargas_behavior ) && !self.suppress_teargas_behavior )
+	if ( !isDefined( self.suppress_teargas_behavior ) || isDefined( self.suppress_teargas_behavior ) && !self.suppress_teargas_behavior )
 	{
 		self thread brutus_fire_teargas_when_possible();
 		if ( isDefined( self.not_interruptable ) && self.not_interruptable )
@@ -1795,7 +1782,7 @@ brutus_remove_helmet( vdir )
 	}
 }
 
-offset_fx_struct( int_struct, fx_struct )
+offset_fx_struct( int_struct, fx_struct ) //checked matches cerberus output
 {
 	if ( isDefined( int_struct.fx_x_offset ) )
 	{
@@ -1816,7 +1803,7 @@ offset_fx_struct( int_struct, fx_struct )
 	return fx_struct;
 }
 
-get_scaling_lock_cost( int_type, object )
+get_scaling_lock_cost( int_type, object ) //checked matches cerberus output
 {
 	interaction = level.interaction_types[ int_type ];
 	base_cost = interaction.unlock_cost;
@@ -1833,7 +1820,7 @@ get_scaling_lock_cost( int_type, object )
 	return num_times_locked * base_cost;
 }
 
-get_lock_hint_string( cost )
+get_lock_hint_string( cost ) //checked matches cerberus output
 {
 	switch( cost )
 	{
@@ -1848,7 +1835,7 @@ get_lock_hint_string( cost )
 	}
 }
 
-magic_box_lock()
+magic_box_lock() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( flag( "moving_chest_now" ) )
@@ -1869,7 +1856,7 @@ magic_box_lock()
 	self.priority_item = undefined;
 }
 
-perk_machine_lock()
+perk_machine_lock() //checked matches cerberus output
 {
 	self endon( "death" );
 	perk_machine = self.priority_item get_perk_machine_trigger();
@@ -1900,7 +1887,7 @@ perk_machine_lock()
 	self.priority_item = undefined;
 }
 
-craftable_table_lock()
+craftable_table_lock() //checked matches cerberus output
 {
 	self endon( "death" );
 	table_struct = self.priority_item;
@@ -1935,7 +1922,7 @@ craftable_table_lock()
 	self.priority_item = undefined;
 }
 
-trap_smash()
+trap_smash() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	trap = self.priority_item.trigger;
@@ -1951,18 +1938,15 @@ trap_smash()
 	{
 		trap.zombie_dmg_trig notify( "acid_trap_fx_done" );
 	}
-	else
+	else if ( trap.targetname == "tower_trap_activate_trigger" )
 	{
-		if ( trap.targetname == "tower_trap_activate_trigger" )
-		{
-			trap notify( "tower_trap_off" );
-		}
+		trap notify( "tower_trap_off" );
 	}
 	trap playsound( "zmb_ai_brutus_clang" );
 	self.priority_item = undefined;
 }
 
-plane_ramp_lock()
+plane_ramp_lock() //checked matches cerberus output
 {
 	self endon( "death" );
 	plane_ramp = self.priority_item;
@@ -1989,7 +1973,7 @@ plane_ramp_lock()
 	}
 }
 
-blocker_smash()
+blocker_smash() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self playsound( "vox_brutus_enraged" );
@@ -2001,12 +1985,10 @@ blocker_smash()
 		return;
 	}
 	num_pieces = blocker getnumzbarrierpieces();
-	i = 0;
-	while ( i < num_pieces )
+	for ( i = 0; i < num_pieces; i++ )
 	{
 		blocker hidezbarrierpiece( i );
 		blocker setzbarrierpiecestate( i, "open" );
-		i++;
 	}
 	if ( !isDefined( blocker.script_string ) )
 	{
@@ -2016,7 +1998,7 @@ blocker_smash()
 	{
 		smash_fx_alias = "brutus_smash_" + blocker.script_string;
 	}
-	forward = anglesToForward( blocker.angles + vectorScale( ( 0, 0, 0 ), 180 ) );
+	forward = anglesToForward( blocker.angles + vectorScale( ( 0, 1, 0 ), 180 ) );
 	if ( isDefined( level._effect[ smash_fx_alias ] ) )
 	{
 		playfx( level._effect[ smash_fx_alias ], blocker.origin, forward );
@@ -2028,12 +2010,12 @@ blocker_smash()
 	self.priority_item = undefined;
 }
 
-melee_anim_func()
+melee_anim_func() //checked matches cerberus output
 {
 	self.next_leap_time = getTime() + 1500;
 }
 
-kill_teargas_after_duration( duration )
+kill_teargas_after_duration( duration ) //checked matches cerberus output
 {
 	wait duration;
 	self notify( "kill_teargas" );
@@ -2041,7 +2023,7 @@ kill_teargas_after_duration( duration )
 	self delete();
 }
 
-teargas_player( player )
+teargas_player( player ) //checked changed to match cerberus output
 {
 	player endon( "death_or_disconnect" );
 	level endon( "intermission" );
@@ -2056,7 +2038,7 @@ teargas_player( player )
 		{
 			if ( !player istouching( self ) )
 			{
-				clear_timer += 0,1;
+				clear_timer += 0.1;
 			}
 			else
 			{
@@ -2071,49 +2053,43 @@ teargas_player( player )
 			{
 				if ( distancesquared( player.origin, self.origin ) > ( ( ( level.brutus_teargas_radius * 2 ) / 3 ) * ( ( level.brutus_teargas_radius * 2 ) / 3 ) ) )
 				{
-					player shellshock( "mp_radiation_low", 1,5 );
-					teargas_timer++;
-					continue;
+					player shellshock( "mp_radiation_low", 1.5 );
 				}
 				else if ( distancesquared( player.origin, self.origin ) > ( ( ( level.brutus_teargas_radius * 1 ) / 3 ) * ( ( level.brutus_teargas_radius * 1 ) / 3 ) ) )
 				{
-					player shellshock( "mp_radiation_med", 1,5 );
-					teargas_timer++;
-					continue;
+					player shellshock( "mp_radiation_med", 1.5 );
 				}
 				else
 				{
-					player shellshock( "mp_radiation_high", 1,5 );
+					player shellshock( "mp_radiation_high", 1.5 );
 				}
 			}
 			teargas_timer++;
-			wait 0,1;
+			wait 0.1;
 		}
 	}
 }
 
-teargas_trigger_think()
+teargas_trigger_think() //checked changed to match cerberus output
 {
 	self endon( "kill_teargas" );
 	self thread kill_teargas_after_duration( level.brutus_teargas_duration );
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( players[ i ].being_teargassed ) && !players[ i ].being_teargassed )
 		{
 			self thread teargas_player( players[ i ] );
 		}
-		i++;
 	}
 }
 
-precache_default_brutus_barrier_fx()
+precache_default_brutus_barrier_fx() //checked matches cerberus output
 {
 	level._effect[ "brutus_smash_default" ] = loadfx( "maps/zombie_alcatraz/fx_alcatraz_brut_brk_wood" );
 }
 
-scale_helmet_damage( attacker, damage, headshot_mod, damage_mod, vdir )
+scale_helmet_damage( attacker, damage, headshot_mod, damage_mod, vdir ) //checked matches cerberus output
 {
 	if ( !self.has_helmet )
 	{
@@ -2145,17 +2121,17 @@ scale_helmet_damage( attacker, damage, headshot_mod, damage_mod, vdir )
 	}
 }
 
-brutus_non_attacker_damage_override( damage, weapon )
+brutus_non_attacker_damage_override( damage, weapon ) //checked changed to match cerberus output
 {
 	scaled_dmg = 0;
 	if ( weapon == "tower_trap_zm" )
 	{
-		scaled_dmg = self scale_helmet_damage( undefined, damage, 0,1, 0,01, vectorScale( ( 0, 0, 0 ), 10 ) );
+		scaled_dmg = self scale_helmet_damage( undefined, damage, 0.1, 0.01, vectorScale( ( 0, 1, 0 ), 10 ) );
 	}
 	return int( scaled_dmg );
 }
 
-is_weapon_shotgun( sweapon )
+is_weapon_shotgun( sweapon ) //checked matches cerberus output
 {
 	if ( weaponclass( sweapon ) == "spread" )
 	{
@@ -2164,9 +2140,9 @@ is_weapon_shotgun( sweapon )
 	return 0;
 }
 
-brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, poffsettime, boneindex )
+brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon, vpoint, vdir, shitloc, poffsettime, boneindex ) //checked changed to match cerberus output
 {
-	if ( isDefined( attacker ) && isalive( attacker ) && isplayer( attacker ) || level.zombie_vars[ attacker.team ][ "zombie_insta_kill" ] && isDefined( attacker.personal_instakill ) && attacker.personal_instakill )
+	if ( isDefined( attacker ) && isalive( attacker ) && isplayer( attacker ) && level.zombie_vars[ attacker.team ][ "zombie_insta_kill" ] || isDefined( attacker.personal_instakill ) && attacker.personal_instakill )
 	{
 		n_brutus_damage_percent = 1;
 		n_brutus_headshot_modifier = 2;
@@ -2194,16 +2170,13 @@ brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon
 			{
 				self.helmet_hits = level.brutus_helmet_shots;
 			}
+			else if ( isDefined( inflictor.n_grenade_charge_power ) && inflictor.n_grenade_charge_power >= 2 )
+			{
+				self.helmet_hits = level.brutus_helmet_shots;
+			}
 			else
 			{
-				if ( isDefined( inflictor.n_grenade_charge_power ) && inflictor.n_grenade_charge_power >= 2 )
-				{
-					self.helmet_hits = level.brutus_helmet_shots;
-				}
-				else
-				{
-					self.helmet_hits++;
-				}
+				self.helmet_hits++;
 			}
 			if ( self.helmet_hits >= level.brutus_helmet_shots )
 			{
@@ -2221,7 +2194,7 @@ brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon
 				{
 					attacker add_to_player_score( player_points );
 					attacker.pers[ "score" ] = attacker.score;
-					level notify( "brutus_helmet_removed" );
+					level notify( "brutus_helmet_removed", attacker );
 				}
 			}
 			return damage * n_brutus_damage_percent;
@@ -2231,7 +2204,7 @@ brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon
 			return damage;
 		}
 	}
-	if ( isDefined( meansofdeath ) || meansofdeath == "MOD_MELEE" && meansofdeath == "MOD_IMPACT" )
+	if ( ( meansofdeath == "MOD_MELEE" || meansofdeath == "MOD_IMPACT" ) && isDefined( meansofdeath ) )
 	{
 		if ( weapon == "alcatraz_shield_zm" )
 		{
@@ -2258,7 +2231,7 @@ brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon
 		}
 		if ( self.explosive_dmg_taken >= self.explosive_dmg_req && isDefined( self.has_helmet ) && self.has_helmet )
 		{
-			self thread brutus_remove_helmet( vectorScale( ( 0, 0, 0 ), 10 ) );
+			self thread brutus_remove_helmet( vectorScale( ( 0, 1, 0 ), 10 ) );
 			if ( level.brutus_in_grief )
 			{
 				player_points = level.brutus_points_for_helmet;
@@ -2273,35 +2246,32 @@ brutus_damage_override( inflictor, attacker, damage, flags, meansofdeath, weapon
 		}
 		return damage * scaler;
 	}
+	else if ( shitloc != "head" && shitloc != "helmet" )
+	{
+		return damage * n_brutus_damage_percent;
+	}
 	else
 	{
-		if ( shitloc != "head" && shitloc != "helmet" )
-		{
-			return damage * n_brutus_damage_percent;
-		}
-		else
-		{
-			return int( self scale_helmet_damage( attacker, damage, n_brutus_headshot_modifier, n_brutus_damage_percent, vdir ) );
-		}
+		return int( self scale_helmet_damage( attacker, damage, n_brutus_headshot_modifier, n_brutus_damage_percent, vdir ) );
 	}
 }
 
-brutus_instakill_override()
+brutus_instakill_override() //checked matches cerberus output
 {
 	return;
 }
 
-brutus_nuke_override()
+brutus_nuke_override() //checked matches cerberus output
 {
 	self endon( "death" );
-	wait randomfloatrange( 0,1, 0,7 );
+	wait randomfloatrange( 0.1, 0.7 );
 	self thread maps/mp/animscripts/zm_death::flame_death_fx();
 	self playsound( "evt_nuked" );
-	self dodamage( level.brutus_health * 0,25, self.origin );
+	self dodamage( level.brutus_health * 0.25, self.origin );
 	return;
 }
 
-custom_brutus_flame_death_fx()
+custom_brutus_flame_death_fx() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( self.is_on_fire ) && self.is_on_fire )
@@ -2324,9 +2294,11 @@ custom_brutus_flame_death_fx()
 	}
 	else
 	{
+		/*
 /#
 		println( "^3ANIMSCRIPT WARNING: You are missing level._effect["character_fire_death_torso"], please set it in your levelname_fx.gsc. Use "env/fire/fx_fire_player_torso"" );
 #/
+		*/
 	}
 	if ( isDefined( level._effect ) && isDefined( level._effect[ "character_fire_death_sm" ] ) )
 	{
@@ -2367,14 +2339,16 @@ custom_brutus_flame_death_fx()
 	}
 	else
 	{
+		/*
 /#
 		println( "^3ANIMSCRIPT WARNING: You are missing level._effect["character_fire_death_sm"], please set it in your levelname_fx.gsc. Use "env/fire/fx_fire_zombie_md"" );
 #/
+		*/
 	}
 	self thread custom_brutus_on_fire_timeout( a_script_origins );
 }
 
-custom_brutus_on_fire_timeout( a_script_origins )
+custom_brutus_on_fire_timeout( a_script_origins ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	wait 3;
@@ -2383,34 +2357,30 @@ custom_brutus_on_fire_timeout( a_script_origins )
 		self.is_on_fire = 0;
 		self notify( "stop_flame_damage" );
 	}
-	_a2804 = a_script_origins;
-	_k2804 = getFirstArrayKey( _a2804 );
-	while ( isDefined( _k2804 ) )
+	foreach ( script_origin in a_script_origins )
 	{
-		script_origin = _a2804[ _k2804 ];
 		script_origin delete();
-		_k2804 = getNextArrayKey( _a2804, _k2804 );
 	}
 }
 
-brutus_debug()
+brutus_debug() //checked changed to match cerberus output dvar name not found
 {
+	/*
 /#
 	while ( 1 )
 	{
 		debug_level = getDvarInt( #"8DB11170" );
-		while ( isDefined( debug_level ) && debug_level )
+		if ( isDefined( debug_level ) && debug_level )
 		{
-			while ( debug_level == 1 )
+			if ( debug_level == 1 )
 			{
 				brutus_array = getentarray( "brutus_zombie_ai" );
-				i = 0;
-				while ( i < brutus_array.size )
+				for ( i = 0; i < brutus_array.size; i++ )
 				{
 					if ( isDefined( brutus_array[ i ].goal_pos ) )
 					{
-						debugstar( brutus_array[ i ].goal_pos, ( 0, 0, 0 ), 1 );
-						line( brutus_array[ i ].goal_pos, brutus_array[ i ].origin, ( 0, 0, 0 ), 0, 1 );
+						debugstar( brutus_array[ i ].goal_pos, ( 1, 0, 0 ), 1 );
+						line( brutus_array[ i ].goal_pos, brutus_array[ i ].origin, ( 1, 0, 0 ), 0, 1 );
 					}
 					i++;
 				}
@@ -2418,20 +2388,18 @@ brutus_debug()
 		}
 #/
 	}
+	*/
 }
 
-brutus_check_zone()
+brutus_check_zone() //checked partially changed to match cerberus output see info.md
 {
 	self endon( "death" );
 	self.in_player_zone = 0;
 	while ( 1 )
 	{
 		self.in_player_zone = 0;
-		_a2851 = level.zones;
-		_k2851 = getFirstArrayKey( _a2851 );
-		while ( isDefined( _k2851 ) )
+		foreach ( zone in level.zones )
 		{
-			zone = _a2851[ _k2851 ];
 			if ( !isDefined( zone.volumes ) || zone.volumes.size == 0 )
 			{
 			}
@@ -2447,16 +2415,12 @@ brutus_check_zone()
 					}
 				}
 			}
-			else
-			{
-				_k2851 = getNextArrayKey( _a2851, _k2851 );
-			}
 		}
-		wait 0,2;
+		wait 0.2;
 	}
 }
 
-brutus_watch_enemy()
+brutus_watch_enemy() //checked matches cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
@@ -2465,11 +2429,11 @@ brutus_watch_enemy()
 		{
 			self.favoriteenemy = get_favorite_enemy();
 		}
-		wait 0,2;
+		wait 0.2;
 	}
 }
 
-get_favorite_enemy()
+get_favorite_enemy() //checked partially changed to match cerberus output see info.md
 {
 	brutus_targets = getplayers();
 	least_hunted = brutus_targets[ 0 ];
@@ -2485,16 +2449,13 @@ get_favorite_enemy()
 			i++;
 			continue;
 		}
-		else
+		if ( !is_player_valid( least_hunted ) )
 		{
-			if ( !is_player_valid( least_hunted ) )
-			{
-				least_hunted = brutus_targets[ i ];
-			}
-			if ( brutus_targets[ i ].hunted_by < least_hunted.hunted_by )
-			{
-				least_hunted = brutus_targets[ i ];
-			}
+			least_hunted = brutus_targets[ i ];
+		}
+		if ( brutus_targets[ i ].hunted_by < least_hunted.hunted_by )
+		{
+			least_hunted = brutus_targets[ i ];
 		}
 		i++;
 	}
@@ -2502,7 +2463,7 @@ get_favorite_enemy()
 	return least_hunted;
 }
 
-brutus_lockdown_client_effects( delay )
+brutus_lockdown_client_effects( delay ) //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( isDefined( delay ) )
@@ -2521,44 +2482,40 @@ brutus_lockdown_client_effects( delay )
 	}
 }
 
-get_brutus_interest_points()
+get_brutus_interest_points() //checked changed to match cerberus output
 {
 	zone_names = getarraykeys( level.zones );
-	i = 0;
-	while ( i < zone_names.size )
+	for ( i = 0; i < zone_names.size; i++ )
 	{
 		self thread get_zone_perk_machines( zone_names[ i ] );
 		self thread get_zone_craftable_tables( zone_names[ i ] );
 		self thread get_zone_traps( zone_names[ i ] );
 		self thread get_zone_plane_ramp( zone_names[ i ] );
-		i++;
 	}
 	build_trap_array();
 	flag_set( "brutus_setup_complete" );
 }
 
-build_trap_array()
+build_trap_array() //checked matches cerberus output
 {
 	fan_array = getentarray( "acid_trap_trigger", "targetname" );
 	acid_array = getentarray( "fan_trap_use_trigger", "targetname" );
 	level.trap_triggers = arraycombine( fan_array, acid_array, 0, 0 );
 }
 
-add_machines_in_zone( zone, zone_name, match_string )
+add_machines_in_zone( zone, zone_name, match_string ) //checked changed to match cerberus output
 {
 	machine_array = getentarray( match_string, "targetname" );
-	i = 0;
-	while ( i < machine_array.size )
+	for ( i = 0; i < machine_array.size; i++ )
 	{
 		if ( machine_array[ i ] entity_in_zone( zone_name, 1 ) )
 		{
 			zone.perk_machines[ zone.perk_machines.size ] = machine_array[ i ];
 		}
-		i++;
 	}
 }
 
-get_zone_perk_machines( zone_name )
+get_zone_perk_machines( zone_name ) //checked matches cerberus output
 {
 	zone = level.zones[ zone_name ];
 	zone.perk_machines = [];
@@ -2605,7 +2562,7 @@ get_zone_perk_machines( zone_name )
 	}
 }
 
-get_zone_craftable_tables( zone_name )
+get_zone_craftable_tables( zone_name ) //checked partially changed to match cerberus output see info.md
 {
 	flag_wait( "initial_players_connected" );
 	zone = level.zones[ zone_name ];
@@ -2624,74 +2581,65 @@ get_zone_craftable_tables( zone_name )
 			i++;
 			continue;
 		}
-		else
+		scr_org.origin = craftable_tables[ i ].origin;
+		wait 0.05;
+		if ( craftable_tables[ i ].equipname == "open_table" && scr_org entity_in_zone( zone_name, 1 ) )
 		{
-			scr_org.origin = craftable_tables[ i ].origin;
-			wait 0,05;
-			if ( craftable_tables[ i ].equipname == "open_table" && scr_org entity_in_zone( zone_name, 1 ) )
-			{
-				zone.craftable_tables[ zone.craftable_tables.size ] = getstruct( craftable_tables[ i ].target, "targetname" );
-			}
+			zone.craftable_tables[ zone.craftable_tables.size ] = getstruct( craftable_tables[ i ].target, "targetname" );
 		}
 		i++;
 	}
 	scr_org delete();
 }
 
-get_zone_traps( zone_name )
+get_zone_traps( zone_name ) //checked changed to match cerberus output
 {
 	zone = level.zones[ zone_name ];
 	zone.traps = [];
 	acid_traps = getentarray( "acid_trap_trigger", "targetname" );
 	scr_org = spawn( "script_origin", ( 0, 0, 0 ) );
-	i = 0;
-	while ( i < acid_traps.size )
+	for ( i = 0; i < acid_traps.size; i++ )
 	{
 		target_struct = getstruct( acid_traps[ i ].script_parameters, "targetname" );
 		acid_traps[ i ].target_struct = target_struct;
 		scr_org.origin = target_struct.origin;
-		wait 0,05;
+		wait 0.05;
 		if ( scr_org entity_in_zone( zone_name, 1 ) )
 		{
 			zone.traps[ zone.traps.size ] = acid_traps[ i ].target_struct;
 			target_struct.trigger = acid_traps[ i ];
 		}
-		i++;
 	}
 	fan_traps = getentarray( "fan_trap_use_trigger", "targetname" );
-	i = 0;
-	while ( i < fan_traps.size )
+	for ( i = 0; i < fan_traps.size; i++ )
 	{
 		target_struct = getstruct( fan_traps[ i ].script_parameters, "targetname" );
 		fan_traps[ i ].target_struct = target_struct;
 		scr_org.origin = target_struct.origin;
-		wait 0,05;
+		wait 0.05;
 		if ( scr_org entity_in_zone( zone_name, 1 ) )
 		{
 			zone.traps[ zone.traps.size ] = fan_traps[ i ].target_struct;
 			target_struct.trigger = fan_traps[ i ];
 		}
-		i++;
 	}
 	tower_traps = getentarray( "tower_trap_activate_trigger", "targetname" );
-	i = 0;
-	while ( i < tower_traps.size )
+	for ( i = 0; i < tower_traps.size; i++ )
 	{
 		target_struct = getstruct( tower_traps[ i ].script_parameters, "targetname" );
 		tower_traps[ i ].target_struct = target_struct;
 		scr_org.origin = target_struct.origin;
-		wait 0,05;
+		wait 0.05;
 		if ( scr_org entity_in_zone( zone_name, 1 ) )
 		{
 			zone.traps[ zone.traps.size ] = tower_traps[ i ].target_struct;
 			target_struct.trigger = tower_traps[ i ];
 		}
-		i++;
 	}
 	scr_org delete();
 }
 
-get_zone_plane_ramp( zone_name )
+get_zone_plane_ramp( zone_name ) //checked changed to match cerberus output
 {
 	flag_wait( "initial_players_connected" );
 	zone = level.zones[ zone_name ];
@@ -2711,13 +2659,12 @@ get_zone_plane_ramp( zone_name )
 	{
 		wait 1;
 	}
-	i = 0;
-	while ( i < level.a_uts_craftables.size )
+	for ( i = 0; i < level.a_uts_craftables.size; i++ )
 	{
 		if ( level.a_uts_craftables[ i ].equipname == "plane" )
 		{
 			scr_org.origin = level.a_uts_craftables[ i ].origin;
-			wait 0,05;
+			wait 0.05;
 			if ( scr_org entity_in_zone( zone_name, 1 ) )
 			{
 				zone.plane_triggers[ zone.plane_triggers.size ] = level.a_uts_craftables[ i ];
@@ -2730,7 +2677,7 @@ get_zone_plane_ramp( zone_name )
 	scr_org delete();
 }
 
-check_magic_box_valid( player )
+check_magic_box_valid( player ) //checked matches cerberus output
 {
 	if ( isDefined( self.is_locked ) && self.is_locked )
 	{
@@ -2746,7 +2693,7 @@ check_magic_box_valid( player )
 	return 1;
 }
 
-check_perk_machine_valid( player )
+check_perk_machine_valid( player ) //checked matches cerberus output
 {
 	if ( isDefined( self.is_locked ) && self.is_locked )
 	{
@@ -2763,7 +2710,7 @@ check_perk_machine_valid( player )
 	return 1;
 }
 
-check_craftable_table_valid( player )
+check_craftable_table_valid( player ) //checked changed to match cerberus output
 {
 	if ( !isDefined( self.stub ) && isDefined( self.is_locked ) && self.is_locked )
 	{
@@ -2776,26 +2723,23 @@ check_craftable_table_valid( player )
 		}
 		return 0;
 	}
-	else
+	else if ( isDefined( self.stub ) && isDefined( self.stub.is_locked ) && self.stub.is_locked )
 	{
-		if ( isDefined( self.stub ) && isDefined( self.stub.is_locked ) && self.stub.is_locked )
+		if ( player.score >= self.stub.locked_cost )
 		{
-			if ( player.score >= self.stub.locked_cost )
-			{
-				player minus_to_player_score( self.stub.locked_cost );
-				self.stub.is_locked = 0;
-				self.stub.locked_cost = undefined;
-				self.stub.lock_fx delete();
-				self.stub thread maps/mp/zombies/_zm_craftables::craftablestub_update_prompt( player );
-				self sethintstring( self.stub.hint_string );
-			}
-			return 0;
+			player minus_to_player_score( self.stub.locked_cost );
+			self.stub.is_locked = 0;
+			self.stub.locked_cost = undefined;
+			self.stub.lock_fx delete();
+			self.stub thread maps/mp/zombies/_zm_craftables::craftablestub_update_prompt( player );
+			self sethintstring( self.stub.hint_string );
 		}
+		return 0;
 	}
 	return 1;
 }
 
-check_plane_valid( player )
+check_plane_valid( player ) //checked matches cerberus output
 {
 	if ( isDefined( self.fly_trigger_target ) )
 	{
@@ -2820,7 +2764,7 @@ check_plane_valid( player )
 	return 1;
 }
 
-sndbrutusvox( alias, num )
+sndbrutusvox( alias, num ) //checked matches cerberus output
 {
 	self endon( "brutus_cleanup" );
 	if ( !isDefined( alias ) )
@@ -2843,7 +2787,7 @@ sndbrutusvox( alias, num )
 		playbacktime = soundgetplaybacktime( alias );
 		if ( playbacktime >= 0 )
 		{
-			playbacktime *= 0,001;
+			playbacktime *= 0.001;
 		}
 		else
 		{
@@ -2855,49 +2799,43 @@ sndbrutusvox( alias, num )
 	}
 }
 
-get_fly_trigger()
+get_fly_trigger() //checked changed to match cerberus output
 {
 	plane_triggers = level.zones[ "zone_roof" ].plane_triggers;
-	i = 0;
-	while ( i < plane_triggers.size )
+	for ( i = 0; i < plane_triggers.size; i++ )
 	{
 		if ( isDefined( plane_triggers[ i ].fly_trigger ) )
 		{
 			return plane_triggers[ i ];
 		}
-		i++;
 	}
 }
 
-get_build_trigger()
+get_build_trigger() //checked changed to match cerberus output
 {
 	plane_triggers = level.zones[ "zone_roof" ].plane_triggers;
-	i = 0;
-	while ( i < plane_triggers.size )
+	for ( i = 0; i < plane_triggers.size; i++ )
 	{
 		if ( isDefined( plane_triggers[ i ].equipname ) && plane_triggers[ i ].equipname == "plane" )
 		{
 			return plane_triggers[ i ];
 		}
-		i++;
 	}
 }
 
-get_fuel_trigger()
+get_fuel_trigger() //checked changed to match cerberus output
 {
 	plane_triggers = level.zones[ "zone_roof" ].plane_triggers;
-	i = 0;
-	while ( i < plane_triggers.size )
+	for ( i = 0; i < plane_triggers.size; i++ )
 	{
 		if ( isDefined( plane_triggers[ i ].equipname ) && plane_triggers[ i ].equipname == "refuelable_plane" )
 		{
 			return plane_triggers[ i ];
 		}
-		i++;
 	}
 }
 
-transfer_plane_trigger( from, to )
+transfer_plane_trigger( from, to ) //checked matches cerberus output
 {
 	if ( from == "fly" )
 	{
@@ -2937,3 +2875,7 @@ transfer_plane_trigger( from, to )
 		t_plane_fly sethintstring( &"ZM_PRISON_PLANE_BOARD" );
 	}
 }
+
+
+
+
