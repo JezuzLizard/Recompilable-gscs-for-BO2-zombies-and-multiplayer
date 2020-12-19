@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/animscripts/zm_death;
 #include maps/mp/zombies/_zm_perks;
@@ -6,17 +7,15 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init_nuked_perks()
+init_nuked_perks() //checked changed to match cerberus output
 {
 	level.perk_arrival_vehicle = getent( "perk_arrival_vehicle", "targetname" );
 	level.perk_arrival_vehicle setmodel( "tag_origin" );
 	flag_init( "perk_vehicle_bringing_in_perk" );
 	structs = getstructarray( "zm_perk_machine", "targetname" );
-	i = 0;
-	while ( i < structs.size )
+	for ( i = 0; i < structs.size; i++ )
 	{
 		structs[ i ] structdelete();
-		i++;
 	}
 	level.nuked_perks = [];
 	level.nuked_perks[ 0 ] = spawnstruct();
@@ -44,12 +43,10 @@ init_nuked_perks()
 	{
 		level.override_perk_targetname = "zm_perk_machine_override";
 		revive_perk_structs = getstructarray( "solo_revive", "targetname" );
-		i = 0;
-		while ( i < revive_perk_structs.size )
+		for ( i = 0; i < revive_perk_structs.size; i++ )
 		{
 			random_revive_structs[ i ] = getstruct( revive_perk_structs[ i ].target, "targetname" );
 			random_revive_structs[ i ].script_int = revive_perk_structs[ i ].script_int;
-			i++;
 		}
 		level.random_revive_structs = array_randomize( random_revive_structs );
 		level.random_revive_structs[ 0 ].targetname = "zm_perk_machine_override";
@@ -62,22 +59,21 @@ init_nuked_perks()
 			level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ] = [];
 		}
 		level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_revive_structs[ 0 ];
+		/*
 /#
 		level.random_revive_structs[ 0 ] thread draw_debug_location();
 #/
+		*/
 		random_perk_structs = [];
 		perk_structs = getstructarray( "zm_random_machine", "script_noteworthy" );
 		perk_structs = array_exclude( perk_structs, revive_perk_structs );
-		i = 0;
-		while ( i < perk_structs.size )
+		for ( i = 0; i < perk_structs.size; i++ )
 		{
 			random_perk_structs[ i ] = getstruct( perk_structs[ i ].target, "targetname" );
 			random_perk_structs[ i ].script_int = perk_structs[ i ].script_int;
-			i++;
 		}
 		level.random_perk_structs = array_randomize( random_perk_structs );
-		i = 1;
-		while ( i < 5 )
+		for ( i = 1; i < 5; i++ )
 		{
 			level.random_perk_structs[ i ].targetname = "zm_perk_machine_override";
 			level.random_perk_structs[ i ].model = level.nuked_perks[ i ].model;
@@ -89,25 +85,23 @@ init_nuked_perks()
 				level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ] = [];
 			}
 			level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_perk_structs[ i ];
+			/*
 /#
 			level.random_perk_structs[ i ] thread draw_debug_location();
 #/
-			i++;
+			*/
 		}
 	}
-	else level.override_perk_targetname = "zm_perk_machine_override";
+	level.override_perk_targetname = "zm_perk_machine_override";
 	random_perk_structs = [];
 	perk_structs = getstructarray( "zm_random_machine", "script_noteworthy" );
-	i = 0;
-	while ( i < perk_structs.size )
+	for ( i = 0; i < perk_structs.size; i++ )
 	{
 		random_perk_structs[ i ] = getstruct( perk_structs[ i ].target, "targetname" );
 		random_perk_structs[ i ].script_int = perk_structs[ i ].script_int;
-		i++;
 	}
 	level.random_perk_structs = array_randomize( random_perk_structs );
-	i = 0;
-	while ( i < 5 )
+	for ( i = 0; i < 5; i++ )
 	{
 		level.random_perk_structs[ i ].targetname = "zm_perk_machine_override";
 		level.random_perk_structs[ i ].model = level.nuked_perks[ i ].model;
@@ -119,20 +113,19 @@ init_nuked_perks()
 			level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ] = [];
 		}
 		level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ][ level.struct_class_names[ "targetname" ][ "zm_perk_machine_override" ].size ] = level.random_perk_structs[ i ];
+		/*
 /#
 		level.random_perk_structs[ i ] thread draw_debug_location();
 #/
-		i++;
+		*/
 	}
 }
 
-draw_debug_location()
+draw_debug_location() //checked matches cerberus output
 {
-/#
-#/
 }
 
-wait_for_round_range( start_round, end_round )
+wait_for_round_range( start_round, end_round ) //checked matches cerberus output
 {
 	round_to_spawn = randomintrange( start_round, end_round );
 	while ( level.round_number < round_to_spawn )
@@ -141,7 +134,7 @@ wait_for_round_range( start_round, end_round )
 	}
 }
 
-bring_random_perk( machines, machine_triggers )
+bring_random_perk( machines, machine_triggers ) //checked matches cerberus output
 {
 	count = machines.size;
 	if ( count <= 0 )
@@ -154,7 +147,7 @@ bring_random_perk( machines, machine_triggers )
 	arrayremoveindex( machine_triggers, index );
 }
 
-bring_perk( machine, trigger )
+bring_perk( machine, trigger ) //checked changed to match cerberus output
 {
 	players = get_players();
 	is_doubletap = 0;
@@ -162,7 +155,7 @@ bring_perk( machine, trigger )
 	is_revive = 0;
 	is_jugger = 0;
 	flag_waitopen( "perk_vehicle_bringing_in_perk" );
-	playsoundatposition( "zmb_perks_incoming_quad_front", ( 0, -1, 0 ) );
+	playsoundatposition( "zmb_perks_incoming_quad_front", ( 0, 0, 0 ) );
 	playsoundatposition( "zmb_perks_incoming_alarm", ( -2198, 486, 327 ) );
 	machine setclientfield( "clientfield_perk_intro_fx", 1 );
 	machine.fx = spawn( "script_model", machine.origin );
@@ -171,14 +164,16 @@ bring_perk( machine, trigger )
 	machine.fx.angles = machine.angles;
 	machine.fx setmodel( "tag_origin" );
 	machine.fx linkto( machine );
-	machine linkto( level.perk_arrival_vehicle, "tag_origin", ( 0, -1, 0 ), ( 0, -1, 0 ) );
+	machine linkto( level.perk_arrival_vehicle, "tag_origin", ( 0, 0, 0 ), ( 0, 0, 0 ) );
 	start_node = getvehiclenode( "perk_arrival_path_" + machine.script_int, "targetname" );
+	/*
 /#
 	level.perk_arrival_vehicle thread draw_debug_location();
 #/
+	*/
 	level.perk_arrival_vehicle perk_follow_path( start_node );
 	machine unlink();
-	offset = ( 0, -1, 0 );
+	offset = ( 0, 0, 0 );
 	if ( issubstr( machine.targetname, "doubletap" ) )
 	{
 		forward_dir = anglesToForward( machine.original_angles + vectorScale( ( 0, -1, 0 ), 90 ) );
@@ -198,14 +193,11 @@ bring_perk( machine, trigger )
 		trigger.blocker_model hide();
 		is_revive = 1;
 	}
-	else
+	else if ( issubstr( machine.targetname, "jugger" ) )
 	{
-		if ( issubstr( machine.targetname, "jugger" ) )
-		{
-			forward_dir = anglesToForward( machine.original_angles + vectorScale( ( 0, -1, 0 ), 90 ) );
-			offset = vectorScale( forward_dir * -1, 10 );
-			is_jugger = 1;
-		}
+		forward_dir = anglesToForward( machine.original_angles + vectorScale( ( 0, -1, 0 ), 90 ) );
+		offset = vectorScale( forward_dir * -1, 10 );
+		is_jugger = 1;
 	}
 	if ( !is_revive )
 	{
@@ -219,7 +211,7 @@ bring_perk( machine, trigger )
 		level.quick_revive_final_pos = machine.origin;
 		level.quick_revive_final_angles = machine.angles;
 	}
-	machine.fx stoploopsound( 0,5 );
+	machine.fx stoploopsound( 0.5 );
 	machine setclientfield( "clientfield_perk_intro_fx", 0 );
 	playsoundatposition( "zmb_perks_incoming_land", machine.origin );
 	trigger trigger_on();
@@ -228,7 +220,7 @@ bring_perk( machine, trigger )
 	machine.fx delete();
 	machine notify( machine.turn_on_notify );
 	level notify( machine.turn_on_notify );
-	machine vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0,3, 0,4, 3 );
+	machine vibrate( vectorScale( ( 0, -1, 0 ), 100 ), 0.3, 0.4, 3 );
 	machine playsound( "zmb_perks_power_on" );
 	machine maps/mp/zombies/_zm_perks::perk_fx( undefined, 1 );
 	if ( is_revive )
@@ -244,32 +236,28 @@ bring_perk( machine, trigger )
 	{
 		machine thread maps/mp/zombies/_zm_perks::perk_fx( "doubletap_light" );
 	}
-	else
+	else if ( is_sleight )
 	{
-		if ( is_sleight )
-		{
-			machine thread maps/mp/zombies/_zm_perks::perk_fx( "sleight_light" );
-		}
+		machine thread maps/mp/zombies/_zm_perks::perk_fx( "sleight_light" );
 	}
 }
 
-perk_incoming_sound()
+perk_incoming_sound() //checked matches cerberus output
 {
 	self endon( "death" );
 	wait 10;
 	self playsound( "zmb_perks_incoming" );
 }
 
-bring_perk_landing_damage()
+bring_perk_landing_damage() //checked partially changed to match cerberus output see info.md No. 2
 {
 	player_prone_damage_radius = 300;
-	earthquake( 0,7, 2,5, self.origin, 1000 );
+	earthquake( 0.7, 2.5, self.origin, 1000 );
 	radiusdamage( self.origin, player_prone_damage_radius, 10, 5, undefined, "MOD_EXPLOSIVE" );
 	exploder( 500 + self.script_int );
 	exploder( 511 );
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( distancesquared( players[ i ].origin, self.origin ) <= ( player_prone_damage_radius * player_prone_damage_radius ) )
 		{
@@ -277,35 +265,28 @@ bring_perk_landing_damage()
 			players[ i ] shellshock( "default", 1,5 );
 			radiusdamage( players[ i ].origin, player_prone_damage_radius / 2, 10, 5, undefined, "MOD_EXPLOSIVE" );
 		}
-		i++;
 	}
 	zombies = getaiarray( level.zombie_team );
-	i = 0;
-	while ( i < zombies.size )
+	for ( i = 0; i < zombies.size; i++ )
 	{
 		zombie = zombies[ i ];
 		if ( !isDefined( zombie ) || !isalive( zombie ) )
 		{
-			i++;
-			continue;
 		}
 		else
 		{
 			if ( distancesquared( zombie.origin, self.origin ) > 250000 )
 			{
-				i++;
-				continue;
 			}
 			else
 			{
 				zombie thread perk_machine_knockdown_zombie( self.origin );
 			}
 		}
-		i++;
 	}
 }
 
-perk_machine_knockdown_zombie( origin )
+perk_machine_knockdown_zombie( origin ) //checked matches cerberus output
 {
 	self.a.gib_ref = random( array( "guts", "right_arm", "left_arm" ) );
 	self thread maps/mp/animscripts/zm_death::do_gib();
@@ -314,7 +295,7 @@ perk_machine_knockdown_zombie( origin )
 	self dodamage( self.health + 100, origin );
 }
 
-perk_follow_path( node )
+perk_follow_path( node ) //checked matches cerberus output
 {
 	flag_set( "perk_vehicle_bringing_in_perk" );
 	self notify( "newpath" );
@@ -334,13 +315,13 @@ perk_follow_path( node )
 	flag_clear( "perk_vehicle_bringing_in_perk" );
 }
 
-turn_perks_on()
+turn_perks_on() //checked matches cerberus output
 {
 	wait 3;
 	maps/mp/zombies/_zm_game_module::turn_power_on_and_open_doors();
 }
 
-perks_from_the_sky()
+perks_from_the_sky() //checked matches cerberus output
 {
 	level thread turn_perks_on();
 	top_height = 8000;
@@ -352,23 +333,23 @@ perks_from_the_sky()
 		return;
 	}
 	machine_triggers[ 0 ] = getent( "vending_revive", "target" );
-	move_perk( machines[ 0 ], top_height, 5, 0,001 );
+	move_perk( machines[ 0 ], top_height, 5, 0.001 );
 	machine_triggers[ 0 ] trigger_off();
 	machines[ 1 ] = getent( "vending_doubletap", "targetname" );
 	machine_triggers[ 1 ] = getent( "vending_doubletap", "target" );
-	move_perk( machines[ 1 ], top_height, 5, 0,001 );
+	move_perk( machines[ 1 ], top_height, 5, 0.001 );
 	machine_triggers[ 1 ] trigger_off();
 	machines[ 2 ] = getent( "vending_sleight", "targetname" );
 	machine_triggers[ 2 ] = getent( "vending_sleight", "target" );
-	move_perk( machines[ 2 ], top_height, 5, 0,001 );
+	move_perk( machines[ 2 ], top_height, 5, 0.001 );
 	machine_triggers[ 2 ] trigger_off();
 	machines[ 3 ] = getent( "vending_jugg", "targetname" );
 	machine_triggers[ 3 ] = getent( "vending_jugg", "target" );
-	move_perk( machines[ 3 ], top_height, 5, 0,001 );
+	move_perk( machines[ 3 ], top_height, 5, 0.001 );
 	machine_triggers[ 3 ] trigger_off();
 	machine_triggers[ 4 ] = getent( "specialty_weapupgrade", "script_noteworthy" );
 	machines[ 4 ] = getent( machine_triggers[ 4 ].target, "targetname" );
-	move_perk( machines[ 4 ], top_height, 5, 0,001 );
+	move_perk( machines[ 4 ], top_height, 5, 0.001 );
 	machine_triggers[ 4 ] trigger_off();
 	flag_wait( "initial_blackscreen_passed" );
 	wait randomfloatrange( 5, 15 );
@@ -398,7 +379,7 @@ perks_from_the_sky()
 	bring_random_perk( machines, machine_triggers );
 }
 
-move_perk( ent, dist, time, accel )
+move_perk( ent, dist, time, accel ) //checked matches cerberus output 
 {
 	ent.original_pos = ent.origin;
 	ent.original_angles = ent.angles;
