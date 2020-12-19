@@ -260,7 +260,6 @@ init() //checked matches cerberus output
 	level thread onallplayersready();
 	level thread startunitriggers();
 	level thread maps/mp/gametypes_zm/_zm_gametype::post_init_gametype();
-	level notify( "_zmFullyParsed" );
 }
 
 post_main() //checked matches cerberus output
@@ -519,7 +518,7 @@ getfreespawnpoint( spawnpoints, player ) //checked changed to match cerberus out
 		{
 			for ( m = 0; m < spawnpoints.size; m++ )
 			{
-				spawnpoints[m].en_num = m;
+				spawnpoints[ m ].en_num = m;
 			}
 		}
 		else if ( spawnpoints[ j ].en_num == self.playernum )
@@ -1063,7 +1062,7 @@ callback_playerlaststand( einflictor, eattacker, idamage, smeansofdeath, sweapon
 	[[ level.zm_laststand_playerlaststand ]]( einflictor, eattacker, idamage, smeansofdeath, sweapon, vdir, shitloc, psoffsettime, deathanimduration );
 }
 
-codecallback_destructibleevent( event, param1, param2, param3 ) //checked changed to match cerberus output
+codecallback_destructibleevent( event, param1, param2, param3 ) //see info.md No 8.
 {
 	if ( event == "broken" )
 	{
@@ -1074,7 +1073,7 @@ codecallback_destructibleevent( event, param1, param2, param3 ) //checked change
 		{
 			self thread [[ level.destructible_callbacks[ notify_type ] ]]( notify_type, attacker );
 		}
-		self notify( event, notify_type, attacker ); //added missing notify parameters from cerberus output
+		self notify( "broken", notify_type, attacker ); //added missing notify parameters from cerberus output
 	}
 	else if ( event == "breakafter" )
 	{
@@ -2343,20 +2342,22 @@ last_stand_best_pistol() //checked changed to match cerberus output
 {
 	pistol_array = [];
 	current_weapons = self getweaponslistprimaries();
-	for ( i = 0; i < current_weapons.size; i++ )
+	i = 0;
+	while ( i < current_weapons.size )
 	{
 		class = weaponclass( current_weapons[ i ] );
 		if ( issubstr( current_weapons[ i ], "knife_ballistic_" ) )
 		{
 			class = "knife";
 		}
-		if ( class != "pistol" || class == "pistolspread" || class == "pistol spread" )
+		if ( class == "pistol" || class == "pistolspread" || class == "pistol spread" )
 		{
 			if ( current_weapons[ i ] != level.default_laststandpistol && !flag( "solo_game" ) || !flag( "solo_game" ) && current_weapons[ i ] != level.default_solo_laststandpistol )
 			{
 				if ( self getammocount( current_weapons[ i ] ) <= 0)
 				{
-					break;
+					i++;
+					continue;
 				}
 			}
 			pistol_array_index = pistol_array.size;
@@ -2372,6 +2373,7 @@ last_stand_best_pistol() //checked changed to match cerberus output
 				}
 			}
 		}
+		i++;
 	}
 	self.laststandpistol = last_stand_compare_pistols( pistol_array );
 }
@@ -2409,7 +2411,7 @@ last_stand_compare_pistols( struct_array ) //checked changed to match cerberus o
 		{
 			self.hadpistol = 0;
 			self._special_solo_pistol_swap = 1;
-			if ( is_true( level.force_solo_quick_revive ) || !self hasperk( "specialty_quickrevive" ) )
+			if ( is_true( level.force_solo_quick_revive ) && !self hasperk( "specialty_quickrevive" ) )
 			{
 				return highest_score_pistol.gun;
 			}
@@ -2441,7 +2443,7 @@ last_stand_save_pistol_ammo() //checked changed to match cerberus output
 		{
 			class = "knife";
 		}
-		if ( class != "pistol" || class == "pistolspread" && class == "pistol spread" )
+		if ( class == "pistol" || class == "pistolspread" || class == "pistol spread" )
 		{
 			self.stored_weapon_info[ weapon ] = spawnstruct();
 			self.stored_weapon_info[ weapon ].clip_amt = self getweaponammoclip( weapon );
@@ -2468,11 +2470,13 @@ last_stand_restore_pistol_ammo() //checked changed to match cerberus output
 	}
 	weapon_inventory = self getweaponslist( 1 );
 	weapon_to_restore = getarraykeys( self.stored_weapon_info );
-	for ( i = 0; i < weapon_inventory.size; i++ )
+	i = 0;
+	while ( i < weapon_inventory.size )
 	{
 		weapon = weapon_inventory[ i ];
 		if(weapon != self.laststandpistol)
 		{
+			i++;
 			continue;
 		}
 		for ( j = 0; j < weapon_to_restore.size; j++ )
@@ -2520,6 +2524,7 @@ last_stand_restore_pistol_ammo() //checked changed to match cerberus output
 				break;
 			}
 		}
+		i++;
 	}
 }
 
@@ -2561,8 +2566,7 @@ last_stand_grenade_save_and_return() //checked changed to match cerberus output
 		self thread last_stand_take_thrown_grenade();
 	}
 	weapons_on_player = self getweaponslist( 1 );
-	i = 0;
-	while ( i < weapons_on_player.size )
+	for ( i = 0; i < weapons_on_player.size; i++ )
 	{
 		if ( self is_player_lethal_grenade( weapons_on_player[ i ] ) )
 		{
@@ -2571,10 +2575,8 @@ last_stand_grenade_save_and_return() //checked changed to match cerberus output
 			self.lsgsar_lethal_nade_amt = self getweaponammoclip( self get_player_lethal_grenade() );
 			self setweaponammoclip( self get_player_lethal_grenade(), 0 );
 			self takeweapon( self get_player_lethal_grenade() );
-			i++;
-			continue;
 		}
-		if ( self is_player_tactical_grenade( weapons_on_player[ i ] ) )
+		else if ( self is_player_tactical_grenade( weapons_on_player[ i ] ) )
 		{
 			self.lsgsar_has_tactical_nade = 1;
 			self.lsgsar_tactical = self get_player_tactical_grenade();
@@ -2582,7 +2584,6 @@ last_stand_grenade_save_and_return() //checked changed to match cerberus output
 			self setweaponammoclip( self get_player_tactical_grenade(), 0);
 			self takeweapon( self get_player_tactical_grenade() );
 		}
-		i++;
 	}
 	self waittill( "player_revived" );
 	if ( self.lsgsar_has_lethal_nade )
@@ -3047,12 +3048,6 @@ round_spawning() //checked changed to match cerberus output
 		level thread zombie_speed_up();
 	}
 	level.zombie_total = [[ level.max_zombie_func ]]( max );
-	//test
-	if ( isDefined( level.debugModZombieTotalOverride ) )
-	{
-		level.zombie_total = level.debugModZombieTotalOverride;
-	}
-	
 	level notify( "zombie_total_set" );
 	mixed_spawns = 0;
 	old_spawn = undefined;
@@ -4037,7 +4032,7 @@ playerzombie_play_sound( alias ) //checked matches cerberus output
 	self play_sound_on_ent( alias );
 }
 
-playerzombie_waitfor_buttonrelease( inputtype ) //checked changed to match cerberus output
+playerzombie_waitfor_buttonrelease( inputtype ) //may look into this if its broken 9/8/20
 {
 	if ( inputtype != "use" && inputtype != "attack" && inputtype != "ads" )
 	{
@@ -4191,7 +4186,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 		{
 			self thread playswipesound( smeansofdeath, eattacker );
 			//changed to match bo3 _zm.gsc
-			if ( isDefined( eattacker.is_zombie ) && eattacker.is_zombie || isplayer( eattacker ) )
+			if ( is_true( eattacker.is_zombie ) || isplayer( eattacker ) )
 			{
 				self playrumbleonentity( "damage_heavy" );
 			}
@@ -4278,7 +4273,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 			{
 				eattacker.sound_damage_player = self;
 			}
-			if ( isDefined( eattacker.has_legs ) && !eattacker.has_legs )
+			if ( !is_true( eattacker.has_legs ) )
 			{
 				self maps/mp/zombies/_zm_audio::create_and_play_dialog( "general", "crawl_hit" );
 			}
@@ -4309,7 +4304,7 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 	}
 	if ( level.scr_zm_ui_gametype == "zcleansed" && idamage > 0 )
 	{
-		if ( isDefined( eattacker ) && isplayer( eattacker ) && eattacker.team != self.team && isDefined( self.laststand ) && !self.laststand || !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || !isDefined( self.last_player_attacker ) )
+		if ( ( !is_true( self.laststand ) && !self maps/mp/zombies/_zm_laststand::player_is_in_laststand() || !isDefined( self.last_player_attacker ) ) && isDefined( eattacker ) && isplayer( eattacker ) && eattacker.team != self.team )
 		{
 			if ( isDefined( eattacker.maxhealth ) && is_true( eattacker.is_zombie ) )
 			{
@@ -4344,38 +4339,17 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 			count++;
 		}
 	}
-	if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 3 ) && level.debugLogging_zm ) 
-	{
-		logline1 = "INFO: _zm.gsc player_damage_override() count is: " + count + " \n";
-		logprint( logline1 );
-	}
 	//checked against bo3 _zm.gsc changed to match 
 	if ( count < players.size || isDefined( level._game_module_game_end_check ) && ![[ level._game_module_game_end_check ]]() )
 	{
-		if ( isDefined( self.lives ) && self.lives > 0 || is_true( level.force_solo_quick_revive ) && self hasperk( "specialty_quickrevive" ) )
+		if ( isDefined( self.lives ) && self.lives > 0 && is_true( level.force_solo_quick_revive ) && self hasperk( "specialty_quickrevive" ) )
 		{
 			self thread wait_and_revive();
 		}
 		return finaldamage;
 	}
-	if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 3 ) && level.debugLogging_zm ) 
-	{
-		logline2 = "INFO: _zm.gsc player_damage_override() self.lives is: " + self.lives + " \n";
-		logprint( logline2 );
-	}
-	if ( players.size == 1 && flag( "solo_game" ) )
-	{
-		if ( self.lives == 0 || !self hasperk( "specialty_quickrevive" ) )
-		{
-			self.intermission = 1;
-			solo_death = 1;
-		}
-	}
-	//checked against bo3 _zm.gsc changed to match
-	if ( count > 1 || players.size == 1 && !flag( "solo_game" ) )
-	{
-		non_solo_death = 1;
-	}
+	solo_death = is_solo_death( self, players );
+	non_solo_death = is_non_solo_death( self, players, count );
 	if ( ( solo_death || non_solo_death ) && !is_true( level.no_end_game_check ) )
 	{
 		level notify( "stop_suicide_trigger" );
@@ -4391,16 +4365,9 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 		}
 		else
 		{
-			if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 3 ) && level.debugLogging_zm ) 
-			{
-				logline3 = "INFO: _zm.gsc player_damage_override() player_fake_death() called " + " \n";
-				logprint( logline3 );
-			}
 			self thread player_fake_death();
 		}
 	}
-	solo_flag = flag( "solo_game" );
-	player_has_quickrevive = self hasperk( "specialty_quickrevive" );
 	if ( count == players.size && !is_true( level.no_end_game_check ) )
 	{
 		if ( players.size == 1 && flag( "solo_game" ) )
@@ -4413,11 +4380,6 @@ player_damage_override( einflictor, eattacker, idamage, idflags, smeansofdeath, 
 				if ( flag( "dog_round" ) )
 				{
 					increment_dog_round_stat( "lost" );
-				}
-				if ( ( level.errorDisplayLevel == 0 || level.errorDisplayLevel == 3 ) && level.debugLogging_zm ) 
-				{
-					logline4 = "INFO: _zm.gsc player_damage_override() end_game is notified " + " player lives: " + self.lives + " flag( solo_game ) " + solo_flag + " players in game: " + players.size + " level.no_end_game_check: " + level.no_end_game_check + " player has quick revive: " + player_has_quickrevive + " \n";
-					logprint( logline4 );
 				}
 				level notify( "end_game" );
 			}
@@ -5602,7 +5564,33 @@ player_too_many_players_check() //checked matches cerberus output
 	}
 }
 
+//added these functions to get around the compiler info.md No. 6
+////////////////////////////////////////////////////////////////
+is_solo_death( self, players )
+{
+	if ( players.size == 1 && flag( "solo_game" ) )
+	{
+		if ( !self hasPerk( "specialty_quickrevive" ) )
+		{
+			return 1;
+		}
+		if ( self.lives == 0 )
+		{
+			return 1;
+		}
+	}
+	return 0;
+}	
 
+is_non_solo_death( self, players, count )
+{
+	if ( count > 1 || players.size == 1 && !flag( "solo_game" ) )
+	{
+		return 1;
+	}
+	return 0;
+}
+////////////////////////////////////////////////////////////////
 
 
 
