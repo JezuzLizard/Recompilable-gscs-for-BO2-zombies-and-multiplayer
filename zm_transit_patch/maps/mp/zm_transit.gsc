@@ -1373,7 +1373,7 @@ transit_intermission() //checked changed to match cerberus output
 		}
 		if ( !level.the_bus.ismoving )
 		{
-			level.the_bus.gracetimeatdestination = 0,1;
+			level.the_bus.gracetimeatdestination = 0.1;
 			level.the_bus notify( "depart_early" );
 		}
 		players = get_players();
