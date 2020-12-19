@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_audio;
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/zombies/_zm_weap_tomahawk;
@@ -8,9 +9,9 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props" );
+//#using_animtree( "fxanim_props" );
 
-init()
+init() //checked matches cerberus output
 {
 	if ( isDefined( level.gamedifficulty ) && level.gamedifficulty == 0 )
 	{
@@ -33,7 +34,7 @@ init()
 #/
 }
 
-spoon_easy_cleanup()
+spoon_easy_cleanup() //checked matches cerberus output
 {
 	spork_portal = getent( "afterlife_show_spork", "targetname" );
 	spork_portal delete();
@@ -43,7 +44,7 @@ spoon_easy_cleanup()
 	m_spoon delete();
 }
 
-extra_death_func_to_check_for_splat_death()
+extra_death_func_to_check_for_splat_death() //checked matches cerberus output
 {
 	self thread maps/mp/zombies/_zm_spawner::zombie_death_animscript();
 	if ( self.damagemod == "MOD_GRENADE" || self.damagemod == "MOD_GRENADE_SPLASH" )
@@ -80,7 +81,7 @@ extra_death_func_to_check_for_splat_death()
 	return 0;
 }
 
-zombie_spoon_func()
+zombie_spoon_func() //checked matches cerberus output
 {
 	self.deathfunction = ::extra_death_func_to_check_for_splat_death;
 	self waittill( "killed_by_a_blundersplat", player );
@@ -105,7 +106,7 @@ zombie_spoon_func()
 	}
 }
 
-wait_for_initial_conditions()
+wait_for_initial_conditions() //checked changed to match cerberus output
 {
 	m_spoon_pickup = getent( "pickup_spoon", "targetname" );
 	m_spoon_pickup ghost();
@@ -122,7 +123,7 @@ wait_for_initial_conditions()
 	while ( !b_poster_knocked_down )
 	{
 		m_poster waittill( "damage", damage, attacker, direction, point, type, tagname, modelname, partname, weaponname );
-		if ( weaponname != "frag_grenade_zm" || weaponname == "bouncing_tomahawk_zm" && weaponname == "upgraded_tomahawk_zm" )
+		if ( weaponname != "frag_grenade_zm" || weaponname == "bouncing_tomahawk_zm" || weaponname == "upgraded_tomahawk_zm" )
 		{
 			b_poster_knocked_down = 1;
 			playsoundatposition( "zmb_squest_spoon_poster", m_poster.origin );
@@ -161,7 +162,7 @@ wait_for_initial_conditions()
 	level.a_tomahawk_pickup_funcs[ level.a_tomahawk_pickup_funcs.size ] = ::tomahawk_the_spoon;
 }
 
-tomahawk_the_spoon( grenade, n_grenade_charge_power )
+tomahawk_the_spoon( grenade, n_grenade_charge_power ) //checked matches cerberus output
 {
 	if ( self hasweapon( "spoon_zm_alcatraz" ) || self hasweapon( "spork_zm_alcatraz" ) )
 	{
@@ -186,27 +187,25 @@ tomahawk_the_spoon( grenade, n_grenade_charge_power )
 	return 0;
 }
 
-give_player_spoon_upon_receipt( m_tomahawk, m_player_spoon )
+give_player_spoon_upon_receipt( m_tomahawk, m_player_spoon ) //checked changed to match cerberus output
 {
 	while ( isDefined( m_tomahawk ) )
 	{
-		wait 0,05;
+		wait 0.05;
 	}
 	m_player_spoon delete();
-	while ( !self hasweapon( "spoon_zm_alcatraz" ) && !self hasweapon( "spork_zm_alcatraz" ) && isDefined( self.spoon_in_tub ) && !self.spoon_in_tub )
+	if ( !self hasweapon( "spoon_zm_alcatraz" ) && !self hasweapon( "spork_zm_alcatraz" ) && !is_true( self.spoon_in_tub ) )
 	{
 		self giveweapon( "spoon_zm_alcatraz" );
 		self set_player_melee_weapon( "spoon_zm_alcatraz" );
 		level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "spoon", self );
 		weapons = self getweaponslist();
-		i = 0;
-		while ( i < weapons.size )
+		for ( i = 0; i < weapons.size; i++ )
 		{
 			if ( issubstr( weapons[ i ], "knife" ) )
 			{
 				self takeweapon( weapons[ i ] );
 			}
-			i++;
 		}
 	}
 	weapons = self getweaponslist();
@@ -214,7 +213,7 @@ give_player_spoon_upon_receipt( m_tomahawk, m_player_spoon )
 	self thread do_player_general_vox( "quest", "pick_up_easter_egg" );
 }
 
-bucket_init()
+bucket_init() //checked matches cerberus output
 {
 	s_bathtub = getstruct( "tub_trigger_struct", "targetname" );
 	level.t_bathtub = spawn( "trigger_radius_use", s_bathtub.origin, 0, 40, 150 );
@@ -224,7 +223,7 @@ bucket_init()
 	level.t_bathtub setcursorhint( "HINT_NOICON" );
 }
 
-wait_for_bucket_activated( player )
+wait_for_bucket_activated( player ) //checked matches cerberus output
 {
 	if ( isDefined( player ) )
 	{
@@ -237,10 +236,13 @@ wait_for_bucket_activated( player )
 			}
 		}
 	}
-	else level.t_bathtub waittill( "trigger", who );
+	else 
+	{
+		level.t_bathtub waittill( "trigger", who );
+	}
 }
 
-dip_the_spoon()
+dip_the_spoon()  //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait_for_bucket_activated( self );
@@ -257,7 +259,7 @@ dip_the_spoon()
 	self thread thrust_the_spork();
 }
 
-thrust_the_spork()
+thrust_the_spork() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait_for_bucket_activated( self );
@@ -274,8 +276,9 @@ thrust_the_spork()
 	self thread do_player_general_vox( "quest", "pick_up_easter_egg" );
 }
 
-debug_prison_spoon_quest()
+debug_prison_spoon_quest() //dev call didn't check
 {
+	/*
 /#
 	while ( 1 )
 	{
@@ -298,4 +301,5 @@ debug_prison_spoon_quest()
 		wait 1;
 #/
 	}
+	*/
 }
