@@ -46,7 +46,7 @@ leaper_calc_anim_offsets() //checked matches cerberus output
 		level.leaper_anim = spawnstruct();
 		asd = "zm_wall_up";
 		anim_id = leaper getanimfromasd( asd, 0 );
-		level.leaper_anim.up_mid = getmovedelta( anim_id, 0, 0,488 ) + vectorScale( ( 0, 0, 1 ), 6 );
+		level.leaper_anim.up_mid = getmovedelta( anim_id, 0, 0.488 ) + vectorScale( ( 0, 0, 1 ), 6 );
 		level.leaper_anim.up_end = getmovedelta( anim_id, 0, 1 );
 		asd = "zm_wall_left";
 		anim_id = leaper getanimfromasd( asd, 0 );
@@ -239,8 +239,8 @@ leaper_think() //checked changed to match cerberus output
 				break;
 			case "leaping":
 				break;
-			wait 0.1;
 		}
+        wait 0.1;
 	}
 }
 
@@ -660,7 +660,7 @@ leaper_round_spawning() //checked changed to match cerberus output
 #/
 		}
 		*/
-		if ( level.leaper_count >= max && b_hold_spawning_when_leapers_are_all_dead )
+		if ( ( level.leaper_count >= max ) && b_hold_spawning_when_leapers_are_all_dead )
 		{
 			wait 0.5;
 		}
@@ -700,17 +700,15 @@ leaper_round_accuracy_tracking() //checked changed to match cerberus output
 {
 	players = getplayers();
 	level.leaper_round_accurate_players = 0;
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		players[ i ].total_shots_start_leaper_round = players[ i ] maps/mp/gametypes_zm/_globallogic_score::getpersstat( "total_shots" );
 		players[ i ].total_hits_start_leaper_round = players[ i ] maps/mp/gametypes_zm/_globallogic_score::getpersstat( "hits" );
-		i++;
 	}
 	level waittill( "last_leaper_down" );
 	players = getplayers();
-	i = 0;
-	while ( i < players.size )
+
+	for ( i = 0; i < players.size; i++ )
 	{
 		total_shots_end_leaper_round = players[ i ] maps/mp/gametypes_zm/_globallogic_score::getpersstat( "total_shots" ) - players[ i ].total_shots_start_leaper_round;
 		total_hits_end_leaper_round = players[ i ] maps/mp/gametypes_zm/_globallogic_score::getpersstat( "hits" ) - players[ i ].total_hits_start_leaper_round;
@@ -718,7 +716,6 @@ leaper_round_accuracy_tracking() //checked changed to match cerberus output
 		{
 			level.leaper_round_accurate_players++;
 		}
-		i++;
 	}
 	if ( level.leaper_round_accurate_players == players.size )
 	{
@@ -747,7 +744,7 @@ leaper_round_wait() //checked matches cerberus output
 	}
 	*/
 	wait 1;
-	while ( flag( "leaper_round" ) )
+	if ( flag( "leaper_round" ) )
 	{
 		wait 7;
 		while ( level.leaper_intermission )
@@ -830,7 +827,7 @@ leaper_combat_animmode() //checked matches cerberus output
 	self animmode( "gravity", 0 );
 }
 
-leaper_spawn_logic_old( leaper_array, favorite_enemy )
+leaper_spawn_logic_old( leaper_array, favorite_enemy ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	all_locs = getstructarray( "leaper_location", "script_noteworthy" );
 	leaper_locs = array_randomize( all_locs );
@@ -845,15 +842,12 @@ leaper_spawn_logic_old( leaper_array, favorite_enemy )
 				continue;
 			}
 		}
-		else
-		{
-			dist_squared = distancesquared( leaper_locs[ i ].origin, favorite_enemy.origin );
-			if ( dist_squared > 160000 && dist_squared < 1000000 )
-			{
-				level.old_leaper_spawn = leaper_locs[ i ];
-				return leaper_locs[ i ];
-			}
-		}
+        dist_squared = distancesquared( leaper_locs[ i ].origin, favorite_enemy.origin );
+        if ( dist_squared > 160000 && dist_squared < 1000000 )
+        {
+            level.old_leaper_spawn = leaper_locs[ i ];
+            return leaper_locs[ i ];
+        }
 		i++;
 	}
 	return leaper_locs[ 0 ];
@@ -1275,7 +1269,7 @@ leaper_emerge() //checked matches cerberus output
 		self animscripted( self.spawn_point.origin, self.spawn_point.angles, "zm_spawn_elevator_from_ceiling" );
 	}
 	self maps/mp/animscripts/zm_shared::donotetracks( "spawn_anim" );
-	self.deathfunction = ::maps/mp/zombies/_zm_spawner::zombie_death_animscript;
+	self.deathfunction = maps/mp/zombies/_zm_spawner::zombie_death_animscript;
 	self.in_the_ceiling = 0;
 }
 
