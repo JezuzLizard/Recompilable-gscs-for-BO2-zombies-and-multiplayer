@@ -1,6 +1,9 @@
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_buildables;
 #include maps/mp/zombies/_zm_magicbox;
+#include maps/mp/zombies/_zm_equip_subwoofer;
+#include maps/mp/zombies/_zm_equip_springpad;
+#include maps/mp/zombies/_zm_equip_turbine;
 #include maps/mp/zm_buried_buildables;
 #include maps/mp/zm_buried_gamemodes;
 #include maps/mp/zombies/_zm_race_utility;
@@ -8,7 +11,7 @@
 #include common_scripts/utility;
 #include maps/mp/_utility;
 
-precache()
+precache() //checked matches cerberus output
 {
 	precachemodel( "zm_collision_buried_street_grief" );
 	precachemodel( "p6_zm_bu_buildable_bench_tarp" );
@@ -22,7 +25,7 @@ precache()
 	maps/mp/zombies/_zm_equip_subwoofer::init( &"ZM_BURIED_EQ_SW_PHS", &"ZM_BURIED_EQ_SW_HTS" );
 }
 
-street_treasure_chest_init()
+street_treasure_chest_init() //checked matches cerberus output
 {
 	start_chest = getstruct( "start_chest", "script_noteworthy" );
 	court_chest = getstruct( "courtroom_chest1", "script_noteworthy" );
@@ -39,7 +42,7 @@ street_treasure_chest_init()
 	maps/mp/zombies/_zm_magicbox::treasure_chest_init( "start_chest" );
 }
 
-main()
+main() //checked matches cerberus output
 {
 	level.buildables_built[ "pap" ] = 1;
 	level.equipment_team_pick_up = 1;
@@ -68,7 +71,7 @@ main()
 	turnperkon( "Pack_A_Punch" );
 }
 
-enemy_location_override( zombie, enemy )
+enemy_location_override( zombie, enemy ) //checked matches cerberus output
 {
 	location = enemy.origin;
 	if ( isDefined( self.reroute ) && self.reroute )
@@ -81,7 +84,7 @@ enemy_location_override( zombie, enemy )
 	return location;
 }
 
-builddynamicwallbuys()
+builddynamicwallbuys() //checked matches cerberus output
 {
 	builddynamicwallbuy( "bank", "beretta93r_zm" );
 	builddynamicwallbuy( "bar", "pdw57_zm" );
@@ -97,7 +100,7 @@ builddynamicwallbuys()
 	builddynamicwallbuy( "candyshop", "870mcs_zm" );
 }
 
-buildbuildables()
+buildbuildables() //checked matches cerberus output
 {
 	buildbuildable( "springpad_zm" );
 	buildbuildable( "subwoofer_zm" );

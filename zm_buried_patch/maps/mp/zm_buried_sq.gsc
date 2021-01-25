@@ -1,3 +1,4 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_score;
 #include maps/mp/zombies/_zm_spawner;
 #include maps/mp/zombies/_zm_powerups;
@@ -8,6 +9,16 @@
 #include maps/mp/zombies/_zm_buildables;
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/gametypes_zm/_globallogic_score;
+#include maps/mp/zm_buried_sq_ows;
+#include maps/mp/zm_buried_sq_ip;
+#include maps/mp/zm_buried_sq_tpo;
+#include maps/mp/zm_buried_sq_ctw;
+#include maps/mp/zm_buried_sq_ts;
+#include maps/mp/zm_buried_sq_ll;
+#include maps/mp/zm_buried_sq_ftl;
+#include maps/mp/zm_buried_sq_gl;
+#include maps/mp/zm_buried_sq_mta;
+#include maps/mp/zm_buried_sq_bt;
 #include maps/mp/_visionset_mgr;
 #include maps/mp/zombies/_zm_sidequests;
 #include maps/mp/zombies/_zm_utility;
@@ -17,7 +28,7 @@
 #using_animtree( "fxanim_props" );
 #using_animtree( "fxanim_props_dlc3" );
 
-init()
+init() //checked changed to match cerberus output
 {
 	level thread sq_prestart_hide();
 	if ( !is_sidequest_allowed( "zclassic" ) )
@@ -28,13 +39,11 @@ init()
 	sq_buried_register_visionset();
 	register_map_navcard( "navcard_held_zm_buried", "navcard_held_zm_highrise" );
 	ss_buttons = getentarray( "sq_ss_button", "targetname" );
-	i = 0;
-	while ( i < ss_buttons.size )
+	for ( i = 0; i < ss_buttons.size; i++ )
 	{
 		ss_buttons[ i ] usetriggerrequirelookat();
 		ss_buttons[ i ] sethintstring( "" );
 		ss_buttons[ i ] setcursorhint( "HINT_NOICON" );
-		i++;
 	}
 	flag_init( "sq_players_out_of_sync" );
 	flag_init( "sq_nav_built" );
@@ -62,16 +71,18 @@ init()
 	level thread sq_metagame();
 	onplayerconnect_callback( ::sq_metagame_on_player_connect );
 	precache_sidequest_assets();
+	/*
 /#
 	level thread setup_sq_debug();
 #/
+	*/
 	level thread end_game_reward_richtofen_wrapper();
 	level thread end_game_reward_maxis_wrapper();
 	flag_wait( "start_zombie_round_logic" );
 	sidequest_start( "sq" );
 }
 
-precache_sq()
+precache_sq() //checked matches cerberus output
 {
 	precachemodel( "p6_zm_bu_lantern_silver_on" );
 	precachemodel( "p6_zm_bu_ether_amplifier" );
@@ -99,11 +110,11 @@ precache_sq()
 	precachevehicle( "heli_quadrotor2_zm" );
 }
 
-sq_prestart_hide()
+sq_prestart_hide() //checked matches cerberus output
 {
 }
 
-sq_buried_clientfield_init()
+sq_buried_clientfield_init() //checked matches cerberus output
 {
 	registerclientfield( "actor", "buried_sq_maxis_ending_update_eyeball_color", 12000, 1, "int" );
 	registerclientfield( "scriptmover", "AmplifierShaderConstant", 12000, 5, "float" );
@@ -145,23 +156,19 @@ sq_buried_clientfield_init()
 	registerclientfield( "world", "buried_sq_bp_light_09", 13000, 2, "int" );
 }
 
-sq_buried_register_visionset()
+sq_buried_register_visionset() //checked matches cerberus output
 {
 	vsmgr_register_info( "visionset", "cheat_bw", 12000, 17, 1, 1 );
 }
 
-sq_easy_cleanup()
+sq_easy_cleanup() //checked changed to match cerberus output
 {
 	computer_buildable_trig = getent( "sq_common_buildable_trigger", "targetname" );
 	computer_buildable_trig delete();
 	sq_buildables = getentarray( "buildable_sq_common", "targetname" );
-	_a194 = sq_buildables;
-	_k194 = getFirstArrayKey( _a194 );
-	while ( isDefined( _k194 ) )
+	foreach ( item in sq_buildables )
 	{
-		item = _a194[ _k194 ];
 		item delete();
-		_k194 = getNextArrayKey( _a194, _k194 );
 	}
 	t_generator = getent( "generator_use_trigger", "targetname" );
 	if ( isDefined( t_generator ) )
@@ -169,18 +176,14 @@ sq_easy_cleanup()
 		t_generator delete();
 	}
 	gallow_col = getentarray( "gallow_col", "targetname" );
-	_a206 = gallow_col;
-	_k206 = getFirstArrayKey( _a206 );
-	while ( isDefined( _k206 ) )
+	foreach ( collmap in gallow_col )
 	{
-		collmap = _a206[ _k206 ];
 		collmap connectpaths();
 		collmap delete();
-		_k206 = getNextArrayKey( _a206, _k206 );
 	}
 }
 
-init_player_sidequest_stats()
+init_player_sidequest_stats() //checked matches cerberus output
 {
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "sq_buried_started", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "navcard_held_zm_transit", 0 );
@@ -194,7 +197,7 @@ init_player_sidequest_stats()
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "sq_buried_last_completed", 0 );
 }
 
-init_sidequest()
+init_sidequest() //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	sq_spawn_props();
 	players = get_players();
@@ -202,25 +205,18 @@ init_sidequest()
 	level.maxcompleted = 0;
 	level.richcompleted = 0;
 	level.m_sq_start_sign = undefined;
-	_a245 = players;
-	_k245 = getFirstArrayKey( _a245 );
-	while ( isDefined( _k245 ) )
+	foreach ( player in players )
 	{
-		player = _a245[ _k245 ];
 		player.buried_sq_started = 1;
 		lastcompleted = player maps/mp/zombies/_zm_stats::get_global_stat( "sq_buried_last_completed" );
 		if ( lastcompleted == 1 )
 		{
 			level.richcompleted = 1;
 		}
-		else
+		else if ( lastcompleted == 2 )
 		{
-			if ( lastcompleted == 2 )
-			{
-				level.maxcompleted = 1;
-			}
+			level.maxcompleted = 1;
 		}
-		_k245 = getNextArrayKey( _a245, _k245 );
 	}
 	level waittill( "buildables_setup" );
 	if ( level.richcompleted )
@@ -251,29 +247,21 @@ init_sidequest()
 	}
 }
 
-sq_delete_tower_pieces( a_model_names, a_pieces )
+sq_delete_tower_pieces( a_model_names, a_pieces ) //checked partially changed to match cerberus output see compiler_limitations.md No. 1
 {
-	_a301 = a_pieces;
-	_k301 = getFirstArrayKey( _a301 );
-	while ( isDefined( _k301 ) )
+	foreach ( piece in a_pieces )
 	{
-		piece = _a301[ _k301 ];
-		_a303 = a_model_names;
-		_k303 = getFirstArrayKey( _a303 );
-		while ( isDefined( _k303 ) )
+		for ( i = 0; i < a_model_names.size; i++ )
 		{
-			str_model = _a303[ _k303 ];
-			if ( piece.modelname == str_model )
+			if ( piece.modelname == a_model_names[ i ] )
 			{
 				piece maps/mp/zombies/_zm_buildables::piece_unspawn();
 			}
-			_k303 = getNextArrayKey( _a303, _k303 );
 		}
-		_k301 = getNextArrayKey( _a301, _k301 );
 	}
 }
 
-sq_metagame_clear_tower_pieces()
+sq_metagame_clear_tower_pieces() //checked partially changed to match cerberus output see compiler_limitations.md No. 1 and No. 2
 {
 	a_model_names = array( "p6_zm_bu_sq_crystal", "p6_zm_bu_sq_satellite_dish", "p6_zm_bu_sq_vaccume_tube", "p6_zm_bu_sq_buildable_battery", "p6_zm_bu_sq_antenna", "p6_zm_bu_sq_wire_spool" );
 	a_pieces = level.sq_rtower_buildable.buildablezone.pieces;
@@ -281,39 +269,31 @@ sq_metagame_clear_tower_pieces()
 	a_pieces = level.sq_mtower_buildable.buildablezone.pieces;
 	sq_delete_tower_pieces( a_model_names, a_pieces );
 	players = get_players();
-	_a327 = players;
-	_k327 = getFirstArrayKey( _a327 );
-	while ( isDefined( _k327 ) )
+	for ( i = 0; i < players.size; i++ )
 	{
-		player = _a327[ _k327 ];
-		piece = player maps/mp/zombies/_zm_buildables::player_get_buildable_piece( 2 );
+		piece = players[ i ] maps/mp/zombies/_zm_buildables::player_get_buildable_piece( 2 );
 		if ( !isDefined( piece ) )
 		{
 		}
 		else
 		{
-			_a335 = a_model_names;
-			_k335 = getFirstArrayKey( _a335 );
-			while ( isDefined( _k335 ) )
+			foreach ( str_model in a_model_names )
 			{
-				str_model = _a335[ _k335 ];
 				if ( piece.modelname == str_model )
 				{
-					player maps/mp/zombies/_zm_buildables::player_destroy_piece( piece );
+					players[ i ] maps/mp/zombies/_zm_buildables::player_destroy_piece( piece );
 				}
-				_k335 = getNextArrayKey( _a335, _k335 );
 			}
 		}
-		_k327 = getNextArrayKey( _a327, _k327 );
 	}
 }
 
-sq_spawn_props()
+sq_spawn_props() //checked matches cerberus output
 {
 	sq_spawn_model_at_struct( "sq_guillotine", "p6_zm_bu_guillotine" );
 }
 
-sq_spawn_model_at_struct( str_struct, str_model )
+sq_spawn_model_at_struct( str_struct, str_model ) //checked matches cerberus output
 {
 	s_struct = getstruct( str_struct, "targetname" );
 	if ( !isDefined( s_struct ) )
@@ -327,15 +307,17 @@ sq_spawn_model_at_struct( str_struct, str_model )
 	return m_prop;
 }
 
-generic_stage_start()
+generic_stage_start() //checked matches cerberus output
 {
+	/*
 /#
 	level thread cheat_complete_stage();
 #/
+	*/
 	level._stage_active = 1;
 }
 
-cheat_complete_stage()
+cheat_complete_stage() //checked matches cerberus output
 {
 	level endon( "reset_sundial" );
 	while ( 1 )
@@ -348,14 +330,14 @@ cheat_complete_stage()
 				stage_completed( "sq", level._last_stage_started );
 			}
 		}
-		wait 0,1;
+		wait 0.1;
 	}
 }
 
-sidequest_logic()
+sidequest_logic() //checked matches cerberus output
 {
 	level thread watch_nav_computer_built();
-	if ( isDefined( level.maxcompleted ) && level.maxcompleted && isDefined( level.richcompleted ) && level.richcompleted )
+	if ( is_true( level.maxcompleted ) && is_true( level.richcompleted ) )
 	{
 		flag_set( "sq_intro_vo_done" );
 		return;
@@ -390,7 +372,7 @@ sidequest_logic()
 	level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "sidequest_7" );
 	stage_start( "sq", "ows" );
 	level waittill( "sq_ows_over" );
-	delay_thread( 0,75, ::snddelayedsidequest8 );
+	delay_thread( 0.75, ::snddelayedsidequest8 );
 	level notify( "buried_sidequest_achieved" );
 	if ( flag( "sq_is_max_tower_built" ) )
 	{
@@ -412,22 +394,18 @@ sidequest_logic()
 	sq_metagame_reset_machine();
 }
 
-playfx_on_tower( str_fx, delete_old )
+playfx_on_tower( str_fx, delete_old ) //checked changed to match cerberus output
 {
 	if ( !isDefined( delete_old ) )
 	{
 		delete_old = 0;
 	}
 	a_fx_spots = getentarray( "sq_complete_tower_fx", "targetname" );
-	while ( delete_old )
+	if ( delete_old )
 	{
-		_a486 = a_fx_spots;
-		_k486 = getFirstArrayKey( _a486 );
-		while ( isDefined( _k486 ) )
+		foreach ( m_fx_spot in a_fx_spots )
 		{
-			m_fx_spot = _a486[ _k486 ];
 			m_fx_spot delete();
-			_k486 = getNextArrayKey( _a486, _k486 );
 		}
 	}
 	s_spot = getstruct( "sq_end_smoke", "targetname" );
@@ -445,25 +423,21 @@ playfx_on_tower( str_fx, delete_old )
 	}
 }
 
-snddelayedsidequest8()
+snddelayedsidequest8() //checked matches cerberus output
 {
 	level thread maps/mp/zombies/_zm_audio::sndmusicstingerevent( "sidequest_8" );
 }
 
-sq_give_player_rewards()
+sq_give_player_rewards() //checked changed to match cerberus output
 {
 	players = get_players();
-	_a518 = players;
-	_k518 = getFirstArrayKey( _a518 );
-	while ( isDefined( _k518 ) )
+	foreach ( player in players )
 	{
-		player = _a518[ _k518 ];
 		player thread sq_give_player_all_perks();
-		_k518 = getNextArrayKey( _a518, _k518 );
 	}
 }
 
-sq_give_player_all_perks()
+sq_give_player_all_perks() //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	machines = getentarray( "zombie_vending", "targetname" );
 	perks = [];
@@ -475,17 +449,11 @@ sq_give_player_all_perks()
 			i++;
 			continue;
 		}
-		else
-		{
-			perks[ perks.size ] = machines[ i ].script_noteworthy;
-		}
+		perks[ perks.size ] = machines[ i ].script_noteworthy;
 		i++;
 	}
-	_a539 = perks;
-	_k539 = getFirstArrayKey( _a539 );
-	while ( isDefined( _k539 ) )
+	foreach ( perk in perks )
 	{
-		perk = _a539[ _k539 ];
 		if ( isDefined( self.perk_purchased ) && self.perk_purchased == perk )
 		{
 		}
@@ -493,21 +461,19 @@ sq_give_player_all_perks()
 		{
 			if ( self hasperk( perk ) || self maps/mp/zombies/_zm_perks::has_perk_paused( perk ) )
 			{
-				break;
 			}
 			else
 			{
 				self maps/mp/zombies/_zm_perks::give_perk( perk, 0 );
-				wait 0,25;
+				wait 0.25;
 			}
 		}
-		_k539 = getNextArrayKey( _a539, _k539 );
 	}
 	self._retain_perks = 1;
 	self thread watch_for_respawn();
 }
 
-watch_for_respawn()
+watch_for_respawn() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self waittill_either( "spawned_player", "player_revived" );
@@ -516,14 +482,14 @@ watch_for_respawn()
 	self setmaxhealth( level.zombie_vars[ "zombie_perk_juggernaut_health" ] );
 }
 
-watch_nav_computer_built()
+watch_nav_computer_built() //checked matches cerberus output changed to use is_true instead
 {
-	if ( isDefined( level.navcomputer_spawned ) && !level.navcomputer_spawned )
+	if ( !is_true( level.navcomputer_spawned ) )
 	{
 		wait_for_buildable( "sq_common" );
 	}
 	flag_set( "sq_nav_built" );
-	if ( isDefined( level.navcomputer_spawned ) && !level.navcomputer_spawned )
+	if ( !is_true( level.navcomputer_spawned ) )
 	{
 		update_sidequest_stats( "sq_buried_started" );
 	}

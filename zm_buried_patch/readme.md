@@ -20,6 +20,9 @@ zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
+zm_buried_patch/maps/mp/zm_buried_gamemodes.gsc
+zm_buried_patch/maps/mp/zm_buried_grief_street.gsc
+zm_buried_patch/maps/mp/zm_buried_sq.gsc
 
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
@@ -34,11 +37,8 @@ zm_buried_patch/maps/mp/zm_buried_ee.gsc
 zm_buried_patch/maps/mp/zm_buried_ffotd.gsc
 zm_buried_patch/maps/mp/zm_buried_fountain.gsc
 zm_buried_patch/maps/mp/zm_buried_fx.gsc
-zm_buried_patch/maps/mp/zm_buried_gamemodes.gsc
-zm_buried_patch/maps/mp/zm_buried_grief_street.gsc
 zm_buried_patch/maps/mp/zm_buried_jail.gsc
 zm_buried_patch/maps/mp/zm_buried_power.gsc
-zm_buried_patch/maps/mp/zm_buried_sq.gsc
 zm_buried_patch/maps/mp/zm_buried_sq_bt.gsc
 zm_buried_patch/maps/mp/zm_buried_sq_ctw.gsc
 zm_buried_patch/maps/mp/zm_buried_sq_ftl.gsc

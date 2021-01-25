@@ -1,14 +1,19 @@
+//checked includes changed to match cerberus output
 #include maps/mp/zombies/_zm_unitrigger;
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zombies/_zm_zonemgr;
+#include maps/mp/zm_buried_grief_street;
+#include maps/mp/zm_buried_turned_street;
+#include maps/mp/zm_buried_classic;
 #include maps/mp/zm_buried;
+#include maps/mp/zombies/_zm_buildables;
 #include maps/mp/gametypes_zm/_zm_gametype;
 #include maps/mp/zombies/_zm_game_module;
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init()
+init() //checked matches cerberus output
 {
 	add_map_gamemode( "zclassic", ::maps/mp/zm_buried::zclassic_preinit, undefined, undefined );
 	add_map_gamemode( "zcleansed", ::maps/mp/zm_buried::zcleansed_preinit, undefined, undefined );
@@ -18,79 +23,64 @@ init()
 	add_map_location_gamemode( "zgrief", "street", ::maps/mp/zm_buried_grief_street::precache, ::maps/mp/zm_buried_grief_street::main );
 }
 
-deletechalktriggers()
+deletechalktriggers() //checked matches cerberus output
 {
 	chalk_triggers = getentarray( "chalk_buildable_trigger", "targetname" );
 	array_thread( chalk_triggers, ::self_delete );
 }
 
-deletebuyabledoors()
+deletebuyabledoors() //checked changed to match cerberus output
 {
 	doors_trigs = getentarray( "zombie_door", "targetname" );
-	_a41 = doors_trigs;
-	_k41 = getFirstArrayKey( _a41 );
-	while ( isDefined( _k41 ) )
+	foreach(door in doors_trigs)
 	{
-		door = _a41[ _k41 ];
 		doors = getentarray( door.target, "targetname" );
 		array_thread( doors, ::self_delete );
-		_k41 = getNextArrayKey( _a41, _k41 );
 	}
 	array_thread( doors_trigs, ::self_delete );
 }
 
-deletebuyabledebris( justtriggers )
+deletebuyabledebris( justtriggers ) //checked changed to match cerberus output
 {
 	debris_trigs = getentarray( "zombie_debris", "targetname" );
 	while ( !is_true( justtriggers ) )
 	{
-		_a56 = debris_trigs;
-		_k56 = getFirstArrayKey( _a56 );
-		while ( isDefined( _k56 ) )
+		foreach ( trig in debris_trigs )
 		{
-			trig = _a56[ _k56 ];
 			if ( isDefined( trig.script_flag ) )
 			{
 				flag_set( trig.script_flag );
 			}
 			parts = getentarray( trig.target, "targetname" );
 			array_thread( parts, ::self_delete );
-			_k56 = getNextArrayKey( _a56, _k56 );
 		}
 	}
 	array_thread( debris_trigs, ::self_delete );
 }
 
-deleteslothbarricades( justtriggers )
+deleteslothbarricades( justtriggers ) //checked changed to match cerberus output
 {
 	sloth_trigs = getentarray( "sloth_barricade", "targetname" );
 	while ( !is_true( justtriggers ) )
 	{
-		_a77 = sloth_trigs;
-		_k77 = getFirstArrayKey( _a77 );
-		while ( isDefined( _k77 ) )
+		foreach ( trig in sloth_trigs )
 		{
-			trig = _a77[ _k77 ];
 			if ( isDefined( trig.script_flag ) && level flag_exists( trig.script_flag ) )
 			{
 				flag_set( trig.script_flag );
 			}
 			parts = getentarray( trig.target, "targetname" );
 			array_thread( parts, ::self_delete );
-			_k77 = getNextArrayKey( _a77, _k77 );
 		}
 	}
 	array_thread( sloth_trigs, ::self_delete );
 }
 
-deleteslothbarricade( location )
+deleteslothbarricade( location ) //checked changed to match cerberus output
 {
 	sloth_trigs = getentarray( "sloth_barricade", "targetname" );
-	_a96 = sloth_trigs;
-	_k96 = getFirstArrayKey( _a96 );
-	while ( isDefined( _k96 ) )
+	foreach ( trig in sloth_trigs )
 	{
-		trig = _a96[ _k96 ];
 		if ( isDefined( trig.script_location ) && trig.script_location == location )
 		{
 			if ( isDefined( trig.script_flag ) )
@@ -100,11 +90,10 @@ deleteslothbarricade( location )
 			parts = getentarray( trig.target, "targetname" );
 			array_thread( parts, ::self_delete );
 		}
-		_k96 = getNextArrayKey( _a96, _k96 );
 	}
 }
 
-spawnmapcollision( collision_model, origin )
+spawnmapcollision( collision_model, origin ) //checked matches cerberus output
 {
 	if ( !isDefined( origin ) )
 	{
@@ -115,66 +104,55 @@ spawnmapcollision( collision_model, origin )
 	collision disconnectpaths();
 }
 
-turnperkon( perk )
+turnperkon( perk ) //checked matches cerberus output
 {
 	level notify( perk + "_on" );
 	wait_network_frame();
 }
 
-disableallzonesexcept( zones )
+disableallzonesexcept( zones ) //checked changed to match cerberus output see compiler_limitations.md No. 1
 {
-	_a133 = zones;
-	_k133 = getFirstArrayKey( _a133 );
-	while ( isDefined( _k133 ) )
+	foreach ( zone in zones )
 	{
-		zone = _a133[ _k133 ];
 		level thread maps/mp/zombies/_zm_zonemgr::enable_zone( zone );
-		_k133 = getNextArrayKey( _a133, _k133 );
 	}
-	_a140 = level.zones;
-	zoneindex = getFirstArrayKey( _a140 );
-	while ( isDefined( zoneindex ) )
+	zoneindex = 0;
+	foreach ( zone in level.zones )
 	{
-		zone = _a140[ zoneindex ];
 		should_disable = 1;
-		_a144 = zones;
-		_k144 = getFirstArrayKey( _a144 );
-		while ( isDefined( _k144 ) )
+		for ( i = 0; i > zones.size; i++ )
 		{
-			cleared_zone = _a144[ _k144 ];
-			if ( zoneindex == cleared_zone )
+			if ( zoneindex == i )
 			{
 				should_disable = 0;
 			}
-			_k144 = getNextArrayKey( _a144, _k144 );
 		}
 		if ( is_true( should_disable ) )
 		{
-			zone.is_enabled = 0;
-			zone.is_spawning_allowed = 0;
+			zones[ i ].is_enabled = 0;
+			zones[ i ].is_spawning_allowed = 0;
 		}
-		zoneindex = getNextArrayKey( _a140, zoneindex );
+		zoneindex++;
 	}
 }
 
-remove_adjacent_zone( main_zone, adjacent_zone )
+remove_adjacent_zone( main_zone, adjacent_zone ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.zones[ main_zone ].adjacent_zones ) && isDefined( level.zones[ main_zone ].adjacent_zones[ adjacent_zone ] ) )
 	{
+			level.zones[ main_zone ].adjacent_zones[ adjacent_zone ] = undefined;
 	}
 	if ( isDefined( level.zones[ adjacent_zone ].adjacent_zones ) && isDefined( level.zones[ adjacent_zone ].adjacent_zones[ main_zone ] ) )
 	{
+		level.zones[ adjacent_zone ].adjacent_zones[ main_zone ] = undefined;
 	}
 }
 
-builddynamicwallbuy( location, weaponname )
+builddynamicwallbuy( location, weaponname ) //checked changed to match cerberus output
 {
 	match_string = ( level.scr_zm_ui_gametype + "_" ) + level.scr_zm_map_start_location;
-	_a177 = level.chalk_builds;
-	_k177 = getFirstArrayKey( _a177 );
-	while ( isDefined( _k177 ) )
+	foreach ( stub in level.chalk_builds )
 	{
-		stub = _a177[ _k177 ];
 		wallbuy = getstruct( stub.target, "targetname" );
 		if ( isDefined( wallbuy.script_location ) && wallbuy.script_location == location )
 		{
@@ -184,42 +162,33 @@ builddynamicwallbuy( location, weaponname )
 				thread wait_and_remove( stub, stub.buildablezone.pieces[ 0 ] );
 			}
 		}
-		_k177 = getNextArrayKey( _a177, _k177 );
 	}
 }
 
-buildbuildable( buildable )
+buildbuildable( buildable ) //checked changed to match cerberus output see compiler_limitations.md No. 1
 {
 	player = get_players()[ 0 ];
-	_a197 = level.buildable_stubs;
-	_k197 = getFirstArrayKey( _a197 );
-	while ( isDefined( _k197 ) )
+	foreach ( stub in level.buildable_stubs )
 	{
-		stub = _a197[ _k197 ];
 		if ( !isDefined( buildable ) || stub.equipname == buildable )
 		{
 			if ( isDefined( buildable ) || stub.persistent != 3 )
 			{
 				stub maps/mp/zombies/_zm_buildables::buildablestub_finish_build( player );
 				stub maps/mp/zombies/_zm_buildables::buildablestub_remove();
-				_a206 = stub.buildablezone.pieces;
-				_k206 = getFirstArrayKey( _a206 );
-				while ( isDefined( _k206 ) )
+				for ( i = 0; i < stub.buildablezone.pieces.size; i++ )
 				{
-					piece = _a206[ _k206 ];
-					piece maps/mp/zombies/_zm_buildables::piece_unspawn();
-					_k206 = getNextArrayKey( _a206, _k206 );
+					stub.buildablezone.pieces[ i ] maps/mp/zombies/_zm_buildables::piece_unspawn();
 				}
 				stub.model notsolid();
 				stub.model show();
 				return;
 			}
 		}
-		_k197 = getNextArrayKey( _a197, _k197 );
 	}
 }
 
-wait_and_remove( stub, piece )
+wait_and_remove( stub, piece ) //checked matches cerberus output
 {
 	wait 0,1;
 	self buildablestub_remove();
@@ -227,15 +196,12 @@ wait_and_remove( stub, piece )
 	piece piece_unspawn();
 }
 
-generatebuildabletarps()
+generatebuildabletarps() //checked changed to match cerberus output
 {
 	struct_locations = getstructarray( "buildables_tarp", "targetname" );
 	level.buildable_tarps = [];
-	_a234 = struct_locations;
-	_k234 = getFirstArrayKey( _a234 );
-	while ( isDefined( _k234 ) )
+	foreach ( struct in struct_locations )
 	{
-		struct = _a234[ _k234 ];
 		tarp = spawn( "script_model", struct.origin );
 		tarp.angles = struct.angles;
 		tarp setmodel( "p6_zm_bu_buildable_bench_tarp" );
@@ -245,26 +211,21 @@ generatebuildabletarps()
 			tarp.script_location = struct.script_location;
 		}
 		level.buildable_tarps[ level.buildable_tarps.size ] = tarp;
-		_k234 = getNextArrayKey( _a234, _k234 );
 	}
 }
 
-deletebuildabletarp( location )
+deletebuildabletarp( location ) //checked changed to match cerberus output
 {
-	_a252 = level.buildable_tarps;
-	_k252 = getFirstArrayKey( _a252 );
-	while ( isDefined( _k252 ) )
+	foreach ( tarp in level.buildable_tarps )
 	{
-		tarp = _a252[ _k252 ];
 		if ( isDefined( tarp.script_location ) && tarp.script_location == location )
 		{
 			tarp delete();
 		}
-		_k252 = getNextArrayKey( _a252, _k252 );
 	}
 }
 
-powerswitchstate( on )
+powerswitchstate( on ) //checked matches cerberus output
 {
 	trigger = getent( "use_elec_switch", "targetname" );
 	if ( isDefined( trigger ) )
@@ -277,7 +238,7 @@ powerswitchstate( on )
 		master_switch notsolid();
 		if ( is_true( on ) )
 		{
-			master_switch rotateroll( -90, 0,3 );
+			master_switch rotateroll( -90, 0.3 );
 			flag_set( "power_on" );
 		}
 	}
