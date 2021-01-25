@@ -921,9 +921,9 @@ leaper_spawn_logic( leaper_array, favorite_enemy ) //checked changed to match ce
 			iprintln( "no spawner in view" );
 		}
 		a_leaper_spawn_points = a_spawn_points_in_view;
+	}
 #/
 	*/
-	}
 	s_leaper_spawn_point = select_leaper_spawn_point( a_leaper_spawn_points );
 	return s_leaper_spawn_point;
 }
@@ -1337,7 +1337,7 @@ leaper_elevator_failsafe() //imported from cerberus output
 				if ( self check_traverse_height() )
 				{
 					self forceteleport( free_pos );
-					wait 3 ;
+					wait 3;
 				}
 			}
 		}
