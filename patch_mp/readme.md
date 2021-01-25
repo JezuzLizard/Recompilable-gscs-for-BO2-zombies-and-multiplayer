@@ -154,6 +154,8 @@ patch_mp/maps/mp/gametypes/tdm.gsc
 patch_mp/maps/mp/teams/_teams.gsc
 patch_mp/maps/mp/teams/_teamset.gsc
 patch_mp/maps/mp/teams/_teamset_multiteam.gsc
+
+patch_mp/maps/mp/killstreaks/_supplydrop.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
@@ -206,7 +208,6 @@ patch_mp/maps/mp/killstreaks/_remotemortar.gsc
 patch_mp/maps/mp/killstreaks/_spyplane.gsc
 patch_mp/maps/mp/killstreaks/_straferun.gsc
 patch_mp/maps/mp/killstreaks/_supplycrate.gsc
-patch_mp/maps/mp/killstreaks/_supplydrop.gsc
 patch_mp/maps/mp/killstreaks/_turret_killstreak.gsc
 ```
 ### The following scipts are dev scripts filled with dev calls making them useless to modify for now

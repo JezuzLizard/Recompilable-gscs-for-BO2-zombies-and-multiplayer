@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/killstreaks/_helicopter;
 #include maps/mp/gametypes/_hostmigration;
 #include maps/mp/_tacticalinsertion;
@@ -21,9 +22,9 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "mp_vehicles" );
+#using_animtree( "mp_vehicles" ); //remove when compiling will cause issues otherwise because the compiler doesn't support it
 
-init()
+init() //checked changed to match cerberus output
 {
 	level.cratemodelfriendly = "t6_wpn_supply_drop_ally";
 	level.cratemodelenemy = "t6_wpn_supply_drop_axis";
@@ -84,8 +85,8 @@ init()
 	maps/mp/killstreaks/_killstreaks::allowkillstreakassists( "supply_drop_mp", 1 );
 	level.cratetypes = [];
 	level.categorytypeweight = [];
-	registercratetype( "ai_tank_drop_mp", "killstreak", "ai_tank_mp", 1, &"KILLSTREAK_AI_TANK_CRATE", undefined, undefined, undefined, ::maps/mp/killstreaks/_ai_tank::crateland );
-	registercratetype( "inventory_ai_tank_drop_mp", "killstreak", "ai_tank_mp", 1, &"KILLSTREAK_AI_TANK_CRATE", undefined, undefined, undefined, ::maps/mp/killstreaks/_ai_tank::crateland );
+	registercratetype( "ai_tank_drop_mp", "killstreak", "ai_tank_mp", 1, &"KILLSTREAK_AI_TANK_CRATE", undefined, undefined, undefined, maps/mp/killstreaks/_ai_tank::crateland );
+	registercratetype( "inventory_ai_tank_drop_mp", "killstreak", "ai_tank_mp", 1, &"KILLSTREAK_AI_TANK_CRATE", undefined, undefined, undefined, maps/mp/killstreaks/_ai_tank::crateland );
 	registercratetype( "minigun_drop_mp", "killstreak", "minigun_mp", 1, &"KILLSTREAK_MINIGUN_CRATE", &"PLATFORM_MINIGUN_GAMBLER", "share_package_death_machine", ::givecrateweapon );
 	registercratetype( "inventory_minigun_drop_mp", "killstreak", "minigun_mp", 1, &"KILLSTREAK_MINIGUN_CRATE", &"PLATFORM_MINIGUN_GAMBLER", "share_package_death_machine", ::givecrateweapon );
 	registercratetype( "m32_drop_mp", "killstreak", "m32_mp", 1, &"KILLSTREAK_M32_CRATE", &"PLATFORM_M32_GAMBLER", "share_package_multiple_grenade_launcher", ::givecrateweapon );
@@ -155,51 +156,45 @@ init()
 	registercratetype( "gambler_mp", "killstreak", "missile_swarm_mp", 2, &"KILLSTREAK_MISSILE_SWARM_CRATE", undefined, "share_package_missile_swarm", ::givecratekillstreak );
 	level.cratecategoryweights = [];
 	level.cratecategorytypeweights = [];
-	_a171 = level.cratetypes;
-	categorykey = getFirstArrayKey( _a171 );
-	while ( isDefined( categorykey ) )
+	foreach ( category in level.cratetypes )
 	{
-		category = _a171[ categorykey ];
 		finalizecratecategory( categorykey );
-		categorykey = getNextArrayKey( _a171, categorykey );
 	}
+	/*
 /#
 	level thread supply_drop_dev_gui();
 	getdvarintdefault( "scr_crate_notimeout", 0 );
 #/
+	*/
 }
 
-finalizecratecategory( category )
+finalizecratecategory( category ) //checked changed to match cerberus output
 {
 	level.cratecategoryweights[ category ] = 0;
 	cratetypekeys = getarraykeys( level.cratetypes[ category ] );
-	cratetype = 0;
-	while ( cratetype < cratetypekeys.size )
+	for ( cratetype = 0; cratetype < cratetypekeys.size; cratetype++ )
 	{
 		typekey = cratetypekeys[ cratetype ];
 		level.cratetypes[ category ][ typekey ].previousweight = level.cratecategoryweights[ category ];
 		level.cratecategoryweights[ category ] += level.cratetypes[ category ][ typekey ].weight;
 		level.cratetypes[ category ][ typekey ].weight = level.cratecategoryweights[ category ];
-		cratetype++;
 	}
 }
 
-advancedfinalizecratecategory( category )
+advancedfinalizecratecategory( category ) //checked changed to match cerberus output
 {
 	level.cratecategorytypeweights[ category ] = 0;
 	cratetypekeys = getarraykeys( level.categorytypeweight[ category ] );
-	cratetype = 0;
-	while ( cratetype < cratetypekeys.size )
+	for ( cratetype = 0; cratetype < cratetypekeys.size; cratetype++ )
 	{
 		typekey = cratetypekeys[ cratetype ];
 		level.cratecategorytypeweights[ category ] += level.categorytypeweight[ category ][ typekey ].weight;
 		level.categorytypeweight[ category ][ typekey ].weight = level.cratecategorytypeweights[ category ];
-		cratetype++;
 	}
 	finalizecratecategory( category );
 }
 
-setcategorytypeweight( category, type, weight )
+setcategorytypeweight( category, type, weight ) //checked changed to match cerberus output
 {
 	if ( !isDefined( level.categorytypeweight[ category ] ) )
 	{
@@ -212,8 +207,7 @@ setcategorytypeweight( category, type, weight )
 	startindex = undefined;
 	finalindex = undefined;
 	cratenamekeys = getarraykeys( level.cratetypes[ category ] );
-	cratename = 0;
-	while ( cratename < cratenamekeys.size )
+	for ( cratename = 0; cratename < cratenamekeys.size; cratename++ )
 	{
 		namekey = cratenamekeys[ cratename ];
 		if ( level.cratetypes[ category ][ namekey ].type == type )
@@ -226,15 +220,16 @@ setcategorytypeweight( category, type, weight )
 			}
 			if ( isDefined( finalindex ) && ( finalindex + 1 ) != cratename )
 			{
+				/*
 /#
 				maps/mp/_utility::error( "Crate type declaration must be contiguous" );
 #/
+				*/
 				maps/mp/gametypes/_callbacksetup::abortlevel();
 				return;
 			}
 			finalindex = cratename;
 		}
-		cratename++;
 	}
 	level.categorytypeweight[ category ][ type ].totalcrateweight = totalweight;
 	level.categorytypeweight[ category ][ type ].cratecount = count;
@@ -242,7 +237,7 @@ setcategorytypeweight( category, type, weight )
 	level.categorytypeweight[ category ][ type ].finalindex = finalindex;
 }
 
-registercratetype( category, type, name, weight, hint, hint_gambler, sharestat, givefunction, landfunctionoverride )
+registercratetype( category, type, name, weight, hint, hint_gambler, sharestat, givefunction, landfunctionoverride ) //checked matches cerberus output
 {
 	if ( !isDefined( level.cratetypes[ category ] ) )
 	{
@@ -264,8 +259,9 @@ registercratetype( category, type, name, weight, hint, hint_gambler, sharestat, 
 	game[ "strings" ][ name + "_hint" ] = hint;
 }
 
-getrandomcratetype( category, gambler_crate_name )
+getrandomcratetype( category, gambler_crate_name ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
+	/*
 /#
 	assert( isDefined( level.cratetypes ) );
 #/
@@ -275,23 +271,22 @@ getrandomcratetype( category, gambler_crate_name )
 /#
 	assert( isDefined( level.cratecategoryweights[ category ] ) );
 #/
+	*/
 	typekey = undefined;
 	cratetypestart = 0;
 	randomweightend = randomintrange( 1, level.cratecategoryweights[ category ] + 1 );
 	find_another = 0;
 	cratenamekeys = getarraykeys( level.cratetypes[ category ] );
-	while ( isDefined( level.categorytypeweight[ category ] ) )
+	if ( isDefined( level.categorytypeweight[ category ] ) )
 	{
 		randomweightend = randomint( level.cratecategorytypeweights[ category ] ) + 1;
 		cratetypekeys = getarraykeys( level.categorytypeweight[ category ] );
-		cratetype = 0;
-		while ( cratetype < cratetypekeys.size )
+		for ( cratetype = 0; cratetype < cratetypekeys.size; cratetype++ )
 		{
 			typekey = cratetypekeys[ cratetype ];
 			if ( level.categorytypeweight[ category ][ typekey ].weight < randomweightend )
 			{
 				cratetype++;
-				continue;
 			}
 			else
 			{
@@ -300,7 +295,6 @@ getrandomcratetype( category, gambler_crate_name )
 				randomweightend += level.cratetypes[ category ][ cratenamekeys[ cratetypestart ] ].previousweight;
 				break;
 			}
-			cratetype++;
 		}
 	}
 	cratetype = cratetypestart;
@@ -312,31 +306,24 @@ getrandomcratetype( category, gambler_crate_name )
 			cratetype++;
 			continue;
 		}
-		else
+		if ( isDefined( gambler_crate_name ) && level.cratetypes[ category ][ typekey ].name == gambler_crate_name )
 		{
-			if ( isDefined( gambler_crate_name ) && level.cratetypes[ category ][ typekey ].name == gambler_crate_name )
-			{
-				find_another = 1;
-			}
-			if ( find_another )
-			{
-				if ( cratetype < ( cratenamekeys.size - 1 ) )
-				{
-					cratetype++;
-				}
-				else
-				{
-					if ( cratetype > 0 )
-					{
-						cratetype--;
-
-					}
-				}
-				typekey = cratenamekeys[ cratetype ];
-			}
-			break;
+			find_another = 1;
 		}
-		cratetype++;
+		if ( find_another )
+		{
+			if ( cratetype < ( cratenamekeys.size - 1 ) )
+			{
+				cratetype++;
+			}
+			else if ( cratetype > 0 )
+			{
+				cratetype--;
+
+			}
+			typekey = cratenamekeys[ cratetype ];
+		}
+		break;
 	}
 /#
 	if ( isDefined( level.dev_gui_supply_drop ) && level.dev_gui_supply_drop != "random" )
@@ -347,32 +334,27 @@ getrandomcratetype( category, gambler_crate_name )
 	return level.cratetypes[ category ][ typekey ];
 }
 
-validate_crate_type( killstreak_name, weapon_name, crate_type_name )
+validate_crate_type( killstreak_name, weapon_name, crate_type_name ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
-		while ( isalive( players[ i ] ) )
+		if ( isalive( players[ i ] ) )
 		{
-			j = 0;
-			while ( j < players[ i ].pers[ "killstreaks" ].size )
+			for ( j = 0; j < players[i].pers["killstreaks"].size; j++ )
 			{
 				if ( players[ i ].pers[ "killstreaks" ][ j ] == killstreak_name )
 				{
 					return 1;
 				}
-				j++;
 			}
 			primary_weapons = players[ i ] getweaponslistprimaries();
-			j = 0;
-			while ( j < primary_weapons.size )
+			for ( j = 0; j < primary_weapons.size; j++ )
 			{
 				if ( primary_weapons[ j ] == weapon_name )
 				{
 					return 1;
 				}
-				j++;
 			}
 			ents = getentarray( "weapon_" + weapon_name, "classname" );
 			if ( isDefined( ents ) && ents.size > 0 )
@@ -380,13 +362,10 @@ validate_crate_type( killstreak_name, weapon_name, crate_type_name )
 				return 1;
 			}
 			crate_ents = getentarray( "care_package", "script_noteworthy" );
-			j = 0;
-			while ( j < crate_ents.size )
+			for ( j = 0; j < crate_ents.size; j++ )
 			{
 				if ( !isDefined( crate_ents[ j ].cratetype ) )
 				{
-					j++;
-					continue;
 				}
 				else
 				{
@@ -398,15 +377,13 @@ validate_crate_type( killstreak_name, weapon_name, crate_type_name )
 						}
 					}
 				}
-				j++;
 			}
 		}
-		i++;
 	}
 	return 0;
 }
 
-givecrateitem( crate )
+givecrateitem( crate ) //checked matches cerberus output
 {
 	if ( !isalive( self ) )
 	{
@@ -415,7 +392,7 @@ givecrateitem( crate )
 	return [[ crate.cratetype.givefunction ]]( crate.cratetype.name );
 }
 
-givecratekillstreakwaiter( event, removecrate, extraendon )
+givecratekillstreakwaiter( event, removecrate, extraendon ) //checked matches cerberus output
 {
 	self endon( "give_crate_killstreak_done" );
 	if ( isDefined( extraendon ) )
@@ -426,12 +403,12 @@ givecratekillstreakwaiter( event, removecrate, extraendon )
 	self notify( "give_crate_killstreak_done" );
 }
 
-givecratekillstreak( killstreak )
+givecratekillstreak( killstreak ) //checked matches cerberus output
 {
 	self maps/mp/killstreaks/_killstreaks::givekillstreak( killstreak );
 }
 
-givespecializedcrateweapon( weapon )
+givespecializedcrateweapon( weapon ) //checked matches cerberus output
 {
 	switch( weapon )
 	{
@@ -456,11 +433,11 @@ givespecializedcrateweapon( weapon )
 			level maps/mp/gametypes/_weapons::addlimitedweapon( weapon, self, 3 );
 			break;
 		default:
-		}
+			break;
 	}
 }
 
-givecrateweapon( weapon )
+givecrateweapon( weapon ) //checked changed to match cerberus output
 {
 	currentweapon = self getcurrentweapon();
 	if ( currentweapon == weapon || self hasweapon( weapon ) )
@@ -468,7 +445,7 @@ givecrateweapon( weapon )
 		self givemaxammo( weapon );
 		return 1;
 	}
-	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) && isDefined( level.inventory_array[ currentweapon ] ) )
+	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) || isDefined( level.inventory_array[ currentweapon ] ) )
 	{
 		self takeweapon( self.lastdroppableweapon );
 		self giveweapon( weapon );
@@ -484,7 +461,7 @@ givecrateweapon( weapon )
 	return 1;
 }
 
-givecrateammo( ammo )
+givecrateammo( ammo ) //checked partially changed to match cerberus output changed at own discretion see compiler_limitations.md No. 2
 {
 	weaponslist = self getweaponslist();
 	idx = 0;
@@ -493,79 +470,71 @@ givecrateammo( ammo )
 		weapon = weaponslist[ idx ];
 		if ( maps/mp/killstreaks/_killstreaks::iskillstreakweapon( weapon ) )
 		{
+			continue;
+		}
+		switch( weapon )
+		{
+			case "inventory_supplydrop_mp":
+			case "m202_flash_mp":
+			case "m220_tow_mp":
+			case "m32_mp":
+			case "minigun_mp":
+			case "mp40_blinged_mp":
+			case "supplydrop_mp":
+				break;
+			idx++;
+			continue;
+			case "bouncingbetty_mp":
+			case "claymore_mp":
+			case "frag_grenade_mp":
+			case "hatchet_mp":
+			case "satchel_charge_mp":
+			case "sticky_grenade_mp":
+				stock = self getweaponammostock( weapon );
+				maxammo = self.grenadetypeprimarycount;
+				if ( !isDefined( maxammo ) )
+				{
+					maxammo = 0;
+				}
+				if ( stock < maxammo )
+				{
+					self setweaponammostock( weapon, maxammo );
+				}
 			break;
+			case "concussion_grenade_mp":
+			case "emp_grenade_mp":
+			case "flash_grenade_mp":
+			case "nightingale_mp":
+			case "proximity_grenade_mp":
+			case "tabun_gas_mp":
+			case "willy_pete_mp":
+				stock = self getweaponammostock( weapon );
+				maxammo = self.tacticalgrenadecount;
+				if ( !isDefined( maxammo ) )
+				{
+					maxammo = 0;
+				}
+				if ( stock < maxammo )
+				{
+					self setweaponammostock( weapon, maxammo );
+				}
+				break;
+			default:
+				self givemaxammo( weapon );
+				break;
+		}
 		idx++;
-		continue;
 	}
-	else switch( weapon )
-	{
-		case "inventory_supplydrop_mp":
-		case "m202_flash_mp":
-		case "m220_tow_mp":
-		case "m32_mp":
-		case "minigun_mp":
-		case "mp40_blinged_mp":
-		case "supplydrop_mp":
-			break;
-		idx++;
-		continue;
-		case "bouncingbetty_mp":
-		case "claymore_mp":
-		case "frag_grenade_mp":
-		case "hatchet_mp":
-		case "satchel_charge_mp":
-		case "sticky_grenade_mp":
-			stock = self getweaponammostock( weapon );
-			maxammo = self.grenadetypeprimarycount;
-			if ( !isDefined( maxammo ) )
-			{
-				maxammo = 0;
-			}
-			if ( stock < maxammo )
-			{
-				self setweaponammostock( weapon, maxammo );
-			}
-			break;
-		idx++;
-		continue;
-		case "concussion_grenade_mp":
-		case "emp_grenade_mp":
-		case "flash_grenade_mp":
-		case "nightingale_mp":
-		case "proximity_grenade_mp":
-		case "tabun_gas_mp":
-		case "willy_pete_mp":
-			stock = self getweaponammostock( weapon );
-			maxammo = self.tacticalgrenadecount;
-			if ( !isDefined( maxammo ) )
-			{
-				maxammo = 0;
-			}
-			if ( stock < maxammo )
-			{
-				self setweaponammostock( weapon, maxammo );
-			}
-			break;
-		idx++;
-		continue;
-		default:
-			self givemaxammo( weapon );
-			break;
-		idx++;
-		continue;
-	}
-	idx++;
-}
 }
 
-waitforgrenadefire()
+waitforgrenadefire() //checked matches cerberus output
 {
 	self endon( "weapon_change" );
 	self waittill( "grenade_fire" );
 	return "grenade_fire";
 }
 
-usesupplydropmarker( package_contents_id )
+usesupplydropmarker( package_contents_id ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "spawned_player" );
@@ -599,7 +568,7 @@ usesupplydropmarker( package_contents_id )
 	return 1;
 }
 
-issupplydropgrenadeallowed( hardpointtype, killstreakweapon )
+issupplydropgrenadeallowed( hardpointtype, killstreakweapon ) //checked matches cerberus output
 {
 	if ( !isDefined( killstreakweapon ) )
 	{
@@ -613,7 +582,7 @@ issupplydropgrenadeallowed( hardpointtype, killstreakweapon )
 	return 1;
 }
 
-usekillstreaksupplydrop( hardpointtype )
+usekillstreaksupplydrop( hardpointtype ) //checked matches cerberus output
 {
 	if ( self issupplydropgrenadeallowed( hardpointtype, "supplydrop_mp" ) == 0 )
 	{
@@ -628,7 +597,7 @@ usekillstreaksupplydrop( hardpointtype )
 	return result;
 }
 
-use_killstreak_death_machine( hardpointtype )
+use_killstreak_death_machine( hardpointtype ) //checked changed to match cerberus output
 {
 	if ( self maps/mp/killstreaks/_killstreakrules::iskillstreakallowed( hardpointtype, self.team ) == 0 )
 	{
@@ -636,7 +605,7 @@ use_killstreak_death_machine( hardpointtype )
 	}
 	weapon = "minigun_mp";
 	currentweapon = self getcurrentweapon();
-	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) && isDefined( level.inventory_array[ currentweapon ] ) )
+	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) || isDefined( level.inventory_array[ currentweapon ] ) )
 	{
 		self takeweapon( self.lastdroppableweapon );
 		self giveweapon( weapon );
@@ -653,7 +622,7 @@ use_killstreak_death_machine( hardpointtype )
 	return 1;
 }
 
-use_killstreak_grim_reaper( hardpointtype )
+use_killstreak_grim_reaper( hardpointtype ) //checked changed to match cerberus output
 {
 	if ( self maps/mp/killstreaks/_killstreakrules::iskillstreakallowed( hardpointtype, self.team ) == 0 )
 	{
@@ -661,7 +630,7 @@ use_killstreak_grim_reaper( hardpointtype )
 	}
 	weapon = "m202_flash_mp";
 	currentweapon = self getcurrentweapon();
-	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) && isDefined( level.inventory_array[ currentweapon ] ) )
+	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) || isDefined( level.inventory_array[ currentweapon ] ) )
 	{
 		self takeweapon( self.lastdroppableweapon );
 		self giveweapon( weapon );
@@ -678,7 +647,7 @@ use_killstreak_grim_reaper( hardpointtype )
 	return 1;
 }
 
-use_killstreak_tv_guided_missile( hardpointtype )
+use_killstreak_tv_guided_missile( hardpointtype ) //checked changed to match cerberus output
 {
 	if ( maps/mp/killstreaks/_killstreakrules::iskillstreakallowed( hardpointtype, self.team ) == 0 )
 	{
@@ -687,7 +656,7 @@ use_killstreak_tv_guided_missile( hardpointtype )
 	}
 	weapon = "m220_tow_mp";
 	currentweapon = self getcurrentweapon();
-	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) && isDefined( level.inventory_array[ currentweapon ] ) )
+	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) || isDefined( level.inventory_array[ currentweapon ] ) )
 	{
 		self takeweapon( self.lastdroppableweapon );
 		self giveweapon( weapon );
@@ -704,7 +673,7 @@ use_killstreak_tv_guided_missile( hardpointtype )
 	return 1;
 }
 
-use_killstreak_mp40( hardpointtype )
+use_killstreak_mp40( hardpointtype ) //checked changed to match cerberus output
 {
 	if ( maps/mp/killstreaks/_killstreakrules::iskillstreakallowed( hardpointtype, self.team ) == 0 )
 	{
@@ -713,7 +682,7 @@ use_killstreak_mp40( hardpointtype )
 	}
 	weapon = "mp40_blinged_mp";
 	currentweapon = self getcurrentweapon();
-	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) && isDefined( level.inventory_array[ currentweapon ] ) )
+	if ( !issupplydropweapon( currentweapon ) || isDefined( level.grenade_array[ currentweapon ] ) || isDefined( level.inventory_array[ currentweapon ] ) )
 	{
 		self takeweapon( self.lastdroppableweapon );
 		self giveweapon( weapon );
@@ -730,7 +699,7 @@ use_killstreak_mp40( hardpointtype )
 	return 1;
 }
 
-cleanupwatcherondeath( team, killstreak_id )
+cleanupwatcherondeath( team, killstreak_id ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "supplyDropWatcher" );
@@ -741,7 +710,7 @@ cleanupwatcherondeath( team, killstreak_id )
 	maps/mp/killstreaks/_killstreakrules::killstreakstop( "supply_drop_mp", team, killstreak_id );
 }
 
-supplydropwatcher( package_contents_id )
+supplydropwatcher( package_contents_id ) //checked matches cerberus output
 {
 	self notify( "supplyDropWatcher" );
 	self endon( "supplyDropWatcher" );
@@ -771,7 +740,7 @@ supplydropwatcher( package_contents_id )
 	}
 }
 
-checkforemp()
+checkforemp() //checked matches cerberus output
 {
 	self endon( "supplyDropWatcher" );
 	self endon( "spawned_player" );
@@ -783,7 +752,7 @@ checkforemp()
 	self maps/mp/killstreaks/_killstreaks::switchtolastnonkillstreakweapon();
 }
 
-supplydropgrenadetimeout( team, killstreak_id, weapname )
+supplydropgrenadetimeout( team, killstreak_id, weapname ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "stationary" );
@@ -799,17 +768,14 @@ supplydropgrenadetimeout( team, killstreak_id, weapname )
 	{
 		maps/mp/killstreaks/_killstreakrules::killstreakstop( "ai_tank_drop_mp", team, killstreak_id );
 	}
-	else
+	else if ( weapname == "inventory_ai_tank_drop_mp" )
 	{
-		if ( weapname == "inventory_ai_tank_drop_mp" )
-		{
-			maps/mp/killstreaks/_killstreakrules::killstreakstop( "inventory_ai_tank_drop_mp", team, killstreak_id );
-		}
+		maps/mp/killstreaks/_killstreakrules::killstreakstop( "inventory_ai_tank_drop_mp", team, killstreak_id );
 	}
 	self delete();
 }
 
-checkweaponchange( team, killstreak_id )
+checkweaponchange( team, killstreak_id ) //checked matches cerberus output
 {
 	self endon( "supplyDropWatcher" );
 	self endon( "spawned_player" );
@@ -820,7 +786,7 @@ checkweaponchange( team, killstreak_id )
 	maps/mp/killstreaks/_killstreakrules::killstreakstop( "supply_drop_mp", team, killstreak_id );
 }
 
-supplydropgrenadepullwatcher( killstreak_id )
+supplydropgrenadepullwatcher( killstreak_id ) //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	self endon( "weapon_change" );
@@ -844,7 +810,7 @@ supplydropgrenadepullwatcher( killstreak_id )
 	}
 }
 
-watchforgrenadeputdown()
+watchforgrenadeputdown() //checked matches cerberus output
 {
 	self notify( "watchForGrenadePutDown" );
 	self endon( "watchForGrenadePutDown" );
@@ -854,14 +820,14 @@ watchforgrenadeputdown()
 	self _enableusability();
 }
 
-abortsupplydropmarkerwaiter( waittillstring )
+abortsupplydropmarkerwaiter( waittillstring ) //checked matches cerberus output
 {
 	self endon( "supply_drop_marker_done" );
 	self waittill( waittillstring );
 	self notify( "supply_drop_marker_done" );
 }
 
-playerchangeweaponwaiter()
+playerchangeweaponwaiter() //checked matches cerberus output
 {
 	self endon( "supply_drop_marker_done" );
 	self endon( "disconnect" );
@@ -875,16 +841,29 @@ playerchangeweaponwaiter()
 	self notify( "supply_drop_marker_done" );
 }
 
-issupplydropweapon( weapon )
+issupplydropweapon( weapon ) //checked converted to switch for my sanity
 {
-	if ( weapon != "supplystation_mp" && weapon != "supplydrop_mp" && weapon != "inventory_supplydrop_mp" && weapon != "turret_drop_mp" && weapon != "ai_tank_drop_mp" && weapon != "inventory_ai_tank_drop_mp" && weapon != "minigun_drop_mp" && weapon != "inventory_minigun_drop_mp" && weapon != "m32_drop_mp" && weapon != "inventory_m32_drop_mp" || weapon == "tow_turret_drop_mp" && weapon == "m220_tow_drop_mp" )
+	switch ( weapon )
 	{
-		return 1;
+		case "supplystation_mp":
+		case "supplydrop_mp":
+		case "inventory_supplydrop_mp":
+		case "turret_drop_mp":
+		case "ai_tank_drop_mp":
+		case "inventory_ai_tank_drop_mp":
+		case "minigun_drop_mp":
+		case "inventory_minigun_drop_mp":
+		case "m32_drop_mp":
+		case "inventory_m32_drop_mp":
+		case "tow_turret_drop_mp":
+		case "m220_tow_drop_mp":
+			return 1;
+		default:
+			return 0;
 	}
-	return 0;
 }
 
-geticonforcrate()
+geticonforcrate() //checked matches cerberus output
 {
 	icon = undefined;
 	switch( self.cratetype.type )
@@ -933,7 +912,7 @@ geticonforcrate()
 	}
 }
 
-crateactivate( hacker )
+crateactivate( hacker ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	self makeusable();
 	self setcursorhint( "HINT_NOICON" );
@@ -956,11 +935,8 @@ crateactivate( hacker )
 	if ( level.teambased )
 	{
 		objective_team( crateobjid, self.team );
-		_a1089 = level.teams;
-		_k1089 = getFirstArrayKey( _a1089 );
-		while ( isDefined( _k1089 ) )
+		foreach ( team in level.teams )
 		{
-			team = _a1089[ _k1089 ];
 			if ( self.team == team )
 			{
 			}
@@ -980,7 +956,6 @@ crateactivate( hacker )
 				objective_state( crateobjid, "active" );
 				self.enemyobjid[ self.enemyobjid.size ] = crateobjid;
 			}
-			_k1089 = getNextArrayKey( _a1089, _k1089 );
 		}
 	}
 	else if ( !self.visibletoall )
@@ -1025,7 +1000,7 @@ crateactivate( hacker )
 	}
 }
 
-cratedeactivate()
+cratedeactivate() //checked changed to match cerberus output
 {
 	self makeunusable();
 	if ( isDefined( self.friendlyobjid ) )
@@ -1036,14 +1011,10 @@ cratedeactivate()
 	}
 	if ( isDefined( self.enemyobjid ) )
 	{
-		_a1174 = self.enemyobjid;
-		_k1174 = getFirstArrayKey( _a1174 );
-		while ( isDefined( _k1174 ) )
+		foreach ( objid in self.enemyobjid )
 		{
-			objid = _a1174[ _k1174 ];
 			objective_delete( objid );
 			maps/mp/gametypes/_gameobjects::releaseobjid( objid );
-			_k1174 = getNextArrayKey( _a1174, _k1174 );
 		}
 		self.enemyobjid = [];
 	}
@@ -1055,7 +1026,7 @@ cratedeactivate()
 	}
 }
 
-ownerteamchangewatcher()
+ownerteamchangewatcher() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( !level.teambased || !isDefined( self.owner ) )
@@ -1066,39 +1037,37 @@ ownerteamchangewatcher()
 	self.owner = undefined;
 }
 
-dropalltoground( origin, radius, stickyobjectradius )
+dropalltoground( origin, radius, stickyobjectradius ) //checked matches cerberus output
 {
 	physicsexplosionsphere( origin, radius, radius, 0 );
-	wait 0,05;
+	wait 0.05;
 	maps/mp/gametypes/_weapons::dropweaponstoground( origin, radius );
 	maps/mp/killstreaks/_supplydrop::dropcratestoground( origin, radius );
 	level notify( "drop_objects_to_ground" );
 }
 
-dropeverythingtouchingcrate( origin )
+dropeverythingtouchingcrate( origin ) //checked matches cerberus output
 {
 	dropalltoground( origin, 70, 70 );
 }
 
-dropalltogroundaftercratedelete( crate, crate_origin )
+dropalltogroundaftercratedelete( crate, crate_origin ) //checked matches cerberus output
 {
 	crate waittill( "death" );
-	wait 0,1;
+	wait 0.1;
 	crate dropeverythingtouchingcrate( crate_origin );
 }
 
-dropcratestoground( origin, radius )
+dropcratestoground( origin, radius ) //checked changed to match cerberus output
 {
 	crate_ents = getentarray( "care_package", "script_noteworthy" );
 	radius_sq = radius * radius;
-	i = 0;
-	while ( i < crate_ents.size )
+	for ( i = 0; i < crate_ents.size; i++ )
 	{
 		if ( distancesquared( origin, crate_ents[ i ].origin ) < radius_sq )
 		{
 			crate_ents[ i ] thread dropcratetoground();
 		}
-		i++;
 	}
 }
 
@@ -1118,7 +1087,7 @@ dropcratetoground()
 	self.droppingtoground = undefined;
 }
 
-cratespawn( category, owner, team, drop_origin, drop_angle )
+cratespawn( category, owner, team, drop_origin, drop_angle ) //checked matches cerberus output
 {
 	crate = spawn( "script_model", drop_origin, 1 );
 	crate.angles = drop_angle;
@@ -1175,7 +1144,7 @@ cratespawn( category, owner, team, drop_origin, drop_angle )
 	return crate;
 }
 
-cratedelete( drop_all_to_ground )
+cratedelete( drop_all_to_ground ) //checked changed to match cerberus output
 {
 	if ( !isDefined( drop_all_to_ground ) )
 	{
@@ -1189,14 +1158,10 @@ cratedelete( drop_all_to_ground )
 	}
 	if ( isDefined( self.enemyobjid ) )
 	{
-		_a1337 = self.enemyobjid;
-		_k1337 = getFirstArrayKey( _a1337 );
-		while ( isDefined( _k1337 ) )
+		foreach ( objid in self.enemyobjid )
 		{
-			objid = _a1337[ _k1337 ];
 			objective_delete( objid );
 			maps/mp/gametypes/_gameobjects::releaseobjid( objid );
-			_k1337 = getNextArrayKey( _a1337, _k1337 );
 		}
 		self.enemyobjid = undefined;
 	}
@@ -1217,7 +1182,7 @@ cratedelete( drop_all_to_ground )
 	self delete();
 }
 
-timeoutcratewaiter()
+timeoutcratewaiter() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "stationary" );
@@ -1225,7 +1190,7 @@ timeoutcratewaiter()
 	self cratedelete();
 }
 
-cratephysics()
+cratephysics() //checked matches cerberus output
 {
 	forcepointvariance = 200;
 	vertvelocitymin = -100;
@@ -1243,43 +1208,43 @@ cratephysics()
 	self waittill( "stationary" );
 }
 
-play_impact_sound()
+play_impact_sound() //checked matches cerberus output
 {
 	self endon( "entityshutdown" );
 	self endon( "stationary" );
 	self endon( "death" );
-	wait 0,5;
+	wait 0.5;
 	while ( abs( self.velocity[ 2 ] ) > 5 )
 	{
-		wait 0,1;
+		wait 0.1;
 	}
 	self playsound( "phy_impact_supply" );
 }
 
-update_crate_velocity()
+update_crate_velocity() //checked changed to match cerberus output
 {
 	self endon( "entityshutdown" );
 	self endon( "stationary" );
-	self.velocity = ( 0, 0, 1 );
+	self.velocity = ( 0, 0, 0 );
 	self.old_origin = self.origin;
 	while ( isDefined( self ) )
 	{
 		self.velocity = self.origin - self.old_origin;
 		self.old_origin = self.origin;
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-crateredophysics()
+crateredophysics() //checked changed to match cerberus output
 {
 	forcepoint = self.origin;
-	initialvelocity = ( 0, 0, 1 );
+	initialvelocity = ( 0, 0, 0 );
 	self physicslaunch( forcepoint, initialvelocity );
 	self thread timeoutcratewaiter();
 	self waittill( "stationary" );
 }
 
-do_supply_drop_detonation( weapname, owner )
+do_supply_drop_detonation( weapname, owner ) //checked matches cerberus output
 {
 	self notify( "supplyDropWatcher" );
 	self endon( "supplyDropWatcher" );
@@ -1302,7 +1267,7 @@ do_supply_drop_detonation( weapname, owner )
 	self delete();
 }
 
-dosupplydrop( weapon, weaponname, owner, killstreak_id, package_contents_id )
+dosupplydrop( weapon, weaponname, owner, killstreak_id, package_contents_id ) //checked matches cerberus output
 {
 	weapon endon( "explode" );
 	weapon endon( "grenade_timeout" );
@@ -1314,7 +1279,7 @@ dosupplydrop( weapon, weaponname, owner, killstreak_id, package_contents_id )
 	self thread helidelivercrate( weapon.origin, weaponname, owner, team, killstreak_id, package_contents_id );
 }
 
-watchexplode( weaponname, owner, killstreak_id, package_contents_id )
+watchexplode( weaponname, owner, killstreak_id, package_contents_id ) //checked matches cerberus output
 {
 	self endon( "stoppedMoving" );
 	team = owner.team;
@@ -1322,20 +1287,22 @@ watchexplode( weaponname, owner, killstreak_id, package_contents_id )
 	owner thread helidelivercrate( position, weaponname, owner, team, killstreak_id, package_contents_id );
 }
 
-cratetimeoutthreader()
+cratetimeoutthreader() //checked matches cerberus output
 {
+	/*
 /#
 	if ( getdvarintdefault( "scr_crate_notimeout", 0 ) )
 	{
 		return;
 #/
 	}
+	*/
 	self thread cratetimeout( 90 );
 }
 
-dropcrate( origin, angle, category, owner, team, killcament, killstreak_id, package_contents_id, crate )
+dropcrate( origin, angle, category, owner, team, killcament, killstreak_id, package_contents_id, crate ) //checked matches cerberus output
 {
-	angle = ( angle[ 0 ] * 0,5, angle[ 1 ] * 0,5, angle[ 2 ] * 0,5 );
+	angle = ( angle[ 0 ] * 0.5, angle[ 1 ] * 0.5, angle[ 2 ] * 0.5 );
 	if ( isDefined( crate ) )
 	{
 		origin = crate.origin;
@@ -1372,27 +1339,27 @@ dropcrate( origin, angle, category, owner, team, killcament, killstreak_id, pack
 	}
 }
 
-unlinkonrotation( crate )
+unlinkonrotation( crate ) //checked matches cerberus output
 {
 	self endon( "delete" );
 	crate endon( "entityshutdown" );
 	crate endon( "stationary" );
-	waitbeforerotationcheck = getdvarfloatdefault( "scr_supplydrop_killcam_rot_wait", 0,5 );
+	waitbeforerotationcheck = getdvarfloatdefault( "scr_supplydrop_killcam_rot_wait", 0.5 );
 	wait waitbeforerotationcheck;
-	mincos = getdvarintdefault( "scr_supplydrop_killcam_max_rot", 0,999 );
+	mincos = getdvarintdefault( "scr_supplydrop_killcam_max_rot", 0.999 );
 	cosine = 1;
 	currentdirection = vectornormalize( anglesToForward( crate.angles ) );
 	while ( cosine > mincos )
 	{
 		olddirection = currentdirection;
-		wait 0,05;
+		wait 0.05;
 		currentdirection = vectornormalize( anglesToForward( crate.angles ) );
 		cosine = vectordot( olddirection, currentdirection );
 	}
 	self unlink();
 }
 
-default_land_function( crate, weaponname, owner, team )
+default_land_function( crate, weaponname, owner, team ) //checked partially changed to match cerberus output see compiler_limitations.md No. 5
 {
 	while ( 1 )
 	{
@@ -1403,10 +1370,13 @@ default_land_function( crate, weaponname, owner, team )
 		{
 			continue;
 		}
-		if ( !player hasperk( "specialty_showenemyequipment" ) && remote_hack == 1 && owner != player && level.teambased || team != player.team && !level.teambased )
+		if ( player hasperk( "specialty_showenemyequipment" ) || remote_hack == 1 && owner != player )
 		{
-			spawn_explosive_crate( crate.origin, crate.angles, weaponname, owner, team, player );
-			crate cratedelete( 0 );
+  			if ( level.teambased && team != player.team || !level.teambased )
+  			{
+				spawn_explosive_crate( crate.origin, crate.angles, weaponname, owner, team, player );
+				crate cratedelete( 0 );
+			}
 		}
 		else
 		{
@@ -1416,7 +1386,7 @@ default_land_function( crate, weaponname, owner, team )
 	}
 }
 
-spawn_explosive_crate( origin, angle, weaponname, owner, team, hacker )
+spawn_explosive_crate( origin, angle, weaponname, owner, team, hacker ) //checked matches cerberus output
 {
 	crate = cratespawn( weaponname, owner, team, origin, angle );
 	crate setowner( owner );
@@ -1440,7 +1410,7 @@ spawn_explosive_crate( origin, angle, weaponname, owner, team, hacker )
 	crate cratetimeoutthreader();
 }
 
-watch_explosive_crate()
+watch_explosive_crate() //checked matches cerberus output
 {
 	killcament = spawn( "script_model", self.origin + vectorScale( ( 0, 0, 1 ), 60 ) );
 	self.killcament = killcament;
@@ -1448,7 +1418,7 @@ watch_explosive_crate()
 	if ( !player hasperk( "specialty_showenemyequipment" ) && !remote_hack )
 	{
 		self thread maps/mp/_entityheadicons::setentityheadicon( player.team, player, level.crate_headicon_offset, "headicon_dead", 1 );
-		self loop_sound( "wpn_semtex_alert", 0,15 );
+		self loop_sound( "wpn_semtex_alert", 0.15 );
 		if ( !isDefined( self.hacker ) )
 		{
 			self.hacker = self;
@@ -1463,30 +1433,27 @@ watch_explosive_crate()
 		maps/mp/_scoreevents::processscoreevent( "disarm_hacked_care_package", player );
 		player maps/mp/_challenges::disarmedhackedcarepackage();
 	}
-	wait 0,1;
+	wait 0.1;
 	self cratedelete();
 	killcament thread deleteaftertime( 5 );
 }
 
-loop_sound( alias, interval )
+loop_sound( alias, interval ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	while ( 1 )
 	{
 		playsoundatposition( alias, self.origin );
 		wait interval;
-		interval /= 1,2;
-		if ( interval < 0,08 )
+		interval /= 1.2;
+		if ( interval < 0.08 )
 		{
 			return;
-		}
-		else
-		{
 		}
 	}
 }
 
-cratekill()
+cratekill() //checked matches cerberus output
 {
 	self endon( "death" );
 	stationarythreshold = 2;
@@ -1518,12 +1485,12 @@ cratekill()
 		}
 		else
 		{
-			wait 0,01;
+			wait 0.01;
 		}
 	}
 }
 
-cratedroptogroundkill()
+cratedroptogroundkill() //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	self endon( "death" );
 	self endon( "stationary" );
@@ -1544,13 +1511,13 @@ cratedroptogroundkill()
 				i++;
 				continue;
 			}
-			else self is_equipment_touching_crate( players[ i ] );
+			self is_equipment_touching_crate( players[ i ] );
 			if ( !isalive( players[ i ] ) )
 			{
 				i++;
 				continue;
 			}
-			else flattenedselforigin = ( self.origin[ 0 ], self.origin[ 1 ], 0 );
+			flattenedselforigin = ( self.origin[ 0 ], self.origin[ 1 ], 0 );
 			flattenedplayerorigin = ( players[ i ].origin[ 0 ], players[ i ].origin[ 1 ], 0 );
 			if ( distancesquared( flattenedselforigin, flattenedplayerorigin ) > 4096 )
 			{
@@ -1584,19 +1551,16 @@ cratedroptogroundkill()
 			cratedroptogroundtrace( start );
 			start = self getpointinbounds( -1, -1, 0 );
 			cratedroptogroundtrace( start );
-			wait 0,2;
+			wait 0.2;
 			continue;
 		}
-		else
-		{
-			wait 0,5;
-		}
+		wait 0.5;
 	}
 }
 
-cratedroptogroundtrace( start )
+cratedroptogroundtrace( start ) //checked changed to match cerberus output
 {
-	end = start + vectorScale( ( 0, 0, 1 ), 8000 );
+	end = start + vectorScale( ( 0, 0, -1 ), 8000 );
 	trace = bullettrace( start, end, 1, self, 1, 1 );
 	if ( isDefined( trace[ "entity" ] ) && isplayer( trace[ "entity" ] ) && isalive( trace[ "entity" ] ) )
 	{
@@ -1618,80 +1582,66 @@ cratedroptogroundtrace( start )
 	}
 }
 
-is_touching_crate()
+is_touching_crate() //checked changed to match cerberus output removed empty if statements which probably contained comments
 {
-	extraboundary = vectorScale( ( 0, 0, 1 ), 10 );
+	extraboundary = vectorScale( ( 1, 1, 1 ), 10 );
 	players = get_players();
-	i = 0;
-	while ( i < players.size )
+	for ( i = 0; i < players.size; i++ )
 	{
 		if ( isDefined( players[ i ] ) && isalive( players[ i ] ) && self istouching( players[ i ], extraboundary ) )
 		{
-			if ( isDefined( self.owner ) )
-			{
-			}
-			else
-			{
-			}
 			attacker = self;
 			players[ i ] dodamage( players[ i ].health + 1, players[ i ].origin, attacker, self, "none", "MOD_HIT_BY_OBJECT", 0, "supplydrop_mp" );
 			players[ i ] playsound( "mpl_supply_crush" );
 			players[ i ] playsound( "phy_impact_supply" );
 		}
 		self is_equipment_touching_crate( players[ i ] );
-		i++;
 	}
 }
 
-is_equipment_touching_crate( player )
+is_equipment_touching_crate( player ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	extraboundary = vectorScale( ( 0, 0, 1 ), 10 );
-	while ( isDefined( player ) && isDefined( player.weaponobjectwatcherarray ) )
+	if ( isDefined( player ) && isDefined( player.weaponobjectwatcherarray ) )
 	{
-		watcher = 0;
-		while ( watcher < player.weaponobjectwatcherarray.size )
+		for ( watcher = 0; watcher < player.weaponobjectwatcherarray.size; watcher++ )
 		{
 			objectwatcher = player.weaponobjectwatcherarray[ watcher ];
 			objectarray = objectwatcher.objectarray;
-			while ( isDefined( objectarray ) )
+			if ( isDefined( objectarray ) )
 			{
-				weaponobject = 0;
-				while ( weaponobject < objectarray.size )
+				for ( weaponobject = 0; weaponobject < objectarray.size; weaponobject++ )
 				{
 					if ( isDefined( objectarray[ weaponobject ] ) && self istouching( objectarray[ weaponobject ], extraboundary ) )
 					{
 						if ( isDefined( objectwatcher.detonate ) )
 						{
 							objectwatcher thread maps/mp/gametypes/_weaponobjects::waitanddetonate( objectarray[ weaponobject ], 0 );
-							weaponobject++;
-							continue;
 						}
 						else
 						{
 							maps/mp/gametypes/_weaponobjects::deleteweaponobject( objectwatcher, objectarray[ weaponobject ] );
 						}
 					}
-					weaponobject++;
 				}
 			}
-			watcher++;
 		}
 	}
-	extraboundary = vectorScale( ( 0, 0, 1 ), 15 );
+	extraboundary = vectorScale( ( 1, 1, 1 ), 15 );
 	if ( isDefined( player ) && isDefined( player.tacticalinsertion ) && self istouching( player.tacticalinsertion, extraboundary ) )
 	{
 		player.tacticalinsertion thread maps/mp/_tacticalinsertion::fizzle();
 	}
 }
 
-cratetimeout( time )
+cratetimeout( time ) //checked matches cerberus output
 {
 	self endon( "death" );
 	wait time;
 	self cratedelete();
 }
 
-spawnuseent()
+spawnuseent() //checked matches cerberus output
 {
 	useent = spawn( "script_origin", self.origin );
 	useent.curprogress = 0;
@@ -1703,23 +1653,23 @@ spawnuseent()
 	return useent;
 }
 
-useentownerdeathwaiter( owner )
+useentownerdeathwaiter( owner ) //checked matches cerberus output
 {
 	self endon( "death" );
 	owner waittill( "death" );
 	self delete();
 }
 
-crateusethink()
+crateusethink() //checked changed to match cerberus output
 {
 	while ( isDefined( self ) )
 	{
 		self waittill( "trigger", player );
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
-		while ( !player isonground() )
+		if ( !player isonground() )
 		{
 			continue;
 		}
@@ -1742,12 +1692,12 @@ crateusethink()
 		if ( result )
 		{
 			givecratecapturemedal( self, player );
-			self notify( "captured" );
+			self notify( "captured", player, 0 );
 		}
 	}
 }
 
-givecratecapturemedal( crate, capturer )
+givecratecapturemedal( crate, capturer ) //checked changed to match cerberus output
 {
 	if ( isDefined( crate.owner ) && isplayer( crate.owner ) )
 	{
@@ -1761,65 +1711,58 @@ givecratecapturemedal( crate, capturer )
 					maps/mp/_scoreevents::processscoreevent( "capture_enemy_crate", capturer );
 				}
 			}
-			else
+			else if ( isDefined( crate.owner ) && capturer != crate.owner )
 			{
-				if ( isDefined( crate.owner ) && capturer != crate.owner )
-				{
-					crate.owner playlocalsound( "mpl_crate_friendly_steals" );
-					if ( !isDefined( crate.hacker ) )
-					{
-						level.globalsharepackages++;
-						maps/mp/_scoreevents::processscoreevent( crate.cratetype.sharestat, crate.owner );
-					}
-				}
-			}
-			return;
-		}
-		else
-		{
-			if ( capturer != crate.owner )
-			{
-				crate.owner playlocalsound( "mpl_crate_enemy_steals" );
+				crate.owner playlocalsound( "mpl_crate_friendly_steals" );
 				if ( !isDefined( crate.hacker ) )
 				{
-					maps/mp/_scoreevents::processscoreevent( "capture_enemy_crate", capturer );
+					level.globalsharepackages++;
+					maps/mp/_scoreevents::processscoreevent( crate.cratetype.sharestat, crate.owner );
 				}
+			}
+		}
+		else if ( capturer != crate.owner )
+		{
+			crate.owner playlocalsound( "mpl_crate_enemy_steals" );
+			if ( !isDefined( crate.hacker ) )
+			{
+				maps/mp/_scoreevents::processscoreevent( "capture_enemy_crate", capturer );
 			}
 		}
 	}
 }
 
-crateusethinkowner()
+crateusethinkowner() //checked changed to match cerberus output
 {
 	self endon( "joined_team" );
 	while ( isDefined( self ) )
 	{
 		self waittill( "trigger", player );
-		while ( !isalive( player ) )
+		if ( !isalive( player ) )
 		{
 			continue;
 		}
-		while ( !player isonground() )
+		if ( !player isonground() )
 		{
 			continue;
 		}
-		while ( !isDefined( self.owner ) )
+		if ( !isDefined( self.owner ) )
 		{
 			continue;
 		}
-		while ( self.owner != player )
+		if ( self.owner != player )
 		{
 			continue;
 		}
 		result = self useholdthink( player, level.crateownerusetime );
 		if ( result )
 		{
-			self notify( "captured" );
+			self notify( "captured", player, 0 );
 		}
 	}
 }
 
-useholdthink( player, usetime )
+useholdthink( player, usetime ) //checked matches cerberus output
 {
 	player notify( "use_hold" );
 	player freeze_player_controls( 1 );
@@ -1853,7 +1796,7 @@ useholdthink( player, usetime )
 	return 0;
 }
 
-continueholdthinkloop( player )
+continueholdthinkloop( player ) //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -1894,7 +1837,7 @@ continueholdthinkloop( player )
 	return 1;
 }
 
-useholdthinkloop( player )
+useholdthinkloop( player ) //checked matches cerberus output
 {
 	level endon( "game_ended" );
 	self endon( "disabled" );
@@ -1902,22 +1845,22 @@ useholdthinkloop( player )
 	timedout = 0;
 	while ( self continueholdthinkloop( player ) )
 	{
-		timedout += 0,05;
+		timedout += 0.05;
 		self.curprogress += 50 * self.userate;
 		self.userate = 1;
 		if ( self.curprogress >= self.usetime )
 		{
 			self.inuse = 0;
-			wait 0,05;
+			wait 0.05;
 			return isalive( player );
 		}
-		wait 0,05;
+		wait 0.05;
 		maps/mp/gametypes/_hostmigration::waittillhostmigrationdone();
 	}
 	return 0;
 }
 
-crategamblerthink()
+crategamblerthink() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	for ( ;; )
@@ -1927,34 +1870,31 @@ crategamblerthink()
 		{
 			continue;
 		}
-		else if ( isDefined( self.useent ) && self.useent.inuse )
+		if ( isDefined( self.useent ) && self.useent.inuse )
 		{
 			if ( isDefined( self.owner ) && self.owner != player )
 			{
 				continue;
 			}
 		}
-		else
-		{
-			player playlocalsound( "uin_gamble_perk" );
-			self.cratetype = getrandomcratetype( "gambler_mp", self.cratetype.name );
-			self cratereactivate();
-			self sethintstringforperk( "specialty_showenemyequipment", self.cratetype.hint );
-			self notify( "crate_use_interrupt" );
-			level notify( "use_interrupt" );
-			return;
-		}
+		player playlocalsound( "uin_gamble_perk" );
+		self.cratetype = getrandomcratetype( "gambler_mp", self.cratetype.name );
+		self cratereactivate();
+		self sethintstringforperk( "specialty_showenemyequipment", self.cratetype.hint );
+		self notify( "crate_use_interrupt" );
+		level notify( "use_interrupt" );
+		return;
 	}
 }
 
-cratereactivate()
+cratereactivate() //checked matches cerberus output
 {
 	self sethintstring( self.cratetype.hint );
 	icon = self geticonforcrate();
 	self thread maps/mp/_entityheadicons::setentityheadicon( self.team, self, level.crate_headicon_offset, icon, 1 );
 }
 
-personalusebar( object )
+personalusebar( object ) //checked partially changed to match cerberus output see compiler_limitations.md No. 5
 {
 	self endon( "disconnect" );
 	if ( isDefined( self.usebar ) )
@@ -1963,14 +1903,21 @@ personalusebar( object )
 	}
 	self.usebar = createsecondaryprogressbar();
 	self.usebartext = createsecondaryprogressbartext();
-	if ( self hasperk( "specialty_showenemyequipment" ) && object.owner != self && !isDefined( object.hacker ) && level.teambased || object.owner.team != self.team && !level.teambased )
+	if ( self hasperk( "specialty_showenemyequipment" ) && object.owner != self && !isDefined( object.hacker ) )
 	{
-		self.usebartext settext( &"KILLSTREAK_HACKING_CRATE" );
-		self playlocalsound( "evt_hacker_hacking" );
+		if ( ( level.teambased && object.owner.team != self.team || !level.teambased ) )
+		{
+			self.usebartext settext( &"KILLSTREAK_HACKING_CRATE" );
+			self playlocalsound( "evt_hacker_hacking" );
+		}
+		else
+		{
+			self.usebartext settext( &"KILLSTREAK_CAPTURING_CRATE" );
+		}
 	}
-	else
+	else if ( self hasperk( "specialty_showenemyequipment" ) && isDefined( object.hacker ) )
 	{
-		if ( self hasperk( "specialty_showenemyequipment" ) && isDefined( object.hacker ) || object.owner == self && level.teambased && object.owner.team == self.team )
+		if ( ( object.owner == self || ( level.teambased && object.owner.team == self.team ) ) )
 		{
 			self.usebartext settext( level.disarmingcrate );
 			self playlocalsound( "evt_hacker_hacking" );
@@ -1979,6 +1926,10 @@ personalusebar( object )
 		{
 			self.usebartext settext( &"KILLSTREAK_CAPTURING_CRATE" );
 		}
+	}
+	else
+	{
+		self.usebartext settext( &"KILLSTREAK_CAPTURING_CRATE" );
 	}
 	lastrate = -1;
 	while ( isalive( self ) && isDefined( object ) && object.inuse && !level.gameended )
@@ -2002,13 +1953,13 @@ personalusebar( object )
 			}
 		}
 		lastrate = object.userate;
-		wait 0,05;
+		wait 0.05;
 	}
 	self.usebar destroyelem();
 	self.usebartext destroyelem();
 }
 
-spawn_helicopter( owner, team, origin, angles, model, targetname, killstreak_id )
+spawn_helicopter( owner, team, origin, angles, model, targetname, killstreak_id ) //checked changed to match cerberus output
 {
 	chopper = spawnhelicopter( owner, origin, angles, model, targetname );
 	if ( !isDefined( chopper ) )
@@ -2034,7 +1985,7 @@ spawn_helicopter( owner, team, origin, angles, model, targetname, killstreak_id 
 	chopper setmaxpitchroll( 0, maxroll );
 	chopper.team = team;
 	chopper setdrawinfrared( 1 );
-	target_set( chopper, vectorScale( ( 0, 0, 1 ), 25 ) );
+	target_set( chopper, vectorScale( ( 0, 0, -1 ), 25 ) );
 	if ( isplayer( owner ) )
 	{
 		chopper thread refcountdecchopper( team, killstreak_id );
@@ -2043,17 +1994,17 @@ spawn_helicopter( owner, team, origin, angles, model, targetname, killstreak_id 
 	return chopper;
 }
 
-getdropheight( origin )
+getdropheight( origin ) //checked matches cerberus output
 {
 	return getminimumflyheight();
 }
 
-getdropdirection()
+getdropdirection() //checked matches cerberus output
 {
 	return ( 0, randomint( 360 ), 0 );
 }
 
-getnextdropdirection( drop_direction, degrees )
+getnextdropdirection( drop_direction, degrees ) //checked matches cerberus output
 {
 	drop_direction = ( 0, drop_direction[ 1 ] + degrees, 0 );
 	if ( drop_direction[ 1 ] >= 360 )
@@ -2063,13 +2014,14 @@ getnextdropdirection( drop_direction, degrees )
 	return drop_direction;
 }
 
-gethelistart( drop_origin, drop_direction )
+gethelistart( drop_origin, drop_direction ) //checked matches cerberus output
 {
 	dist = -1 * getdvarintdefault( "scr_supplydropIncomingDistance", 10000 );
 	pathrandomness = 100;
 	direction = drop_direction + ( 0, randomintrange( -2, 3 ), 0 );
 	start_origin = drop_origin + ( anglesToForward( direction ) * dist );
 	start_origin += ( ( randomfloat( 2 ) - 1 ) * pathrandomness, ( randomfloat( 2 ) - 1 ) * pathrandomness, 0 );
+	/*
 /#
 	if ( getdvarintdefault( "scr_noflyzones_debug", 0 ) )
 	{
@@ -2083,10 +2035,11 @@ gethelistart( drop_origin, drop_direction )
 #/
 		}
 	}
+	*/
 	return start_origin;
 }
 
-getheliend( drop_origin, drop_direction )
+getheliend( drop_origin, drop_direction ) //checked matches cerberus output
 {
 	pathrandomness = 150;
 	dist = -1 * getdvarintdefault( "scr_supplydropOutgoingDistance", 15000 );
@@ -2104,14 +2057,14 @@ getheliend( drop_origin, drop_direction )
 	return end_origin;
 }
 
-addoffsetontopoint( point, direction, offset )
+addoffsetontopoint( point, direction, offset ) //checked matches cerberus output
 {
 	angles = vectorToAngle( ( direction[ 0 ], direction[ 1 ], 0 ) );
 	offset_world = rotatepoint( offset, angles );
 	return point + offset_world;
 }
 
-supplydrophelistartpath( goal, goal_offset )
+supplydrophelistartpath( goal, goal_offset ) //checked matches cerberus output
 {
 	total_tries = 12;
 	tries = 0;
@@ -2133,9 +2086,11 @@ supplydrophelistartpath( goal, goal_offset )
 				direction = goalpath.path[ goalpath.path.size - 1 ] - goalpath.start;
 			}
 			goalpath.path[ goalpath.path.size - 1 ] = addoffsetontopoint( goalpath.path[ goalpath.path.size - 1 ], direction, goal_offset );
+			/*
 /#
 			sphere( goalpath.path[ goalpath.path.size - 1 ], 10, ( 0, 0, 1 ), 1, 1, 10, 1000 );
 #/
+			*/
 			return goalpath;
 		}
 		drop_direction = getnextdropdirection( drop_direction, 30 );
@@ -2149,7 +2104,7 @@ supplydrophelistartpath( goal, goal_offset )
 	return goalpath;
 }
 
-supplydropheliendpath( origin, drop_direction )
+supplydropheliendpath( origin, drop_direction ) //checked changed to match cerberus output
 {
 	total_tries = 5;
 	tries = 0;
@@ -2165,24 +2120,20 @@ supplydropheliendpath( origin, drop_direction )
 		tries++;
 	}
 	leave_nodes = getentarray( "heli_leave", "targetname" );
-	_a2415 = leave_nodes;
-	_k2415 = getFirstArrayKey( _a2415 );
-	while ( isDefined( _k2415 ) )
+	foreach ( node in leave_nodes )
 	{
-		node = _a2415[ _k2415 ];
 		goalpath.path = gethelipath( origin, node.origin );
 		if ( isDefined( goalpath.path ) )
 		{
 			return goalpath;
 		}
-		_k2415 = getNextArrayKey( _a2415, _k2415 );
 	}
 	goalpath.path = [];
 	goalpath.path[ 0 ] = getheliend( origin, drop_direction );
 	return goalpath;
 }
 
-inccratekillstreakusagestat( weaponname )
+inccratekillstreakusagestat( weaponname ) //checked changed to match cerberus output
 {
 	if ( !isDefined( weaponname ) )
 	{
@@ -2204,35 +2155,26 @@ inccratekillstreakusagestat( weaponname )
 		level.globalkillstreakscalled++;
 		self addweaponstat( "supplydrop_mp", "used", 1 );
 	}
-	else
+	else if ( weaponname == "ai_tank_drop_mp" || weaponname == "inventory_ai_tank_drop_mp" )
 	{
-		if ( weaponname == "ai_tank_drop_mp" || weaponname == "inventory_ai_tank_drop_mp" )
-		{
-			self maps/mp/killstreaks/_killstreaks::playkillstreakstartdialog( "ai_tank_drop_mp", self.pers[ "team" ] );
-			level thread maps/mp/_popups::displaykillstreakteammessagetoall( "ai_tank_drop_mp", self );
-			level.globalkillstreakscalled++;
-			self addweaponstat( "ai_tank_drop_mp", "used", 1 );
-			return;
-		}
-		else
-		{
-			if ( weaponname == "inventory_minigun_drop_mp" || weaponname == "minigun_drop_mp" )
-			{
-				self maps/mp/killstreaks/_killstreaks::playkillstreakstartdialog( "minigun_mp", self.pers[ "team" ] );
-				return;
-			}
-			else
-			{
-				if ( weaponname == "m32_drop_mp" || weaponname == "inventory_m32_drop_mp" )
-				{
-					self maps/mp/killstreaks/_killstreaks::playkillstreakstartdialog( "m32_mp", self.pers[ "team" ] );
-				}
-			}
-		}
+		self maps/mp/killstreaks/_killstreaks::playkillstreakstartdialog( "ai_tank_drop_mp", self.pers[ "team" ] );
+		level thread maps/mp/_popups::displaykillstreakteammessagetoall( "ai_tank_drop_mp", self );
+		level.globalkillstreakscalled++;
+		self addweaponstat( "ai_tank_drop_mp", "used", 1 );
+		return;
+	}
+	else if ( weaponname == "inventory_minigun_drop_mp" || weaponname == "minigun_drop_mp" )
+	{
+		self maps/mp/killstreaks/_killstreaks::playkillstreakstartdialog( "minigun_mp", self.pers[ "team" ] );
+		return;
+	}
+	else if ( weaponname == "m32_drop_mp" || weaponname == "inventory_m32_drop_mp" )
+	{
+		self maps/mp/killstreaks/_killstreaks::playkillstreakstartdialog( "m32_mp", self.pers[ "team" ] );
 	}
 }
 
-helidelivercrate( origin, weaponname, owner, team, killstreak_id, package_contents_id, exact )
+helidelivercrate( origin, weaponname, owner, team, killstreak_id, package_contents_id, exact ) //checked matches cerberus output
 {
 	if ( owner maps/mp/killstreaks/_emp::isenemyempkillstreakactive() && owner hasperk( "specialty_immuneemp" ) == 0 )
 	{
@@ -2244,9 +2186,11 @@ helidelivercrate( origin, weaponname, owner, team, killstreak_id, package_conten
 	drop_origin = origin;
 	drop_height = getdropheight( drop_origin );
 	heli_drop_goal = ( drop_origin[ 0 ], drop_origin[ 1 ], drop_height );
+	/*
 /#
 	sphere( heli_drop_goal, 10, ( 0, 0, 1 ), 1, 1, 10, 1000 );
 #/
+	*/
 	goalpath = supplydrophelistartpath( heli_drop_goal, ( rear_hatch_offset_local, 0, 0 ) );
 	drop_direction = vectorToAngle( ( heli_drop_goal[ 0 ], heli_drop_goal[ 1 ], 0 ) - ( goalpath.start[ 0 ], goalpath.start[ 1 ], 0 ) );
 	chopper = spawn_helicopter( owner, team, goalpath.start, drop_direction, level.suppydrophelicoptervehicleinfo, level.supplydrophelicopterfriendly, killstreak_id );
@@ -2275,27 +2219,31 @@ helidelivercrate( origin, weaponname, owner, team, killstreak_id, package_conten
 	chopper thread followpath( goalpath.path, "drop_goal", 1 );
 	chopper thread speedregulator( heli_drop_goal );
 	chopper waittill( "drop_goal" );
+	/*
 /#
 	println( "Chopper Incoming Time: " + ( getTime() - chopper.spawntime ) );
 #/
-	wait 1,2;
+	*/
+	wait 1.2;
 	chopper notify( "drop_crate" );
 	chopper.droptime = getTime();
 	chopper playsound( "veh_supply_drop" );
-	wait 0,7;
+	wait 0.7;
 	supplydropspeed = getdvarintdefault( "scr_supplydropSpeedLeaving", 150 );
 	supplydropaccel = getdvarintdefault( "scr_supplydropAccelLeaving", 40 );
 	chopper setspeed( supplydropspeed, supplydropaccel );
 	goalpath = supplydropheliendpath( chopper.origin, ( 0, chopper.angles[ 1 ], 0 ) );
 	chopper followpath( goalpath.path, undefined, 0 );
+	/*
 /#
 	println( "Chopper Outgoing Time: " + ( getTime() - chopper.droptime ) );
 #/
+	*/
 	chopper notify( "leaving" );
 	chopper delete();
 }
 
-samturretwatcher( destination )
+samturretwatcher( destination ) //checked changed to match cerberus output
 {
 	self endon( "leaving" );
 	self endon( "helicopter_gone" );
@@ -2307,19 +2255,16 @@ samturretwatcher( destination )
 		{
 			break;
 		}
-		else if ( self.origin[ 0 ] > level.spawnmins[ 0 ] && self.origin[ 0 ] < level.spawnmaxs[ 0 ] && self.origin[ 1 ] > level.spawnmins[ 1 ] && self.origin[ 1 ] < level.spawnmaxs[ 1 ] )
+		if ( self.origin[ 0 ] > level.spawnmins[ 0 ] && self.origin[ 0 ] < level.spawnmaxs[ 0 ] && self.origin[ 1 ] > level.spawnmins[ 1 ] && self.origin[ 1 ] < level.spawnmaxs[ 1 ] )
 		{
 			break;
 		}
-		else
-		{
-			wait 0,1;
-		}
+		wait 0.1;
 	}
 	target_setturretaquire( self, 1 );
 }
 
-speedregulator( goal )
+speedregulator( goal ) //checked matches cerberus output
 {
 	self endon( "drop_goal" );
 	self endon( "death" );
@@ -2334,22 +2279,19 @@ speedregulator( goal )
 	self setmaxpitchroll( maxpitch, maxroll );
 }
 
-helidropcrate( category, owner, offset, killcament, killstreak_id, package_contents_id )
+helidropcrate( category, owner, offset, killcament, killstreak_id, package_contents_id ) //checked changed to match cerberus output
 {
 	owner endon( "disconnect" );
 	crate = cratespawn( category, owner, self.team, self.origin, self.angles );
 	if ( category == "inventory_supplydrop_mp" || category == "supplydrop_mp" )
 	{
-		crate linkto( self, "tag_care_package", ( 0, 0, 1 ) );
+		crate linkto( self, "tag_care_package", ( 0, 0, 0 ) );
 		self setclientfield( "supplydrop_care_package_state", 1 );
 	}
-	else
+	else if ( category == "inventory_ai_tank_drop_mp" || category == "ai_tank_drop_mp" )
 	{
-		if ( category == "inventory_ai_tank_drop_mp" || category == "ai_tank_drop_mp" )
-		{
-			crate linkto( self, "tag_drop_box", ( 0, 0, 1 ) );
-			self setclientfield( "supplydrop_ai_tank_state", 1 );
-		}
+		crate linkto( self, "tag_drop_box", ( 0, 0, 0 ) );
+		self setclientfield( "supplydrop_ai_tank_state", 1 );
 	}
 	team = self.team;
 	self waittill( "drop_crate", origin, angles );
@@ -2373,7 +2315,7 @@ helidropcrate( category, owner, offset, killcament, killstreak_id, package_conte
 	thread dropcrate( drop_origin, angles, category, owner, team, killcament, killstreak_id, package_contents_id, crate );
 }
 
-helidestroyed()
+helidestroyed() //checked changed to match cerberus output
 {
 	self endon( "leaving" );
 	self endon( "helicopter_gone" );
@@ -2384,10 +2326,7 @@ helidestroyed()
 		{
 			break;
 		}
-		else
-		{
-			wait 0,05;
-		}
+		wait 0.05;
 	}
 	if ( !isDefined( self ) )
 	{
@@ -2395,12 +2334,12 @@ helidestroyed()
 	}
 	self setspeed( 25, 5 );
 	self thread lbspin( randomintrange( 180, 220 ) );
-	wait randomfloatrange( 0,5, 1,5 );
+	wait randomfloatrange( 0.5, 1.5 );
 	self notify( "drop_crate" );
 	lbexplode();
 }
 
-lbexplode()
+lbexplode() //checked matches cerberus output
 {
 	forward = ( self.origin + ( 0, 0, 1 ) ) - self.origin;
 	playfx( level.chopper_fx[ "explode" ][ "death" ], self.origin, forward );
@@ -2409,7 +2348,7 @@ lbexplode()
 	self delete();
 }
 
-lbspin( speed )
+lbspin( speed ) //checked matches cerberus output
 {
 	self endon( "explode" );
 	playfxontag( level.chopper_fx[ "explode" ][ "large" ], self, "tail_rotor_jnt" );
@@ -2417,18 +2356,18 @@ lbspin( speed )
 	self setyawspeed( speed, speed, speed );
 	while ( isDefined( self ) )
 	{
-		self settargetyaw( self.angles[ 1 ] + ( speed * 0,9 ) );
+		self settargetyaw( self.angles[ 1 ] + ( speed * 0.9 ) );
 		wait 1;
 	}
 }
 
-refcountdecchopper( team, killstreak_id )
+refcountdecchopper( team, killstreak_id ) //checked matches cerberus output
 {
 	self waittill( "death" );
 	maps/mp/killstreaks/_killstreakrules::killstreakstop( "supply_drop_mp", team, killstreak_id );
 }
 
-attachreconmodel( modelname, owner )
+attachreconmodel( modelname, owner ) //checked matches cerberus output
 {
 	if ( !isDefined( self ) )
 	{
@@ -2446,7 +2385,7 @@ attachreconmodel( modelname, owner )
 	reconmodel thread resetreconmodelonevent( "player_spawned", owner );
 }
 
-resetreconmodelvisibility( owner )
+resetreconmodelvisibility( owner ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	if ( !isDefined( self ) )
 	{
@@ -2466,48 +2405,39 @@ resetreconmodelvisibility( owner )
 			i++;
 			continue;
 		}
-		else
+		if ( level.players[ i ].team == "spectator" )
 		{
-			if ( level.players[ i ].team == "spectator" )
+			i++;
+			continue;
+		}
+		isenemy = 1;
+		if ( level.teambased )
+		{
+			if ( level.players[ i ].team == owner.team )
 			{
-				i++;
-				continue;
+				isenemy = 0;
 			}
-			else
-			{
-				isenemy = 1;
-				if ( level.teambased )
-				{
-					if ( level.players[ i ].team == owner.team )
-					{
-						isenemy = 0;
-					}
-				}
-				else
-				{
-					if ( level.players[ i ] == owner )
-					{
-						isenemy = 0;
-					}
-				}
-				if ( isenemy )
-				{
-					self setvisibletoplayer( level.players[ i ] );
-				}
-			}
+		}
+		else if ( level.players[ i ] == owner )
+		{
+			isenemy = 0;
+		}
+		if ( isenemy )
+		{
+			self setvisibletoplayer( level.players[ i ] );
 		}
 		i++;
 	}
 }
 
-watchreconmodelfordeath( parentent )
+watchreconmodelfordeath( parentent ) //checked matches cerberus output
 {
 	self endon( "death" );
 	parentent waittill_any( "death", "captured" );
 	self delete();
 }
 
-resetreconmodelonevent( eventname, owner )
+resetreconmodelonevent( eventname, owner ) //checked matches cerberus output
 {
 	self endon( "death" );
 	for ( ;; )
@@ -2521,8 +2451,9 @@ resetreconmodelonevent( eventname, owner )
 	}
 }
 
-supply_drop_dev_gui()
+supply_drop_dev_gui() //dev call commented out
 {
+	/*
 /#
 	setdvar( "scr_supply_drop_gui", "" );
 	while ( 1 )
@@ -2640,4 +2571,5 @@ supply_drop_dev_gui()
 #/
 		}
 	}
+	*/
 }
