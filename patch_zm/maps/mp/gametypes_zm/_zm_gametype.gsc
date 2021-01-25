@@ -324,7 +324,7 @@ game_module_player_damage_callback( einflictor, eattacker, idamage, idflags, sme
 			self.last_damage_from_zombie_or_player = 1;
 		}
 	}
-	if ( isDefined( self._being_shellshocked ) || self._being_shellshocked && self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
+	if ( is_true( self._being_shellshocked ) || self maps/mp/zombies/_zm_laststand::player_is_in_laststand() )
 	{
 		return;
 	}
