@@ -329,8 +329,8 @@ getrandomcratetype( category, gambler_crate_name ) //checked partially changed t
 	if ( isDefined( level.dev_gui_supply_drop ) && level.dev_gui_supply_drop != "random" )
 	{
 		typekey = level.dev_gui_supply_drop;
-#/
 	}
+#/
 	return level.cratetypes[ category ][ typekey ];
 }
 
@@ -907,9 +907,8 @@ geticonforcrate() //checked matches cerberus output
 			break;
 		default:
 			return undefined;
-		}
-		return icon + "_drop";
 	}
+	return icon + "_drop"; // may not be right but seems logical :/
 }
 
 crateactivate( hacker ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
@@ -1905,7 +1904,7 @@ personalusebar( object ) //checked partially changed to match cerberus output se
 	self.usebartext = createsecondaryprogressbartext();
 	if ( self hasperk( "specialty_showenemyequipment" ) && object.owner != self && !isDefined( object.hacker ) )
 	{
-		if ( ( level.teambased && object.owner.team != self.team || !level.teambased ) )
+		if ( level.teambased && object.owner.team != self.team || !level.teambased )
 		{
 			self.usebartext settext( &"KILLSTREAK_HACKING_CRATE" );
 			self playlocalsound( "evt_hacker_hacking" );
@@ -1917,7 +1916,7 @@ personalusebar( object ) //checked partially changed to match cerberus output se
 	}
 	else if ( self hasperk( "specialty_showenemyequipment" ) && isDefined( object.hacker ) )
 	{
-		if ( ( object.owner == self || ( level.teambased && object.owner.team == self.team ) ) )
+		if ( object.owner == self || level.teambased && object.owner.team == self.team )
 		{
 			self.usebartext settext( level.disarmingcrate );
 			self playlocalsound( "evt_hacker_hacking" );
