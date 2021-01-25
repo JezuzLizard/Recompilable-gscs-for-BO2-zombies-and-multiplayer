@@ -86,10 +86,6 @@ zclassic_preinit() //checked changed to match cerberus output
 	level.weapon_locker_map = "zm_transit";
 	level thread maps/mp/zombies/_zm_banking::init();
 	survival_init();
-	if ( !is_true(level.banking_update_enabled) )
-	{
-		return;
-	}
 	weapon_locker = spawnstruct();
 	weapon_locker.origin = ( 2159, 610, 1343 );
 	weapon_locker.angles = VectorScale( ( 0, 1, 0 ), 60 );
@@ -180,6 +176,7 @@ main() //checked changed to match cerberus output
 	level._allow_melee_weapon_switching = 1;
 	level.custom_ai_type = [];
 	level.custom_ai_type[ level.custom_ai_type.size ] = maps/mp/zombies/_zm_ai_leaper::init; //remove unneeded :: before filepath. makes map fail to launch due to not being able to find _zm_ai_leaper
+	level.raygun2_included = 1;
 	include_weapons();
 	include_powerups();
 	include_equipment_for_level();
@@ -561,7 +558,7 @@ setup_leapers() //checked matches cerberus output dvar not found
 		b_disable_leapers = getDvarInt( #"60AEA36D" );
 	}
 	*/
-	if ( b_disable_leapers )
+	if ( is_true( b_disable_leapers ) )
 	{
 		flag_init( "leaper_round" );
 	}
