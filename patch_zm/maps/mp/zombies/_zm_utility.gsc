@@ -2721,7 +2721,10 @@ set_zombie_var( var, value, is_float, column, is_team_based ) //checked changed 
 			level.zombie_vars[ team ][ var ] = value;
 		}
 	}
-	else level.zombie_vars[ var ] = value;
+	else 
+	{
+		level.zombie_vars[ var ] = value;
+	}
 	return value;
 }
 
@@ -4995,7 +4998,7 @@ is_headshot( sweapon, shitloc, smeansofdeath ) //checked changed at own diecreti
 	{
 		return 1;
 	}
-	if ( smeansofdeath == "MOD_IMPACT" && issubstr( sweapon, "knife_ballistic" ) )
+	if ( smeansofdeath == "MOD_IMPACT" && issubstr( sweapon, "knife_ballistic" ) && shitloc == "head" )
 	{
 		return 1;
 	}
