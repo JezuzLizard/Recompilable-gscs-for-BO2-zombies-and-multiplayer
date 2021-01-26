@@ -7,6 +7,7 @@ zm_buried_patch/maps/mp/zm_buried_maze.gsc
 ```
 ### The following scripts compile and run successfully with major errors:
 ```
+zm_buried_patch/maps/mp/gametypes_zm/zcleansed.gsc
 zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc
 ```
 ### The following scripts compile and run serverside but clients cannot join due to exe_client_field_mismatch
@@ -52,7 +53,6 @@ zm_buried_patch/maps/mp/zm_buried_sq_ts.gsc
 zm_buried_patch/maps/mp/zm_buried_standard.gsc
 zm_buried_patch/maps/mp/zm_buried_turned_street.gsc
 
-zm_buried_patch/maps/mp/gametypes_zm/zcleansed.gsc
 zm_buried_patch/maps/mp/gametypes_zm/zgrief.gsc
 zm_buried_patch/maps/mp/gametypes_zm/zmeat.gsc
 zm_buried_patch/maps/mp/gametypes_zm/zstandard.gsc

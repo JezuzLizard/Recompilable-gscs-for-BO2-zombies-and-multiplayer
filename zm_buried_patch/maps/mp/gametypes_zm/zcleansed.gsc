@@ -224,7 +224,7 @@ custom_end_screen() //checked changed to match cerberus output used is_true() in
 	winner = players[ 0 ];
 	foreach ( player in players )
 	{
-		if ( ( isDefined( winner ) && player.score ) > winner.score )
+		if ( isDefined( winner ) && ( player.score > winner.score ) )
 		{
 			winner = player;
 		}
@@ -432,7 +432,7 @@ listen_to_the_doctor_human_deaths() //checked matches cerberus output used is_tr
 		{
 			level.playing_turned_kill_vo = 1;
 			killee thread maps/mp/zombies/_zm_audio_announcer::leaderdialogonplayer( "dr_human_killed", undefined, undefined, 0 );
-			killee.vo_human_killed_chance = int( killee.vo_human_killed_chance * 0,5 );
+			killee.vo_human_killed_chance = int( killee.vo_human_killed_chance * 0.5 );
 		}
 		if ( is_true( level.playing_turned_kill_vo ) )
 		{
@@ -1421,7 +1421,8 @@ player_add_score( bonus ) //checked matches cerberus output used is_true() inste
 	{
 		mult = level.zombie_vars[ "allies" ][ "zombie_point_scalar" ];
 	}
-	self maps/mp/zombies/_zm_score::add_to_player_score( bonus * mult );
+	var = bonus * mult;
+	self maps/mp/zombies/_zm_score::add_to_player_score( var );
 }
 
 player_sub_score( penalty ) //checked matches cerberus output
@@ -1521,7 +1522,7 @@ player_score_update() //checked matches cerberus output used is_true() instead
 	self endon( "_zombie_game_over" );
 	self endon( "disconnect" );
 	level endon( "stop_player_scores" );
-	waittime = 0,05;
+	waittime = 0.05;
 	while ( 1 )
 	{
 		self waittill_any_or_timeout( waittime, "zombify", "humanify" );
@@ -1537,7 +1538,7 @@ player_score_update() //checked matches cerberus output used is_true() instead
 		{
 			if ( !cleansed_alive_check( self ) )
 			{
-				waittime = 0,05;
+				waittime = 0.05;
 				break;
 			}
 			else if ( is_true( self.is_zombie ) )
@@ -1604,7 +1605,6 @@ zcleansed_zombie_powerup_grab( powerup, zombie_player ) //checked changed to mat
 				}
 			}
 			break;
-		}
 	}
 }
 
@@ -1707,16 +1707,16 @@ add_cleansed_powerup( name, powerupmodel, text, team, zombie_death_frequency, hu
 init_cleansed_powerups() //checked changed to match cerberus output
 {
 	level._effect[ "powerup_on_solo" ] = loadfx( "misc/fx_zombie_powerup_on_blue" );
-	add_cleansed_powerup( "green_nuke", "zombie_bomb", &"ZOMBIE_THIS_IS_A_BUG", 0, 0,4, 0, ::turned_powerup_green_nuke );
+	add_cleansed_powerup( "green_nuke", "zombie_bomb", &"ZOMBIE_THIS_IS_A_BUG", 0, 0.4, 0, ::turned_powerup_green_nuke );
 	add_cleansed_powerup( "green_double", "zombie_x2_icon", &"ZOMBIE_THIS_IS_A_BUG", 0, 1, 0, ::turned_powerup_green_double );
-	add_cleansed_powerup( "green_insta", "zombie_skull", &"ZOMBIE_THIS_IS_A_BUG", 0, 0,1, 0, ::turned_powerup_green_insta );
+	add_cleansed_powerup( "green_insta", "zombie_skull", &"ZOMBIE_THIS_IS_A_BUG", 0, 0.1, 0, ::turned_powerup_green_insta );
 	add_cleansed_powerup( "green_ammo", "zombie_ammocan", &"ZOMBIE_POWERUP_MAX_AMMO", 0, 1, 0, ::turned_powerup_green_ammo );
-	add_cleansed_powerup( "green_monkey", level.cymbal_monkey_model, &"ZOMBIE_THIS_IS_A_BUG", 0, 0,4, 0, ::turned_powerup_green_monkey );
-	add_cleansed_powerup( "red_nuke", "zombie_bomb", &"ZOMBIE_THIS_IS_A_BUG", 1, 0, 0,4, ::turned_powerup_red_nuke );
+	add_cleansed_powerup( "green_monkey", level.cymbal_monkey_model, &"ZOMBIE_THIS_IS_A_BUG", 0, 0.4, 0, ::turned_powerup_green_monkey );
+	add_cleansed_powerup( "red_nuke", "zombie_bomb", &"ZOMBIE_THIS_IS_A_BUG", 1, 0, 0.4, ::turned_powerup_red_nuke );
 	add_cleansed_powerup( "red_ammo", "zombie_ammocan", &"ZOMBIE_THIS_IS_A_BUG", 1, 0, 1, ::turned_powerup_red_ammo );
 	add_cleansed_powerup( "red_double", "zombie_x2_icon", &"ZOMBIE_THIS_IS_A_BUG", 1, 0, 1, ::turned_powerup_red_double );
-	add_cleansed_powerup( "yellow_double", "zombie_x2_icon", &"ZOMBIE_THIS_IS_A_BUG", 2, 0,1, 0,1, ::turned_powerup_yellow_double );
-	add_cleansed_powerup( "yellow_nuke", "zombie_bomb", &"ZOMBIE_THIS_IS_A_BUG", 2, 0,01, 0,01, ::turned_powerup_yellow_nuke );
+	add_cleansed_powerup( "yellow_double", "zombie_x2_icon", &"ZOMBIE_THIS_IS_A_BUG", 2, 0.1, 0.1, ::turned_powerup_yellow_double );
+	add_cleansed_powerup( "yellow_nuke", "zombie_bomb", &"ZOMBIE_THIS_IS_A_BUG", 2, 0.01, 0.01, ::turned_powerup_yellow_nuke );
 	level.cleansed_powerup_history_depth = [];
 	level.cleansed_powerup_history_depth[ 0 ] = 2;
 	level.cleansed_powerup_history_depth[ 1 ] = 1;
