@@ -24,6 +24,7 @@
 
 #using_animtree( "mp_vehicles" ); //remove when compiling will cause issues otherwise because the compiler doesn't support it
 
+
 init() //checked changed to match cerberus output
 {
 	level.cratemodelfriendly = "t6_wpn_supply_drop_ally";
@@ -2058,7 +2059,7 @@ getheliend( drop_origin, drop_direction ) //checked matches cerberus output
 
 addoffsetontopoint( point, direction, offset ) //checked matches cerberus output
 {
-	angles = vectorToAngle( ( direction[ 0 ], direction[ 1 ], 0 ) );
+	angles = vectorToAngles( ( direction[ 0 ], direction[ 1 ], 0 ) );
 	offset_world = rotatepoint( offset, angles );
 	return point + offset_world;
 }
@@ -2191,7 +2192,7 @@ helidelivercrate( origin, weaponname, owner, team, killstreak_id, package_conten
 #/
 	*/
 	goalpath = supplydrophelistartpath( heli_drop_goal, ( rear_hatch_offset_local, 0, 0 ) );
-	drop_direction = vectorToAngle( ( heli_drop_goal[ 0 ], heli_drop_goal[ 1 ], 0 ) - ( goalpath.start[ 0 ], goalpath.start[ 1 ], 0 ) );
+	drop_direction = vectorToAngles( ( heli_drop_goal[ 0 ], heli_drop_goal[ 1 ], 0 ) - ( goalpath.start[ 0 ], goalpath.start[ 1 ], 0 ) );
 	chopper = spawn_helicopter( owner, team, goalpath.start, drop_direction, level.suppydrophelicoptervehicleinfo, level.supplydrophelicopterfriendly, killstreak_id );
 	chopper setenemymodel( level.supplydrophelicopterenemy );
 	chopper setteam( team );
@@ -2241,7 +2242,6 @@ helidelivercrate( origin, weaponname, owner, team, killstreak_id, package_conten
 	chopper notify( "leaving" );
 	chopper delete();
 }
-
 samturretwatcher( destination ) //checked changed to match cerberus output
 {
 	self endon( "leaving" );
@@ -2254,7 +2254,7 @@ samturretwatcher( destination ) //checked changed to match cerberus output
 		{
 			break;
 		}
-		if ( self.origin[ 0 ] > level.spawnmins[ 0 ] && self.origin[ 0 ] < level.spawnmaxs[ 0 ] && self.origin[ 1 ] > level.spawnmins[ 1 ] && self.origin[ 1 ] < level.spawnmaxs[ 1 ] )
+		if ( ( self.origin[ 0 ] > level.spawnmins[ 0 ] ) && ( self.origin[ 0 ] < level.spawnmaxs[ 0 ] ) && ( self.origin[ 1 ] > level.spawnmins[ 1 ] ) && ( self.origin[ 1 ] < level.spawnmaxs[ 1 ] ) )
 		{
 			break;
 		}
