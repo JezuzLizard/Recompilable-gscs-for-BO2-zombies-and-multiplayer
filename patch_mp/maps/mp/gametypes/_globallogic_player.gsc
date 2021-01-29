@@ -826,7 +826,7 @@ callback_playerdamage( einflictor, eattacker, idamage, idflags, smeansofdeath, s
 	{
 		smeansofdeath = "MOD_HEAD_SHOT";
 	}
-	if ( level.onplayerdamage != ::maps/mp/gametypes/_globallogic::blank )
+	if ( level.onplayerdamage != maps/mp/gametypes/_globallogic::blank )
 	{
 		modifieddamage = [[ level.onplayerdamage ]]( einflictor, eattacker, idamage, idflags, smeansofdeath, sweapon, vpoint, vdir, shitloc, psoffsettime );
 		if ( isDefined( modifieddamage ) )

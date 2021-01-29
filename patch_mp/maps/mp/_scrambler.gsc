@@ -22,7 +22,7 @@ createscramblerwatcher() //checked matches cerberus output
 	watcher = self maps/mp/gametypes/_weaponobjects::createuseweaponobjectwatcher( "scrambler", "scrambler_mp", self.team );
 	watcher.onspawn = ::onspawnscrambler;
 	watcher.detonate = ::scramblerdetonate;
-	watcher.stun = ::maps/mp/gametypes/_weaponobjects::weaponstun;
+	watcher.stun = maps/mp/gametypes/_weaponobjects::weaponstun;
 	watcher.stuntime = 5;
 	watcher.reconmodel = "t5_weapon_scrambler_world_detect";
 	watcher.hackable = 1;

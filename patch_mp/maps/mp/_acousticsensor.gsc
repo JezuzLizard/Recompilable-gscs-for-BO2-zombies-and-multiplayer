@@ -19,7 +19,7 @@ createacousticsensorwatcher() //checked matches cerberus output
 	watcher = self maps/mp/gametypes/_weaponobjects::createuseweaponobjectwatcher( "acoustic_sensor", "acoustic_sensor_mp", self.team );
 	watcher.onspawn = ::onspawnacousticsensor;
 	watcher.detonate = ::acousticsensordetonate;
-	watcher.stun = ::maps/mp/gametypes/_weaponobjects::weaponstun;
+	watcher.stun = maps/mp/gametypes/_weaponobjects::weaponstun;
 	watcher.stuntime = 5;
 	watcher.reconmodel = "t5_weapon_acoustic_sensor_world_detect";
 	watcher.hackable = 1;

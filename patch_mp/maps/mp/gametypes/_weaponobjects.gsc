@@ -219,9 +219,9 @@ setupretrievablewatcher() //checked changed to match cerberus output
 createballisticknifewatcher() //checked matches cerberus output
 {
 	watcher = self createuseweaponobjectwatcher( "knife_ballistic", "knife_ballistic_mp", self.team );
-	watcher.onspawn = ::maps/mp/_ballistic_knife::onspawn;
+	watcher.onspawn = maps/mp/_ballistic_knife::onspawn;
 	watcher.detonate = ::deleteent;
-	watcher.onspawnretrievetriggers = ::maps/mp/_ballistic_knife::onspawnretrievetrigger;
+	watcher.onspawnretrievetriggers = maps/mp/_ballistic_knife::onspawnretrievetrigger;
 	watcher.storedifferentobject = 1;
 }
 
@@ -249,7 +249,7 @@ creatercbombwatcher() //checked matches cerberus output
 	watcher.ownergetsassist = 1;
 	watcher.playdestroyeddialog = 0;
 	watcher.deleteonkillbrush = 0;
-	watcher.detonate = ::maps/mp/killstreaks/_rcbomb::blowup;
+	watcher.detonate = maps/mp/killstreaks/_rcbomb::blowup;
 	watcher.stuntime = 1;
 }
 
@@ -262,8 +262,8 @@ createqrdronewatcher() //checked matches cerberus output
 	watcher.ownergetsassist = 1;
 	watcher.playdestroyeddialog = 0;
 	watcher.deleteonkillbrush = 0;
-	watcher.detonate = ::maps/mp/killstreaks/_qrdrone::qrdrone_blowup;
-	watcher.ondamage = ::maps/mp/killstreaks/_qrdrone::qrdrone_damagewatcher;
+	watcher.detonate = maps/mp/killstreaks/_qrdrone::qrdrone_blowup;
+	watcher.ondamage = maps/mp/killstreaks/_qrdrone::qrdrone_damagewatcher;
 	watcher.stuntime = 5;
 }
 

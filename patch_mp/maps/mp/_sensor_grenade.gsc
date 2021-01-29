@@ -20,7 +20,7 @@ createsensorgrenadewatcher() //checked matches cerberus output
 	watcher.headicon = 0;
 	watcher.onspawn = ::onspawnsensorgrenade;
 	watcher.detonate = ::sensorgrenadedestroyed;
-	watcher.stun = ::maps/mp/gametypes/_weaponobjects::weaponstun;
+	watcher.stun = maps/mp/gametypes/_weaponobjects::weaponstun;
 	watcher.stuntime = 0;
 	watcher.reconmodel = "t6_wpn_motion_sensor_world_detect";
 	watcher.ondamage = ::watchsensorgrenadedamage;
