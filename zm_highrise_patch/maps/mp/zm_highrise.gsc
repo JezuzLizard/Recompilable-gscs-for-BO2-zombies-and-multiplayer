@@ -1032,7 +1032,7 @@ pick_up_keys() //dev call didn't check
 	players = get_players();
 	for ( i = 0; i < players.size;)
 	{
-		if ( isDefined( player.current_buildable_piece ) && player.current_buildable_piece.buildablename == "keys_zm" )
+		if ( isDefined( players[ i ].current_buildable_piece ) && players[ i ].current_buildable_piece.buildablename == "keys_zm" )
 		{
 		}
 		else
