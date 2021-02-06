@@ -1030,45 +1030,30 @@ pick_up_keys() //dev call didn't check
 	/*
 /#
 	players = get_players();
-	_a1220 = players;
-	_k1220 = getFirstArrayKey( _a1220 );
-	while ( isDefined( _k1220 ) )
+	for ( i = 0; i < players.size;)
 	{
-		player = _a1220[ _k1220 ];
 		if ( isDefined( player.current_buildable_piece ) && player.current_buildable_piece.buildablename == "keys_zm" )
 		{
 		}
 		else
 		{
 			candidate_list = [];
-			_a1227 = level.zones;
-			_k1227 = getFirstArrayKey( _a1227 );
-			while ( isDefined( _k1227 ) )
+			foreach ( zone in level.zones )
 			{
-				zone = _a1227[ _k1227 ];
 				if ( isDefined( zone.unitrigger_stubs ) )
 				{
 					candidate_list = arraycombine( candidate_list, zone.unitrigger_stubs, 1, 0 );
 				}
-				_k1227 = getNextArrayKey( _a1227, _k1227 );
 			}
-			_a1236 = candidate_list;
-			_k1236 = getFirstArrayKey( _a1236 );
-			while ( isDefined( _k1236 ) )
+			foreach ( stub in candidate_list )
 			{
-				stub = _a1236[ _k1236 ];
 				if ( isDefined( stub.piece ) && stub.piece.buildablename == "keys_zm" )
 				{
-					player thread maps/mp/zombies/_zm_buildables::player_take_piece( stub.piece );
+					players[ i ] thread maps/mp/zombies/_zm_buildables::player_take_piece( stub.piece );
 					break;
-				}
-				else
-				{
-					_k1236 = getNextArrayKey( _a1236, _k1236 );
 				}
 			}
 		}
-		_k1220 = getNextArrayKey( _a1220, _k1220 );
 #/
 	}
 	*/
