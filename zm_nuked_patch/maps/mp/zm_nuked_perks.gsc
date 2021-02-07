@@ -91,6 +91,7 @@ init_nuked_perks() //checked changed to match cerberus output
 #/
 			*/
 		}
+		return;
 	}
 	level.override_perk_targetname = "zm_perk_machine_override";
 	random_perk_structs = [];
@@ -262,7 +263,7 @@ bring_perk_landing_damage() //checked partially changed to match cerberus output
 		if ( distancesquared( players[ i ].origin, self.origin ) <= ( player_prone_damage_radius * player_prone_damage_radius ) )
 		{
 			players[ i ] setstance( "prone" );
-			players[ i ] shellshock( "default", 1,5 );
+			players[ i ] shellshock( "default", 1.5 );
 			radiusdamage( players[ i ].origin, player_prone_damage_radius / 2, 10, 5, undefined, "MOD_EXPLOSIVE" );
 		}
 	}

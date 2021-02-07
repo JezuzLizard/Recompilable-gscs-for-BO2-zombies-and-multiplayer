@@ -2,6 +2,7 @@
 ```
 zm_nuked_patch/maps/mp/gametypes_zm/zstandard.gsc
 zm_nuked_patch/maps/mp/zm_nuked.gsc
+zm_nuked_patch/maps/mp/zm_nuked_perks.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 
@@ -22,7 +23,6 @@ zm_nuked_patch/maps/mp/zombies/_zm_weap_tazer_knuckles.gsc
 zm_nuked_patch/maps/mp/zm_nuked_ffotd.gsc
 zm_nuked_patch/maps/mp/zm_nuked_fx.gsc
 zm_nuked_patch/maps/mp/zm_nuked_gamemodes.gsc
-zm_nuked_patch/maps/mp/zm_nuked_perks.gsc
 zm_nuked_patch/maps/mp/zm_nuked_standard.gsc
 ```
 
