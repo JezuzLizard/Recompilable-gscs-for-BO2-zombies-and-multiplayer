@@ -45,7 +45,7 @@ main() //checked matches cerberus output
 	level.human_player_kill_points = 50;
 	level.human_player_suicide_penalty = 0;
 	level.score_rank_bonus = array( 1.5, 0.75, 0.5, 0.25 );
-	if ( isDefined( level.should_use_cia ) && level.should_use_cia )
+	if ( is_true( level.should_use_cia ) )
 	{
 		level.characterindex = 0;
 	}
@@ -536,7 +536,7 @@ watch_survival_time() //checked matches cerberus output
 	}
 	while ( 1 )
 	{
-		if ( isDefined( level.playing_turned_kill_vo ) && !level.playing_turned_kill_vo )
+		if ( !is_true( level.playing_turned_kill_vo ) )
 		{
 			if ( randomint( 100 ) < self.vo_human_survival_chance )
 			{
