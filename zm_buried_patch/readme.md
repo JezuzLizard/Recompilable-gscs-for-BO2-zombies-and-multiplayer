@@ -1,5 +1,7 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
+zm_buried_patch/maps/mp/zm_buried_gamemodes.gsc
+zm_buried_patch/maps/mp/zm_buried_grief_street.gsc
 zm_buried_patch/maps/mp/zm_buried_maze.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
@@ -21,8 +23,6 @@ zm_buried_patch/maps/mp/zombies/_zm_weap_slowgun.gsc
 ```
 ### The following scripts have been checked, but they have not been tested yet
 ```
-zm_buried_patch/maps/mp/zm_buried_gamemodes.gsc
-zm_buried_patch/maps/mp/zm_buried_grief_street.gsc
 zm_buried_patch/maps/mp/zm_buried_sq.gsc
 
 ```

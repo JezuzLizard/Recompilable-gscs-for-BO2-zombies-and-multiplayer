@@ -15,12 +15,12 @@
 
 init() //checked matches cerberus output
 {
-	add_map_gamemode( "zclassic", ::maps/mp/zm_buried::zclassic_preinit, undefined, undefined );
-	add_map_gamemode( "zcleansed", ::maps/mp/zm_buried::zcleansed_preinit, undefined, undefined );
-	add_map_gamemode( "zgrief", ::maps/mp/zm_buried::zgrief_preinit, undefined, undefined );
-	add_map_location_gamemode( "zclassic", "processing", ::maps/mp/zm_buried_classic::precache, ::maps/mp/zm_buried_classic::main );
-	add_map_location_gamemode( "zcleansed", "street", ::maps/mp/zm_buried_turned_street::precache, ::maps/mp/zm_buried_turned_street::main );
-	add_map_location_gamemode( "zgrief", "street", ::maps/mp/zm_buried_grief_street::precache, ::maps/mp/zm_buried_grief_street::main );
+	add_map_gamemode( "zclassic", maps/mp/zm_buried::zclassic_preinit, undefined, undefined );
+	add_map_gamemode( "zcleansed", maps/mp/zm_buried::zcleansed_preinit, undefined, undefined );
+	add_map_gamemode( "zgrief", maps/mp/zm_buried::zgrief_preinit, undefined, undefined );
+	add_map_location_gamemode( "zclassic", "processing", maps/mp/zm_buried_classic::precache, maps/mp/zm_buried_classic::main );
+	add_map_location_gamemode( "zcleansed", "street", maps/mp/zm_buried_turned_street::precache, maps/mp/zm_buried_turned_street::main );
+	add_map_location_gamemode( "zgrief", "street", maps/mp/zm_buried_grief_street::precache, maps/mp/zm_buried_grief_street::main );
 }
 
 deletechalktriggers() //checked matches cerberus output
@@ -190,7 +190,7 @@ buildbuildable( buildable ) //checked changed to match cerberus output see compi
 
 wait_and_remove( stub, piece ) //checked matches cerberus output
 {
-	wait 0,1;
+	wait 0.1;
 	self buildablestub_remove();
 	thread maps/mp/zombies/_zm_unitrigger::unregister_unitrigger( stub );
 	piece piece_unspawn();
