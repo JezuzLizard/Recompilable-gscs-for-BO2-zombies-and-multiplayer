@@ -19,14 +19,6 @@
 
 init() //checked matches cerberus output
 {
-	//begin debug code
-	level.custom_bot_loaded = 1;
-	maps/mp/gametypes/_clientids::init();
-	if ( !isDefined( level.debugLogging_bot ) )
-	{
-		level.debugLogging_bot = 0;
-	}
-	//end debug code
 	/*
 /#
 	level thread bot_system_devgui_think();
@@ -37,23 +29,18 @@ init() //checked matches cerberus output
 	{
 		return;
 	}
-	/*
 	if ( level.rankedmatch && !is_bot_ranked_match() )
 	{
 		return;
 	}
-	*/
-	/*
 	bot_friends = getDvarInt( "bot_friends" );
 	bot_enemies = getDvarInt( "bot_enemies" );
 	if ( bot_friends <= 0 && bot_enemies <= 0 )
 	{
 		return;
 	}
-	*/
-	//bot_wait_for_host();
+	bot_wait_for_host();
 	bot_set_difficulty();
-	/*
 	if ( is_bot_comp_stomp() )
 	{
 		team = bot_choose_comp_stomp_team();
@@ -65,9 +52,8 @@ init() //checked matches cerberus output
 	}
 	else
 	{
-	*/
 		level thread bot_local_think();
-	//}
+	}
 }
 
 spawn_bot( team ) //checked matches cerberus output
@@ -484,10 +470,8 @@ bot_local_think() //checked changed at own discretion
 	{
 		host_team = "allies";
 	}
-	//bot_expected_friends = getDvarInt( "bot_friends" );
-	//bot_expected_enemies = getDvarInt( "bot_enemies" );
-	bot_expected_friends = 1;
-	bot_expected_enemies = 1;
+	bot_expected_friends = getDvarInt( "bot_friends" );
+	bot_expected_enemies = getDvarInt( "bot_enemies" );
 	if ( islocalgame() )
 	{
 	}
