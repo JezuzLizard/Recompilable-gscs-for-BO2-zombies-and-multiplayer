@@ -1,5 +1,7 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
+zm_highrise_patch/maps/mp/gametypes_zm/zstandard.gsc
+
 ```
 ### The following scripts compile and run successfully with minor errors:
 

@@ -1,8 +1,12 @@
 ### The following gscs compile and run successfully with no known errors:
 ```
+
 zm_tomb_patch/maps/mp/zm_tomb.gsc
 zm_tomb_patch/maps/mp/zm_tomb_classic.gsc
 zm_tomb_patch/maps/mp/zm_tomb_dig.gsc
+
+zm_tomb_patch/maps/mp/gametypes_zm/zstandard.gsc
+
 zm_tomb_patch/maps/mp/zombies/_zm_perk_random.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
@@ -55,8 +59,6 @@ zm_tomb_patch/maps/mp/zm_tomb_tank.gsc
 zm_tomb_patch/maps/mp/zm_tomb_teleporter.gsc
 zm_tomb_patch/maps/mp/zm_tomb_utility.gsc
 zm_tomb_patch/maps/mp/zm_tomb_vo.gsc
-
-zm_tomb_patch/maps/mp/gametypes_zm/zstandard.gsc
 
 zm_tomb_patch/maps/mp/zombies/_zm_ai_mechz.gsc
 zm_tomb_patch/maps/mp/zombies/_zm_ai_mechz_booster.gsc

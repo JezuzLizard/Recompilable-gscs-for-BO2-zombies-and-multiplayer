@@ -2,6 +2,9 @@
 ```
 zm_prison_patch/maps/mp/zm_alcatraz_classic.gsc
 zm_prison_patch/maps/mp/zm_prison.gsc
+
+zm_prison_patch/maps/mp/gametypes_zm/zstandard.gsc
+
 zm_prison_patch/maps/mp/zombies/_zm_perk_divetonuke.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
@@ -51,7 +54,6 @@ zm_prison_patch/maps/mp/zm_prison_sq_wth.gsc
 
 zm_prison_patch/maps/mp/gametypes_zm/zgrief.gsc
 zm_prison_patch/maps/mp/gametypes_zm/zmeat.gsc
-zm_prison_patch/maps/mp/gametypes_zm/zstandard.gsc
 
 zm_prison_patch/maps/mp/zombies/_zm_afterlife.gsc
 zm_prison_patch/maps/mp/zombies/_zm_ai_brutus.gsc

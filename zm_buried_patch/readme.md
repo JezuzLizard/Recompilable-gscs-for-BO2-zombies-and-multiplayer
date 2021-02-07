@@ -3,6 +3,8 @@
 zm_buried_patch/maps/mp/zm_buried_gamemodes.gsc
 zm_buried_patch/maps/mp/zm_buried_grief_street.gsc
 zm_buried_patch/maps/mp/zm_buried_maze.gsc
+
+zm_buried_patch/maps/mp/gametypes_zm/zstandard.gsc
 ```
 ### The following scripts compile and run successfully with minor errors:
 ```
@@ -55,7 +57,6 @@ zm_buried_patch/maps/mp/zm_buried_turned_street.gsc
 
 zm_buried_patch/maps/mp/gametypes_zm/zgrief.gsc
 zm_buried_patch/maps/mp/gametypes_zm/zmeat.gsc
-zm_buried_patch/maps/mp/gametypes_zm/zstandard.gsc
 
 zm_buried_patch/maps/mp/teams/_teamset_cdc.gsc
 
