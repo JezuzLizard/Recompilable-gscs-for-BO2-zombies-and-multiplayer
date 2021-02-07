@@ -77,7 +77,7 @@ main() //checked matches cerberus output
 	setup_rex_starts();
 	maps/mp/zm_nuked_fx::main();
 	maps/mp/zombies/_zm::init_fx();
-	//maps/mp/animscripts/zm_death::precache_gib_fx();
+	maps/mp/animscripts/zm_death::precache_gib_fx();
 	level.zombiemode = 1;
 	level._no_water_risers = 1;
 	precachemodel( "p6_zm_nuked_rocket_cam" );
@@ -135,7 +135,6 @@ main() //checked matches cerberus output
 	maps/mp/zombies/_zm_weap_cymbal_monkey::init();
 	maps/mp/zombies/_zm_weap_claymore::init();
 	maps/mp/zombies/_zm_weap_ballistic_knife::init();
-	//return;
 	level.special_weapon_magicbox_check = ::nuked_special_weapon_magicbox_check;
 	precacheitem( "death_throe_zm" );
 	level.zones = [];
@@ -199,7 +198,7 @@ door_powerup_drop( powerup_name, drop_spot, powerup_team, powerup_location ) //c
 
 perks_behind_door() //checked matches cerberus output
 {
-	if ( isDefined( level.enable_magic ) && !level.enable_magic )
+	if ( !is_true( level.enable_magic ) )
 	{
 		return;
 	}
@@ -339,7 +338,7 @@ nuked_player_fake_death( vdir ) //checked partially changed to match cerberus ou
 	self.ignoreme = 1;
 	self enableinvulnerability();
 	self takeallweapons();
-	if ( isDefined( self.insta_killed ) && self.insta_killed )
+	if ( is_true( self.insta_killed ) )
 	{
 		self maps/mp/zombies/_zm::player_fake_death();
 		self allowprone( 1 );
@@ -408,7 +407,7 @@ zombie_crater_locomotion() //checked partially changed to match cerberus output
 	touched = 0;
 	while ( !touched )
 	{
-		if ( isDefined( self.completed_emerging_into_playable_area ) && self.completed_emerging_into_playable_area )
+		if ( is_true( self.completed_emerging_into_playable_area ) )
 		{
 			self allowpitchangle( 0 );
 			self clearpitchorient();
@@ -636,7 +635,7 @@ give_team_characters() //checked matches cerberus output
 	}
 	self detachall();
 	self set_player_is_female( 0 );
-	if ( isDefined( level.should_use_cia ) && level.should_use_cia )
+	if ( is_true( level.should_use_cia ) )
 	{
 		self setmodel( "c_zom_player_cia_fb" );
 		self setviewmodel( "c_zom_suit_viewhands" );
@@ -800,7 +799,7 @@ include_weapons() //checked matches cerberus output
 	add_limited_weapon( "knife_ballistic_no_melee_upgraded_zm", 0 );
 	add_limited_weapon( "knife_ballistic_bowie_zm", 0 );
 	add_limited_weapon( "knife_ballistic_bowie_upgraded_zm", 0 );
-	if ( isDefined( level.raygun2_included ) && level.raygun2_included )
+	if ( is_true( level.raygun2_included ) )
 	{
 		include_weapon( "raygun_mark2_zm" );
 		include_weapon( "raygun_mark2_upgraded_zm", 0 );
@@ -878,7 +877,7 @@ custom_add_weapons() //checked matches cerberus output
 	add_zombie_weapon( "tazer_knuckles_zm", undefined, &"ZOMBIE_WEAPON_TAZER_KNUCKLES", 100, "tazerknuckles", "", undefined );
 	add_zombie_weapon( "hk416_zm", "hk416_upgraded_zm", &"ZOMBIE_WEAPON_HK416", 100, "", "", undefined );
 	add_zombie_weapon( "lsat_zm", "lsat_upgraded_zm", &"ZOMBIE_WEAPON_LSAT", 100, "", "", undefined );
-	if ( isDefined( level.raygun2_included ) && level.raygun2_included )
+	if ( is_true( level.raygun2_included ) )
 	{
 		add_zombie_weapon( "raygun_mark2_zm", "raygun_mark2_upgraded_zm", &"ZOMBIE_WEAPON_RAYGUN_MARK2", 10000, "raygun_mark2", "", undefined );
 	}
@@ -1069,7 +1068,6 @@ custom_debris_function() //checked changed to match cerberus output
 			if(who.score >= self.zombie_cost)
 			{
 				who maps/mp/zombies/_zm_score::minus_to_player_score(self.zombie_cost);
-				break;
 			}
 			else
 			{
@@ -1199,7 +1197,7 @@ sndmusegg2_wait( bear_origin ) //checked partially changed to match cerberus out
 
 sndmusegg2_override() //checked matches cerberus output
 {
-	if ( isDefined( level.music_override ) && level.music_override )
+	if ( is_true( level.music_override ) )
 	{
 		return 0;
 	}
@@ -1217,7 +1215,7 @@ sndmusegg3_counter( event, attacker ) //checked partially changed to match cerbe
 
 	if ( level.mannequin_count <= 0 )
 	{
-		while ( isDefined( level.music_override ) && level.music_override )
+		while ( is_true( level.music_override ) )
 		{
 			wait 5;
 		}
@@ -1522,7 +1520,7 @@ nuked_collision_patch() //checked partially changed to match cerberus output
 
 nuked_special_weapon_magicbox_check( weapon ) //checked matches cerberus output
 {
-	if ( isDefined( level.raygun2_included ) && level.raygun2_included )
+	if ( is_true( level.raygun2_included ) )
 	{
 		if ( weapon == "ray_gun_zm" )
 		{
