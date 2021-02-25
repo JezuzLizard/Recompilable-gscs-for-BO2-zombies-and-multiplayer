@@ -517,7 +517,7 @@ round_logic( mode_logic_func ) //checked matches cerberus output
 	set_gamemode_var_once( "current_round", 0 );
 	set_gamemode_var_once( "team_1_score", 0 );
 	set_gamemode_var_once( "team_2_score", 0 );
-	if ( isDefined( is_encounter() ) && is_encounter() )
+	if ( is_true( is_encounter() ) )
 	{
 		[[ level._setteamscore ]]( "allies", get_gamemode_var( "team_2_score" ) );
 		[[ level._setteamscore ]]( "axis", get_gamemode_var( "team_1_score" ) );

@@ -294,7 +294,7 @@ reward_double_tap( player, s_stat ) //checked matches cerberus output
 	str_model = getweaponmodel( "zombie_perk_bottle_doubletap" );
 	m_reward setmodel( str_model );
 	m_reward playsound( "zmb_spawn_powerup" );
-	m_reward playloopsound( "zmb_spawn_powerup_loop", 0,5 );
+	m_reward playloopsound( "zmb_spawn_powerup_loop", 0.5 );
 	wait_network_frame();
 	if ( !reward_rise_and_grab( m_reward, 50, 2, 2, 10 ) )
 	{

@@ -10,5 +10,5 @@
 init() //checked matches cerberus output
 {
 	add_map_gamemode( "zclassic", maps/mp/zm_tomb::zstandard_preinit, undefined, undefined );
-	add_map_location_gamemode( "zclassic", "tomb", maps/mp/zm_tomb_classic::precache, ::maps/mp/zm_tomb_classic::main );
+	add_map_location_gamemode( "zclassic", "tomb", maps/mp/zm_tomb_classic::precache, maps/mp/zm_tomb_classic::main );
 }

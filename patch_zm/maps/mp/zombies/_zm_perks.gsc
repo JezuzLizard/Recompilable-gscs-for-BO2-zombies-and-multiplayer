@@ -16,15 +16,6 @@
 
 init() //checked partially changed to match cerberus output
 {
-	//begin debug code
-	level.custom_zm_perks_loaded = 1;
-	maps/mp/zombies/_zm_bot::init();
-	if ( !isDefined( level.debugLogging_zm_perks ) )
-	{
-		level.debugLogging_zm_perks = 0;
-	}
-	
-	//end debug code
 	level.additionalprimaryweapon_limit = 3;
 	level.perk_purchase_limit = 4;
 	if ( !level.createfx_enabled )
@@ -2911,7 +2902,7 @@ perk_machine_removal( machine, replacement_model ) //checked changed to match ce
 			{
 				if ( isdefined( parts[ i ].classname ) && parts[ i ].classname == "script_model" )
 				{
-					machine_model = parts[i];
+					machine_model = parts[ i ];
 				}
 				if ( isdefined( parts[ i ].script_noteworthy ) && parts[ i ].script_noteworthy == "clip" )
 				{

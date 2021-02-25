@@ -10,6 +10,8 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
+//#using_animtree( "fxanim_props" ); //leave commented for now for compiling
+
 init() //checked changed to match cerberus output
 {
 	flag_init( "soul_catchers_charged" );

@@ -175,7 +175,7 @@ playerlaststand( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, sh
 	{
 		return;
 	}
-	if ( isDefined( self.in_zombify_call ) && self.in_zombify_call )
+	if ( is_true( self.in_zombify_call ) )
 	{
 		return;
 	}

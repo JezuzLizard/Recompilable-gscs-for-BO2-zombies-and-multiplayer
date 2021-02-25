@@ -663,6 +663,7 @@ leaper_round_spawning() //checked changed to match cerberus output
 		if ( ( level.leaper_count >= max ) && b_hold_spawning_when_leapers_are_all_dead )
 		{
 			wait 0.5;
+			continue;
 		}
 		num_player_valid = get_number_of_valid_players();
 		per_player = 2;

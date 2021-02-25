@@ -326,7 +326,7 @@ domflags() //checked changed to match cerberus output
 		tracestart = visuals[ 0 ].origin + vectorScale( ( 0, 0, 1 ), 32 );
 		traceend = visuals[ 0 ].origin + vectorScale( ( 0, 0, -1 ), 32 );
 		trace = bullettrace( tracestart, traceend, 0, undefined );
-		upangles = vectorToAngle( trace[ "normal" ] );
+		upangles = vectorToAngles( trace[ "normal" ] );
 		domflag.baseeffectforward = anglesToForward( upangles );
 		domflag.baseeffectright = anglesToRight( upangles );
 		domflag.baseeffectpos = trace[ "position" ];
@@ -613,7 +613,6 @@ onuse( player ) //checked changed to match cerberus output
 	}
 	self update_spawn_influencers( team );
 	level change_dom_spawns();
-	}
 }
 
 totaldomination( team ) //checked matches cerberus output

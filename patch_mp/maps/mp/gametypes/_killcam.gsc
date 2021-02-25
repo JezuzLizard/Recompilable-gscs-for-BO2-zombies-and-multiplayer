@@ -197,7 +197,7 @@ killcam( attackernum, targetnum, killcamentity, killcamentityindex, killcamentit
 		killcamlength = camtime + postdelay;
 	}
 	killcamoffset = camtime + predelay;
-	self notify( "begin_killcam" );
+	self notify( "begin_killcam", getTime() );
 	killcamstarttime = getTime() - ( killcamoffset * 1000 );
 	self.sessionstate = "spectator";
 	self.spectatorclient = attackernum;
@@ -497,7 +497,7 @@ finalkillcam( winner ) //checked changed to match cerberus output
 	killcamoffset = camtime + predelay;
 	killcamlength = ( camtime + postdelay ) - 0.05;
 	killcamstarttime = getTime() - ( killcamoffset * 1000 );
-	self notify( "begin_killcam" );
+	self notify( "begin_killcam", getTime() );
 	self.sessionstate = "spectator";
 	self.spectatorclient = killcamsettings.spectatorclient;
 	self.killcamentity = -1;

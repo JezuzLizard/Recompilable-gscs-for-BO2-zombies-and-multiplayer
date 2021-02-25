@@ -1946,18 +1946,18 @@ bot_update_killstreak() //checked partially changed to match cerberus output see
 		case "killstreak_rcbomb":
 		case "killstreak_remote_mortar":
 			return;
-			case "killstreak_remote_missile":
-				if ( ( time - self.spawntime ) < 6000 )
-				{
-					self switchtoweapon( weapons[ i ] );
-					self waittill( "weapon_change_complete" );
-					wait 1.5;
-					self pressattackbutton();
-				}
-				return;
-				default:
-					self switchtoweapon( weapons[ i ] );
-					break;
+		case "killstreak_remote_missile":
+			if ( ( time - self.spawntime ) < 6000 )
+			{
+				self switchtoweapon( weapons[ i ] );
+				self waittill( "weapon_change_complete" );
+				wait 1.5;
+				self pressattackbutton();
+			}
+			return;
+		default:
+			self switchtoweapon( weapons[ i ] );
+			break;
 	}
 }
 

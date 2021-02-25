@@ -22,19 +22,6 @@
 
 init() //checked matches cerberus output
 {
-	//begin debug code
-	level.custom_zm_powerups_loaded = 1;
-	maps/mp/zombies/_zm_bot::init();
-	if ( !isDefined( level.debugLogging_zm_powerups ) )
-	{
-		level.debugLogging_zm_powerups = 0;
-	}
-	if ( level.debugLogging_zm_powerups )
-	{
-		level.zombiesAlwaysDropPowerups = getDvarIntDefault( "zombiesAlwaysDropPowerups", 0 );
-		thread zombies_always_drop_powerups();
-	}
-	//end debug code
 	precacheshader( "specialty_doublepoints_zombies" );
 	precacheshader( "specialty_instakill_zombies" );
 	precacheshader( "specialty_firesale_zombies" );
@@ -56,11 +43,6 @@ init() //checked matches cerberus output
 	set_zombie_var( "zombie_powerup_point_doubler_time", 30, undefined, undefined, 1 );
 	set_zombie_var( "zombie_powerup_drop_increment", 2000 ); 
 	set_zombie_var( "zombie_powerup_drop_max_per_round", 4 ); 
-	if ( level.debugLogging_zm_powerups )
-	{
-		level.maxPowerupsPerRound = getDvarIntDefault( "maxPowerupsPerRound", 4 );
-		level.zombie_vars["zombie_powerup_drop_max_per_round"] = level.maxPowerupsPerRound;
-	}
 	onplayerconnect_callback( ::init_player_zombie_vars );
 	level._effect[ "powerup_on" ] = loadfx( "misc/fx_zombie_powerup_on" );
 	level._effect[ "powerup_off" ] = loadfx( "misc/fx_zombie_powerup_off" );
@@ -2872,19 +2854,6 @@ should_award_stat( powerup_name ) //checked changed to matched cerberus output
 teller_withdrawl( powerup, player ) //checked matches cerberus output
 {
 	player maps/mp/zombies/_zm_score::add_to_player_score( powerup.value );
-}
-
-zombies_always_drop_powerups() //debug code added
-{
-	if ( !level.zombiesAlwaysDropPowerups )
-	{
-		return;
-	}
-	while ( 1 )
-	{
-		level.zombie_vars[ "zombie_drop_item" ] = level.zombiesAlwaysDropPowerups;
-		wait 0.05;
-	}
 }
 
 

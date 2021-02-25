@@ -10,7 +10,7 @@
 
 precache() //checked matches cerberus output
 {
-	if ( isDefined( level.createfx_enabled ) && level.createfx_enabled )
+	if ( is_true( level.createfx_enabled ) )
 	{
 		return;
 	}

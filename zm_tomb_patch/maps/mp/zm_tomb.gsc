@@ -804,7 +804,7 @@ assign_lowest_unused_character_index() //checked changed to match cerberus outpu
 		{
 			if ( n_characters_defined == ( players.size - 1 ) )
 			{
-				if ( isDefined( level.has_richtofen ) && !level.has_richtofen )
+				if ( !is_true( level.has_richtofen ) )
 				{
 					level.has_richtofen = 1;
 					return 2;

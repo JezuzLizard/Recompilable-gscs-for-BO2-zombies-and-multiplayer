@@ -37,6 +37,8 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
+//#using_animtree( "fxanim_props" ); //leave commented out for now for compiling
+
 gamemode_callback_setup() //checked matches cerberus output
 {
 	maps/mp/zm_alcatraz_gamemodes::init();
@@ -564,7 +566,7 @@ assign_lowest_unused_character_index() //checked changed to match cerberus outpu
 		{
 			if ( n_characters_defined == ( players.size - 1 ) )
 			{
-				if ( isDefined( level.has_weasel ) && !level.has_weasel )
+				if ( !is_true( level.has_weasel ) )
 				{
 					level.has_weasel = 1;
 					return 3;
