@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_ai_brutus;
 #include maps/mp/zombies/_zm_stats;
 #include maps/mp/zombies/_zm_audio;
@@ -8,21 +9,21 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-#using_animtree( "fxanim_props" );
+//#using_animtree( "fxanim_props" ); //uncomment when the compiler supports anim trees
 
-init_fan_trap_trigs()
+init_fan_trap_trigs() //checked matches cerberus output
 {
 	trap_trigs = getentarray( "fan_trap_use_trigger", "targetname" );
 	array_thread( trap_trigs, ::fan_trap_think );
 	init_fan_fxanim( "wardens_office" );
 }
 
-init_fan_trap_animtree()
+init_fan_trap_animtree() //checked matches cerberus output
 {
 	scriptmodelsuseanimtree( -1 );
 }
 
-init_fan_fxanim( str_loc )
+init_fan_fxanim( str_loc ) //checked matches cerberus output
 {
 	e_fan = getent( "fxanim_fan_" + str_loc, "targetname" );
 	level.fan_trap_fxanims = [];
@@ -31,7 +32,7 @@ init_fan_fxanim( str_loc )
 	level.fan_trap_fxanims[ "fan_trap_end" ] = %fxanim_zom_al_trap_fan_end_anim;
 }
 
-fan_trap_think()
+fan_trap_think() //checked changed to match cerberus output
 {
 	triggers = getentarray( self.targetname, "targetname" );
 	self.cost = 1000;
@@ -51,11 +52,11 @@ fan_trap_think()
 	while ( 1 )
 	{
 		self waittill( "trigger", who );
-		while ( who in_revive_trigger() )
+		if ( who in_revive_trigger() )
 		{
 			continue;
 		}
-		while ( !isDefined( self.is_available ) )
+		if ( !isDefined( self.is_available ) )
 		{
 			continue;
 		}
@@ -104,7 +105,7 @@ fan_trap_think()
 	}
 }
 
-activate_fan_trap()
+activate_fan_trap() //checked changed to match cerberus output
 {
 	self.zombie_dmg_trig thread fan_trap_damage( self );
 	e_fan = getent( "fxanim_fan_" + self.script_string, "targetname" );
@@ -114,44 +115,40 @@ activate_fan_trap()
 	n_start_time = getanimlength( level.fan_trap_fxanims[ "fan_trap_start" ] );
 	n_idle_time = getanimlength( level.fan_trap_fxanims[ "fan_trap_idle" ] );
 	n_end_time = getanimlength( level.fan_trap_fxanims[ "fan_trap_end" ] );
-	e_fan setanim( level.fan_trap_fxanims[ "fan_trap_start" ], 1, 0,1, 1 );
+	e_fan setanim( level.fan_trap_fxanims[ "fan_trap_start" ], 1, 0.1, 1 );
 	wait n_start_time;
-	e_fan setanim( level.fan_trap_fxanims[ "fan_trap_idle" ], 1, 0,1, 1 );
+	e_fan setanim( level.fan_trap_fxanims[ "fan_trap_idle" ], 1, 0.1, 1 );
 	self thread fan_trap_timeout();
 	self thread fan_trap_rumble_think();
 	self.zombie_dmg_trig waittill( "trap_finished_" + self.script_string );
-	e_fan setanim( level.fan_trap_fxanims[ "fan_trap_end" ], 1, 0,1, 1 );
+	e_fan setanim( level.fan_trap_fxanims[ "fan_trap_end" ], 1, 0.1, 1 );
 	a_players = getplayers();
-	_a177 = a_players;
-	_k177 = getFirstArrayKey( _a177 );
-	while ( isDefined( _k177 ) )
+	foreach ( player in a_players )
 	{
-		player = _a177[ _k177 ];
 		if ( is_true( player.fan_trap_rumble ) )
 		{
 			player setclientfieldtoplayer( "rumble_fan_trap", 0 );
 			player.fan_trap_rumble = 0;
 		}
-		_k177 = getNextArrayKey( _a177, _k177 );
 	}
-	e_fan stoploopsound( 0,75 );
+	e_fan stoploopsound( 0.75 );
 	e_fan playsound( "zmb_trap_fan_end" );
 	wait n_end_time;
 }
 
-fan_trap_timeout()
+fan_trap_timeout() //checked does not match cerberus output did not change
 {
 	self.zombie_dmg_trig endon( "trap_finished_" + self.script_string );
 	n_duration = 0;
 	while ( n_duration < 25 )
 	{
 		wait 0,05;
-		n_duration += 0,05;
+		n_duration += 0.05;
 	}
 	self.zombie_dmg_trig notify( "trap_finished_" + self.script_string );
 }
 
-fan_trap_rumble_think()
+fan_trap_rumble_think() //checked matches cerberus output
 {
 	self.zombie_dmg_trig endon( "trap_finished_" + self.script_string );
 	while ( 1 )
@@ -167,7 +164,7 @@ fan_trap_rumble_think()
 	}
 }
 
-fan_trap_rumble( player )
+fan_trap_rumble( player ) //checked changed to match cerberus output
 {
 	player endon( "death" );
 	player endon( "disconnect" );
@@ -178,19 +175,18 @@ fan_trap_rumble( player )
 		{
 			player setclientfieldtoplayer( "rumble_fan_trap", 1 );
 			player.fan_trap_rumble = 1;
-			wait 0,25;
-			continue;
+			wait 0.25;
 		}
 		else
 		{
 			player setclientfieldtoplayer( "rumble_fan_trap", 0 );
 			player.fan_trap_rumble = 0;
-			return;
+			break;
 		}
 	}
 }
 
-fan_trap_damage( parent )
+fan_trap_damage( parent ) //checked partially changed to match cerberus output
 {
 	if ( isDefined( level.custom_fan_trap_damage_func ) )
 	{
@@ -204,7 +200,6 @@ fan_trap_damage( parent )
 		if ( isplayer( ent ) )
 		{
 			ent thread player_fan_trap_damage();
-			continue;
 		}
 		else
 		{
@@ -222,22 +217,22 @@ fan_trap_damage( parent )
 	}
 }
 
-fan_trap_move_switch( parent )
+fan_trap_move_switch( parent ) //checked matches cerberus output
 {
 	light_name = "";
 	tswitch = getent( "trap_handle_" + parent.script_linkto, "targetname" );
 	light_name = parent get_trap_light_name();
 	zapper_light_red( light_name );
-	tswitch rotatepitch( -180, 0,5 );
+	tswitch rotatepitch( -180, 0.5 );
 	tswitch playsound( "amb_sparks_l_b" );
 	tswitch waittill( "rotatedone" );
 	self notify( "switch_activated" );
 	self waittill( "available" );
-	tswitch rotatepitch( 180, 0,5 );
+	tswitch rotatepitch( 180, 0.5 );
 	zapper_light_green( light_name );
 }
 
-player_fan_trap_damage()
+player_fan_trap_damage() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -251,7 +246,7 @@ player_fan_trap_damage()
 	}
 }
 
-zombie_fan_trap_death()
+zombie_fan_trap_death() //checked matches cerberus output
 {
 	self endon( "death" );
 	if ( !isDefined( self.is_brutus ) )
@@ -264,20 +259,20 @@ zombie_fan_trap_death()
 	self dodamage( self.health + 1000, self.origin );
 }
 
-stop_fan_trap_blood_fx()
+stop_fan_trap_blood_fx() //checked matches cerberus output
 {
 	wait 2;
 	self setclientfield( "fan_trap_blood_fx", 0 );
 }
 
-init_acid_trap_trigs()
+init_acid_trap_trigs() //checked matches cerberus output
 {
 	trap_trigs = getentarray( "acid_trap_trigger", "targetname" );
 	array_thread( trap_trigs, ::acid_trap_think );
 	level thread acid_trap_host_migration_listener();
 }
 
-acid_trap_think()
+acid_trap_think() //checked changed to match cerberus output
 {
 	triggers = getentarray( self.targetname, "targetname" );
 	self.is_available = 1;
@@ -295,11 +290,11 @@ acid_trap_think()
 	while ( 1 )
 	{
 		self waittill( "trigger", who );
-		while ( who in_revive_trigger() )
+		if ( who in_revive_trigger() )
 		{
 			continue;
 		}
-		while ( !isDefined( self.is_available ) )
+		if ( !isDefined( self.is_available ) )
 		{
 			continue;
 		}
@@ -358,36 +353,34 @@ acid_trap_think()
 	}
 }
 
-acid_trap_move_switch( parent )
+acid_trap_move_switch( parent ) //checked matches cerberus output
 {
 	light_name = "";
 	tswitch = getent( "trap_handle_" + parent.script_linkto, "targetname" );
 	light_name = parent get_trap_light_name();
 	zapper_light_red( light_name );
-	tswitch rotatepitch( -180, 0,5 );
+	tswitch rotatepitch( -180, 0.5 );
 	tswitch playsound( "amb_sparks_l_b" );
 	tswitch waittill( "rotatedone" );
 	self notify( "switch_activated" );
 	self waittill( "available" );
-	tswitch rotatepitch( 180, 0,5 );
+	tswitch rotatepitch( 180, 0.5 );
 	zapper_light_green( light_name );
 }
 
-activate_acid_trap()
+activate_acid_trap() //checked changed to match cerberus output
 {
 	clientnotify( self.target );
 	fire_points = getstructarray( self.target, "targetname" );
-	i = 0;
-	while ( i < fire_points.size )
+	for ( i = 0; i < fire_points.size; i++ )
 	{
 		wait_network_frame();
 		fire_points[ i ] thread acid_trap_fx( self );
-		i++;
 	}
 	self.zombie_dmg_trig thread acid_trap_damage();
 }
 
-acid_trap_damage()
+acid_trap_damage() //checked partially changed to match cerberus output
 {
 	if ( isDefined( level.custom_acid_trap_damage_func ) )
 	{
@@ -401,7 +394,6 @@ acid_trap_damage()
 		if ( isplayer( ent ) )
 		{
 			ent thread player_acid_damage( self );
-			continue;
 		}
 		else
 		{
@@ -419,11 +411,11 @@ acid_trap_damage()
 	}
 }
 
-zombie_acid_damage()
+zombie_acid_damage() //checked matches cerberus output
 {
 	self endon( "death" );
 	self setclientfield( "acid_trap_death_fx", 1 );
-	wait randomfloatrange( 0,25, 2 );
+	wait randomfloatrange( 0.25, 2 );
 	if ( !isDefined( self.is_brutus ) )
 	{
 		self.a.gib_ref = random( array( "right_arm", "left_arm", "head", "right_leg", "left_leg", "no_legs" ) );
@@ -432,18 +424,18 @@ zombie_acid_damage()
 	self dodamage( self.health + 1000, self.origin );
 }
 
-stop_acid_death_fx()
+stop_acid_death_fx() //checked matches cerberus output
 {
 	wait 3;
 	self setclientfield( "acid_trap_death_fx", 0 );
 }
 
-player_acid_damage( t_damage )
+player_acid_damage( t_damage ) //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	t_damage endon( "acid_trap_finished" );
-	while ( !isDefined( self.is_in_acid ) && !self player_is_in_laststand() )
+	if ( !isDefined( self.is_in_acid ) && !self player_is_in_laststand() )
 	{
 		self.is_in_acid = 1;
 		self thread player_acid_damage_cooldown();
@@ -455,7 +447,7 @@ player_acid_damage( t_damage )
 	}
 }
 
-player_acid_damage_cooldown()
+player_acid_damage_cooldown() //checked matches cerberus output
 {
 	self endon( "disconnect" );
 	wait 1;
@@ -465,13 +457,13 @@ player_acid_damage_cooldown()
 	}
 }
 
-acid_trap_fx( notify_ent )
+acid_trap_fx( notify_ent ) //checked matches cerberus output
 {
 	wait 25;
 	notify_ent.zombie_dmg_trig notify( "acid_trap_fx_done" );
 }
 
-acid_trap_host_migration_listener()
+acid_trap_host_migration_listener() //checked changed to match cerberus output
 {
 	level endon( "end_game" );
 	level notify( "acid_trap_hostmigration" );
@@ -480,11 +472,8 @@ acid_trap_host_migration_listener()
 	{
 		level waittill( "host_migration_end" );
 		trap_trigs = getentarray( "acid_trap_trigger", "targetname" );
-		_a623 = trap_trigs;
-		_k623 = getFirstArrayKey( _a623 );
-		while ( isDefined( _k623 ) )
+		foreach ( trigger in trap_trigs )
 		{
-			trigger = _a623[ _k623 ];
 			if ( isDefined( trigger.zombie_dmg_trig ) && isDefined( trigger.zombie_dmg_trig.active ) )
 			{
 				if ( trigger.zombie_dmg_trig.active == 1 )
@@ -493,28 +482,20 @@ acid_trap_host_migration_listener()
 					break;
 				}
 			}
-			else
-			{
-				_k623 = getNextArrayKey( _a623, _k623 );
-			}
 		}
 	}
 }
 
-init_tower_trap_trigs()
+init_tower_trap_trigs() //checked changed to match cerberus output
 {
 	trap_trigs = getentarray( "tower_trap_activate_trigger", "targetname" );
-	_a644 = trap_trigs;
-	_k644 = getFirstArrayKey( _a644 );
-	while ( isDefined( _k644 ) )
+	foreach ( trigger in trap_trigs )
 	{
-		trigger = _a644[ _k644 ];
 		trigger thread tower_trap_trigger_think();
-		_k644 = getNextArrayKey( _a644, _k644 );
 	}
 }
 
-tower_trap_trigger_think()
+tower_trap_trigger_think() //checked changed to match cerberus output
 {
 	self.range_trigger = getent( self.target, "targetname" );
 	self.upgrade_trigger = getent( self.script_string, "script_noteworthy" );
@@ -529,11 +510,11 @@ tower_trap_trigger_think()
 	{
 		self hint_string( &"ZM_PRISON_TOWER_TRAP", self.cost );
 		self waittill( "trigger", who );
-		while ( who in_revive_trigger() )
+		if ( who in_revive_trigger() )
 		{
 			continue;
 		}
-		while ( !isDefined( self.is_available ) )
+		if ( !isDefined( self.is_available ) )
 		{
 			continue;
 		}
@@ -589,7 +570,7 @@ tower_trap_trigger_think()
 	}
 }
 
-tower_upgrade_trigger_think()
+tower_upgrade_trigger_think() //checked matches cerberus output
 {
 	self endon( "tower_trap_off" );
 	self.upgrade_trigger.cost = 1000;
@@ -609,7 +590,7 @@ tower_upgrade_trigger_think()
 	}
 }
 
-open_tower_trap_upgrade_panel()
+open_tower_trap_upgrade_panel() //checked matches cerberus output
 {
 	e_door = getent( "tower_shockbox_door", "targetname" );
 	e_door moveto( e_door.origin + vectorScale( ( 0, 1, 0 ), 40 ), 1 );
@@ -617,7 +598,7 @@ open_tower_trap_upgrade_panel()
 	e_door moveto( e_door.origin + vectorScale( ( 0, 1, 0 ), 40 ), 1 );
 }
 
-tower_trap_upgrade_panel_closes_early()
+tower_trap_upgrade_panel_closes_early() //checked matches cerberus output
 {
 	level endon( "tower_trap_upgraded" );
 	n_waittime = 24;
@@ -625,89 +606,87 @@ tower_trap_upgrade_panel_closes_early()
 	level notify( "close_tower_trap_upgrade_panel" );
 }
 
-tower_trap_move_switch( parent )
+tower_trap_move_switch( parent ) //checked matches cerberus output
 {
 	light_name = "";
 	tswitch = getent( "trap_handle_" + parent.script_linkto, "targetname" );
 	light_name = parent get_trap_light_name();
 	zapper_light_red( light_name );
-	tswitch rotatepitch( -180, 0,5 );
+	tswitch rotatepitch( -180, 0.5 );
 	tswitch playsound( "amb_sparks_l_b" );
 	tswitch waittill( "rotatedone" );
 	self notify( "switch_activated" );
 	self waittill( "available" );
-	tswitch rotatepitch( 180, 0,5 );
+	tswitch rotatepitch( 180, 0.5 );
 	if ( isDefined( parent.script_noteworthy ) )
 	{
 		zapper_light_green( light_name );
 	}
 }
 
-activate_tower_trap()
+activate_tower_trap() //checked changed to match cerberus output
 {
 	self endon( "tower_trap_off" );
 	self.weapon_name = "tower_trap_zm";
 	self.tag_to_target = "J_Head";
-	self.trap_reload_time = 0,75;
-	for ( ;; )
+	self.trap_reload_time = 0.75;
+	while ( 1 )
 	{
-		while ( 1 )
+		zombies = getaiarray( level.zombie_team );
+		zombies_sorted = [];
+		foreach(zombie in zombies)
 		{
-			zombies = getaiarray( level.zombie_team );
-			zombies_sorted = [];
-			_a850 = zombies;
-			_k850 = getFirstArrayKey( _a850 );
-			while ( isDefined( _k850 ) )
+			if ( zombie istouching( self.range_trigger ) )
 			{
-				zombie = _a850[ _k850 ];
-				if ( zombie istouching( self.range_trigger ) )
-				{
-					zombies_sorted[ zombies_sorted.size ] = zombie;
-				}
-				_k850 = getNextArrayKey( _a850, _k850 );
-			}
-			if ( zombies_sorted.size <= 0 )
-			{
-				wait_network_frame();
+				zombies_sorted[ zombies_sorted.size ] = zombie;
 			}
 		}
-		else wait_network_frame();
-		self tower_trap_fires( zombies_sorted );
+		if ( zombies_sorted.size <= 0 )
+		{
+			wait_network_frame();
+		}
+		else 
+		{
+			wait_network_frame();
+			self tower_trap_fires( zombies_sorted );
+		}
 	}
 }
 
-upgrade_tower_trap_weapon()
+upgrade_tower_trap_weapon() //checked matches cerberus output
 {
 	self.weapon_name = "tower_trap_upgraded_zm";
 	self.tag_to_target = "J_SpineLower";
-	self.trap_reload_time = 1,5;
+	self.trap_reload_time = 1.5;
 }
 
-tower_trap_timer()
+tower_trap_timer() //checked matches cerberus output
 {
 	self endon( "tower_trap_reset_timer" );
+	/*
 /#
 	self thread debug_tower_trap_timer();
 #/
+	*/
 	wait 25;
 	self notify( "tower_trap_off" );
 }
 
-debug_tower_trap_timer()
+debug_tower_trap_timer() //checked changed to match cerberus output
 {
 	self endon( "tower_trap_reset_timer" );
-	i = 1;
-	while ( i <= 25 )
+	for ( i = 1; i <= 25; i++ )
 	{
+		/*
 /#
 		iprintln( "Tower Trap Timer = " + i );
 #/
+		*/
 		wait 1;
-		i++;
 	}
 }
 
-tower_trap_fires( a_zombies )
+tower_trap_fires( a_zombies ) //checked changed to match cerberus output
 {
 	if ( isDefined( level.custom_tower_trap_fires_func ) )
 	{
@@ -725,7 +704,6 @@ tower_trap_fires( a_zombies )
 		{
 			magicbullet( self.weapon_name, e_org.origin, v_zombietarget );
 			wait self.trap_reload_time;
-			continue;
 		}
 		else
 		{
@@ -733,17 +711,14 @@ tower_trap_fires( a_zombies )
 			wait_network_frame();
 			if ( a_zombies.size <= 0 )
 			{
-				return;
+				break;
 			}
-			else
-			{
-				n_index = randomintrange( 0, a_zombies.size );
-			}
+			n_index = randomintrange( 0, a_zombies.size );
 		}
 	}
 }
 
-hint_string( string, cost )
+hint_string( string, cost ) //checked matches cerberus output
 {
 	if ( isDefined( cost ) )
 	{
@@ -756,29 +731,25 @@ hint_string( string, cost )
 	self setcursorhint( "HINT_NOICON" );
 }
 
-zapper_light_red( lightname )
+zapper_light_red( lightname ) //checked changed to match cerberus output
 {
 	zapper_lights = getentarray( lightname, "targetname" );
-	i = 0;
-	while ( i < zapper_lights.size )
+	for ( i = 0; i < zapper_lights.size; i++ )
 	{
 		zapper_lights[ i ] setmodel( "p6_zm_al_wall_trap_control_red" );
-		i++;
 	}
 }
 
-zapper_light_green( lightname )
+zapper_light_green( lightname ) //checked changed to match cerberus output
 {
 	zapper_lights = getentarray( lightname, "targetname" );
-	i = 0;
-	while ( i < zapper_lights.size )
+	for ( i = 0; i < zapper_lights.size; i++ )
 	{
 		zapper_lights[ i ] setmodel( "p6_zm_al_wall_trap_control" );
-		i++;
 	}
 }
 
-get_trap_light_name()
+get_trap_light_name() //checked matches cerberus output
 {
 	tswitch = getent( "trap_handle_" + self.script_linkto, "targetname" );
 	switch( tswitch.script_linkname )
