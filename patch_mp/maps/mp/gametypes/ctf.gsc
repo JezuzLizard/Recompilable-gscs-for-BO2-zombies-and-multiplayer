@@ -484,7 +484,7 @@ createflagzone( trigger ) //checked changed to match cerberus output
 	tracestart = trigger.origin + vectorScale( ( 0, 0, 1 ), 32 );
 	traceend = trigger.origin + vectorScale( ( 0, 0, -1 ), 32 );
 	trace = bullettrace( tracestart, traceend, 0, undefined );
-	upangles = vectorToAngle( trace[ "normal" ] );
+	upangles = vectorToAngles( trace[ "normal" ] );
 	flagzone.baseeffectforward = anglesToForward( upangles );
 	flagzone.baseeffectright = anglesToRight( upangles );
 	flagzone.baseeffectpos = trace[ "position" ];
@@ -1046,22 +1046,22 @@ onplayerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vdir, shi
 createreturnmessageelems() //checked matches cerberus output
 {
 	level.returnmessageelems = [];
-	level.returnmessageelems[ "allies" ][ "axis" ] = createservertimer( "objective", 1,4, "allies" );
+	level.returnmessageelems[ "allies" ][ "axis" ] = createservertimer( "objective", 1.4, "allies" );
 	level.returnmessageelems[ "allies" ][ "axis" ] setpoint( "TOPRIGHT", "TOPRIGHT", 0, 0 );
 	level.returnmessageelems[ "allies" ][ "axis" ].label = &"MP_ENEMY_FLAG_RETURNING_IN";
 	level.returnmessageelems[ "allies" ][ "axis" ].alpha = 0;
 	level.returnmessageelems[ "allies" ][ "axis" ].archived = 0;
-	level.returnmessageelems[ "allies" ][ "allies" ] = createservertimer( "objective", 1,4, "allies" );
+	level.returnmessageelems[ "allies" ][ "allies" ] = createservertimer( "objective", 1.4, "allies" );
 	level.returnmessageelems[ "allies" ][ "allies" ] setpoint( "TOPRIGHT", "TOPRIGHT", 0, 20 );
 	level.returnmessageelems[ "allies" ][ "allies" ].label = &"MP_YOUR_FLAG_RETURNING_IN";
 	level.returnmessageelems[ "allies" ][ "allies" ].alpha = 0;
 	level.returnmessageelems[ "allies" ][ "allies" ].archived = 0;
-	level.returnmessageelems[ "axis" ][ "allies" ] = createservertimer( "objective", 1,4, "axis" );
+	level.returnmessageelems[ "axis" ][ "allies" ] = createservertimer( "objective", 1.4, "axis" );
 	level.returnmessageelems[ "axis" ][ "allies" ] setpoint( "TOPRIGHT", "TOPRIGHT", 0, 0 );
 	level.returnmessageelems[ "axis" ][ "allies" ].label = &"MP_ENEMY_FLAG_RETURNING_IN";
 	level.returnmessageelems[ "axis" ][ "allies" ].alpha = 0;
 	level.returnmessageelems[ "axis" ][ "allies" ].archived = 0;
-	level.returnmessageelems[ "axis" ][ "axis" ] = createservertimer( "objective", 1,4, "axis" );
+	level.returnmessageelems[ "axis" ][ "axis" ] = createservertimer( "objective", 1.4, "axis" );
 	level.returnmessageelems[ "axis" ][ "axis" ] setpoint( "TOPRIGHT", "TOPRIGHT", 0, 20 );
 	level.returnmessageelems[ "axis" ][ "axis" ].label = &"MP_YOUR_FLAG_RETURNING_IN";
 	level.returnmessageelems[ "axis" ][ "axis" ].alpha = 0;
