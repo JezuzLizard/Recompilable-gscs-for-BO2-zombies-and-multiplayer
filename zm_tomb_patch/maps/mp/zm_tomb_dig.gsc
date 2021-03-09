@@ -405,7 +405,7 @@ dig_up_zombie( player, s_dig_spot ) //checked changed to match cerberus output
 	e_linker.origin = ai_zombie.origin;
 	e_linker.angles = ai_zombie.angles;
 	ai_zombie linkto( e_linker );
-	e_linker moveto( player.origin + vectorScale( ( 1, 1, 0 ), 100 ), 0,1 );
+	e_linker moveto( player.origin + vectorScale( ( 1, 1, 0 ), 100 ), 0.1 );
 	e_linker waittill( "movedone" );
 	ai_zombie unlink();
 	e_linker delete();
