@@ -121,9 +121,8 @@ door_classify( parent_trig ) //checked changed to match cerberus output
 	{
 		parent_trig.clip = self;
 		parent_trig.script_string = "clip";
-		break;
 	}
-	if ( !isDefined( self.script_string ) )
+	else if ( !isDefined( self.script_string ) )
 	{
 		if ( isDefined( self.script_angles ) )
 		{
@@ -134,41 +133,41 @@ door_classify( parent_trig ) //checked changed to match cerberus output
 			self.script_string = "move";
 		}
 	}
-	if ( !isDefined( self.script_string ) )
+	else if ( !isDefined( self.script_string ) )
 	{
 		self.script_string = "";
-	}
-	switch( self.script_string )
-	{
-		case "anim":
-			/*
-	/#
-			assert( isDefined( self.script_animname ), "Blocker_init: You must specify a script_animname for " + self.targetname );
-	#/
-	/#
-			assert( isDefined( level.scr_anim[ self.script_animname ] ), "Blocker_init: You must define a level.scr_anim for script_anim -> " + self.script_animname );
-	#/
-	/#
-			assert( isDefined( level.blocker_anim_func ), "Blocker_init: You must define a level.blocker_anim_func" );
-	#/
-			*/
-			break;
-		case "counter_1s":
-			parent_trig.counter_1s = self;
-			return;
-		case "counter_10s":
-			parent_trig.counter_10s = self;
-			return;
-		case "counter_100s":
-			parent_trig.counter_100s = self;
-			return;
-		case "explosives":
-			if ( !isDefined( parent_trig.explosives ) )
-			{
-				parent_trig.explosives = [];
-			}
-			parent_trig.explosives[ parent_trig.explosives.size ] = self;
-			return;
+		switch( self.script_string )
+		{
+			case "anim":
+				/*
+		/#
+				assert( isDefined( self.script_animname ), "Blocker_init: You must specify a script_animname for " + self.targetname );
+		#/
+		/#
+				assert( isDefined( level.scr_anim[ self.script_animname ] ), "Blocker_init: You must define a level.scr_anim for script_anim -> " + self.script_animname );
+		#/
+		/#
+				assert( isDefined( level.blocker_anim_func ), "Blocker_init: You must define a level.blocker_anim_func" );
+		#/
+				*/
+				break;
+			case "counter_1s":
+				parent_trig.counter_1s = self;
+				return;
+			case "counter_10s":
+				parent_trig.counter_10s = self;
+				return;
+			case "counter_100s":
+				parent_trig.counter_100s = self;
+				return;
+			case "explosives":
+				if ( !isDefined( parent_trig.explosives ) )
+				{
+					parent_trig.explosives = [];
+				}
+				parent_trig.explosives[ parent_trig.explosives.size ] = self;
+				return;
+		}
 	}
 	if ( self.classname == "script_brushmodel" )
 	{
@@ -422,15 +421,13 @@ kill_trapped_zombies( trigger ) //checked partially changed to match cerberus ou
 			i++;
 			continue;
 		}
-		else if ( zombies[ i ] istouching( trigger ) )
+		if ( zombies[ i ] istouching( trigger ) )
 		{
 			zombies[ i ].marked_for_recycle = 1;
 			zombies[ i ] dodamage( zombies[ i ].health + 666, trigger.origin, self );
 			wait randomfloat( 0.15 );
-			i++;
-			continue;
 		}
-		if ( isDefined( level.custom_trapped_zombies ) )
+		else if ( isDefined( level.custom_trapped_zombies ) )
 		{
 			zombies[ i ] thread [[ level.custom_trapped_zombies ]]();
 			wait randomfloat( 0.15 );
@@ -456,7 +453,7 @@ any_player_touching_any( trigger, more_triggers ) //checked changed to match cer
 {
 	foreach ( player in get_players() )
 	{
-		while ( is_player_valid( player, 0, 1 ) )
+		if ( is_player_valid( player, 0, 1 ) )
 		{
 			if ( isDefined( trigger ) && player istouching( trigger ) )
 			{
@@ -774,9 +771,8 @@ door_opened( cost, quick_close ) //checked partially changed to match cerberus o
 			{
 				flag_set( tokens[ i ] );
 			}
-			break;
 		}
-		if ( isDefined( all_trigs[ j ].script_flag ) && all_trigs[ j ]._door_open == 0 )
+		else if ( isDefined( all_trigs[ j ].script_flag ) && all_trigs[ j ]._door_open == 0 )
 		{
 			tokens = strtok( all_trigs[ j ].script_flag, "," );
 			for ( i = 0; i < tokens.size; i++ )
@@ -784,19 +780,15 @@ door_opened( cost, quick_close ) //checked partially changed to match cerberus o
 				flag_clear( tokens[ i ] );
 			}
 		}
-		else if ( isDefined( quick_close ) && quick_close )
+		if ( is_true( quick_close ) )
 		{
 			all_trigs[ j ] set_hint_string( all_trigs[ j ], "" );
-			j++;
-			continue;
 		}
-		if ( all_trigs[ j ]._door_open == 1 && flag( "door_can_close" ) )
+		else if ( all_trigs[ j ]._door_open == 1 && flag( "door_can_close" ) )
 		{
 			all_trigs[ j ] set_hint_string( all_trigs[ j ], "default_buy_door_close" );
-			j++;
-			continue;
 		}
-		if ( all_trigs[ j ]._door_open == 0 )
+		else if ( all_trigs[ j ]._door_open == 0 )
 		{
 			all_trigs[ j ] set_hint_string( all_trigs[ j ], "default_buy_door", cost );
 		}
@@ -966,13 +958,16 @@ debris_think() //partially changed to match cerberus output //did not change whi
 		if ( getDvarInt( "zombie_unlock_all" ) > 0 || is_true( force ) )
 		{
 		}
-		else if ( !who usebuttonpressed() )
+		else 
 		{
-			continue;
-		}
-		if ( who maps/mp/zombies/_zm_utility::in_revive_trigger() )
-		{
-			continue;
+			if ( !who usebuttonpressed() )
+			{
+				continue;
+			}
+			if ( who maps/mp/zombies/_zm_utility::in_revive_trigger() )
+			{
+				continue;
+			}
 		}
 		if ( maps/mp/zombies/_zm_utility::is_player_valid( who ) )
 		{
@@ -995,7 +990,7 @@ debris_think() //partially changed to match cerberus output //did not change whi
 			}
 			bbprint( "zombie_uses", "playername %s playerscore %d round %d cost %d name %s x %f y %f z %f type %s", who.name, who.score, level.round_number, self.zombie_cost, self.script_flag, self.origin, "door" );
 			junk = getentarray( self.target, "targetname" );
-			while ( isDefined( self.script_flag ) )
+			if ( isDefined( self.script_flag ) )
 			{
 				tokens = strtok( self.script_flag, "," );
 				for ( i = 0; i < tokens.size; i++ )
@@ -1033,10 +1028,11 @@ debris_think() //partially changed to match cerberus output //did not change whi
 					{
 						junk[ i ] delete();
 					}
-					i++;
-					continue;
 				}
-				junk[ i ] delete();
+				else 
+				{
+					junk[ i ] delete();
+				}
 				i++;
 			}
 			all_trigs = getentarray( self.target, "target" );
@@ -1524,15 +1520,12 @@ blocker_trigger_think() //checked changed to match cerberus output
 			if ( isDefined( self.zbarrier ) )
 			{
 				chunk = get_random_destroyed_chunk( self, self.barrier_chunks );
-				if ( isDefined( player.pers_upgrades_awarded[ "board" ] ) )
-				{
-					self thread replace_chunk( self, chunk, has_perk, player.pers_upgrades_awarded[ "board" ] );
-				}
+				self thread replace_chunk( self, chunk, has_perk, is_true( player.pers_upgrades_awarded[ "board" ] ) );
 			}
 			else
 			{
 				chunk = get_random_destroyed_chunk( self, self.barrier_chunks );
-				if ( isDefined( chunk.script_parameter ) || chunk.script_parameters == "repair_board" && chunk.script_parameters == "barricade_vents" )
+				if ( isDefined( chunk.script_parameter ) || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
 				{
 					if ( isDefined( chunk.unbroken_section ) )
 					{
@@ -1545,7 +1538,7 @@ blocker_trigger_think() //checked changed to match cerberus output
 				{
 					chunk show();
 				}
-				if ( isDefined( chunk.script_parameters ) && chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" && chunk.script_parameters == "barricade_vents" )
+				if ( !isDefined( chunk.script_parameters ) || chunk.script_parameters == "board" || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
 				{
 					if ( !is_true( level.use_clientside_board_fx ) )
 					{
@@ -1579,10 +1572,7 @@ blocker_trigger_think() //checked changed to match cerberus output
 						}
 					}
 				}
-				if ( isDefined( player.pers_upgrades_awarded[ "board" ] ) )
-				{
-					self thread replace_chunk( self, chunk, has_perk, player.pers_upgrades_awarded[ "board" ] );
-				}
+				self thread replace_chunk( self, chunk, has_perk, is_true( player.pers_upgrades_awarded[ "board" ] ) );
 			}
 			if ( isDefined( self.clip ) )
 			{
@@ -1660,7 +1650,7 @@ remove_chunk( chunk, node, destroy_immediately, zomb ) //checked changed to matc
 	chunk update_states( "mid_tear" );
 	if ( isDefined( chunk.script_parameters ) )
 	{
-		if ( chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
+		if ( chunk.script_parameters == "board" || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
 		{
 			chunk thread zombie_boardtear_audio_offset( chunk );
 		}
@@ -1765,7 +1755,7 @@ remove_chunk( chunk, node, destroy_immediately, zomb ) //checked changed to matc
 		chunk update_states( "destroyed" );
 		chunk notify( "destroyed" );
 	}
-	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters != "board" || chunk.script_parameters == "repair_board" || chunk.script_parameters == "barricade_vents" )
+	if ( isDefined( chunk.script_parameters ) && chunk.script_parameters == "board" || isDefined( chunk.script_parameters ) && chunk.script_parameters == "repair_board" || isDefined( chunk.script_parameters ) && chunk.script_parameters == "barricade_vents" )
 	{
 		ent = spawn( "script_origin", chunk.origin );
 		ent.angles = node.angles + vectorScale( ( 0, 1, 0 ), 180 );
@@ -2004,13 +1994,16 @@ open_all_zbarriers() //checked partially changed to match cerberus output //did 
 				level.exterior_goals[ i ].zbarrier setzbarrierpiecestate( x, "opening" );
 			}
 		}
-		else if ( isDefined( level.exterior_goals[ i ].clip ) )
+		if ( isDefined( level.exterior_goals[ i ].clip ) )
 		{
 			level.exterior_goals[ i ].clip disable_trigger();
 			level.exterior_goals[ i ].clip connectpaths();
-			continue;
 		}
-		blocker_connect_paths( level.exterior_goals[ i ].neg_start, level.exterior_goals[ i ].neg_end );
+		else 
+		{
+			blocker_connect_paths( level.exterior_goals[ i ].neg_start, level.exterior_goals[ i ].neg_end );
+		}
+		i++;
 	}
 }
 
