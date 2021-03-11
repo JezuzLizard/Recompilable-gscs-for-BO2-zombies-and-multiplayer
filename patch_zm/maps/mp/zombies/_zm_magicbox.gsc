@@ -13,14 +13,6 @@
 
 init() //checked matches cerberus output
 {
-	//begin debug code
-	level.custom_zm_magicbox_loaded = 1;
-	maps/mp/zombies/_zm_bot::init();
-	if ( !isDefined( level.debugLogging_zm_magicbox ) )
-	{
-		level.debugLogging_zm_magicbox = 0;
-	}
-	//end debug code
 	if ( !isDefined( level.chest_joker_model ) )
 	{
 		level.chest_joker_model = "zombie_teddybear";
