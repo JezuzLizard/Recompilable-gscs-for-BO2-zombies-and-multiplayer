@@ -1,3 +1,4 @@
+//checked includes match cerberus output
 #include maps/mp/zombies/_zm_weapons;
 #include maps/mp/zombies/_zm_equipment;
 #include maps/mp/zombies/_zm_buildables;
@@ -6,7 +7,7 @@
 #include maps/mp/zombies/_zm_utility;
 #include maps/mp/_utility;
 
-init()
+init() //checked matches cerberus output
 {
 	level.riotshield_name = "alcatraz_shield_zm";
 	level.deployedshieldmodel = [];
@@ -36,7 +37,7 @@ init()
 	level.riotshield_placement_zoffset = 26;
 }
 
-attachriotshield( model, tag )
+attachriotshield( model, tag ) //checked matches cerberus output
 {
 	if ( isDefined( self.prev_shield_model ) && isDefined( self.prev_shield_tag ) )
 	{
@@ -50,7 +51,7 @@ attachriotshield( model, tag )
 	}
 }
 
-removeriotshield()
+removeriotshield() //checked matches cerberus output
 {
 	if ( isDefined( self.prev_shield_model ) && isDefined( self.prev_shield_tag ) )
 	{
@@ -65,7 +66,7 @@ removeriotshield()
 	self setheldweaponmodel( 0 );
 }
 
-setriotshieldviewmodel( modelnum )
+setriotshieldviewmodel( modelnum ) //checked matches cerberus output
 {
 	self.prev_shield_viewmodel = modelnum;
 	if ( self getcurrentweapon() != level.riotshield_name )
@@ -82,7 +83,7 @@ setriotshieldviewmodel( modelnum )
 	}
 }
 
-specialriotshieldviewmodel()
+specialriotshieldviewmodel() //checked matches cerberus output
 {
 	if ( self getcurrentweapon() != level.riotshield_name )
 	{
@@ -91,7 +92,7 @@ specialriotshieldviewmodel()
 	self setheldweaponmodel( 3 );
 }
 
-restoreriotshieldviewmodel()
+restoreriotshieldviewmodel() //checked matches cerberus output
 {
 	if ( self getcurrentweapon() != level.riotshield_name )
 	{
@@ -107,7 +108,7 @@ restoreriotshieldviewmodel()
 	}
 }
 
-updateriotshieldmodel()
+updateriotshieldmodel() //checked changed to match cerberus output
 {
 	if ( !isDefined( self.shield_damage_level ) )
 	{
@@ -132,34 +133,28 @@ updateriotshieldmodel()
 		if ( self.prev_shield_placement == 0 )
 		{
 			self attachriotshield();
-			return;
 		}
 		else if ( self.prev_shield_placement == 1 )
 		{
 			self attachriotshield( level.carriedshieldmodel[ self.prev_shield_damage_level ], "tag_weapon_left" );
 			self setriotshieldviewmodel( self.prev_shield_damage_level );
-			return;
 		}
 		else if ( self.prev_shield_placement == 2 )
 		{
 			self attachriotshield( level.stowedshieldmodel[ self.prev_shield_damage_level ], "tag_stowed_back" );
-			return;
 		}
-		else
+		else if ( self.prev_shield_placement == 3 )
 		{
-			if ( self.prev_shield_placement == 3 )
+			self attachriotshield();
+			if ( isDefined( self.shield_ent ) )
 			{
-				self attachriotshield();
-				if ( isDefined( self.shield_ent ) )
-				{
-					self.shield_ent setmodel( level.deployedshieldmodel[ self.prev_shield_damage_level ] );
-				}
+				self.shield_ent setmodel( level.deployedshieldmodel[ self.prev_shield_damage_level ] );
 			}
 		}
 	}
 }
 
-updatestandaloneriotshieldmodel()
+updatestandaloneriotshieldmodel() //checked matches cerberus output
 {
 	update = 0;
 	if ( !isDefined( self.prev_shield_damage_level ) || self.prev_shield_damage_level != self.shield_damage_level )
@@ -173,7 +168,7 @@ updatestandaloneriotshieldmodel()
 	}
 }
 
-watchshieldlaststand()
+watchshieldlaststand() //checked matches cerberus output used is_true() instead
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -183,7 +178,7 @@ watchshieldlaststand()
 	{
 		self waittill( "weapons_taken_for_last_stand" );
 		self.riotshield_hidden = 0;
-		if ( isDefined( self.hasriotshield ) && self.hasriotshield )
+		if ( is_true( self.hasriotshield ) )
 		{
 			if ( self.prev_shield_placement == 1 || self.prev_shield_placement == 2 )
 			{
@@ -209,12 +204,21 @@ watchshieldlaststand()
 	}
 }
 
-trackriotshield()
+
+
+trackriotshield() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	self.hasriotshield = self hasweapon( level.riotshield_name );
-	self.hasriotshieldequipped = self getcurrentweapon() == level.riotshield_name;
+	if ( self getcurrentweapon() == level.riotshield_name )
+	{
+		self.hasriotshieldequipped = 1;
+	}
+	else 
+	{
+		self.hasriotshieldequipped = 0;
+	}
 	self.shield_placement = 0;
 	if ( self.hasriotshield )
 	{
@@ -238,7 +242,7 @@ trackriotshield()
 			{
 				continue;
 			}
-			else if ( isDefined( self.riotshieldentity ) )
+			if ( isDefined( self.riotshieldentity ) )
 			{
 				self notify( "destroy_riotshield" );
 			}
@@ -252,79 +256,74 @@ trackriotshield()
 			self.hasriotshieldequipped = 1;
 			continue;
 		}
-		else if ( self ismantling() && newweapon == "none" )
+		if ( self ismantling() && newweapon == "none" )
 		{
 			continue;
 		}
-		else
+		if ( self.hasriotshieldequipped )
 		{
-			if ( self.hasriotshieldequipped )
+			/*
+/#
+			assert( self.hasriotshield );
+#/
+			*/
+			self.hasriotshield = self hasweapon( level.riotshield_name );
+			if ( isDefined( self.riotshield_hidden ) && self.riotshield_hidden )
 			{
-/#
-				assert( self.hasriotshield );
-#/
-				self.hasriotshield = self hasweapon( level.riotshield_name );
-				if ( isDefined( self.riotshield_hidden ) && self.riotshield_hidden )
-				{
-				}
-				else
-				{
-					if ( self.hasriotshield )
-					{
-						self.shield_placement = 2;
-						break;
-					}
-					else if ( isDefined( self.shield_ent ) )
-					{
-/#
-						assert( self.shield_placement == 3 );
-#/
-						break;
-					}
-					else
-					{
-						self.shield_placement = 0;
-					}
-				}
-				self updateriotshieldmodel();
-				self.hasriotshieldequipped = 0;
-				break;
 			}
 			else if ( self.hasriotshield )
 			{
-				if ( !self hasweapon( level.riotshield_name ) )
-				{
-					self.shield_placement = 0;
-					self updateriotshieldmodel();
-					self.hasriotshield = 0;
-				}
+				self.shield_placement = 2;
+				break;
+			}
+			else if ( isDefined( self.shield_ent ) )
+			{
+				/*
+/#
+				assert( self.shield_placement == 3 );
+#/
+				*/
 				break;
 			}
 			else
 			{
-				if ( self hasweapon( level.riotshield_name ) )
-				{
-					self.shield_placement = 2;
-					self updateriotshieldmodel();
-					self.hasriotshield = 1;
-				}
+				self.shield_placement = 0;
 			}
+			self updateriotshieldmodel();
+			self.hasriotshieldequipped = 0;
+			break;
+		}
+		if ( self.hasriotshield )
+		{
+			if ( !self hasweapon( level.riotshield_name ) )
+			{
+				self.shield_placement = 0;
+				self updateriotshieldmodel();
+				self.hasriotshield = 0;
+			}
+			continue;
+		}
+		if ( self hasweapon( level.riotshield_name ) )
+		{
+			self.shield_placement = 2;
+			self updateriotshieldmodel();
+			self.hasriotshield = 1;
 		}
 	}
 }
 
-trackequipmentchange()
+trackequipmentchange() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
 	for ( ;; )
 	{
 		self waittill( "equipment_dropped", equipname );
-		self notify( "weapon_change" );
+		self notify( "weapon_change", self getcurrentweapon() );
 	}
 }
 
-updateriotshieldplacement()
+updateriotshieldplacement() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -344,18 +343,18 @@ updateriotshieldplacement()
 			self specialriotshieldviewmodel();
 			self setplacementhint( 0 );
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-startriotshielddeploy()
+startriotshielddeploy() //checked matches cerberus output
 {
 	self notify( "start_riotshield_deploy" );
 	self thread updateriotshieldplacement();
 	self thread watchriotshielddeploy();
 }
 
-spawnriotshieldcover( origin, angles )
+spawnriotshieldcover( origin, angles ) //checked matches cerberus output
 {
 	shield_ent = spawn( "script_model", origin, 1 );
 	shield_ent.angles = angles;
@@ -371,7 +370,7 @@ spawnriotshieldcover( origin, angles )
 	return shield_ent;
 }
 
-watchriotshielddeploy()
+watchriotshielddeploy() //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -404,7 +403,7 @@ watchriotshielddeploy()
 	}
 }
 
-check_plant_position( origin, angles )
+check_plant_position( origin, angles ) //checked matches cerberus output
 {
 	if ( isDefined( level.equipment_safe_to_drop ) )
 	{
@@ -412,7 +411,7 @@ check_plant_position( origin, angles )
 		test_ent = spawn( "script_model", origin );
 		test_ent setmodel( level.deployedshieldmodel[ 0 ] );
 		test_ent.angles = angles;
-		if ( !( self [[ level.equipment_safe_to_drop ]]( test_ent ) ) )
+		if ( !self [[ level.equipment_safe_to_drop ]]( test_ent ) )
 		{
 			ret = 0;
 		}
@@ -422,7 +421,7 @@ check_plant_position( origin, angles )
 	return 1;
 }
 
-doriotshielddeploy( origin, angles )
+doriotshielddeploy( origin, angles ) //checked matches cerberus output
 {
 	self endon( "death" );
 	self endon( "disconnect" );
@@ -437,11 +436,13 @@ doriotshielddeploy( origin, angles )
 	shield_ent = self spawnriotshieldcover( origin + ( 0, 0, zoffset ), angles );
 	item_ent = deployriotshield( self, shield_ent );
 	primaries = self getweaponslistprimaries();
+	/*
 /#
 	assert( isDefined( item_ent ) );
 	assert( !isDefined( self.riotshieldretrievetrigger ) );
 	assert( !isDefined( self.riotshieldentity ) );
 #/
+	*/
 	self maps/mp/zombies/_zm_weapons::switch_back_primary_weapon( primaries[ 0 ] );
 	if ( isDefined( level.equipment_planted ) )
 	{
@@ -449,7 +450,7 @@ doriotshielddeploy( origin, angles )
 	}
 	if ( isDefined( level.equipment_safe_to_drop ) )
 	{
-		if ( !( self [[ level.equipment_safe_to_drop ]]( shield_ent ) ) )
+		if ( !self [[ level.equipment_safe_to_drop ]]( shield_ent ) )
 		{
 			self notify( "destroy_riotshield" );
 			shield_ent delete();
@@ -468,11 +469,13 @@ doriotshielddeploy( origin, angles )
 	return shield_ent;
 }
 
-riotshielddistancetest( origin )
+riotshielddistancetest( origin ) //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( origin ) );
 #/
+	*/
 	min_dist_squared = getDvarFloat( "riotshield_deploy_limit_radius" );
 	min_dist_squared *= min_dist_squared;
 	i = 0;
@@ -483,9 +486,11 @@ riotshielddistancetest( origin )
 			dist_squared = distancesquared( level.players[ i ].riotshieldentity.origin, origin );
 			if ( min_dist_squared > dist_squared )
 			{
+				/*
 /#
 				println( "Shield placement denied!  Failed distance check to other riotshields." );
 #/
+				*/
 				return 0;
 			}
 		}
@@ -494,12 +499,14 @@ riotshielddistancetest( origin )
 	return 1;
 }
 
-watchdeployedriotshieldents()
+watchdeployedriotshieldents() //checked matches cerberus output
 {
+	/*
 /#
 	assert( isDefined( self.riotshieldretrievetrigger ) );
 	assert( isDefined( self.riotshieldentity ) );
 #/
+	*/
 	riotshieldretrievetrigger = self.riotshieldretrievetrigger;
 	riotshieldentity = self.riotshieldentity;
 	self waittill_any( "destroy_riotshield", "disconnect", "alcatraz_shield_zm_taken" );
@@ -518,7 +525,7 @@ watchdeployedriotshieldents()
 	}
 }
 
-watchdeployedriotshielddamage()
+watchdeployedriotshielddamage() //checked changed to match cerberus output
 {
 	self endon( "death" );
 	damagemax = getDvarInt( "riotshield_deployed_health" );
@@ -542,7 +549,7 @@ watchdeployedriotshielddamage()
 			assert( isDefined( self.owner.team ) );
 		}
 #/
-		while ( is_encounter() && attacker.team == self.owner.team && attacker != self.owner )
+		if ( is_encounter() && attacker.team == self.owner.team && attacker != self.owner )
 		{
 			continue;
 		}
@@ -551,41 +558,32 @@ watchdeployedriotshielddamage()
 			self.owner [[ level.riotshield_damage_callback ]]( damage, 0 );
 			continue;
 		}
-		else
+		else if ( type == "MOD_MELEE" )
 		{
-			if ( type == "MOD_MELEE" )
-			{
-				damage *= getDvarFloat( "riotshield_melee_damage_scale" );
-			}
-			else if ( type == "MOD_PISTOL_BULLET" || type == "MOD_RIFLE_BULLET" )
-			{
-				damage *= getDvarFloat( "riotshield_bullet_damage_scale" );
-			}
-			else
-			{
-				if ( type != "MOD_GRENADE" && type != "MOD_GRENADE_SPLASH" && type != "MOD_EXPLOSIVE" && type != "MOD_EXPLOSIVE_SPLASH" || type == "MOD_PROJECTILE" && type == "MOD_PROJECTILE_SPLASH" )
-				{
-					damage *= getDvarFloat( "riotshield_explosive_damage_scale" );
-					break;
-				}
-				else
-				{
-					if ( type == "MOD_IMPACT" )
-					{
-						damage *= getDvarFloat( "riotshield_projectile_damage_scale" );
-					}
-				}
-			}
-			self.damagetaken += damage;
-			if ( self.damagetaken >= damagemax )
-			{
-				self damagethendestroyriotshield();
-			}
+			damage *= getDvarFloat( "riotshield_melee_damage_scale" );
+		}
+		else if ( type == "MOD_PISTOL_BULLET" || type == "MOD_RIFLE_BULLET" )
+		{
+			damage *= getDvarFloat( "riotshield_bullet_damage_scale" );
+		}
+		if ( type == "MOD_GRENADE" || type == "MOD_GRENADE_SPLASH" || type == "MOD_EXPLOSIVE" || type == "MOD_EXPLOSIVE_SPLASH" || type == "MOD_PROJECTILE" || type == "MOD_PROJECTILE_SPLASH" )
+		{
+			damage *= getDvarFloat( "riotshield_explosive_damage_scale" );
+			break;
+		}
+		else if ( type == "MOD_IMPACT" )
+		{
+			damage *= getDvarFloat( "riotshield_projectile_damage_scale" );
+		}
+		self.damagetaken += damage;
+		if ( self.damagetaken >= damagemax )
+		{
+			self damagethendestroyriotshield();
 		}
 	}
 }
 
-damagethendestroyriotshield()
+damagethendestroyriotshield() //checked matches cerberus output
 {
 	self endon( "death" );
 	self.owner.riotshieldretrievetrigger delete();
@@ -595,13 +593,13 @@ damagethendestroyriotshield()
 	self.owner notify( "destroy_riotshield" );
 }
 
-deleteshieldondamage( shield_ent )
+deleteshieldondamage( shield_ent ) //checked matches cerberus output
 {
 	shield_ent waittill( "death" );
 	self notify( "destroy_riotshield" );
 }
 
-deleteshieldmodelonweaponpickup( shield_trigger )
+deleteshieldmodelonweaponpickup( shield_trigger ) //checked matches cerberus output
 {
 	shield_trigger waittill( "trigger", player );
 	self maps/mp/zombies/_zm_equipment::equipment_from_deployed( level.riotshield_name );
@@ -615,18 +613,15 @@ deleteshieldmodelonweaponpickup( shield_trigger )
 	}
 }
 
-watchshieldtriggervisibility( trigger )
+watchshieldtriggervisibility( trigger ) //checked partially changed to match cerberus output see compiler_limitations.md No. 2
 {
 	self endon( "death" );
 	trigger endon( "death" );
 	while ( isDefined( trigger ) )
 	{
 		players = get_players();
-		_a759 = players;
-		_k759 = getFirstArrayKey( _a759 );
-		while ( isDefined( _k759 ) )
+		foreach ( player in players )
 		{
-			player = _a759[ _k759 ];
 			pickup = 1;
 			if ( !isDefined( player ) )
 			{
@@ -634,7 +629,7 @@ watchshieldtriggervisibility( trigger )
 			else if ( is_true( player.afterlife ) )
 			{
 				trigger setinvisibletoplayer( player );
-				wait 0,05;
+				wait 0.05;
 			}
 			else
 			{
@@ -654,15 +649,14 @@ watchshieldtriggervisibility( trigger )
 				{
 					trigger setinvisibletoplayer( player );
 				}
-				wait 0,05;
+				wait 0.05;
 			}
-			_k759 = getNextArrayKey( _a759, _k759 );
 		}
-		wait 0,05;
+		wait 0.05;
 	}
 }
 
-deleteriotshieldonplayerdeath()
+deleteriotshieldonplayerdeath() //checked matches cerberus output
 {
 	self.riotshieldentity endon( "death" );
 	self waittill( "death" );
