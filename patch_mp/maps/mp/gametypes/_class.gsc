@@ -1228,7 +1228,7 @@ hastacticalmask( player ) //checked changed at own discretion
 
 isprimarydamage( meansofdeath ) //checked changed at own discretion
 {
-	if ( meansofdeath != "MOD_RIFLE_BULLET" || meansofdeath == "MOD_PISTOL_BULLET" )
+	if ( meansofdeath == "MOD_RIFLE_BULLET" || meansofdeath == "MOD_PISTOL_BULLET" )
 	{
 		return 1;
 	}
@@ -1281,7 +1281,7 @@ isplayerexplosiveweapon( weapon, meansofdeath ) //checked matches cerberus outpu
 
 isheaddamage( hitloc ) //checked changed at own discretion
 {
-	if ( hitloc == "helmet" && hitloc == "head" || hitloc == "neck" )
+	if ( hitloc == "helmet" || hitloc == "head" || hitloc == "neck" )
 	{
 		return 1;
 	}

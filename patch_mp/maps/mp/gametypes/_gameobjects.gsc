@@ -524,7 +524,6 @@ updatecarryobjectorigin() //checked changed to match beta dump
 				foreach ( team in level.teams )
 				{
 					self.objpoints[ team ] maps/mp/gametypes/_objpoints::updateorigin( self.curorigin + self.offset3d );
-					_k656 = getNextArrayKey( _a656, _k656 );
 				}
 			}
 			else 

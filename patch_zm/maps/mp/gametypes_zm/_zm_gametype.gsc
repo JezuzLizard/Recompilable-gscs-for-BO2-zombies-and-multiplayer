@@ -1401,7 +1401,7 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 	}
 	if ( isDefined( level.customspawnlogic ) )
 	{
-		spawnpoint = self [[ level.customspawnlogic ]]( predictedspawn );
+		self [[ level.customspawnlogic ]]( predictedspawn );
 		if ( predictedspawn )
 		{
 			return;
@@ -1426,8 +1426,7 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 			structs = getstructarray( "initial_spawn", "script_noteworthy" );
 			if ( isdefined( structs ) )
 			{
-				i = 0;
-				while ( i < structs.size )
+				for ( i = 0; i < structs.size; i++ )
 				{
 					if ( isdefined( structs[ i ].script_string ) )
 					{
@@ -1440,7 +1439,6 @@ onspawnplayer( predictedspawn ) //fixed checked changed partially to match cerbe
 							}
 						}
 					}
-					i++;
 				}
 			}
 			if ( !isDefined( spawnpoints ) || spawnpoints.size == 0 )

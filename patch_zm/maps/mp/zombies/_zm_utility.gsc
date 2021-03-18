@@ -1930,7 +1930,7 @@ get_closest_2d( origin, ents ) //checked changed to match cerberus output
 
 disable_trigger() //checked matches cerberus output
 {
-	if ( !isDefined( self.disabled ) || !self.disabled )
+	if ( !is_true( self.disabled ) )
 	{
 		self.disabled = 1;
 		self.origin -= vectorScale( ( 0, 0, 1 ), 10000 );
@@ -1939,7 +1939,7 @@ disable_trigger() //checked matches cerberus output
 
 enable_trigger() //checked matches cerberus output
 {
-	if ( !isDefined( self.disabled ) || !self.disabled )
+	if ( !is_true( self.disabled ) )
 	{
 		return;
 	}
@@ -3389,11 +3389,11 @@ shock_onpain() //checked changed to match cerberus output
 	{
 		oldhealth = self.health;
 		self waittill( "damage", damage, attacker, direction_vec, point, mod );
-		if ( !is_true( level.shock_onpain ) )
+		if( IsDefined( level.shock_onpain ) && !level.shock_onpain )
 		{
 			continue;
 		}
-		if ( !is_true( self.shock_onpain ) )
+		if( IsDefined( self.shock_onpain ) && !self.shock_onpain )
 		{
 			continue;
 		}

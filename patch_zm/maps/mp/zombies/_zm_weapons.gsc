@@ -1621,6 +1621,7 @@ weapon_supports_attachments( weaponname ) //checked changed at own discretion
 	{
 		return 1;
 	}
+	return 0;
 }
 
 random_attachment( weaponname, exclude ) //checked changed to match cerberus output

@@ -1974,7 +1974,7 @@ callback_playerkilled( einflictor, attacker, idamage, smeansofdeath, sweapon, vd
 			pixendevent();
 		}
 	}
-	else if ( isDefined( attacker ) && attacker.classname == "trigger_hurt" || attacker.classname == "worldspawn" )
+	else if ( isDefined( attacker ) && attacker.classname == "trigger_hurt" || isDefined( attacker ) && attacker.classname == "worldspawn" )
 	{
 		dokillcam = 0;
 		lpattacknum = -1;

@@ -142,7 +142,7 @@ fan_trap_timeout() //checked does not match cerberus output did not change
 	n_duration = 0;
 	while ( n_duration < 25 )
 	{
-		wait 0,05;
+		wait 0.05;
 		n_duration += 0.05;
 	}
 	self.zombie_dmg_trig notify( "trap_finished_" + self.script_string );
