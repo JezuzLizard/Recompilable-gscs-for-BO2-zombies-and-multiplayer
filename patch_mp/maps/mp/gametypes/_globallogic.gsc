@@ -2071,7 +2071,9 @@ removeDisconnectedPlayerFromPlacement() //checked matches bo3 _globallogic.gsc w
 		return;
 	
 	level.placement["all"][ numPlayers - 1 ] = undefined;
+	/*
 	assert( level.placement["all"].size == numPlayers - 1 );
+	*/
 		/*
 	/#
 	maps\mp\gametypes\_globallogic_utils::assertProperPlacement();
@@ -2420,8 +2422,9 @@ updateTeamStatus() //checked matches bo3 _globallogic.gsc within reason
 
 checkTeamScoreLimitSoon( team ) //checked matches bo3 _globallogic.gsc within reason
 {
+	/*
 	assert( IsDefined( team ) );
-	
+	*/
 	if ( level.scoreLimit <= 0 )
 		return;
 		
