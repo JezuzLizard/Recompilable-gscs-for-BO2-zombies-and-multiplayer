@@ -2111,8 +2111,10 @@ updatePlacement() //checked matches bo3 _globallogic.gsc within reason
 		{
 			player = placementAll[ i ];
 			playerScore = player.score;
-			for ( j = i - 1; j >= 0 && playerScore > placementAll[j].score || playerScore == placementAll[j].score && player.deaths < placementAll[j].deaths; j-- )
+			for ( j = i - 1; j >= 0 && playerScore > placementAll[j].score || playerScore == placementAll[j].score && player.deaths < placementAll[j].deaths ; j-- )
+			{
 				placementAll[ j + 1 ] = placementAll[ j ];
+			}
 			placementAll[ j + 1 ] = player;
 		}
 	}
@@ -2122,7 +2124,7 @@ updatePlacement() //checked matches bo3 _globallogic.gsc within reason
 		{
 			player = placementall[i];
 			playerscore = player.pointstowin;
-			for(j = i - 1; j >= 0 && (playerscore > placementall[j].pointstowin || (playerscore == placementall[j].pointstowin && player.deaths < placementall[j].deaths)); j--)
+			for(j = i - 1; j >= 0 && playerscore > placementall[j].pointstowin || playerscore == placementall[j].pointstowin && player.deaths < placementall[j].deaths; j--)
 			{
 				placementall[j + 1] = placementall[j];
 			}
