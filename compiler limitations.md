@@ -62,9 +62,3 @@ level waittill( var, player );
 WILL COMPILE BUT
 ```
 The notify/waittill won't work.
-
-**9. You cannot explicitly define a variable as a boolean**
-```
-level.boolean = true;
-```
-This will compile ok but it will cause instability and crash erratically.
