@@ -1,4 +1,4 @@
-#include maps/mp/gametypes/_callbacksetup
+#include maps/mp/gametypes/_callbacksetup;
 #include maps/mp/gametypes/_gameobjects;
 #include maps/mp/gametypes/_globallogic;
 #include maps/mp/gametypes/_globallogic_score;
