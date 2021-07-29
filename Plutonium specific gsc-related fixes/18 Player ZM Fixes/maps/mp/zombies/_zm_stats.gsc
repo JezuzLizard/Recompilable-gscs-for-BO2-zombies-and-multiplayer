@@ -6,18 +6,16 @@
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init() //checked matches cerberus output
+init()
 {
 	level.player_stats_init = ::player_stats_init;
 	level.add_client_stat = ::add_client_stat;
-	level.increment_client_stat = ::increment_client_stat;
 	level.track_gibs = ::do_stats_for_gibs;
 }
 
-player_stats_init() //checked matches cerberus output
+player_stats_init()
 {
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "kills", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "suicides", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "downs", 0 );
 	self.downs = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "downs" );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "revives", 0 );
@@ -26,10 +24,6 @@ player_stats_init() //checked matches cerberus output
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "headshots", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "gibs", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "head_gibs", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "right_arm_gibs", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "left_arm_gibs", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "right_leg_gibs", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "left_leg_gibs", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "melee_kills", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "grenade_kills", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "doors_purchased", 0 );
@@ -43,112 +37,9 @@ player_stats_init() //checked matches cerberus output
 	self.deaths = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "deaths" );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "boards", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "wins", 0 );
-	self.totalwins = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "totalwins" );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "losses", 0 );
-	self.totallosses = self maps/mp/gametypes_zm/_globallogic_score::getpersstat( "totallosses" );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "failed_revives", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "sacrifices", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "failed_sacrifices", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "drops", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "nuke_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "insta_kill_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "full_ammo_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "double_points_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "meat_stink_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "carpenter_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "fire_sale_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "zombie_blood_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "time_bomb_ammo_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "use_magicbox", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "grabbed_from_magicbox", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "use_perk_random", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "grabbed_from_perk_random", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "use_pap", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pap_weapon_grabbed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pap_weapon_not_grabbed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_armorvest_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_quickrevive_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_rof_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_fastreload_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_flakjacket_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_additionalprimaryweapon_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_longersprint_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_deadshot_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_scavenger_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_finalstand_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_grenadepulldeath_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "specialty_nomotionsensor" + "_drank", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "claymores_planted", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "claymores_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "ballistic_knives_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "wallbuy_weapons_purchased", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "ammo_purchased", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "upgraded_ammo_purchased", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "power_turnedon", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "power_turnedoff", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "planted_buildables_pickedup", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buildables_built", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "time_played_total", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "weighted_rounds_played", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "contaminations_received", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "contaminations_given", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "zdogs_killed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "zdog_rounds_finished", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "zdog_rounds_lost", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "killed_by_zdog", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "screecher_minigames_won", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "screecher_minigames_lost", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "screechers_killed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "screecher_teleporters_used", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "avogadro_defeated", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "killed_by_avogadro", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "cheat_too_many_weapons", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "cheat_out_of_playable", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "cheat_too_friendly", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "cheat_total", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_tomahawk_acquired", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_fan_trap_used", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_acid_trap_used", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_sniper_tower_used", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_ee_good_ending", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_ee_bad_ending", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_ee_spoon_acquired", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "prison_brutus_killed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_lsat_purchased", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_fountain_transporter_used", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_ghost_killed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_ghost_drained_player", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_ghost_perk_acquired", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_booze_given", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_booze_break_barricade", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_given", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_protect", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_build_buildable", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_wallbuy", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_fetch_buildable", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_box_lock", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_box_move", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_box_spin", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_powerup_cycle", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_dance", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_sloth_candy_crawler", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed_ak74u_zm", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed_an94_zm", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed_pdw57_zm", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed_svu_zm", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed_tazer_knuckles_zm", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "buried_wallbuy_placed_870mcs_zm", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_mechz_killed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_giant_robot_stomped", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_giant_robot_accessed", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_generator_captured", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_generator_defended", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_generator_lost", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_dig", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_golden_shovel", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_golden_hard_hat", 0 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "tomb_perk_extension", 0 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_boarding", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_revivenoperk", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_multikill_headshots", 0, 1 );
@@ -165,14 +56,9 @@ player_stats_init() //checked matches cerberus output
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_pistol_points_counter", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_double_points_counter", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_sniper_counter", 0, 1 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_marathon_counter", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_box_weapon_counter", 0, 1 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_zombie_kiting_counter", 0, 1 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_max_ammo_counter", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_melee_bonus_counter", 0, 1 );
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_nube_counter", 0, 1 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_last_man_standing_counter", 0, 1 );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "pers_reload_speed_counter", 0, 1 );
 	self maps/mp/zombies/_zm_pers_upgrades::pers_abilities_init_globals();
 	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "score", 0 );
 	if ( level.resetplayerscoreeveryround )
@@ -182,7 +68,6 @@ player_stats_init() //checked matches cerberus output
 	self.pers[ "score" ] = level.player_starting_points;
 	self.score = self.pers[ "score" ];
 	self incrementplayerstat( "score", self.score );
-	self maps/mp/gametypes_zm/_globallogic_score::initpersstat( "zteam", 0 );
 	if ( isDefined( level.level_specific_stats_init ) )
 	{
 		[[ level.level_specific_stats_init ]]();
@@ -195,7 +80,7 @@ player_stats_init() //checked matches cerberus output
 	}
 }
 
-update_players_stats_at_match_end( players ) //checked partially matches cerberus output //did not change while loop to for loop to prevent infinite loop continue bug
+update_players_stats_at_match_end( players )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -269,7 +154,7 @@ update_players_stats_at_match_end( players ) //checked partially matches cerberu
 	}
 }
 
-update_playing_utc_time( matchendutctime ) //checked changed to match cerberus output //order of operations may need to be reviewed
+update_playing_utc_time( matchendutctime )
 {
 	current_days = int( matchendutctime / 86400 );
 	last_days = self get_global_stat( "TIMESTAMPLASTDAY1" );
@@ -295,15 +180,15 @@ update_playing_utc_time( matchendutctime ) //checked changed to match cerberus o
 	}
 }
 
-survival_classic_custom_stat_update() //checked matches cerberus output
+survival_classic_custom_stat_update()
 {
 }
 
-grief_custom_stat_update() //checked matches cerberus output
+grief_custom_stat_update()
 { 
 }
 
-add_game_mode_group_stat( game_mode, stat_name, value ) //checked matches cerberus output
+add_game_mode_group_stat( game_mode, stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -312,7 +197,7 @@ add_game_mode_group_stat( game_mode, stat_name, value ) //checked matches cerber
 	self adddstat( "PlayerStatsByGameTypeGroup", game_mode, stat_name, "statValue", value );
 }
 
-set_game_mode_group_stat( game_mode, stat_name, value ) //checked matches cerberus output
+set_game_mode_group_stat( game_mode, stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -321,12 +206,12 @@ set_game_mode_group_stat( game_mode, stat_name, value ) //checked matches cerber
 	self setdstat( "PlayerStatsByGameTypeGroup", game_mode, stat_name, "statValue", value );
 }
 
-get_game_mode_group_stat( game_mode, stat_name ) //checked matches cerberus output
+get_game_mode_group_stat( game_mode, stat_name )
 {
 	return self getdstat( "PlayerStatsByGameTypeGroup", game_mode, stat_name, "statValue" );
 }
 
-add_game_mode_stat( game_mode, stat_name, value ) //checked matches cerberus output
+add_game_mode_stat( game_mode, stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -335,7 +220,7 @@ add_game_mode_stat( game_mode, stat_name, value ) //checked matches cerberus out
 	self adddstat( "PlayerStatsByGameType", game_mode, stat_name, "statValue", value );
 }
 
-set_game_mode_stat( game_mode, stat_name, value ) //checked matches cerberus output
+set_game_mode_stat( game_mode, stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -344,17 +229,17 @@ set_game_mode_stat( game_mode, stat_name, value ) //checked matches cerberus out
 	self setdstat( "PlayerStatsByGameType", game_mode, stat_name, "statValue", value );
 }
 
-get_game_mode_stat( game_mode, stat_name ) //checked matches cerberus output
+get_game_mode_stat( game_mode, stat_name )
 {
 	return self getdstat( "PlayerStatsByGameType", game_mode, stat_name, "statValue" );
 }
 
-get_global_stat( stat_name ) //checked matches cerberus output
+get_global_stat( stat_name )
 {
 	return self getdstat( "PlayerStatsList", stat_name, "StatValue" );
 }
 
-set_global_stat( stat_name, value ) //checked matches cerberus output
+set_global_stat( stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -363,7 +248,7 @@ set_global_stat( stat_name, value ) //checked matches cerberus output
 	self setdstat( "PlayerStatsList", stat_name, "StatValue", value );
 }
 
-add_global_stat( stat_name, value ) //checked matches cerberus output
+add_global_stat( stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -372,7 +257,7 @@ add_global_stat( stat_name, value ) //checked matches cerberus output
 	self adddstat( "PlayerStatsList", stat_name, "StatValue", value );
 }
 
-get_map_stat( stat_name, map ) //checked matches cerberus output
+get_map_stat( stat_name, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -381,7 +266,7 @@ get_map_stat( stat_name, map ) //checked matches cerberus output
 	return self getdstat( "PlayerStatsByMap", map, stat_name );
 }
 
-set_map_stat( stat_name, value, map ) //checked matches cerberus output
+set_map_stat( stat_name, value, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -394,7 +279,7 @@ set_map_stat( stat_name, value, map ) //checked matches cerberus output
 	self setdstat( "PlayerStatsByMap", map, stat_name, value );
 }
 
-add_map_stat( stat_name, value, map ) //checked matches cerberus output
+add_map_stat( stat_name, value, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -407,12 +292,12 @@ add_map_stat( stat_name, value, map ) //checked matches cerberus output
 	self adddstat( "PlayerStatsByMap", map, stat_name, value );
 }
 
-get_location_gametype_stat( start_location, game_type, stat_name ) //checked matches cerberus output
+get_location_gametype_stat( start_location, game_type, stat_name )
 {
 	return self getdstat( "PlayerStatsByStartLocation", start_location, "startLocationGameTypeStats", game_type, "stats", stat_name, "StatValue" );
 }
 
-set_location_gametype_stat( start_location, game_type, stat_name, value ) //checked matches cerberus output
+set_location_gametype_stat( start_location, game_type, stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -421,7 +306,7 @@ set_location_gametype_stat( start_location, game_type, stat_name, value ) //chec
 	self setdstat( "PlayerStatsByStartLocation", start_location, "startLocationGameTypeStats", game_type, "stats", stat_name, "StatValue", value );
 }
 
-add_location_gametype_stat( start_location, game_type, stat_name, value ) //checked matches cerberus output
+add_location_gametype_stat( start_location, game_type, stat_name, value )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -430,7 +315,7 @@ add_location_gametype_stat( start_location, game_type, stat_name, value ) //chec
 	self adddstat( "PlayerStatsByStartLocation", start_location, "startLocationGameTypeStats", game_type, "stats", stat_name, "StatValue", value );
 }
 
-get_map_weaponlocker_stat( stat_name, map ) //checked matches cerberus output
+get_map_weaponlocker_stat( stat_name, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -439,7 +324,7 @@ get_map_weaponlocker_stat( stat_name, map ) //checked matches cerberus output
 	return self getdstat( "PlayerStatsByMap", map, "weaponLocker", stat_name );
 }
 
-set_map_weaponlocker_stat( stat_name, value, map ) //checked matches cerberus output
+set_map_weaponlocker_stat( stat_name, value, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -459,7 +344,7 @@ set_map_weaponlocker_stat( stat_name, value, map ) //checked matches cerberus ou
 	}
 }
 
-add_map_weaponlocker_stat( stat_name, value, map ) //checked matches cerberus output 
+add_map_weaponlocker_stat( stat_name, value, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -472,7 +357,7 @@ add_map_weaponlocker_stat( stat_name, value, map ) //checked matches cerberus ou
 	self adddstat( "PlayerStatsByMap", map, "weaponLocker", stat_name, value );
 }
 
-has_stored_weapondata( map ) //checked changed to match cerberus output
+has_stored_weapondata( map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -486,7 +371,7 @@ has_stored_weapondata( map ) //checked changed to match cerberus output
 	return 1;
 }
 
-get_stored_weapondata( map ) //checked matches cerberus output
+get_stored_weapondata( map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -520,7 +405,7 @@ clear_stored_weapondata( map ) //checked matches cerberus output
 	self set_map_weaponlocker_stat( "alt_stock", 0, map );
 }
 
-set_stored_weapondata( weapondata, map ) //checked matches cerberus output
+set_stored_weapondata( weapondata, map )
 {
 	if ( !isDefined( map ) )
 	{
@@ -534,8 +419,12 @@ set_stored_weapondata( weapondata, map ) //checked matches cerberus output
 	self set_map_weaponlocker_stat( "alt_stock", weapondata[ "alt_stock" ], map );
 }
 
-add_client_stat( stat_name, stat_value, include_gametype ) //checked matches cerberus output
+add_client_stat( stat_name, stat_value, include_gametype )
 {
+	if ( !self player_stat_exists( stat_name ) )
+	{
+		return;
+	}
 	if ( getDvar( "ui_zm_mapstartlocation" ) == "" || is_true( level.zm_disable_recording_stats ) )
 	{
 		return;
@@ -548,8 +437,12 @@ add_client_stat( stat_name, stat_value, include_gametype ) //checked matches cer
 	self.stats_this_frame[ stat_name ] = 1;
 }
 
-increment_player_stat( stat_name ) //checked matches cerberus output
+increment_player_stat( stat_name )
 {
+	if ( !self player_stat_exists( stat_name ) )
+	{
+		return;
+	}
 	if ( getDvar( "ui_zm_mapstartlocation" ) == "" || is_true( level.zm_disable_recording_stats ) )
 	{
 		return;
@@ -557,17 +450,12 @@ increment_player_stat( stat_name ) //checked matches cerberus output
 	self incrementplayerstat( stat_name, 1 );
 }
 
-increment_root_stat( stat_name, stat_value ) //checked matches cerberus output
+increment_client_stat( stat_name, include_gametype )
 {
-	if ( is_true( level.zm_disable_recording_stats ) )
+	if ( !self player_stat_exists( stat_name ) )
 	{
 		return;
 	}
-	self adddstat( stat_name, stat_value );
-}
-
-increment_client_stat( stat_name, include_gametype ) //checked matches cerberus output
-{
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
 		return;
@@ -575,8 +463,12 @@ increment_client_stat( stat_name, include_gametype ) //checked matches cerberus 
 	add_client_stat( stat_name, 1, include_gametype );
 }
 
-set_client_stat( stat_name, stat_value, include_gametype ) //checked matches cerberus output
+set_client_stat( stat_name, stat_value, include_gametype )
 {
+	if ( !self player_stat_exists( stat_name ) )
+	{
+		return;
+	}
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
 		return;
@@ -586,8 +478,12 @@ set_client_stat( stat_name, stat_value, include_gametype ) //checked matches cer
 	self.stats_this_frame[ stat_name ] = 1;
 }
 
-zero_client_stat( stat_name, include_gametype ) //checked matches cerberus output
+zero_client_stat( stat_name, include_gametype )
 {
+	if ( !self player_stat_exists( stat_name ) )
+	{
+		return;
+	}
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
 		return;
@@ -597,7 +493,7 @@ zero_client_stat( stat_name, include_gametype ) //checked matches cerberus outpu
 	self.stats_this_frame[ stat_name ] = 1;
 }
 
-increment_map_cheat_stat( stat_name ) //checked matches cerberus output
+increment_map_cheat_stat( stat_name )
 {
 	if ( is_true( level.zm_disable_recording_stats ) )
 	{
@@ -606,7 +502,7 @@ increment_map_cheat_stat( stat_name ) //checked matches cerberus output
 	self adddstat( "PlayerStatsByMap", level.script, "cheats", stat_name, 1 );
 }
 
-get_stat_distance_traveled() //checked changed to match cerberu output
+get_stat_distance_traveled()
 {
 	miles = int( self.pers[ "distance_traveled" ] / 63360 );
 	remainder = ( self.pers[ "distance_traveled" ] / 63360 ) - miles;
@@ -621,17 +517,16 @@ get_stat_distance_traveled() //checked changed to match cerberu output
 	return miles;
 }
 
-update_global_counters_on_match_end() //checked changed to match cerberus output
+update_global_counters_on_match_end()
 {
-	//Unneeded code
 }
 
-get_specific_stat( stat_category, stat_name ) //checked matches cerberus output
+get_specific_stat( stat_category, stat_name )
 {
 	return self getdstat( stat_category, stat_name, "StatValue" );
 }
 
-do_stats_for_gibs( zombie, limb_tags_array ) //checked partially changed to match cerberus output //did not use foreach to prevent infinite loop due to continue
+do_stats_for_gibs( zombie, limb_tags_array )
 {
 	if ( isDefined( zombie ) && isDefined( zombie.attacker ) && isplayer( zombie.attacker ) )
 	{	
@@ -655,7 +550,7 @@ do_stats_for_gibs( zombie, limb_tags_array ) //checked partially changed to matc
 	}
 }
 
-adjustrecentstats() //checked matches cerberus output
+adjustrecentstats()
 {
 	if ( !level.onlinegame || !gamemodeismode( level.gamemode_public_match ) )
 	{
@@ -666,7 +561,7 @@ adjustrecentstats() //checked matches cerberus output
 	self gamehistorystartmatch( getgametypeenumfromname( currgametype, 0 ) );
 }
 
-uploadstatssoon() //checked matches cerberus output
+uploadstatssoon()
 {
 	self notify( "upload_stats_soon" );
 	self endon( "upload_stats_soon" );
@@ -675,3 +570,7 @@ uploadstatssoon() //checked matches cerberus output
 	uploadstats( self );
 }
 
+player_stat_exists( stat_name )
+{
+	return isDefined( self.pers[ stat_name ] );
+}
