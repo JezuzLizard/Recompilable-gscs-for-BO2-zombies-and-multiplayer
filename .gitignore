@@ -1,0 +1,4 @@
+
+*.json
+.vs/Recompilable-gscs-for-BO2-zombies/v16/.suo
+*.sqlite
