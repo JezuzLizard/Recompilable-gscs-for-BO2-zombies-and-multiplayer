@@ -1,8 +1,7 @@
-//checked includes matches beta dump
 #include maps/mp/_utility;
 #include common_scripts/utility;
 
-init() //checked matches beta dump
+init()
 {
 	if ( level.createfx_enabled )
 	{
@@ -18,17 +17,12 @@ init() //checked matches beta dump
 	level thread onplayerconnect();
 }
 
-vsmgr_register_info( type, name, version, priority, lerp_step_count, activate_per_player, lerp_thread, ref_count_lerp_thread ) //checked matches beta dump
+vsmgr_register_info( type, name, version, priority, lerp_step_count, activate_per_player, lerp_thread, ref_count_lerp_thread )
 {
 	if ( level.createfx_enabled )
 	{
 		return;
 	}
-	/*
-/#
-	assert( level.vsmgr_initializing, "All info registration in the visionset_mgr system must occur during the first frame while the system is initializing" );
-#/
-	*/
 	lower_name = tolower( name );
 	validate_info( type, lower_name, priority );
 	add_sorted_name_key( type, lower_name );
@@ -41,7 +35,7 @@ vsmgr_register_info( type, name, version, priority, lerp_step_count, activate_pe
 	}
 }
 
-vsmgr_activate( type, name, player, opt_param_1, opt_param_2 ) //checked changed to match beta dump
+vsmgr_activate( type, name, player, opt_param_1, opt_param_2 )
 {
 	if ( level.vsmgr[ type ].info[ name ].state.activate_per_player )
 	{
@@ -71,7 +65,7 @@ vsmgr_activate( type, name, player, opt_param_1, opt_param_2 ) //checked changed
 	}
 }
 
-vsmgr_deactivate( type, name, player ) //checked changed to match beta dump
+vsmgr_deactivate( type, name, player )
 {
 	if ( level.vsmgr[ type ].info[ name ].state.activate_per_player )
 	{
@@ -96,7 +90,7 @@ vsmgr_deactivate( type, name, player ) //checked changed to match beta dump
 	}
 }
 
-vsmgr_set_state_active( player, lerp ) //checked matches cerberus output
+vsmgr_set_state_active( player, lerp )
 {
 	player_entnum = player getentitynumber();
 	if ( !isDefined( self.players[ player_entnum ] ) )
@@ -107,7 +101,7 @@ vsmgr_set_state_active( player, lerp ) //checked matches cerberus output
 	self.players[ player_entnum ].lerp = lerp;
 }
 
-vsmgr_set_state_inactive( player ) //checked matches cerberus output
+vsmgr_set_state_inactive( player )
 {
 	player_entnum = player getentitynumber();
 	if ( !isDefined( self.players[ player_entnum ] ) )
@@ -118,7 +112,7 @@ vsmgr_set_state_inactive( player ) //checked matches cerberus output
 	self.players[ player_entnum ].lerp = 0;
 }
 
-vsmgr_timeout_lerp_thread( timeout, opt_param_2 ) //checked changed to match beta dump
+vsmgr_timeout_lerp_thread( timeout, opt_param_2 )
 {
 	players = getplayers();
 	for( player_index = 0; player_index < players.size; player_index++ )
@@ -129,14 +123,14 @@ vsmgr_timeout_lerp_thread( timeout, opt_param_2 ) //checked changed to match bet
 	vsmgr_deactivate( self.type, self.name );
 }
 
-vsmgr_timeout_lerp_thread_per_player( player, timeout, opt_param_2 ) //checked matches beta dump
+vsmgr_timeout_lerp_thread_per_player( player, timeout, opt_param_2 )
 {
 	self vsmgr_set_state_active( player, 1 );
 	wait timeout;
 	deactivate_per_player( self.type, self.name, player );
 }
 
-vsmgr_duration_lerp_thread( duration, max_duration ) //checked changed to match beta dump
+vsmgr_duration_lerp_thread( duration, max_duration )
 {
 	start_time = getTime();
 	end_time = start_time + int( duration * 1000 );
@@ -161,7 +155,7 @@ vsmgr_duration_lerp_thread( duration, max_duration ) //checked changed to match 
 	vsmgr_deactivate( self.type, self.name );
 }
 
-vsmgr_duration_lerp_thread_per_player( player, duration, max_duration ) //checked changed to match beta dump
+vsmgr_duration_lerp_thread_per_player( player, duration, max_duration )
 {
 	start_time = getTime();
 	end_time = start_time + int( duration * 1000 );
@@ -182,7 +176,7 @@ vsmgr_duration_lerp_thread_per_player( player, duration, max_duration ) //checke
 	deactivate_per_player( self.type, self.name, player );
 }
 
-register_type( type ) //checked matches beta dump
+register_type( type )
 {
 	level.vsmgr[ type ] = spawnstruct();
 	level.vsmgr[ type ].type = type;
@@ -196,7 +190,7 @@ register_type( type ) //checked matches beta dump
 	vsmgr_register_info( type, level.vsmgr_default_info_name, 1, 0, 1, 0, undefined );
 }
 
-finalize_clientfields() //checked changed to match beta dump
+finalize_clientfields()
 {
 	typekeys = getarraykeys( level.vsmgr );
 	for ( type_index = 0; type_index < typeKeys.size; type_index++ )
@@ -206,7 +200,7 @@ finalize_clientfields() //checked changed to match beta dump
 	level.vsmgr_initializing = 0;
 }
 
-finalize_type_clientfields() //checked changed to match beta dump
+finalize_type_clientfields()
 {
 	if ( self.info.size <= 1 )
 	{
@@ -230,7 +224,7 @@ finalize_type_clientfields() //checked changed to match beta dump
 	}
 }
 
-validate_info( type, name, priority ) //checked changed to match beta dump
+validate_info( type, name, priority )
 {
 	keys = getarraykeys( level.vsmgr );
 	for ( i = 0; i < keys.size; i++ )
@@ -240,26 +234,9 @@ validate_info( type, name, priority ) //checked changed to match beta dump
 			break;
 		}
 	}
-	/*
-/#
-	assert( i < keys.size, "In visionset_mgr, type '" + type + "'is unknown" );
-#/
-	*/
-	keys = getarraykeys( level.vsmgr[ type ].info );
-	for ( i = 0; i < keys.size; i++ )
-	{
-	/*
-/#
-		assert( level.vsmgr[ type ].info[ keys[ i ] ].name != name, "In visionset_mgr of type '" + type + "': name '" + name + "' has previously been registered" );
-#/
-/#
-		assert( level.vsmgr[ type ].info[ keys[ i ] ].priority != priority, "In visionset_mgr of type '" + type + "': priority '" + priority + "' requested for name '" + name + "' has previously been registered under name '" + level.vsmgr[ type ].info[ keys[ i ] ].name + "'" );
-#/
-	*/
-	}
 }
 
-add_sorted_name_key( type, name ) //checked changed to match beta dump
+add_sorted_name_key( type, name )
 {
 	for ( i = 0; i < level.vsmgr[type].sorted_name_keys.size; i++ )
 	{
@@ -271,7 +248,7 @@ add_sorted_name_key( type, name ) //checked changed to match beta dump
 	arrayinsert( level.vsmgr[ type ].sorted_name_keys, name, i );
 }
 
-add_sorted_priority_key( type, name, priority ) //checked changed to match beta dump
+add_sorted_priority_key( type, name, priority )
 {
 	for ( i = 0; i < level.vsmgr[type].sorted_prio_keys.size; i++ )
 	{
@@ -283,7 +260,7 @@ add_sorted_priority_key( type, name, priority ) //checked changed to match beta 
 	arrayinsert( level.vsmgr[ type ].sorted_prio_keys, name, i );
 }
 
-add_info( type, name, version, priority, lerp_step_count, activate_per_player, lerp_thread, ref_count_lerp_thread ) //checked matches beta dump
+add_info( type, name, version, priority, lerp_step_count, activate_per_player, lerp_thread, ref_count_lerp_thread )
 {
 	self.type = type;
 	self.name = name;
@@ -308,7 +285,7 @@ add_info( type, name, version, priority, lerp_step_count, activate_per_player, l
 	}
 }
 
-onplayerconnect() //checked matches beta dump
+onplayerconnect()
 {
 	for ( ;; )
 	{
@@ -317,7 +294,7 @@ onplayerconnect() //checked matches beta dump
 	}
 }
 
-on_player_connect() //checked partially changed to match beta dump
+on_player_connect()
 {
 	self._player_entnum = self getentitynumber();
 	typekeys = getarraykeys( level.vsmgr );
@@ -346,7 +323,7 @@ on_player_connect() //checked partially changed to match beta dump
 	}
 }
 
-monitor() //checked partially changed to match beta dump
+monitor()
 {
 	while ( level.vsmgr_initializing )
 	{
@@ -369,15 +346,6 @@ monitor() //checked partially changed to match beta dump
 			{
 				for ( player_index = 0; player_index < players.size; player_index++ )
 				{
-					/*
-/#
-					if ( is_true( players[ player_index ].pers[ "isBot" ] ) )
-					{
-						player_index++;
-						continue;
-#/
-					}
-					*/
 					update_clientfields( players[ player_index ], level.vsmgr[ type ] );
 				}
 			}
@@ -385,7 +353,7 @@ monitor() //checked partially changed to match beta dump
 	}
 }
 
-get_first_active_name( type_struct ) //checked partially changed to match beta dump
+get_first_active_name( type_struct )
 {
 	size = type_struct.sorted_prio_keys.size;
 	for ( prio_index = 0; prio_index < size; prio_index++ )
@@ -399,7 +367,7 @@ get_first_active_name( type_struct ) //checked partially changed to match beta d
 	return level.vsmgr_default_info_name;
 }
 
-update_clientfields( player, type_struct ) //checked changed to match beta dump
+update_clientfields( player, type_struct )
 {
 	name = player get_first_active_name( type_struct );
 	player setclientfieldtoplayer( type_struct.cf_slot_name, type_struct.info[ name ].slot_index );
@@ -409,14 +377,14 @@ update_clientfields( player, type_struct ) //checked changed to match beta dump
 	}
 }
 
-lerp_thread_wrapper( func, opt_param_1, opt_param_2 ) //checked matches beta dump
+lerp_thread_wrapper( func, opt_param_1, opt_param_2 )
 {
 	self notify( "deactivate" );
 	self endon( "deactivate" );
 	self [[ func ]]( opt_param_1, opt_param_2 );
 }
 
-lerp_thread_per_player_wrapper( func, player, opt_param_1, opt_param_2 ) //checked matches beta dump
+lerp_thread_per_player_wrapper( func, player, opt_param_1, opt_param_2 )
 {
 	player_entnum = player getentitynumber();
 	self notify( "deactivate" );
@@ -427,7 +395,7 @@ lerp_thread_per_player_wrapper( func, player, opt_param_1, opt_param_2 ) //check
 	self [[ func ]]( player, opt_param_1, opt_param_2 );
 }
 
-activate_per_player( type, name, player, opt_param_1, opt_param_2 ) //checked changed to match beta dump
+activate_per_player( type, name, player, opt_param_1, opt_param_2 )
 {
 	player_entnum = player getentitynumber();
 	state = level.vsmgr[ type ].info[ name ].state;
@@ -449,7 +417,7 @@ activate_per_player( type, name, player, opt_param_1, opt_param_2 ) //checked ch
 	}
 }
 
-deactivate_per_player( type, name, player ) //checked changed to match beta dump
+deactivate_per_player( type, name, player )
 {
 	player_entnum = player getentitynumber();
 	state = level.vsmgr[ type ].info[ name ].state;
@@ -466,7 +434,7 @@ deactivate_per_player( type, name, player ) //checked changed to match beta dump
 	state notify( "deactivate" );
 }
 
-calc_remaining_duration_lerp( start_time, end_time ) //checked matches beta dump
+calc_remaining_duration_lerp( start_time, end_time )
 {
 	now = getTime();
 	frac = float( end_time - now ) / float( end_time - start_time );
