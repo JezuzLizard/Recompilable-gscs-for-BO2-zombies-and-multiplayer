@@ -79,6 +79,7 @@ patch_zm/maps/mp/zombies/_zm_traps.gsc
 patch_zm/maps/mp/zombies/_zm_turned.gsc
 patch_zm/maps/mp/zombies/_zm_unitrigger.gsc
 patch_zm/maps/mp/zombies/_zm_weap_cymbal_monkey.gsc
+patch_zm/maps/mp/_visionset_mgr.gsc
 ```
 ### The following scripts are not checked yet, uploaded to setup a baseline:
 ```
@@ -105,7 +106,6 @@ patch_zm/maps/mp/_script_gen.gsc
 patch_zm/maps/mp/serverfaceanim_mp.gsc
 patch_zm/maps/mp/_sticky_grenade.gsc
 patch_zm/maps/mp/_utility.gsc
-patch_zm/maps/mp/_visionset_mgr.gsc
 
 patch_zm/maps/mp/gametypes_zm/_gameobjects.gsc
 patch_zm/maps/mp/gametypes_zm/_globallogic_audio.gsc
