@@ -64,4 +64,5 @@ WILL COMPILE BUT
 The notify/waittill won't work.
 
 **9. Ternary op compiles but doesn't work as expected**
+
 Instead of returning one of the two values specified the compiler will compile it to return bools instead.
