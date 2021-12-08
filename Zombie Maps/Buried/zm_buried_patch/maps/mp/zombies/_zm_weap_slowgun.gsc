@@ -13,7 +13,6 @@ init() //checked matches cerberus output
 	{
 		return;
 	}
-	level.start_weapon = "slowgun_zm";
 	registerclientfield( "actor", "slowgun_fx", 12000, 3, "int" );
 	registerclientfield( "actor", "anim_rate", 7000, 5, "float" );
 	registerclientfield( "allplayers", "anim_rate", 7000, 5, "float" );
@@ -137,10 +136,6 @@ slowgun_get_enemies_in_range( upgraded, position, forward, possible_targets ) //
 	i = 0;
 	while ( i < possible_targets.size )
 	{
-		logline1 = "the value of i is: " + i + "\n";
-		logPrint( logline1 );
-		logline2 = "the possible targets are: " + possible_targets.size + "\n";
-		logPrint( logline2 );
 		if ( !isdefined( possible_targets[ i ] ) || !isalive( possible_targets[ i ] ) )
 		{
 			i++;

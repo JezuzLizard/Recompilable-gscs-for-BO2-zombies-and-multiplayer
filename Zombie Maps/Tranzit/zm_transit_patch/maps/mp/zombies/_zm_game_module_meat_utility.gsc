@@ -427,7 +427,7 @@ wait_for_team_death( team )
 	{
 		winning_team = "B";
 	}
-	level notify( "meat_end" );
+	level notify( "meat_end", winning_team );
 }
 
 check_should_save_player( team )

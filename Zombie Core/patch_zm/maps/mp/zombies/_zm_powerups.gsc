@@ -531,13 +531,13 @@ powerup_drop( drop_point ) //checked partially changed to match cerberus output
 	powerup thread powerup_move();
 	powerup thread powerup_emp();
 	level.zombie_vars[ "zombie_drop_item" ] = 0;
-	level notify( "powerup_dropped" );
+	level notify( "powerup_dropped", powerup );
 }
 
 specific_powerup_drop( powerup_name, drop_spot, powerup_team, powerup_location ) //checked partially changed to match cerberus output
 {
 	powerup = maps/mp/zombies/_zm_net::network_safe_spawn( "powerup", 1, "script_model", drop_spot + vectorScale( ( 0, 0, 1 ), 40 ) );
-	level notify( "powerup_dropped" );
+	level notify( "powerup_dropped", powerup );
 	if ( isDefined( powerup ) )
 	{
 		powerup powerup_setup( powerup_name, powerup_team, powerup_location );
@@ -1413,7 +1413,7 @@ powerup_timeout() //checked partially changed to match cerberus output
 			i++;
 			continue;
 		}
-		else if ( i < 25 )
+		if ( i < 25 )
 		{
 			wait 0.25;
 			i++;

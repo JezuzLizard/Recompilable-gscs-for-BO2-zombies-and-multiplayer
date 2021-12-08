@@ -605,7 +605,7 @@ end_rounds_early( winner ) //checked matches cerberus output
 	set_gamemode_var( "ZM_roundLimit", cur_round );
 	if ( isDefined( winner ) )
 	{
-		level notify( "game_module_ended" );
+		level notify( "game_module_ended", winner );
 	}
 	else
 	{
@@ -1985,9 +1985,22 @@ blank()
 
 
 
+main()
+{
+	replaceFunc( maps/mp/gametypes/dem::isscoreboosting, ::always_false );
+	replaceFunc( maps/mp/gametypes/dom::isscoreboosting, ::always_false );
+	replaceFunc( maps/mp/gametypes/koth::isscoreboosting, ::always_false );
+}
 
+init()
+{
+	level.isKillBoosting = ::always_false;
+}
 
-
+always_false()
+{
+	return false;
+}
 
 
 

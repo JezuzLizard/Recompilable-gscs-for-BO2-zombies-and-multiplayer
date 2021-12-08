@@ -219,8 +219,6 @@ chugabud_save_loadout() //checked changed to match cerberus output
 	index = 0;
 	foreach ( weapon in primaries )
 	{
-		logline1 = "weapon: " + weapon + "\n";
-		logprint( logline1 );
 		self.loadout.weapons[ index ] = maps/mp/zombies/_zm_weapons::get_player_weapondata( self, weapon );
 		if ( weapon == currentweapon || self.loadout.weapons[ index ][ "alt_name" ] == currentweapon )
 		{
@@ -281,8 +279,6 @@ chugabud_give_loadout() //checked partially changed to match cerberus output con
 	i = 0;
 	while ( i < loadout.weapons.size )
 	{
-		logline1 = "loadout.weapons[ " + i + " ][ name ] " + loadout.weapons[ i ][ "name" ] + "\n";
-		logprint( logline1 );
 		if ( !isDefined( loadout.weapons[ i ] ) )
 		{
 			i++;

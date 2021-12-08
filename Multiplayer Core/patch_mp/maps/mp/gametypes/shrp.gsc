@@ -102,7 +102,7 @@ onstartgametype() //checked matches cerberus output
 	maps/mp/gametypes/_wager::addpowerup( "specialty_fallheight", "perk", &"PERKS_LIGHTWEIGHT", "perk_lightweight" );
 	maps/mp/gametypes/_wager::addpowerup( "specialty_longersprint", "perk", &"PERKS_EXTREME_CONDITIONING", "perk_marathon" );
 	maps/mp/gametypes/_wager::addpowerup( 2, "score_multiplier", &"PERKS_SCORE_MULTIPLIER", "perk_times_two" );
-	level.guncycletimer = createservertimer( "extrasmall", 1,2 );
+	level.guncycletimer = createservertimer( "extrasmall", 1.2 );
 	level.guncycletimer.horzalign = "user_left";
 	level.guncycletimer.vertalign = "user_top";
 	level.guncycletimer.x = 10;

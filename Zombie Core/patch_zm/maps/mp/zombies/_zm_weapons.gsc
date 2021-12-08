@@ -19,14 +19,6 @@
 
 init() //checked matches cerberus output
 {
-	//begin debug
-	level.custom_zm_weapons_loaded = 1;
-	maps/mp/zombies/_zm_bot::init();
-	if ( !isDefined( level.debugLogging_zm_weapons ) )
-	{
-		level.debugLogging_zm_weapons = 0;
-	}
-	//end debug
 	init_weapons();
 	init_weapon_upgrade();
 	init_weapon_toggle();

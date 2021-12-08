@@ -75,6 +75,7 @@ onstartgametype() //checked changed to match cerberus output
 	level.overrideteamscore = 1;
 	level.rankenabled = 0;
 	level.medalsenabled = 0;
+	allowed = [];
 	allowed[ 0 ] = "dm";
 	maps/mp/gametypes/_gameobjects::main( allowed );
 	maps/mp/gametypes/_spawning::create_map_placed_influencers();
@@ -212,13 +213,15 @@ pregamemain() //checked did not reference cerberus output used beta dump _pregam
 	level.pregameplayercount.color = yellow;
 	level.pregameplayercount maps/mp/gametypes/_hud::fontpulseinit();
 	oldcount = -1;
+	minplayers = getDvarInt( "party_minplayers" );
 	for(;;)
 	{
 		wait( 1 );
 		
-		count = GetPlayersNeededCount();
-		
-		if ( 0 >= count )
+		//count = GetPlayersNeededCount();
+		cur_playercount = getPlayers().size;
+		amount_needed = minplayers - cur_playercount;
+		if ( amount_needed <= 0 )
 		{
 			break;
 		}
@@ -231,11 +234,11 @@ pregamemain() //checked did not reference cerberus output used beta dump _pregam
 		}
 #/
 		*/
-		if ( oldcount != count )
+		if ( oldcount != amount_needed )
 		{
-			level.pregamePlayerCount setValue( count );
+			level.pregamePlayerCount setValue( amount_needed );
 			level.pregamePlayerCount thread maps\mp\gametypes\_hud::fontPulse( level );
-			oldcount = count;
+			oldcount = amount_needed;
 		}
 	}
 	level.pregameplayercount settext( "" );
@@ -250,7 +253,7 @@ pregamemain() //checked did not reference cerberus output used beta dump _pregam
 	visionsetnaked( "mpIntro", 3 );
 	wait 4;
 	endpregame();
-	pregamestartgame();
+	//pregamestartgame();
 	saveplayerspregameinfo();
 	map_restart( 0 );
 }

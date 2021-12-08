@@ -277,7 +277,7 @@ hqmainloop() //checked changed to match cerberus output
 	timerdisplay = [];
 	foreach ( team in level.teams )
 	{
-		timerdisplay[ team ] = createservertimer( "objective", 1,4, team );
+		timerdisplay[ team ] = createservertimer( "objective", 1.4, team );
 		timerdisplay[ team ] setgamemodeinfopoint();
 		timerdisplay[ team ].label = hqspawninginstr;
 		timerdisplay[ team ].font = "small";
