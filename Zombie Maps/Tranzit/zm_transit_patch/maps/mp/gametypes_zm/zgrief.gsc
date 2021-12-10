@@ -735,44 +735,34 @@ update_players_on_bleedout_or_disconnect( excluded_player ) //checked changed to
 	other_team = undefined;
 	players = get_players();
 	players_remaining = 0;
-	while ( i < players.size )
+	foreach ( player in players )
 	{
 		if ( player == excluded_player )
 		{
-			i++;
-			continue;
 		}
-		if ( player.team == excluded_player.team )
+		else if ( player.team == excluded_player.team )
 		{
 			if ( is_player_valid( player ) )
 			{
 				players_remaining++;
 			}
-			i++;
-			continue;
 		}
-		i++;
 	}
-	while ( i < players.size )
+	foreach ( player in players )
 	{
 		if ( player == excluded_player )
 		{
-			i++;
-			continue;
 		}
-		if ( player.team != excluded_player.team )
+		else if ( player.team != excluded_player.team )
 		{
 			other_team = player.team;
 			if ( players_remaining < 1 )
 			{
 				player thread show_grief_hud_msg( &"ZOMBIE_ZGRIEF_ALL_PLAYERS_DOWN", undefined, undefined, 1 );
 				player delay_thread_watch_host_migrate( 2, ::show_grief_hud_msg, &"ZOMBIE_ZGRIEF_SURVIVE", undefined, 30, 1 );
-				i++;
-				continue;
 			}
 			player thread show_grief_hud_msg( &"ZOMBIE_ZGRIEF_PLAYER_BLED_OUT", players_remaining );
 		}
-		i++;
 	}
 	if ( players_remaining == 1 )
 	{
