@@ -1,120 +1,104 @@
-#include maps/mp/killstreaks/_killstreaks;
-#include maps/mp/_utility;
-#include common_scripts/utility;
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
 
-isgrenadelauncherweapon( weapon ) //checked matches cerberus output
+isgrenadelauncherweapon( weapon )
 {
-	if ( getsubstr( weapon, 0, 3 ) == "gl_" )
-	{
-		return 1;
-	}
-	switch( weapon )
-	{
-		case "china_lake_mp":
-		case "xm25_mp":
-			return 1;
-		default:
-			return 0;
-	}
+    if ( getsubstr( weapon, 0, 3 ) == "gl_" )
+        return true;
+
+    switch ( weapon )
+    {
+        case "xm25_mp":
+        case "china_lake_mp":
+            return true;
+        default:
+            return false;
+    }
 }
 
-isdumbrocketlauncherweapon( weapon ) //checked matches cerberus output
+isdumbrocketlauncherweapon( weapon )
 {
-	switch( weapon )
-	{
-		case "m220_tow_mp":
-		case "rpg_mp":
-			return 1;
-		default:
-			return 0;
-	}
+    switch ( weapon )
+    {
+        case "rpg_mp":
+        case "m220_tow_mp":
+            return true;
+        default:
+            return false;
+    }
 }
 
-isguidedrocketlauncherweapon( weapon ) //checked matches cerberus output
+isguidedrocketlauncherweapon( weapon )
 {
-	switch( weapon )
-	{
-		case "fhj18_mp":
-		case "javelin_mp":
-		case "m202_flash_mp":
-		case "m72_law_mp":
-		case "smaw_mp":
-			return 1;
-		default:
-			return 0;
-	}
+    switch ( weapon )
+    {
+        case "smaw_mp":
+        case "m72_law_mp":
+        case "m202_flash_mp":
+        case "javelin_mp":
+        case "fhj18_mp":
+            return true;
+        default:
+            return false;
+    }
 }
 
-isrocketlauncherweapon( weapon ) //checked matches cerberus output
+isrocketlauncherweapon( weapon )
 {
-	if ( isdumbrocketlauncherweapon( weapon ) )
-	{
-		return 1;
-	}
-	if ( isguidedrocketlauncherweapon( weapon ) )
-	{
-		return 1;
-	}
-	return 0;
+    if ( isdumbrocketlauncherweapon( weapon ) )
+        return true;
+
+    if ( isguidedrocketlauncherweapon( weapon ) )
+        return true;
+
+    return false;
 }
 
-islauncherweapon( weapon ) //checked matches cerberus output
+islauncherweapon( weapon )
 {
-	if ( isrocketlauncherweapon( weapon ) )
-	{
-		return 1;
-	}
-	if ( isgrenadelauncherweapon( weapon ) )
-	{
-		return 1;
-	}
-	return 0;
+    if ( isrocketlauncherweapon( weapon ) )
+        return true;
+
+    if ( isgrenadelauncherweapon( weapon ) )
+        return true;
+
+    return false;
 }
 
-ishackweapon( weapon ) //checked matches cerberus output
+ishackweapon( weapon )
 {
-	if ( maps/mp/killstreaks/_killstreaks::iskillstreakweapon( weapon ) )
-	{
-		return 1;
-	}
-	if ( weapon == "briefcase_bomb_mp" )
-	{
-		return 1;
-	}
-	return 0;
+    if ( maps\mp\killstreaks\_killstreaks::iskillstreakweapon( weapon ) )
+        return true;
+
+    if ( weapon == "briefcase_bomb_mp" )
+        return true;
+
+    return false;
 }
 
-ispistol( weapon ) //checked changed at own discretion
+ispistol( weapon )
 {
-	if ( isDefined( level.side_arm_array[ weapon ] ) )
-	{
-		return 1;
-	}
-	return 0;
+    return isdefined( level.side_arm_array[weapon] );
 }
 
-isflashorstunweapon( weapon ) //checked matches cerberus output
+isflashorstunweapon( weapon )
 {
-	if ( isDefined( weapon ) )
-	{
-		switch( weapon )
-		{
-			case "concussion_grenade_mp":
-			case "flash_grenade_mp":
-			case "proximity_grenade_aoe_mp":
-			case "proximity_grenade_mp":
-				return 1;
-		}
-	}
-	return 0;
+    if ( isdefined( weapon ) )
+    {
+        switch ( weapon )
+        {
+            case "proximity_grenade_mp":
+            case "proximity_grenade_aoe_mp":
+            case "flash_grenade_mp":
+            case "concussion_grenade_mp":
+                return true;
+        }
+    }
+
+    return false;
 }
 
-isflashorstundamage( weapon, meansofdeath ) //checked changed at own discretion
+isflashorstundamage( weapon, meansofdeath )
 {
-	if ( ( meansofdeath == "MOD_GAS" || meansofdeath == "MOD_GRENADE_SPLASH" ) && isflashorstunweapon( weapon ) )
-	{
-		return 1;
-	}
-	return 0;
+    return isflashorstunweapon( weapon ) && ( meansofdeath == "MOD_GRENADE_SPLASH" || meansofdeath == "MOD_GAS" );
 }
-

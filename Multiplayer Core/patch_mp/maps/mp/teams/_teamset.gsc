@@ -1,30 +1,25 @@
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
 
-init() //checked matches cerberus output
+init()
 {
-	if ( !isDefined( game[ "flagmodels" ] ) )
-	{
-		game[ "flagmodels" ] = [];
-	}
-	if ( !isDefined( game[ "carry_flagmodels" ] ) )
-	{
-		game[ "carry_flagmodels" ] = [];
-	}
-	if ( !isDefined( game[ "carry_icon" ] ) )
-	{
-		game[ "carry_icon" ] = [];
-	}
-	game[ "flagmodels" ][ "neutral" ] = "mp_flag_neutral";
+    if ( !isdefined( game["flagmodels"] ) )
+        game["flagmodels"] = [];
+
+    if ( !isdefined( game["carry_flagmodels"] ) )
+        game["carry_flagmodels"] = [];
+
+    if ( !isdefined( game["carry_icon"] ) )
+        game["carry_icon"] = [];
+
+    game["flagmodels"]["neutral"] = "mp_flag_neutral";
 }
 
-customteam_init() //checked matches cerberus output
+customteam_init()
 {
-	if ( getDvar( "g_customTeamName_Allies" ) != "" )
-	{
-		setdvar( "g_TeamName_Allies", getDvar( "g_customTeamName_Allies" ) );
-	}
-	if ( getDvar( "g_customTeamName_Axis" ) != "" )
-	{
-		setdvar( "g_TeamName_Axis", getDvar( "g_customTeamName_Axis" ) );
-	}
-}
+    if ( getdvar( "g_customTeamName_Allies" ) != "" )
+        setdvar( "g_TeamName_Allies", getdvar( "g_customTeamName_Allies" ) );
 
+    if ( getdvar( "g_customTeamName_Axis" ) != "" )
+        setdvar( "g_TeamName_Axis", getdvar( "g_customTeamName_Axis" ) );
+}

@@ -1,29 +1,29 @@
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
 
-initstructs() //checked matches cerberus output
+initstructs()
 {
-	level.struct = [];
+    level.struct = [];
 }
 
-createstruct() //checked matches cerberus output
+createstruct()
 {
-	struct = spawnstruct();
-	level.struct[ level.struct.size ] = struct;
-	return struct;
+    struct = spawnstruct();
+    level.struct[level.struct.size] = struct;
+    return struct;
 }
 
-findstruct( position ) //checked changed to match cerberus output see info.md
+findstruct( position )
 {
-	foreach ( key in level.struct_class_names )
-	{
-		foreach ( s_array in level.struct_class_names[ key ] )
-		{
-			foreach ( struct in s_array )
-			{
-				if(distancesquared( struct.origin, position ) < 1 )
-				{
-					return struct;
-				}
-			}
-		}
-	}
+    foreach ( key, _ in level.struct_class_names )
+    {
+        foreach ( val, s_array in level.struct_class_names[key] )
+        {
+            foreach ( struct in s_array )
+            {
+                if ( distancesquared( struct.origin, position ) < 1 )
+                    return struct;
+            }
+        }
+    }
 }

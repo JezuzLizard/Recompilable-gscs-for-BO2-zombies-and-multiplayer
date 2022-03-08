@@ -1,7 +1,9 @@
-//checked includes match cerberus output
-#include maps/mp/_utility;
-#include common_scripts/utility;
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
+#include common_scripts\utility;
+#include maps\mp\_utility;
 
-init() //checked matches cerberus output
+init()
 {
+
 }

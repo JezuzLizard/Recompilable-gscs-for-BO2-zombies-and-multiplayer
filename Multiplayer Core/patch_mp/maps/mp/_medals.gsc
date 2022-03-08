@@ -1,42 +1,44 @@
-//checked includes match cerberus output
-#include common_scripts/utility;
-#include maps/mp/_scoreevents;
-#include maps/mp/_utility;
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
+#include maps\mp\_utility;
+#include maps\mp\_scoreevents;
+#include common_scripts\utility;
 
-init() //checked matches cerberus output
+init()
 {
-	level.medalinfo = [];
-	level.medalcallbacks = [];
-	level.numkills = 0;
-	level thread onplayerconnect();
+    level.medalinfo = [];
+    level.medalcallbacks = [];
+    level.numkills = 0;
+    level thread onplayerconnect();
 }
 
-onplayerconnect() //checked matches cerberus output
+onplayerconnect()
 {
-	for ( ;; )
-	{
-		level waittill( "connected", player );
-		player.lastkilledby = undefined;
-	}
+    for (;;)
+    {
+        level waittill( "connected", player );
+
+        player.lastkilledby = undefined;
+    }
 }
 
-setlastkilledby( attacker ) //checked matches cerberus output
+setlastkilledby( attacker )
 {
-	self.lastkilledby = attacker;
+    self.lastkilledby = attacker;
 }
 
-offenseglobalcount() //checked matches cerberus output
+offenseglobalcount()
 {
-	level.globalteammedals++;
+    level.globalteammedals++;
 }
 
-defenseglobalcount() //checked matches cerberus output
+defenseglobalcount()
 {
-	level.globalteammedals++;
+    level.globalteammedals++;
 }
 
-codecallback_medal( medalindex ) //checked matches cerberus output
+codecallback_medal( medalindex )
 {
-	self luinotifyevent( &"medal_received", 1, medalindex );
-	self luinotifyeventtospectators( &"medal_received", 1, medalindex );
+    self luinotifyevent( &"medal_received", 1, medalindex );
+    self luinotifyeventtospectators( &"medal_received", 1, medalindex );
 }

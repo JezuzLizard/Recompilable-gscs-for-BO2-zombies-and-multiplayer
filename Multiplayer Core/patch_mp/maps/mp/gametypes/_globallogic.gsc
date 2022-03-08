@@ -1743,7 +1743,6 @@ endGame( winner, endReasonText ) //checked matches bo3 _globallogic.gsc within r
 	maps\mp\_music::setmusicstate( "SILENT" );
 	maps\mp\_gamerep::gameRepUpdateInformationForRound();
 	maps\mp\gametypes\_wager::finalizeWagerRound();
-	maps\mp\gametypes\_gametype_variants::onRoundEnd();
 	thread maps\mp\_challenges::roundEnd( winner );
 
 	if ( startNextRound( winner, endReasonText ) )
