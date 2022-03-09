@@ -1,14 +1,12 @@
-#include maps/mp/animscripts/traverse/zm_shared;
-#include maps/mp/animscripts/traverse/shared;
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
+#include maps\mp\animscripts\traverse\shared;
+#include maps\mp\animscripts\traverse\zm_shared;
 
 main()
 {
-	if ( isDefined( self.isdog ) && self.isdog )
-	{
-		dog_jump_down( 96, 7 );
-	}
-	else
-	{
-		dosimpletraverse( "jump_down_96" );
-	}
+    if ( isdefined( self.isdog ) && self.isdog )
+        dog_jump_down( 96, 7 );
+    else
+        dosimpletraverse( "jump_down_96" );
 }

@@ -1,7 +1,9 @@
-#include maps/mp/animscripts/traverse/zm_shared;
-#include maps/mp/animscripts/traverse/shared;
+// T6 GSC SOURCE
+// Decompiled by https://github.com/xensik/gsc-tool
+#include maps\mp\animscripts\traverse\shared;
+#include maps\mp\animscripts\traverse\zm_shared;
 
 main()
 {
-	dosimpletraverse( "climb_over_dock_fence", 1 );
+    dosimpletraverse( "climb_over_dock_fence", 1 );
 }
