@@ -181,7 +181,7 @@ robot_cycling() //checked partially changed to match cerberus output
 	level waittill( "giant_robot_intro_complete" );
 	while ( 1 )
 	{
-		if ( level.round_number % 4 && three_robot_round != level.round_number )
+		if ( !(level.round_number % 4) && three_robot_round != level.round_number )
 		{
 			flag_set( "three_robot_round" );
 		}
@@ -245,6 +245,10 @@ robot_cycling() //checked partially changed to match cerberus output
 			else
 			{
 				random_number = randomint( 3 );
+				while(random_number == last_robot)
+				{
+					random_number = randomint( 3 );
+				}
 			}
 			/*
 /#
