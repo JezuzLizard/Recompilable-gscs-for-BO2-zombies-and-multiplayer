@@ -1,19 +1,16 @@
-// T6 GSC SOURCE
-// Decompiled by https://github.com/xensik/gsc-tool
 
-init()
+init() //checked matches cerberus output
 {
-    level.clientid = 0;
-    level thread onplayerconnect();
+	level.clientid = 0;
+	level thread onplayerconnect();
 }
 
-onplayerconnect()
+onplayerconnect() //checked matches cerberus output
 {
-    for (;;)
-    {
-        level waittill( "connecting", player );
-
-        player.clientid = level.clientid;
-        level.clientid++;
-    }
+	for ( ;; )
+	{
+		level waittill( "connecting", player );
+		player.clientid = level.clientid;
+		level.clientid++;
+	}
 }

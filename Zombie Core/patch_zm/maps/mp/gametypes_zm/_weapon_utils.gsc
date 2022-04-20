@@ -1,111 +1,124 @@
-// T6 GSC SOURCE
-// Decompiled by https://github.com/xensik/gsc-tool
-#include common_scripts\utility;
-#include maps\mp\_utility;
+#include maps/mp/killstreaks/_killstreaks;
+#include maps/mp/_utility;
+#include common_scripts/utility;
 
-isgrenadelauncherweapon( weapon )
+isgrenadelauncherweapon( weapon ) //checked matches cerberus output
 {
-    if ( getsubstr( weapon, 0, 3 ) == "gl_" )
-        return true;
-
-    switch ( weapon )
-    {
-        case "xm25_mp":
-        case "china_lake_mp":
-            return true;
-        default:
-            return false;
-    }
+	if ( getsubstr( weapon, 0, 3 ) == "gl_" )
+	{
+		return 1;
+	}
+	switch( weapon )
+	{
+		case "china_lake_mp":
+		case "xm25_mp":
+			return 1;
+		default:
+			return 0;
+	}
 }
 
-isdumbrocketlauncherweapon( weapon )
+isdumbrocketlauncherweapon( weapon ) //checked matches cerberus output
 {
-    switch ( weapon )
-    {
-        case "rpg_mp":
-        case "m220_tow_mp":
-            return true;
-        default:
-            return false;
-    }
+	switch( weapon )
+	{
+		case "m220_tow_mp":
+		case "rpg_mp":
+			return 1;
+		default:
+			return 0;
+	}
 }
 
-isguidedrocketlauncherweapon( weapon )
+isguidedrocketlauncherweapon( weapon ) //checked matches cerberus output
 {
-    switch ( weapon )
-    {
-        case "smaw_mp":
-        case "m72_law_mp":
-        case "m202_flash_mp":
-        case "javelin_mp":
-        case "fhj18_mp":
-            return true;
-        default:
-            return false;
-    }
+	switch( weapon )
+	{
+		case "fhj18_mp":
+		case "javelin_mp":
+		case "m202_flash_mp":
+		case "m72_law_mp":
+		case "smaw_mp":
+			return 1;
+		default:
+			return 0;
+	}
 }
 
-isrocketlauncherweapon( weapon )
+isrocketlauncherweapon( weapon ) //checked matches cerberus output
 {
-    if ( isdumbrocketlauncherweapon( weapon ) )
-        return true;
-
-    if ( isguidedrocketlauncherweapon( weapon ) )
-        return true;
-
-    return false;
+	if ( isdumbrocketlauncherweapon( weapon ) )
+	{
+		return 1;
+	}
+	if ( isguidedrocketlauncherweapon( weapon ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-islauncherweapon( weapon )
+islauncherweapon( weapon ) //checked matches cerberus output
 {
-    if ( isrocketlauncherweapon( weapon ) )
-        return true;
-
-    if ( isgrenadelauncherweapon( weapon ) )
-        return true;
-
-    return false;
+	if ( isrocketlauncherweapon( weapon ) )
+	{
+		return 1;
+	}
+	if ( isgrenadelauncherweapon( weapon ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
 isreducedteamkillweapon( weapon )
 {
-    switch ( weapon )
-    {
-        case "planemortar_mp":
-            return true;
-        default:
-            return false;
-    }
+	switch( weapon )
+	{
+		case "planemortar_mp":
+			return 1;
+		default:
+			return 0;
+	}
 }
 
-ishackweapon( weapon )
+ishackweapon( weapon ) //checked matches cerberus output
 {
-    return 0;
+	return 0;
 }
 
-ispistol( weapon )
+ispistol( weapon ) //checked changed at own discretion
 {
-    return isdefined( level.side_arm_array[weapon] );
+	if ( isDefined( level.side_arm_array[ weapon ] ) )
+	{
+		return 1;
+	}
+	return 0;
 }
 
-isflashorstunweapon( weapon )
+isflashorstunweapon( weapon ) //checked matches cerberus output
 {
-    if ( isdefined( weapon ) )
-    {
-        switch ( weapon )
-        {
-            case "proximity_grenade_mp":
-            case "proximity_grenade_aoe_mp":
-            case "flash_grenade_mp":
-            case "concussion_grenade_mp":
-                return true;
-        }
-    }
-
-    return false;
+	if ( isDefined( weapon ) )
+	{
+		switch( weapon )
+		{
+			case "concussion_grenade_mp":
+			case "flash_grenade_mp":
+			case "proximity_grenade_aoe_mp":
+			case "proximity_grenade_mp":
+				return 1;
+		}
+	}
+	return 0;
 }
 
-isflashorstundamage( weapon, meansofdeath )
+isflashorstundamage( weapon, meansofdeath ) //checked changed at own discretion
 {
-    return isflashorstunweapon( weapon ) && ( meansofdeath == "MOD_GRENADE_SPLASH" || meansofdeath == "MOD_GAS" );
+	if ( ( meansofdeath == "MOD_GAS" || meansofdeath == "MOD_GRENADE_SPLASH" ) && isflashorstunweapon( weapon ) )
+	{
+		return 1;
+	}
+	return 0;
 }
+
+
