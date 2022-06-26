@@ -352,18 +352,22 @@ assess_and_apply_visibility( trigger, stub, player, default_keep ) //checked cha
 			trigger.reassess_time = undefined;
 		}
 	}
-	else if ( is_true( trigger.thread_running ) )
-	{
-		keep_thread = 0;
-	}
-	trigger.thread_running = 0;
-	if ( isDefined( stub.inactive_reasses_time ) )
-	{
-		trigger.reassess_time = stub.inactive_reasses_time;
-	}
 	else
 	{
-		trigger.reassess_time = 1;
+		if( is_true( trigger.thread_running ) )
+		{
+			keep_thread = 0;
+		}
+		trigger.thread_running = 0;
+		if( isDefined( stub.inactive_reassess_time ) )
+		{
+			trigger.reassess_time = stub.inactive_reassess_time;
+		}
+		else
+		{
+			trigger.reassess_time = 1;
+		}
+		
 	}
 	return keep_thread;
 }
@@ -421,31 +425,30 @@ main() //checked against bo3 _zm_unitrigger.gsc and cerberus output changed at o
 				origin = trigger unitrigger_origin();
 				dst = trigger.stub.test_radius_sq;
 				time_to_ressess = 0;
-				if ( distance2dsquared( player_origin, origin ) < dst )
+				trigger_still_valid = 0;
+				if(Distance2DSquared( player_origin, origin ) < dst )
 				{
-					if ( isDefined( trigger.reassess_time ) )
-					{
-						trigger.reassess_time -= 0.05;
-						if ( trigger.reassess_time > 0 )
-						{
-							i++;
-							continue;
-						}
-						time_to_ressess = 1;
-					}
+					continue;
+					trigger_still_valid = 1;
 				}
-				closest = get_closest_unitriggers( player_origin, candidate_list, valid_range );
-				if ( isDefined( trigger ) && time_to_ressess && closest.size < 2 || is_true( trigger.thread_running ) )
+				closest = get_closest_unitriggers(player_origin, candidate_list, valid_range);
+				if(isdefined(trigger) && time_to_ressess && (closest.size < 2 || is_true(trigger.thread_running)))
 				{
-					if ( assess_and_apply_visibility( trigger, trigger.stub, player, 1 ) )
+					if(assess_and_apply_visibility(trigger, trigger.stub, player, 1))
 					{
-						i++;
 						continue;
 					}
 				}
-				else if ( isDefined( trigger ) )
+				if(trigger_still_valid && closest.size < 2)
 				{
-					cleanup_trigger( trigger, player );
+					if (assess_and_apply_visibility( trigger, trigger.stub, player, true ))
+					{
+						continue; 
+					}
+				}
+				if(isdefined(trigger))
+				{
+					cleanup_trigger(trigger, player);
 				}
 			}
 			else
@@ -524,7 +527,7 @@ run_visibility_function_for_all_triggers() //checked changed to match cerberus o
 			return;
 		}
 		players = getplayers();
-        for ( i = 0; i < players.size; i++ )
+        	for ( i = 0; i < players.size; i++ )
 		{
 			if ( isDefined( self.playertrigger[ players[ i ] getentitynumber() ] ) )
 			{
@@ -719,26 +722,21 @@ get_closest_unitriggers( org, array, dist ) //checked partially changed to match
 	{
 		return triggers;
 	}
-	index = undefined;
-	i = 0;
-	while ( i < array.size )
+	for(i=0;i<array.size;i++)
 	{
 		if ( !isDefined( array[ i ] ) )
 		{
-			i++;
 			continue;
 		}
 		origin = array[ i ] unitrigger_origin();
 		radius_sq = array[ i ].test_radius_sq;
-		newdistsq = distance2dsquared( origin, org );
+		newdistsq = Distance2DSquared( origin, org );
 		if ( newdistsq >= radius_sq )
 		{
-			i++;
 			continue;
 		}
 		if ( abs( origin[ 2 ] - org[ 2 ] ) > 42 )
 		{
-			i++;
 			continue;
 		}
 		array[ i ].dsquared = newdistsq;
@@ -746,11 +744,6 @@ get_closest_unitriggers( org, array, dist ) //checked partially changed to match
 		{
 		}
 		arrayinsert( triggers, array[ i ], j );
-		if ( ( i % 10 ) == 9 )
-		{
-			wait 0.05;
-		}
-		i++;
 	}
 	return triggers;
 }
